@@ -6,10 +6,10 @@ class panaedra.msdr.logic.sc_dbtrig   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msdr/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-07 21:22:38+02:00 $ 
-    Date Modified: $Modtime: 2009-08-07 21:22:38+02:00 $ 
+     Date Checkin: $Date: 2009-08-10 09:44:44+02:00 $ 
+    Date Modified: $Modtime: 2009-08-10 09:41:23+02:00 $ 
 
       Description: Deze class wordt aangeroepen door db delete en write triggers,
                    voor dynamische afhandeling.
@@ -28,7 +28,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as tool.c-sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -48,6 +48,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
     field cLogic as char init "<none>"
     index cTable_cType_cLogic is primary unique cTable cType cLogic.
   
+
   method public static logical OnWriteOrCreate (hBuffIP# as handle):
     
     /* Gebruik de overload handle,handle,handle vanaf db triggers.
@@ -59,6 +60,62 @@ class panaedra.msdr.logic.sc_dbtrig   :
     OnWriteOrCreate(hBuffIP#, hBuffDummy#, hBuffDummy#).
 
   end method. /* OnWriteOrCreate */
+
+
+  method public static void SetKeyFields (hBuffInputIP# as handle, cCasedIP# as char):
+    
+    /*
+    
+    Vult only de key fields, en de dtmMod* en dtmCre* velden.
+    Roept geen validatie logica aan, only vullen van velden.
+    Wordt ook extern aangeroepen, bv vanaf sc_buffercopy:CopyKey.
+    
+    */
+
+    define variable hField# as handle no-undo.
+
+    /* Fields */
+        
+    hField# = hBuffInputIP#:buffer-field("cGUID" + cCasedIP#) no-error.
+    
+    if hField# <> ? then 
+    do:
+      if hField#:buffer-value = "" then hField#:buffer-value = NewGUID().
+    end. 
+    
+    
+    hField# = hBuffInputIP#:buffer-field("iID" + cCasedIP#) no-error.
+    
+    if hField# <> ? then 
+    do:
+      if hField#:buffer-value = ? or hField#:buffer-value <= 0 then 
+      do:
+        if 
+          (/* echte tabellen krijgen altijd een nieuw ID */
+          if hBuffInputIP#:table-handle = ? then true
+        /* temp-tables mogen negatief ID behouden, maar ? of 0 krijgt nieuw ID. */ 
+        else (hField#:buffer-value = ? or hField#:buffer-value = 0))
+          then hField#:buffer-value = NewID(hBuffInputIP#, cCasedIP#).
+      end.
+    end.
+    
+
+    hField# = hBuffInputIP#:buffer-field("dtmMod" + cCasedIP#) no-error.
+    
+    if hField# <> ? then 
+    do:
+      hField#:buffer-value = now.
+    end.
+    
+
+    hField# = hBuffInputIP#:buffer-field("dtmCre" + cCasedIP#) no-error.
+    
+    if hField# <> ? then 
+    do:
+      if hField#:buffer-value = ? then hField#:buffer-value = now.
+    end.
+
+  end method. /* SetKeyFields */
 
 
   method public static logical OnWriteOrCreate (hBuffIP# as handle, hBuffNewIP# as handle, hBuffOldIP# as handle):
@@ -90,47 +147,8 @@ class panaedra.msdr.logic.sc_dbtrig   :
       if ExecuteLogic(hBuffInput#, hBuffOldIP#, "wri") then.
       else return false.
       
-      /* Fields */
-        
-      hField# = hBuffInput#:buffer-field("cGUID" + cCased#) no-error.
-    
-      if hField# <> ? then 
-      do:
-        if hField#:buffer-value = "" then hField#:buffer-value = NewGUID().
-      end. 
-    
-    
-      hField# = hBuffInput#:buffer-field("iID" + cCased#) no-error.
-    
-      if hField# <> ? then 
-      do:
-        if hField#:buffer-value = ? or hField#:buffer-value <= 0 then 
-        do:
-          if 
-            (/* echte tabellen krijgen altijd een nieuw ID */
-            if hBuffInput#:table-handle = ? then true
-          /* temp-tables mogen negatief ID behouden. */ 
-          else (hField#:buffer-value = ? or hField#:buffer-value = 0))
-            then hField#:buffer-value = NewID(hBuffInput#, cCased#).
-        end.
-      end.
-    
-
-      hField# = hBuffInput#:buffer-field("dtmMod" + cCased#) no-error.
-    
-      if hField# <> ? then 
-      do:
-        hField#:buffer-value = now.
-      end.
-    
-
-      hField# = hBuffInput#:buffer-field("dtmCre" + cCased#) no-error.
-    
-      if hField# <> ? then 
-      do:
-        if hField#:buffer-value = ? then hField#:buffer-value = now.
-      end.
-    
+      SetKeyFields(hBuffInput#, cCased#).
+      
     end. /* transaction */
     
     return true.
@@ -169,12 +187,12 @@ class panaedra.msdr.logic.sc_dbtrig   :
       sc_dbtrigrelations:GetDbtrigRelations(cCased#, output hBuffTable#, output hBuffRel#). 
       
       if hBuffTable# <> ?
-      and
+        and
       /* In eerste instantie only voor db relations.
          Support voor datasets wordt later ingebouwd. 
       */
-      hBuffIP#:table-handle <> ? 
-      then 
+        hBuffIP#:table-handle <> ? 
+        then 
       do on error undo, throw:
         
         if hBuffIP#:table-handle <> ? then create buffer hBuffDbInput# for table hBuffIP#:table.
@@ -250,7 +268,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
   end method. /* NewID */ 
   
   
-  method protected static char GetCased(hBuffIP# as handle):
+  method public static char GetCased(hBuffIP# as handle):
 
     define variable cCased# as character no-undo.
     
@@ -308,12 +326,12 @@ class panaedra.msdr.logic.sc_dbtrig   :
 
   method protected static logical ExecuteLogic (hBuffIP# as handle, hBuffOldIP# as handle, cTypeIP# as char):
 
-    define variable bValidateOkay# as logical   no-undo.
-    define variable iError#        as integer   no-undo.
-    define variable cError#        as character no-undo.
-    define variable cTable#        as character no-undo case-sensitive.
+    define variable bValidateOkay#     as logical            no-undo.
+    define variable iError#            as integer            no-undo.
+    define variable cError#            as character          no-undo.
+    define variable cTable#            as character          no-undo case-sensitive.
     
-    define variable oTriggerLogic#     as i_triggerlogic no-undo.
+    define variable oTriggerLogic#     as i_triggerlogic     no-undo.
     define variable oTriggerLogicData# as c_triggerlogicdata no-undo.
     
     define buffer b-ttCacheLogicLocations for ttCacheLogicLocations.
@@ -341,7 +359,8 @@ class panaedra.msdr.logic.sc_dbtrig   :
       file-info:file-name = "panaedra/dbtrig/logic/" + cTypeIP# + "log_" + subst("&1",cTable#) + ".cls".
       if file-info:full-pathname = ? then
         file-info:file-name = "panaedra/dbtrig/logic/" + cTypeIP# + "log_" + subst("&1",cTable#) + ".r".
-      if file-info:full-pathname <> ? then do:
+      if file-info:full-pathname <> ? then 
+      do:
         b-ttCacheLogicLocations.cLogic = replace(file-info:file-name,"~\","/").
         entry(num-entries(b-ttCacheLogicLocations.cLogic,"."),b-ttCacheLogicLocations.cLogic,".") = "".
         b-ttCacheLogicLocations.cLogic = right-trim(b-ttCacheLogicLocations.cLogic,". ").
@@ -353,10 +372,12 @@ class panaedra.msdr.logic.sc_dbtrig   :
     do:
       if not valid-object(oTriggerLogicData#) then
         oTriggerLogicData# = new panaedra.msdr.logic.c_triggerlogicdata().
-      if cTypeIP# = "wri" then do:
+      if cTypeIP# = "wri" then 
+      do:
         oTriggerLogic# = dynamic-new b-ttCacheLogicLocations.cLogic (hBuffIP#, hBuffOldIP#, oTriggerLogicData#, output bValidateOkay#).
       end.
-      else /* "del" dus */ do:
+      else /* "del" dus */ 
+      do:
         oTriggerLogic# = dynamic-new b-ttCacheLogicLocations.cLogic (hBuffIP#, oTriggerLogicData#, output bValidateOkay#).
       end.
 
