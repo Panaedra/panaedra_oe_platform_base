@@ -7,10 +7,10 @@ class panaedra.msdr.logic.sc_dbtrigrelations   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msdr/logic/sc_dbtrigrelations.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-07 21:22:38+02:00 $ 
-    Date Modified: $Modtime: 2009-08-07 21:22:38+02:00 $ 
+     Date Checkin: $Date: 2009-08-17 13:40:12+02:00 $ 
+    Date Modified: $Modtime: 2009-08-17 13:35:02+02:00 $ 
 
       Description: Ophalen van dbtrigrelations temp-table, voor db of temp-table triggers.
                    Wordt altijd gecached tbv performance.
@@ -20,9 +20,9 @@ class panaedra.msdr.logic.sc_dbtrigrelations   :
   {panaedra/msdr/logic/sc_dbtrigrelations_tt.i &class=class &protected=protected &static=static}
   
   /************************  Source control constructor ************************/
-  constructor public sc_dbtrigrelations(o-sourcecontrol as tool.c-sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_dbtrigrelations(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -44,7 +44,7 @@ class panaedra.msdr.logic.sc_dbtrigrelations   :
     do:
       /* Voorlopig doen we het enkel en only uit een xml file.
          Kan later ook uit de database (indien op de db layer). */
-      dataset dsDbRelations:read-xml("file", sc_path:cIniDir + "sc_dbtrigrelations.config", "empty", ?, false). 
+      dataset dsDbRelations:read-xml("file", panaedra.msf.logic.sc_path:cIniDir + "sc_dbtrigrelations.config", "empty", ?, false). 
     end.
     
     cModule# = lc(substring(cTableIP#,1,2)). 
@@ -57,9 +57,9 @@ class panaedra.msdr.logic.sc_dbtrigrelations   :
         create ttCacheLoadedModules.
         assign 
           ttCacheLoadedModules.cModule = cModule#.
-        if search(sc_path:cIniDir + subst("sc_dbtrigrelations_&1.config",cModule#)) <> ? then 
+        if search(panaedra.msf.logic.sc_path:cIniDir + subst("sc_dbtrigrelations_&1.config",cModule#)) <> ? then 
         do:
-          dataset dsDbRelations:read-xml("file", sc_path:cIniDir + subst("sc_dbtrigrelations_&1.config",cModule#), "append", ?, false). 
+          dataset dsDbRelations:read-xml("file", panaedra.msf.logic.sc_path:cIniDir + subst("sc_dbtrigrelations_&1.config",cModule#), "append", ?, false). 
         end.
       end.
     end.
