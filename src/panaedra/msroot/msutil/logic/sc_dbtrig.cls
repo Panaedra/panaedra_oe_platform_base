@@ -6,10 +6,10 @@ class panaedra.msdr.logic.sc_dbtrig   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msdr/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-17 13:40:12+02:00 $ 
-    Date Modified: $Modtime: 2009-08-17 13:31:10+02:00 $ 
+     Date Checkin: $Date: 2009-08-29 22:54:13+02:00 $ 
+    Date Modified: $Modtime: 2009-08-28 15:00:19+02:00 $ 
 
       Description: Deze class wordt aangeroepen door db delete en write triggers,
                    voor dynamische afhandeling.
@@ -28,7 +28,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -80,7 +80,8 @@ class panaedra.msdr.logic.sc_dbtrig   :
     
     if hField# <> ? then 
     do:
-      if hField#:buffer-value = "" then hField#:buffer-value = NewGUID().
+      if hField#:buffer-value > "" then. /* not "" or ? */
+      else hField#:buffer-value = NewGUID().
     end. 
     
     
