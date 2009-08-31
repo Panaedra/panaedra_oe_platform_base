@@ -3,10 +3,10 @@ interface paninui.view.interfaces.i_frmlogic:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/interfaces/i_frmlogic.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-29 23:05:42+02:00 $ 
-    Date Modified: $Modtime: 2009-08-29 23:05:03+02:00 $ 
+     Date Checkin: $Date: 2009-08-31 10:37:54+02:00 $ 
+    Date Modified: $Modtime: 2009-08-30 14:09:06+02:00 $ 
 
       Description: add_your_comments_here
 
@@ -14,8 +14,10 @@ interface paninui.view.interfaces.i_frmlogic:
 
   /******************************* $NoKeywords:  $ *****************************/
 
-  method logical InitializeFrameLogic().
-  
+  define property iPackID as int64 get.
+  method logical  InitializeFrameLogic().
+  method void     SetPackID (oPackIP# as paninui.view.interfaces.i_pack).
+      
 end interface.
 
 /* EOF */
