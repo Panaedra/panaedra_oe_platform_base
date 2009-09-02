@@ -1,19 +1,19 @@
 
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata_tt.i $ 
-        Version: $Revision: 2 $ 
+        Version: $Revision: 3 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-08-31 10:37:54+02:00 $ 
-  Date Modified: $Modtime: 2009-08-30 17:45:55+02:00 $ 
+   Date Checkin: $Date: 2009-09-02 16:47:42+02:00 $ 
+  Date Modified: $Modtime: 2009-08-31 18:13:10+02:00 $ 
 
     Description: add_your_comments_here
 
 \**************************** End of Dvcs_ Header ****************************/
 &if '{&dvcs__paninui_view_use_sc_coll_widgetdata_tt_i}' = '' &then
 &glob dvcs__paninui_view_use_sc_coll_widgetdata_tt_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_widgetdata_tt_i $Revision: 2 $
+&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_widgetdata_tt_i $Revision: 3 $
 &if '{&class}' = '' &then
-procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 2 $". end.
+procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 3 $". end.
 &endif
 /******************************* $NoKeywords:  $ *****************************/
 
@@ -49,13 +49,14 @@ procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 2 $
 
     field bIsDisplayLinked    as logical              xml-node-type "attribute" 
 
-    index iIDWidgetData       is unique iIDWidgetData ascending 
-    index i_frame_parent_self is primary iIDUiFrame ascending iIDWidgetDataParent descending iIDWidgetData descending 
-    index iIDUIFrame          iIDUIFrame cWidgetType cLinkName ascending 
-    index dtmCreWidgetData    dtmCreWidgetData ascending 
-    index dtmModWidgetData    dtmModWidgetData ascending 
-    index oWidget             oWidget          ascending
-    index oParent             oParent          ascending
+    index iIDWidgetData            is unique iIDWidgetData ascending 
+    index i_frame_parent_self      is primary iIDUiFrame ascending iIDWidgetDataParent descending iIDWidgetData descending 
+    index iIDUIFrame_Type_LinkName iIDUIFrame cWidgetType cLinkName 
+    index iIDUIFrame_LinkName      iIDUIFrame cLinkName 
+    index dtmCreWidgetData         dtmCreWidgetData ascending 
+    index dtmModWidgetData         dtmModWidgetData ascending 
+    index oWidget                  oWidget          ascending
+    index oParent                  oParent          ascending
     .
 
 &endif
