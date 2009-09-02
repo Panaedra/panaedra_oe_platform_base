@@ -7,10 +7,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-31 10:37:54+02:00 $ 
-    Date Modified: $Modtime: 2009-08-30 18:18:00+02:00 $ 
+     Date Checkin: $Date: 2009-09-02 16:47:42+02:00 $ 
+    Date Modified: $Modtime: 2009-08-31 18:17:50+02:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -19,7 +19,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as tool.c-sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -39,14 +39,19 @@ class paninui.view.use.display.sc_displaydata   :
     define variable iExtent#            as integer                                 no-undo.
     define variable oColumn#            as System.Windows.Forms.DataGridViewColumn no-undo.
     
-    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", hBuffOrQueryIP#, output bIsDisplayLinkedOP#).
+    oWidget# = sc_coll_widgetdata:GetWidget(
+      oFrmLogicIP#:iPackID, 
+      "grid", 
+      hBuffOrQueryIP#, 
+      "" /* field not needed to determine grid */ , 
+      output bIsDisplayLinkedOP#).
     
     if not bIsDisplayLinkedOP# then 
     do:
       if type-of(oWidget#, System.Windows.Forms.DataGridView) then 
       do:
         oFormsGrid# = cast(oWidget#, System.Windows.Forms.DataGridView).
-        oBindingSource# = new c_bindingsource(dsIP#:top-nav-query(hBuffOrQueryIP#:name):handle).
+        oBindingSource# = new c_bindingsource(sc_bindingsourcetype:i_Query,   dsIP#:top-nav-query(hBuffOrQueryIP#:name):handle).
         oFormsGrid#:AutoGenerateColumns = false.
         oFormsGrid#:DataSource = oBindingSource#.
         sc_coll_widgetdata:GetGridColumns(oFormsGrid#, output oGridColumns#).
@@ -61,9 +66,62 @@ class paninui.view.use.display.sc_displaydata   :
       sc_coll_widgetdata:SetDisplayLinked(oWidget#).
     end.
 
-  end method. /* DisplayData */  
+  end method. /* DisplayData : Grid */
+    
 
+  method public static void DisplayData(
+    oFrmLogicIP#    as i_frmlogic,
+    iComboboxOVIP#  as i_widgettype_combobox,
+    iListItemsOVIP# as i_widgetproperty_listitems,
+    dataset-handle  dsIP#,
+    hBuffOrQueryIP# as handle,
+    cDataRefIP#     as character):
 
+    define variable bIsDisplayLinkedOP# as logical                                 no-undo.
+    define variable oBindingSource#     as c_bindingsource                         no-undo.
+    define variable oWidget#            as Progress.Lang.Object                    no-undo.
+    define variable oComboBox#          as System.Windows.Forms.ComboBox           no-undo.
+    
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", hBuffOrQueryIP#, cDataRefIP#, output bIsDisplayLinkedOP#).
+    
+    if not bIsDisplayLinkedOP# then
+    do:
+      if type-of(oWidget#, System.Windows.Forms.ComboBox) then
+      do:
+        oComboBox# = cast(oWidget#, System.Windows.Forms.ComboBox).
+        oBindingSource# = new c_bindingsource(sc_bindingsourcetype:i_Query /* Als het een buffer is, moet het een query worden; alle items. */, hBuffOrQueryIP#).
+        oComboBox#:DataSource = oBindingSource#. /* Dit vult automatisch de listitems van de combobox. */
+        oComboBox#:DisplayMember = entry(2,cDataRefIP#,".").
+        oComboBox#:ValueMember   = subst("iID&1", entry(1,cDataRefIP#,".")).
+      end.
+      sc_coll_widgetdata:SetDisplayLinked(oWidget#).
+    end.
+
+  end method. /* DisplayData : ComboBox ListItems */
+  
+
+  method public static void DisplayData(
+    oFrmLogicIP#    as i_frmlogic,
+    iComboboxOVIP#  as i_widgettype_any,
+    iListItemsOVIP# as i_widgetproperty_enabled,
+    cDataRefIP#     as character,
+    bEnabledIP#     as logical):
+
+    define variable bIsDisplayLinkedOP# as logical                                no-undo.
+    define variable oWidget#            as Progress.Lang.Object                   no-undo.
+    define variable oControl#           as System.Windows.Forms.Control           no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "any", cDataRefIP#, output bIsDisplayLinkedOP#).
+    
+    if type-of(oWidget#, System.Windows.Forms.Control) then
+    do:
+      oControl# = cast(oWidget#, System.Windows.Forms.Control).
+      oControl#:Enabled = bEnabledIP#.
+    end.
+
+  end method.
+          
 end class.
 
 /* EOF */
