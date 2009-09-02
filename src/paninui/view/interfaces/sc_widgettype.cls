@@ -6,10 +6,10 @@ class paninui.view.interfaces.sc_widgettype:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/interfaces/sc_widgettype.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-31 10:37:54+02:00 $ 
-    Date Modified: $Modtime: 2009-08-30 15:06:39+02:00 $ 
+     Date Checkin: $Date: 2009-09-02 16:47:42+02:00 $ 
+    Date Modified: $Modtime: 2009-08-31 18:00:37+02:00 $ 
 
       Description: Helper class for overload ID interfaces. 
                    
@@ -25,10 +25,11 @@ class paninui.view.interfaces.sc_widgettype:
   /************************  Source control constructor ************************/
   constructor public sc_widgettype(o-sourcecontrol as tool.c-sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
+  define public static property i_Any        as i_widgettype_any        no-undo get.
   define public static property i_Button     as i_widgettype_button     no-undo get.
   define public static property i_Combobox   as i_widgettype_combobox   no-undo get.
   define public static property i_Grid       as i_widgettype_grid       no-undo get.
