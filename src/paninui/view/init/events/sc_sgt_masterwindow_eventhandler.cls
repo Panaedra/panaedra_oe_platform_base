@@ -5,10 +5,10 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/events/sc_sgt_masterwindow_eventhandler.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-04 15:57:44+02:00 $ 
-    Date Modified: $Modtime: 2009-09-04 15:44:49+02:00 $ 
+     Date Checkin: $Date: 2009-09-04 16:56:21+02:00 $ 
+    Date Modified: $Modtime: 2009-09-04 16:54:56+02:00 $ 
 
       Description: Static Class Singleton implementation for Masterwindow / MDI Window
 
@@ -17,7 +17,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
   /************************  Source control constructor ************************/
   constructor public sc_sgt_masterwindow_eventhandler(o-sourcecontrol as tool.c-sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -34,7 +34,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
 
   define public static property oMdiWindow as paninui.view.interfaces.i_masterwindow get. set.
 
-  method public void MdiOnShown(input sender as System.Object, input e as System.EventArgs ):
+  method public void MdiOnLoad(input sender as System.Object, input e as System.EventArgs ):
 		
     tool.sc-trayicon-win32:ShowTrayIconMessage(program-name(1),"mdi").
 
