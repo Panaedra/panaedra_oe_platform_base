@@ -5,10 +5,10 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/events/sc_sgt_masterwindow_eventhandler.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-04 08:02:43+02:00 $ 
-    Date Modified: $Modtime: 2009-09-03 11:03:16+02:00 $ 
+     Date Checkin: $Date: 2009-09-04 15:57:44+02:00 $ 
+    Date Modified: $Modtime: 2009-09-04 15:44:49+02:00 $ 
 
       Description: Static Class Singleton implementation for Masterwindow / MDI Window
 
@@ -17,7 +17,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
   /************************  Source control constructor ************************/
   constructor public sc_sgt_masterwindow_eventhandler(o-sourcecontrol as tool.c-sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -48,7 +48,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
     oPack#:LoadForm(oMdiWindow).
 
     catch ex as Progress.Lang.Error :
-      tool.sc-showexception-win32:ShowException(ex).
+      panaedra.msex.logic.sc_showexception-win32:ShowException(ex).
     end catch.
     
   end method.
