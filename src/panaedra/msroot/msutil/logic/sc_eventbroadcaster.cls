@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_eventbroadcaster.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-02 16:13:06+02:00 $ 
-    Date Modified: $Modtime: 2009-09-02 16:12:51+02:00 $ 
+     Date Checkin: $Date: 2009-09-04 08:02:43+02:00 $ 
+    Date Modified: $Modtime: 2009-09-04 07:04:59+02:00 $ 
 
       Description: Broadcasts events.
       
@@ -26,7 +26,7 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
   /************************  Source control constructor ************************/
   constructor public sc_eventbroadcaster(o-sourcecontrol as tool.c-sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -80,7 +80,8 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
     do for ttEventClient:
       
       for each ttEventClient 
-        where ttEventClient.oClient = oClientIP#:
+        where ttEventClient.oClient = oClientIP#
+        on error undo, throw:
         
         delete ttEventClient.
         
@@ -104,9 +105,10 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
     define buffer ttEventClient for ttEventClient.
     
     do for ttEventClient:
-      for each ttEventClient where ttEventClient.cEventName = cEventNameIP#:
+      for each ttEventClient where ttEventClient.cEventName = cEventNameIP#
+        on error undo, throw:
         cast(ttEventClient.oClient, i_eventbroadcastclient):OnEventBroadcast(oDataIP#).
-        if oDataIP#:bAbort then return false.
+        if oDataIP#:iAbort > 0 then return false.
       end.
     end.
     
