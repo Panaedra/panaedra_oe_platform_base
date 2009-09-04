@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_prop:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_prop.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-31 10:18:26+02:00 $ 
-    Date Modified: $Modtime: 2009-08-31 10:18:13+02:00 $ 
+     Date Checkin: $Date: 2009-09-04 08:02:43+02:00 $ 
+    Date Modified: $Modtime: 2009-09-04 07:06:37+02:00 $ 
 
       Description: add_your_comments_here
 
@@ -16,7 +16,7 @@ class panaedra.msroot.msutil.logic.sc_prop:
   /************************  Source control constructor ************************/
   constructor public sc_prop(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -52,7 +52,7 @@ class panaedra.msroot.msutil.logic.sc_prop:
     cValueIP#  as character):
     
     /*------------------------------------------------------------------------------
-    Purpose:     Set a property on the private data csv string
+      Purpose:     Set a property on the private data csv string
       Parameters:  <none>
       Notes:       If pd is filled with a pipe-delimited string, it's converted
                    to proper properties. If it's filled with a random string,
