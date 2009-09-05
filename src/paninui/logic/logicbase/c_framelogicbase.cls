@@ -4,10 +4,10 @@ class paninui.logic.logicbase.c_framelogicbase  implements paninui.view.interfac
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/logic/logicbase/c_framelogicbase.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-31 10:34:56+02:00 $ 
-    Date Modified: $Modtime: 2009-08-31 10:34:56+02:00 $ 
+     Date Checkin: $Date: 2009-09-05 16:15:08+02:00 $ 
+    Date Modified: $Modtime: 2009-09-05 16:10:46+02:00 $ 
 
       Description: Baseclass for frame logic classes.
 
@@ -16,7 +16,7 @@ class paninui.logic.logicbase.c_framelogicbase  implements paninui.view.interfac
   /************************  Source control constructor ************************/
   constructor public c_framelogicbase(o-sourcecontrol as tool.c-sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -36,11 +36,11 @@ class paninui.logic.logicbase.c_framelogicbase  implements paninui.view.interfac
       return i_p_PackID.
     end get.
   
-  method public void SetPackID (oPackIP# as paninui.view.interfaces.i_pack):
+  method public void SetPackID (oPackIP# as paninui.pack.interfaces.i_pack):
     
     i_p_PackID = oPackIP#:UniqueInstanceID.
 
-  end method. /* SetIDPack */
+  end method. /* SetIDPack */ 
 
 end class.
 
