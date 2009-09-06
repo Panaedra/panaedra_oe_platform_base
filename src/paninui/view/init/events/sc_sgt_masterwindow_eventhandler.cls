@@ -5,10 +5,10 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/events/sc_sgt_masterwindow_eventhandler.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-05 16:15:08+02:00 $ 
-    Date Modified: $Modtime: 2009-09-05 16:13:25+02:00 $ 
+     Date Checkin: $Date: 2009-09-06 20:43:43+02:00 $ 
+    Date Modified: $Modtime: 2009-09-06 09:29:22+02:00 $ 
 
       Description: Static Class Singleton implementation for Masterwindow / MDI Window
 
@@ -17,7 +17,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
   /************************  Source control constructor ************************/
   constructor public sc_sgt_masterwindow_eventhandler(o-sourcecontrol as tool.c-sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -45,8 +45,8 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
        -Shown-
        Shown is fired just after the window is shown. Because of the work done in the
        initializion of the paninUi screen objects, for about one second an ugly
-       partially painted MDI screen is shown with artifacts.
-       However, the Eclipse debugger likes this and doesn't crash.
+       partially painted MDI screen is shown.
+       However, the Eclipse debugger likes this and doesn't crash (well, far less often anyway).
      */
 		
     tool.sc-trayicon-win32:ShowTrayIconMessage(program-name(1),"mdi").
