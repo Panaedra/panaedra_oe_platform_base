@@ -10,10 +10,10 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/dotnetformshowexception.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-24 08:57:16+02:00 $ 
-    Date Modified: $Modtime: 2009-08-24 08:57:07+02:00 $ 
+     Date Checkin: $Date: 2009-09-21 08:28:34+02:00 $ 
+    Date Modified: $Modtime: 2009-09-15 11:00:22+02:00 $ 
 
       Description: Tonen van een willekeurige progress exception
 
@@ -24,7 +24,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   /************************  Source control constructor ************************/
   constructor public dotnetformshowexception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -57,9 +57,8 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 	
     define variable nestedvar as System.Windows.Forms.AnchorStyles no-undo.
 	
-    bShowDetails = not bShowDetails.
-	
-    if bShowDetails then 
+	/* Als details nog niet weergegeven zijn mag dit 1 keer uitgevoerd worden */
+    if not bShowDetails then 
     do:
       /* Zet tbInfo anchor bottom uit */
       nestedvar = cast(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
@@ -81,21 +80,8 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
       /* Maak tbStack visible */
       this-object:tbStack:visible = true.
       
+      bShowDetails = true.
     end.
-    else
-    do:
-      /* Zet tbInfo anchor bottom aan */
-      nestedvar = cast(Progress.Util.EnumHelper:Or(cast(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom), System.Windows.Forms.AnchorStyles), System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
-      this-object:tbinfo:Anchor = cast(Progress.Util.EnumHelper:Or(nestedvar, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
-    
-      /* Zet button anchor naar bottom */
-      this-object:btnOK:Anchor = System.Windows.Forms.AnchorStyles:bottom.
-      this-object:btnDetails:Anchor = System.Windows.Forms.AnchorStyles:bottom.
-      
-    /* Verstop tbstack */
-      
-    end.
-    
     
   end method.
 
@@ -218,17 +204,26 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
       def var o_CMPNY_Exception# as panaedra.msex.logic.c__FCMPNY_exception no-undo.
       o_CMPNY_Exception# = cast(ex, panaedra.msex.logic.c__FCMPNY_exception).
       
-      
-      /* Haal dataset DsExceptions op , roep de callback routine aan in dit formpje */
-      o_CMPNY_Exception#:GetDsExceptions(this-object).
-      
+      /* Controleer of er gebruik wordt gemaakt van DsExceptions 
+         (of de fout van de appserver/api komt)*/
+      if o_CMPNY_Exception#:bUsesDataset then      
+        /* Haal dataset DsExceptions op, roep de callback routine aan in dit formpje */
+        o_CMPNY_Exception#:GetDsExceptions(this-object).
+      else
+      do:
+        tbinfo:Text = ex:GetMessage(1).
+        if ex:CallStack > "" then
+          tbStack:Text = ex:CallStack. 
+        else
+          tbStack:Text = panaedra.msses.logic.sc_info:GetCallStack() + chr(13) + chr(10).
+      end.    
     end.
     else 
     do:
       /* Als het een progress error is */
       if type-of(ex, Progress.Lang.ProError) then 
       do:
-        tbInfo:Text = ex:GetMessage(1).        
+        tbInfo:Text = ex:GetMessage(1).
         SetErrorStack(ex).
       end.
       /* Alle overige errors */
@@ -238,9 +233,9 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
       end.
     end.
     
-    if valid-object(ex) and tbInfo:Text = "" then 
+    if valid-object(ex) and tbStack:Text = "" then 
     do:
-      tbInfo:Text = subst("&2&1&3&1&4&1&5", chr(13) + chr(10), error-status:get-message(1), program-name(4), program-name(3)).
+      tbStack:Text = panaedra.msses.logic.sc_info:GetCallStack().
     end.     
     
   end method. /* ShowException */
