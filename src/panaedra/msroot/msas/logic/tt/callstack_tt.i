@@ -1,7 +1,7 @@
 /************* Generated: 2009-08-29T15:06:01.828+02:00 *********************/
 &if defined(panaedra_msroot_msas_logic_tt_Callstack_tt_i) = 0 &then
 &glob panaedra_msroot_msas_logic_tt_Callstack_tt_i true
-&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msas_logic_tt_Callstack_tt_i $Revision: 1 $
+&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msas_logic_tt_Callstack_tt_i $Revision: 2 $
 &endif
 /*************************** $NoKeywords:  $ ********************************/
 
@@ -12,9 +12,6 @@
 &endif
 
 &if "{&no-rcode-info}"   <> "true" &then &scop rcode-information rcode-information
-&endif
-
-&if "{&no-before-table}" <> "true" &then &scop before-table before-table btTt~{~&ttPrefix~}Callstack~{~&ttSuffix~}
 &endif
 
 &if "{&TtAllDefined}"     > "" &then &glob TtAllDefined {&TtAllDefined},
