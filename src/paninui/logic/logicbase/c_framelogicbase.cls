@@ -4,19 +4,19 @@ class paninui.logic.logicbase.c_framelogicbase  implements paninui.view.interfac
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/logic/logicbase/c_framelogicbase.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-05 16:15:08+02:00 $ 
-    Date Modified: $Modtime: 2009-09-05 16:10:46+02:00 $ 
+     Date Checkin: $Date: 2009-09-23 12:20:59+02:00 $ 
+    Date Modified: $Modtime: 2009-09-22 08:19:37+02:00 $ 
 
       Description: Baseclass for frame logic classes.
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public c_framelogicbase(o-sourcecontrol as tool.c-sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public c_framelogicbase(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
