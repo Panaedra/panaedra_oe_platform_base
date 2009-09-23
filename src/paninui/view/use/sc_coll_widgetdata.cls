@@ -7,10 +7,10 @@ class paninui.view.use.sc_coll_widgetdata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-23 13:19:54+02:00 $ 
-    Date Modified: $Modtime: 2009-09-23 13:12:24+02:00 $ 
+     Date Checkin: $Date: 2009-09-23 16:30:50+02:00 $ 
+    Date Modified: $Modtime: 2009-09-23 16:28:56+02:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of child data, normally in a temp-table.
@@ -20,7 +20,7 @@ class paninui.view.use.sc_coll_widgetdata   :
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -47,6 +47,7 @@ class paninui.view.use.sc_coll_widgetdata   :
     end.
     
   end method. /* FrameAdd */
+
   
   method public static int64 ItemAdd (
     input  oWidgettypeGridOVID# as i_widgettype_grid, /* *OVID# is not a real parameter, but an interface overload ID */
@@ -63,6 +64,7 @@ class paninui.view.use.sc_coll_widgetdata   :
     
   end method. /* ItemAdd */
 
+
   method public static int64 ItemAdd (
     input  oWidgettypeGridOVID# as i_widgettype_griditem, /* *OVID# is not a real parameter, but an interface overload ID */
     input  iIDUIFrameIP#        as int64,
@@ -78,6 +80,7 @@ class paninui.view.use.sc_coll_widgetdata   :
     
   end method. /* ItemAdd */
 
+
   method public static int64 ItemAdd (
     input  oWidgettypeComboboxOVID# as i_widgettype_combobox, /* *OVID# is not a real parameter, but an interface overload ID */
     input  iIDUIFrameIP#            as int64,
@@ -89,6 +92,7 @@ class paninui.view.use.sc_coll_widgetdata   :
     return ItemAdd(iIDUIFrameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "combobox"). 
 
   end method. /* ItemAdd */
+
 
   method public static int64 ItemAdd (
     input  oWidgettypeComboboxOVID# as i_widgettype_groupframe, /* *OVID# is not a real parameter, but an interface overload ID */
@@ -102,6 +106,7 @@ class paninui.view.use.sc_coll_widgetdata   :
 
   end method. /* ItemAdd */
 
+
   method public static int64 ItemAdd (
     input  oWidgettypeComboboxOVID# as i_widgettype_button, /* *OVID# is not a real parameter, but an interface overload ID */
     input  iIDUIFrameIP#            as int64,
@@ -114,6 +119,7 @@ class paninui.view.use.sc_coll_widgetdata   :
 
   end method. /* ItemAdd */
 
+
   method public static int64 ItemAdd (
     input  oWidgettypeComboboxOVID# as i_widgettype_tree, /* *OVID# is not a real parameter, but an interface overload ID */
     input  iIDUIFrameIP#            as int64,
@@ -125,6 +131,7 @@ class paninui.view.use.sc_coll_widgetdata   :
     return ItemAdd(iIDUIFrameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "tree"). 
 
   end method. /* ItemAdd */
+
 
   method protected static int64 ItemAdd (
     input  iIDUIFrameIP#        as int64,
@@ -181,22 +188,54 @@ class paninui.view.use.sc_coll_widgetdata   :
     input  cDataRefIP#     as character,
     output bIsDisplayLinkedOP# as logical):
     
-    define variable cLinkName# as character no-undo.
+    /* Get a grid-type widget from the widgetdata collection (filled by AnalyzeFrame). */
+    
+    define variable cLinkName#    as character no-undo.
+    define variable cLinkNameAlt# as character no-undo.
+    
+    define variable iIndex# as integer no-undo.
 
     define buffer ttUIFrame    for ttUIFrame.
     define buffer ttWidgetData for ttWidgetData.
     
     do for ttUIFrame, ttWidgetData:
       
-      
       case cWidgetTypeIP#:
-        when "grid" then 
-          cLinkName# = hBuffOrQueryIP#:table-handle:name.
+        when "grid" then assign
+          /* We first search for a widget with the exact buffer name.
+             If not found, we search for a widget with the temp-table name.
+           */
+          cLinkName#    = hBuffOrQueryIP#:name
+          cLinkNameAlt# = hBuffOrQueryIP#:table-handle:name.
         otherwise 
           cLinkName# = cDataRefIP#.
       end case.
       
-      if cLinkName# begins "tt" then cLinkName# = substring(cLinkName#,3).
+      /* Search the left 15 characters for a buffer temp-table prefix */
+      iIndex# = r-index(cLinkName#,"-tt",15).
+      if iIndex# > 0 then do:
+        /* Translate example: b-xxx-ttYYY -> b_xxx_Yyy */
+        substring(cLinkName#,iIndex# + 1, 2) = "".
+      end.
+      
+      /* Search the left 15 characters for a buffer temp-table prefix */
+      iIndex# = r-index(cLinkNameAlt#,"-tt",15).
+      if iIndex# > 0 then do:
+        /* Translate example: b-xxx-ttYYY -> b_xxx_Yyy */
+        substring(cLinkNameAlt#,iIndex# + 1, 2) = "".
+      end.
+      
+      /* Dash is not supported in dotnet, so they won't find a match. Must be translated to underscores. */
+      cLinkName#    = replace(cLinkName#,"-","_").
+      cLinkNameAlt# = replace(cLinkNameAlt#,"-","_").
+      
+      /* Hash is not supported in dotnet, so they won't find a match. Must be translated to underscores. */
+      cLinkName#    = replace(cLinkName#,"#","_").
+      cLinkNameAlt# = replace(cLinkNameAlt#,"#","_").
+      
+      /* Forced convention: "tt" is not needed in UI design and should be omitted. */
+      if cLinkName#    begins "tt" then cLinkName#    = substring(cLinkName#,3).
+      if cLinkNameAlt# begins "tt" then cLinkNameAlt# = substring(cLinkNameAlt#,3).
       
       b_getwidget:
       for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
@@ -207,8 +246,16 @@ class paninui.view.use.sc_coll_widgetdata   :
         return ttWidgetData.oWidget.
       end.
         
+      b_getwidgetAlt:
+      for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
+        each ttWidgetData of ttUIFrame
+        where ttWidgetData.cWidgetType = cWidgetTypeIP#
+        and   ttWidgetData.cLinkName   = cLinkNameAlt#:
+        bIsDisplayLinkedOP# = ttWidgetData.bIsDisplayLinked.
+        return ttWidgetData.oWidget.
+      end.
+        
     end.
-    
     
   end method. /* GetWidget : with dataset */
   
@@ -219,6 +266,8 @@ class paninui.view.use.sc_coll_widgetdata   :
     input  cDataRefIP#     as character,
     output bIsDisplayLinkedOP# as logical):
     
+    /* Get a specific widget from the widgetdata collection (filled by AnalyzeFrame). */
+
     define variable cLinkName# as character no-undo.
 
     define buffer ttUIFrame    for ttUIFrame.
@@ -228,6 +277,7 @@ class paninui.view.use.sc_coll_widgetdata   :
       
       cLinkName# = cDataRefIP#.
       
+      /* TODO: screen design follows two standards, with and without tt. Choose plz. (!) */
 /*      if cLinkName# begins "tt" then cLinkName# = substring(cLinkName#,3).*/
       
       if cWidgetTypeIP# = "any" then
@@ -268,6 +318,7 @@ class paninui.view.use.sc_coll_widgetdata   :
     end.
     
   end method.
+
   
   method public static void GetGridColumns(
     oGridIP# as Progress.Lang.Object, 
@@ -295,7 +346,6 @@ class paninui.view.use.sc_coll_widgetdata   :
       
     end.
     
-    
   end method.
   
   
@@ -305,6 +355,7 @@ class paninui.view.use.sc_coll_widgetdata   :
       tool.sc-win32:ShellExecute(tool.sc-path:cTempDir + "ttWidgetData.html"). /* Open bestandje */
 
   end method. /* DebugShowData */
+
 
 end class.
 
