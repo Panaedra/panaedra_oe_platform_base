@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_eventbroadcaster.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-04 08:02:43+02:00 $ 
-    Date Modified: $Modtime: 2009-09-04 07:04:59+02:00 $ 
+     Date Checkin: $Date: 2009-09-23 12:21:00+02:00 $ 
+    Date Modified: $Modtime: 2009-09-22 08:17:39+02:00 $ 
 
       Description: Broadcasts events.
       
@@ -24,9 +24,9 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public sc_eventbroadcaster(o-sourcecontrol as tool.c-sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_eventbroadcaster(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
