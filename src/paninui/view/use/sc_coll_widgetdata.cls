@@ -7,10 +7,10 @@ class paninui.view.use.sc_coll_widgetdata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-23 09:36:41+02:00 $ 
-    Date Modified: $Modtime: 2009-09-22 19:49:46+02:00 $ 
+     Date Checkin: $Date: 2009-09-23 12:21:08+02:00 $ 
+    Date Modified: $Modtime: 2009-09-23 11:52:00+02:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of child data, normally in a temp-table.
@@ -18,9 +18,9 @@ class paninui.view.use.sc_coll_widgetdata   :
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public sc_coll_widgetdata(o-sourcecontrol as tool.c-sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    tool.c-sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
