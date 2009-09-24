@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_string_csv.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-23 14:58:12+02:00 $ 
-    Date Modified: $Modtime: 2009-09-23 14:57:56+02:00 $ 
+     Date Checkin: $Date: 2009-09-24 16:51:54+02:00 $ 
+    Date Modified: $Modtime: 2009-09-24 16:50:18+02:00 $ 
 
       Description: Class implementatie van de csvlib.
                    Bevat (C)omma (S)eparated (V)alue gerelateerde functionaliteit
@@ -19,14 +19,14 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   /************************  Source control constructor ************************/
   constructor public sc_string_csv(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
 
 
 
-  method public static char getParam
+  method public static char GetParam
     (cParamIP# as char, cTokenIP# as char):
   
     /* Haalt waardes uit een goed te lezen string als " [Hallo] hoi [Bla] boe ".
@@ -49,7 +49,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   
     return "".
 
-  end method. /* getParam */
+  end method. /* GetParam */
 
 
 end class. 
