@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-24 12:39:22+02:00 $ 
-    Date Modified: $Modtime: 2009-09-24 12:39:09+02:00 $ 
+     Date Checkin: $Date: 2009-09-24 16:33:43+02:00 $ 
+    Date Modified: $Modtime: 2009-09-24 16:31:35+02:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -26,9 +26,16 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
+
+
+  method public static void Show (cMsgIP# as character):
+    
+    Show(sc_messageboxtype:Simple, cMsgIP#).
+
+  end method. /* Show; simple */
 
 
   method public static void Show (oTypeOVID# as i_messageboxtype_simple, cMsgIP# as character):
