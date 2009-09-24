@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_prop:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_prop.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-04 08:02:43+02:00 $ 
-    Date Modified: $Modtime: 2009-09-04 07:06:37+02:00 $ 
+     Date Checkin: $Date: 2009-09-24 15:58:11+02:00 $ 
+    Date Modified: $Modtime: 2009-09-24 15:46:10+02:00 $ 
 
       Description: add_your_comments_here
 
@@ -16,11 +16,11 @@ class panaedra.msroot.msutil.logic.sc_prop:
   /************************  Source control constructor ************************/
   constructor public sc_prop(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  method public static character getProp(
+  method public static character GetProp(
     hWidgetIP# as handle,
     cPropIP#   as character) :
 
@@ -33,7 +33,7 @@ class panaedra.msroot.msutil.logic.sc_prop:
       return ?.
 
     if num-entries(hWidgetIP#:private-data,chr(1)) = 1 then
-      run propReformat (hWidgetIP#).
+      PropReformat (hWidgetIP#).
 
     iEntry# = lookup(cPropIP#, entry(1,hWidgetIP#:private-data,chr(1)), chr(2)).
 
@@ -43,10 +43,10 @@ class panaedra.msroot.msutil.logic.sc_prop:
 
     return if cReturn# = "?" then ? else cReturn#.
     
-  end method. /* getProp */  
+  end method. /* GetProp */  
   
 
-  method public static void setProp (
+  method public static void SetProp (
     hWidgetIP# as handle,
     cPropIP#   as character,
     cValueIP#  as character):
@@ -73,7 +73,7 @@ class panaedra.msroot.msutil.logic.sc_prop:
     do:
 
       if num-entries(hWidgetIP#:private-data,chr(1)) = 1 then
-        run propReformat (hWidgetIP#).
+        PropReformat (hWidgetIP#).
 
       /* normal property list is there */
 
@@ -92,7 +92,7 @@ class panaedra.msroot.msutil.logic.sc_prop:
 
     end.
     
-  end method. /* setProp */
+  end method. /* SetProp */
 
 
   method public static void PropsFromString (hWidgetIP# as handle, csvPropsIP# as character):
@@ -125,7 +125,7 @@ class panaedra.msroot.msutil.logic.sc_prop:
         else assign 
             cProp#  = trim(substring(cEntry#, 1, iIndex# - 1))
             cValue# = trim(substring(cEntry#, iIndex# + 1, -1)).
-        run setProp(hWidgetIP#,cProp#,cValue#).
+        SetProp(hWidgetIP#,cProp#,cValue#).
       end.
     end.
     
@@ -172,6 +172,35 @@ class panaedra.msroot.msutil.logic.sc_prop:
     
   end method. /* PropsToString */
 
+  method static public void PropReformat (hWidgetIP# as handle):
+    /*------------------------------------------------------------------------------
+      Purpose:     convert a "p1=v1|p2=v2" string to proper format
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    define variable iTell#    as integer   no-undo.
+    define variable cEntry#   as character no-undo.
+    define variable csvProp#  as character no-undo.
+    define variable csvValue# as character no-undo.
+
+    if num-entries(hWidgetIP#:private-data,chr(1)) = 1 then 
+    do:
+
+      do iTell# = 1 to num-entries(hWidgetIP#:private-data,"|"):
+        cEntry#   = entry(iTell#, hWidgetIP#:private-data,"|").
+        csvProp#  = csvProp#  + chr(2) + trim(entry(1,cEntry#,"=")).
+        csvValue# = csvValue# + chr(2) + (if num-entries(cEntry#,"=") < 2 then "yes" else trim(entry(2,cEntry#,"="))).
+      end.
+
+      csvProp#  = substring(csvProp#,2).
+      csvValue# = substring(csvValue#,2).
+
+      hWidgetIP#:private-data = csvProp# + chr(1) + csvValue#.
+
+    end.
+
+  end method. /* PropReformat */
 
 end class.
 
