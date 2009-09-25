@@ -2,23 +2,23 @@
 
 using Progress.Windows.Form.
 
-class panaedra.msroot.msutil.view.c_messagebox inherits form   : 
+class panaedra.msroot.msutil.view.c_messagebox_win32 inherits form   : 
 
   /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/view/c_messagebox.cls $ 
-          Version: $Revision: 1 $ 
+         Filename: $Archive: /ont/src/panaedra/msroot/msutil/view/c_messagebox_win32.cls $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-25 08:15:24+02:00 $ 
-    Date Modified: $Modtime: 2009-09-25 08:15:24+02:00 $ 
+     Date Checkin: $Date: 2009-09-25 10:48:33+02:00 $ 
+    Date Modified: $Modtime: 2009-09-25 10:44:15+02:00 $ 
 
       Description: add_your_comments_here
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public c_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public c_messagebox_win32(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -28,7 +28,7 @@ class panaedra.msroot.msutil.view.c_messagebox inherits form   :
 
   define private variable tbMessage as System.Windows.Forms.TextBox no-undo.
 
-  constructor public c_messagebox (bAlwaysOnTopIP# as logical, cMessageIP# as character):
+  constructor public c_messagebox_win32 (bAlwaysOnTopIP# as logical, cMessageIP# as character):
 		
     super().
     InitializeComponent().
@@ -44,7 +44,7 @@ class panaedra.msroot.msutil.view.c_messagebox inherits form   :
 
 	
   @VisualDesigner.
-  method private void c_messagebox_Load( input sender as System.Object, input e as System.EventArgs ):
+  method private void c_messagebox_win32_Load( input sender as System.Object, input e as System.EventArgs ):
 		
     return.
 
@@ -87,7 +87,7 @@ class panaedra.msroot.msutil.view.c_messagebox inherits form   :
     this-object:tbMessage:Size = new System.Drawing.Size(786, 221).
     this-object:tbMessage:TabIndex = 2.
     /*  */
-    /* c_messagebox */
+    /* c_messagebox_win32 */
     /*  */
     this-object:AcceptButton = this-object:btnOK.
     this-object:AutoSizeMode = System.Windows.Forms.AutoSizeMode:GrowAndShrink.
@@ -95,10 +95,10 @@ class panaedra.msroot.msutil.view.c_messagebox inherits form   :
     this-object:ClientSize = new System.Drawing.Size(792, 264).
     this-object:Controls:Add(this-object:tbMessage).
     this-object:Controls:Add(this-object:btnOK).
-    this-object:Name = "c_messagebox".
+    this-object:Name = "c_messagebox_win32".
     this-object:Tag = "".
     this-object:Text = "Message".
-    this-object:Load:subscribe(this-object:c_messagebox_Load).
+    this-object:Load:subscribe(this-object:c_messagebox_win32_Load).
     this-object:ResumeLayout(false).
     this-object:PerformLayout().
     catch e as Progress.Lang.Error:
@@ -107,7 +107,7 @@ class panaedra.msroot.msutil.view.c_messagebox inherits form   :
   end method.
 
 
-  destructor public c_messagebox ( ):
+  destructor public c_messagebox_win32 ( ):
 
     if valid-object(components) then 
     do:
@@ -116,6 +116,8 @@ class panaedra.msroot.msutil.view.c_messagebox inherits form   :
 
   end destructor.
 
+
 end class.
 
 /* EOF */ 
+
