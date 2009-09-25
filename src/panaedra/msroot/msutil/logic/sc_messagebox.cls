@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-24 16:33:43+02:00 $ 
-    Date Modified: $Modtime: 2009-09-24 16:31:35+02:00 $ 
+     Date Checkin: $Date: 2009-09-25 08:11:31+02:00 $ 
+    Date Modified: $Modtime: 2009-09-25 08:07:25+02:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -26,7 +26,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -48,11 +48,14 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   method public static void Show (oTypeOVID# as i_messageboxtype_simple_ontop, cMsgIP# as character):
     
+    define variable oForm as panaedra.msroot.msutil.view.c_messagebox no-undo.
+    
     &if opsys = "unix" &then
       message cMsgIP#
         view-as alert-box.
     &else
-      message "Gaat _PPL_UNDISCLOSED_ zo maken via view/c_messagebox_win32.cls" skip program-name(1) skip program-name(2) skip(2) cMsgIP#.
+      oForm = new panaedra.msroot.msutil.view.c_messagebox(true, cMsgIP#).
+      wait-for oForm:ShowDialog().
     &endif
 
   end method. /* Show; simple_ontop */
