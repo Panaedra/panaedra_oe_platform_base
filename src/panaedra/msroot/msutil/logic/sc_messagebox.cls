@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-25 10:48:33+02:00 $ 
-    Date Modified: $Modtime: 2009-09-25 10:46:16+02:00 $ 
+     Date Checkin: $Date: 2009-09-25 10:52:51+02:00 $ 
+    Date Modified: $Modtime: 2009-09-25 10:52:23+02:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -26,7 +26,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -48,7 +48,9 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   method public static void Show (oTypeOVID# as i_messageboxtype_simple_ontop, cMsgIP# as character):
     
+    &if opsys <> "unix" &then
     define variable oForm as panaedra.msroot.msutil.view.c_messagebox_win32 no-undo.
+    &endif
     
     &if opsys = "unix" &then
       message cMsgIP#
