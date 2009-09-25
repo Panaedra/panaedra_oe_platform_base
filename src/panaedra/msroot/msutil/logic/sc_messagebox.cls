@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-25 08:11:31+02:00 $ 
-    Date Modified: $Modtime: 2009-09-25 08:07:25+02:00 $ 
+     Date Checkin: $Date: 2009-09-25 10:48:33+02:00 $ 
+    Date Modified: $Modtime: 2009-09-25 10:46:16+02:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -19,14 +19,14 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
                    using panaedra.msroot.msutil.interfaces.*.
                    
                    (Eclipse macro 'bbmes'):
-                   sc_messagebox:Show(sc_messageboxtype:Simple, "Here's my message").
+                   sc_messagebox_win32:Show(sc_messagebox_win32type:Simple, "Here's my message").
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -48,13 +48,13 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   method public static void Show (oTypeOVID# as i_messageboxtype_simple_ontop, cMsgIP# as character):
     
-    define variable oForm as panaedra.msroot.msutil.view.c_messagebox no-undo.
+    define variable oForm as panaedra.msroot.msutil.view.c_messagebox_win32 no-undo.
     
     &if opsys = "unix" &then
       message cMsgIP#
         view-as alert-box.
     &else
-      oForm = new panaedra.msroot.msutil.view.c_messagebox(true, cMsgIP#).
+      oForm = new panaedra.msroot.msutil.view.c_messagebox_win32(true, cMsgIP#).
       wait-for oForm:ShowDialog().
     &endif
 
