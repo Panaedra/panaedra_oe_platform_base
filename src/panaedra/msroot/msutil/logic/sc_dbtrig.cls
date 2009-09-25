@@ -6,10 +6,10 @@ class panaedra.msdr.logic.sc_dbtrig   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msdr/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-29 22:54:13+02:00 $ 
-    Date Modified: $Modtime: 2009-08-28 15:00:19+02:00 $ 
+     Date Checkin: $Date: 2009-09-25 12:23:20+02:00 $ 
+    Date Modified: $Modtime: 2009-09-25 12:20:50+02:00 $ 
 
       Description: Deze class wordt aangeroepen door db delete en write triggers,
                    voor dynamische afhandeling.
@@ -28,7 +28,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -276,7 +276,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
     if hBuffIP#:table-handle <> ? then 
     do:
       /* N.B. namespace-uri mag bij de definitie geen spaties bevatten. */
-      cCased# = lib.sc-csv:getParam(hBuffIP#:table-handle:namespace-uri,"Label").
+      cCased# = panaedra.msroot.msutil.logic.sc_string_csv:getParam(hBuffIP#:table-handle:namespace-uri,"Label").
       if cCased# > "" then.
       else if hBuffIP#:table-handle:name begins "tt" then cCased# = substring(hBuffIP#:table-handle:name,3).
         else cCased# = hBuffIP#:table-handle:name.
