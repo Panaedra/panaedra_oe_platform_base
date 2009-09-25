@@ -6,10 +6,10 @@ class panaedra.msf.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msf/logic/sc_path.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-17 13:25:58+02:00 $ 
-    Date Modified: $Modtime: 2009-08-17 13:25:10+02:00 $ 
+     Date Checkin: $Date: 2009-09-25 08:22:01+02:00 $ 
+    Date Modified: $Modtime: 2009-09-24 15:00:14+02:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -21,7 +21,7 @@ class panaedra.msf.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 2 $", "{&sourcecontrolversions}").
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 3 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -215,6 +215,96 @@ class panaedra.msf.logic.sc_path:
     
   end method. /* FillPathProperty */
 
+
+  method public static character Full2PartialPath (nfullpath# as character):
+    
+    /*------------------------------------------------------------------------------
+  Purpose:  Translate a full path to a file to a partial path with subdirectories
+            in the PROPATH
+    Notes:
+------------------------------------------------------------------------------*/
+
+    define variable nretu#         as character no-undo.
+    define variable nretutemp#     as character no-undo.
+    define variable atell#         as integer   no-undo.
+    define variable nentr#         as character no-undo.
+    define variable lfullpath#     as logical   no-undo.
+    define variable bPropathDirty# as logical   no-undo init yes.
+    define variable cPropathFull#  as character no-undo.
+    
+    nfullpath# = lc(trim(replace(nfullpath#,"~\","~/"))).
+
+    /* Is het wel een full path? */
+    if opsys = "win32" then
+      lfullpath# = (nfullpath# begins "~/~/" or index(nfullpath#,":") > 0).
+    else
+      lfullpath# = (nfullpath# begins "~/").
+
+    if not lfullpath# then 
+    do:
+      if nfullpath# begins ".~/" then
+        nfullpath# = substring(nfullpath#,3).
+      return nfullpath#.
+    end.
+
+    if bPropathDirty# then 
+    do:
+      cPropathFull# = "".
+
+      do atell# = 1 to num-entries(propath):
+
+        file-info:file-name = entry(atell#,propath).
+
+        nentr# = lc(replace(file-info:full-pathname,"~\","~/")).
+
+        if nentr# > "" then 
+        do:
+          cPropathFull# = cPropathFull# + "," + nentr#.
+        end.
+
+      end.
+
+      cPropathFull# = substring(cPropathFull#,2).
+
+      bPropathDirty# = no.
+
+    end.
+
+    do atell# = 1 to num-entries(cPropathFull#):
+
+      nentr#     = entry(atell#,cPropathFull#).
+      nretutemp# = "".
+
+      if nfullpath# begins nentr# then 
+      do:
+
+        nretutemp# = substring(nfullpath#,length(nentr#) + 2).
+
+        if nentr# matches "*~~.pl":u then
+          nretutemp# = trim(nretutemp#,"<>":u).
+
+        if nretu# = "" or (length(nretu#) > length(nretutemp#)) then
+          nretu# = nretutemp#.
+
+      end.
+
+    end.
+
+    if nretu# = "" then 
+    do:
+
+      if library(nfullpath#) <> ? then 
+      do:
+        nretu# = member(nretu#).
+        if nretu# = "" or nretu# = ? 
+          then nretu# = nfullpath#.
+      end.
+
+    end.
+
+    return nretu#.
+    
+  end method. /* Full2PartialPath */
 
 end class.
 
