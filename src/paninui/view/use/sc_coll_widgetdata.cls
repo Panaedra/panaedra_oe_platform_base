@@ -7,10 +7,10 @@ class paninui.view.use.sc_coll_widgetdata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-23 16:30:50+02:00 $ 
-    Date Modified: $Modtime: 2009-09-23 16:28:56+02:00 $ 
+     Date Checkin: $Date: 2009-09-30 12:07:12+02:00 $ 
+    Date Modified: $Modtime: 2009-09-30 12:00:56+02:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of child data, normally in a temp-table.
@@ -20,7 +20,7 @@ class paninui.view.use.sc_coll_widgetdata   :
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -193,34 +193,55 @@ class paninui.view.use.sc_coll_widgetdata   :
     define variable cLinkName#    as character no-undo.
     define variable cLinkNameAlt# as character no-undo.
     
-    define variable iIndex# as integer no-undo.
+    define variable iIndex#       as integer   no-undo.
 
     define buffer ttUIFrame    for ttUIFrame.
     define buffer ttWidgetData for ttWidgetData.
     
     do for ttUIFrame, ttWidgetData:
       
+      if cDataRefIP# > "" then do:
+        cLinkName# = cDataRefIP#.
+      end.
+      else
       case cWidgetTypeIP#:
-        when "grid" then assign
-          /* We first search for a widget with the exact buffer name.
-             If not found, we search for a widget with the temp-table name.
-           */
-          cLinkName#    = hBuffOrQueryIP#:name
-          cLinkNameAlt# = hBuffOrQueryIP#:table-handle:name.
+        when "grid" then 
+          case hBuffOrQueryIP#:type:
+            when "data-relation" then 
+              do:
+                assign
+                  /* We first search for a widget with the exact buffer name.
+                     If not found, we search for a widget with the temp-table name.
+                   */
+                  cLinkName# = hBuffOrQueryIP#:child-buffer:name.
+                cLinkNameAlt# = hBuffOrQueryIP#:child-buffer:table-handle:name.
+              end.
+            otherwise 
+            do:
+              assign
+                /* We first search for a widget with the exact buffer name.
+                   If not found, we search for a widget with the temp-table name.
+                 */
+                cLinkName# = hBuffOrQueryIP#:name.
+              if hBuffOrQueryIP#:type = "buffer" then cLinkNameAlt# = hBuffOrQueryIP#:table-handle:name.
+            end.
+          end case.
         otherwise 
-          cLinkName# = cDataRefIP#.
+        cLinkName# = cDataRefIP#.
       end case.
       
       /* Search the left 15 characters for a buffer temp-table prefix */
       iIndex# = r-index(cLinkName#,"-tt",15).
-      if iIndex# > 0 then do:
+      if iIndex# > 0 then 
+      do:
         /* Translate example: b-xxx-ttYYY -> b_xxx_Yyy */
         substring(cLinkName#,iIndex# + 1, 2) = "".
       end.
       
       /* Search the left 15 characters for a buffer temp-table prefix */
       iIndex# = r-index(cLinkNameAlt#,"-tt",15).
-      if iIndex# > 0 then do:
+      if iIndex# > 0 then 
+      do:
         /* Translate example: b-xxx-ttYYY -> b_xxx_Yyy */
         substring(cLinkNameAlt#,iIndex# + 1, 2) = "".
       end.
@@ -246,14 +267,15 @@ class paninui.view.use.sc_coll_widgetdata   :
         return ttWidgetData.oWidget.
       end.
         
-      b_getwidgetAlt:
-      for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
-        each ttWidgetData of ttUIFrame
-        where ttWidgetData.cWidgetType = cWidgetTypeIP#
-        and   ttWidgetData.cLinkName   = cLinkNameAlt#:
-        bIsDisplayLinkedOP# = ttWidgetData.bIsDisplayLinked.
-        return ttWidgetData.oWidget.
-      end.
+      if cLinkNameAlt# > "" then
+        b_getwidgetAlt:
+        for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
+          each ttWidgetData of ttUIFrame
+          where ttWidgetData.cWidgetType = cWidgetTypeIP#
+          and   ttWidgetData.cLinkName   = cLinkNameAlt#:
+          bIsDisplayLinkedOP# = ttWidgetData.bIsDisplayLinked.
+          return ttWidgetData.oWidget.
+        end.
         
     end.
     
@@ -278,26 +300,26 @@ class paninui.view.use.sc_coll_widgetdata   :
       cLinkName# = cDataRefIP#.
       
       /* TODO: screen design follows two standards, with and without tt. Choose plz. (!) */
-/*      if cLinkName# begins "tt" then cLinkName# = substring(cLinkName#,3).*/
+      /*      if cLinkName# begins "tt" then cLinkName# = substring(cLinkName#,3).*/
       
       if cWidgetTypeIP# = "any" then
-      b_getwidget_all:
-      for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
-        each ttWidgetData of ttUIFrame
-        where ttWidgetData.cLinkName   = cLinkName#:
-        bIsDisplayLinkedOP# = ttWidgetData.bIsDisplayLinked.
-        return ttWidgetData.oWidget.
-      end.
+        b_getwidget_all:
+        for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
+          each ttWidgetData of ttUIFrame
+          where ttWidgetData.cLinkName   = cLinkName#:
+          bIsDisplayLinkedOP# = ttWidgetData.bIsDisplayLinked.
+          return ttWidgetData.oWidget.
+        end.
         
       else
-      b_getwidget_type:
-      for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
-        each ttWidgetData of ttUIFrame
-        where ttWidgetData.cWidgetType = cWidgetTypeIP#
-        and   ttWidgetData.cLinkName   = cLinkName#:
-        bIsDisplayLinkedOP# = ttWidgetData.bIsDisplayLinked.
-        return ttWidgetData.oWidget.
-      end.
+        b_getwidget_type:
+        for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
+          each ttWidgetData of ttUIFrame
+          where ttWidgetData.cWidgetType = cWidgetTypeIP#
+          and   ttWidgetData.cLinkName   = cLinkName#:
+          bIsDisplayLinkedOP# = ttWidgetData.bIsDisplayLinked.
+          return ttWidgetData.oWidget.
+        end.
         
     end.
     
@@ -309,7 +331,8 @@ class paninui.view.use.sc_coll_widgetdata   :
     define variable bEclipseFix# as logical no-undo.
     define buffer ttWidgetData for ttWidgetData.
     
-    if oWidgetIP# <> ? then do for ttWidgetData:
+    if oWidgetIP# <> ? then 
+    do for ttWidgetData:
       
       find first ttWidgetData where ttWidgetData.oWidget = oWidgetIP#.
       
@@ -317,7 +340,7 @@ class paninui.view.use.sc_coll_widgetdata   :
       
     end.
     
-  end method.
+  end method. /* SetDisplayLinked */
 
   
   method public static void GetGridColumns(
@@ -346,7 +369,7 @@ class paninui.view.use.sc_coll_widgetdata   :
       
     end.
     
-  end method.
+  end method. /* GetGridColumns */
   
   
   method public static void DebugShowData():
