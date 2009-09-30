@@ -4,10 +4,10 @@ class panaedra.msb.logic.sc_boot:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msb/logic/sc_boot.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-17 13:25:58+02:00 $ 
-    Date Modified: $Modtime: 2009-08-17 13:24:01+02:00 $ 
+     Date Checkin: $Date: 2009-09-30 12:21:44+02:00 $ 
+    Date Modified: $Modtime: 2009-09-30 11:53:33+02:00 $ 
 
       Description: Algemene sessie opstart functionaliteit.
                    Class implementatie van boot.p  
@@ -17,7 +17,7 @@ class panaedra.msb.logic.sc_boot:
   /************************  Source control constructor ************************/
   constructor public sc_boot(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -50,7 +50,10 @@ class panaedra.msb.logic.sc_boot:
     empty temp-table t-sesspara.
 
     cPara = cBootSessionParameter.
-
+       
+    if cPara = "" and session:parameter matches "*[*" then
+      cPara = session:parameter.
+    
     do iTell = 1 to num-entries(cPara,"["):
       cEntr = entry(iTell,cPara,"[").
       if cEntr = "" then next.
