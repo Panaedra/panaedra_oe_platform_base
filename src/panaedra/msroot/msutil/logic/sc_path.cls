@@ -7,10 +7,10 @@ class panaedra.msf.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msf/logic/sc_path.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-28 11:56:59+02:00 $ 
-    Date Modified: $Modtime: 2009-09-28 10:58:22+02:00 $ 
+     Date Checkin: $Date: 2009-09-30 15:19:00+02:00 $ 
+    Date Modified: $Modtime: 2009-09-30 13:31:19+02:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -22,7 +22,7 @@ class panaedra.msf.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 4 $", "{&sourcecontrolversions}").
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 5 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -143,10 +143,10 @@ class panaedra.msf.logic.sc_path:
     do:
       bIniInitialized = yes.
       &if opsys = "win32" &then
-      if sc-boot:SessionParameter("Env") <> "live" then cIniDir = "Q:/test/ini/".
+      if panaedra.msb.logic.sc_boot:SessionParameter("Env") <> "live" then cIniDir = "Q:/test/ini/".
       else cIniDir = "P:/live/ini/".
       &else
-      if sc-boot:SessionParameter("Env") <> "live" then cIniDir = "/ota/_PRODUCT_/_FCMPNY_/ini/".
+      if panaedra.msb.logic.sc_boot:SessionParameter("Env") <> "live" then cIniDir = "/ota/_PRODUCT_/_FCMPNY_/ini/".
       else cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".
       &endif
     end.
@@ -193,7 +193,7 @@ class panaedra.msf.logic.sc_path:
     define variable iEclipseFix#   as integer   no-undo.
     define buffer b-ttPath for ttPath.
     
-    cEnv#          = sc-boot:SessionParameter("Env").
+    cEnv#          = panaedra.msb.logic.sc_boot:SessionParameter("Env").
     cHostName#     = tool.sc-environment:GetHostName().
     cDefaultOpsys# = subst("default_&1",opsys).
     
