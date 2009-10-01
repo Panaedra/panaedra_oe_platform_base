@@ -5,10 +5,10 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/events/sc_sgt_masterwindow_eventhandler.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-23 12:20:59+02:00 $ 
-    Date Modified: $Modtime: 2009-09-22 08:25:09+02:00 $ 
+     Date Checkin: $Date: 2009-10-01 10:45:25+02:00 $ 
+    Date Modified: $Modtime: 2009-10-01 08:46:17+02:00 $ 
 
       Description: Static Class Singleton implementation for Masterwindow / MDI Window
 
@@ -17,7 +17,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
   /************************  Source control constructor ************************/
   constructor public sc_sgt_masterwindow_eventhandler(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -49,7 +49,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
        However, the Eclipse debugger likes this and doesn't crash (well, far less often anyway).
      */
 		
-    tool.sc-trayicon-win32:ShowTrayIconMessage(program-name(1),"mdi").
+    panaedra.msroot.msutil.view.sc_trayicon_win32:ShowTrayIconMessage(program-name(1),"mdi").
 
     define variable oPack# as paninui.pack.interfaces.i_pack no-undo.
    
