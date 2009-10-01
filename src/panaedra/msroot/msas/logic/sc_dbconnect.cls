@@ -4,10 +4,10 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_dbconnect.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-30 16:05:53+02:00 $ 
-    Date Modified: $Modtime: 2009-09-30 16:05:43+02:00 $ 
+     Date Checkin: $Date: 2009-10-01 10:45:25+02:00 $ 
+    Date Modified: $Modtime: 2009-09-30 16:12:05+02:00 $ 
 
       Description: Connect to database(s) (for appserver)
 
@@ -16,7 +16,7 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
   /************************  Source control constructor ************************/
   constructor public sc_dbconnect(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -33,14 +33,14 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
     define variable cHostName# as character no-undo.
     
     if not can-find(first ttDbConnect)
-      then temp-table ttDbConnect:read-xml("file", tool.sc-path:cIniDir + "sc-dbconnect.config", "empty", ?, false).
+      then temp-table ttDbConnect:read-xml("file", panaedra.msf.logic.sc_path:cIniDir + "sc-dbconnect.config", "empty", ?, false).
     
     /* Als er nog geen database verbinding is ... */
     if not connected("ma") and not connected("lo") then 
     do:
       
       cEnv#      = panaedra.msb.logic.sc_boot:SessionParameter("Env").      
-      cHostName# = tool.sc-environment:GetHostName().
+      cHostName# = panaedra.msb.logic.sc_environment:GetHostName().
       
       /* Zoek voor record met hostname _SRVR_ of _PRODUCT_ */
       find ttDbConnect 
