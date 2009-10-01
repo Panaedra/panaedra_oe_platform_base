@@ -4,10 +4,10 @@ class panaedra.msb.logic.sc_asconnect :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msb/logic/sc_asconnect.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-30 12:21:44+02:00 $ 
-    Date Modified: $Modtime: 2009-09-30 12:17:26+02:00 $ 
+     Date Checkin: $Date: 2009-10-01 10:45:25+02:00 $ 
+    Date Modified: $Modtime: 2009-09-30 16:11:25+02:00 $ 
 
       Description: Methods aan te roepen vanaf de client om een 
                    appserver connectie te maken.
@@ -17,7 +17,7 @@ class panaedra.msb.logic.sc_asconnect :
   /************************  Source control constructor ************************/
   constructor public sc_asconnect(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -34,7 +34,7 @@ class panaedra.msb.logic.sc_asconnect :
   define protected static variable bInitialized as logical no-undo.
   
   method public static void Initialize():
-    temp-table ttAsConnect:read-xml("file", tool.sc-path:cIniDir + "sc-asconnect.config", "empty", ?, false).
+    temp-table ttAsConnect:read-xml("file", panaedra.msf.logic.sc_path:cIniDir + "sc-asconnect.config", "empty", ?, false).
   end method.
 
 
