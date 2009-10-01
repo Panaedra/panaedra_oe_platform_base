@@ -7,10 +7,10 @@ class paninui.view.use.sc_coll_widgetdata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-30 12:07:12+02:00 $ 
-    Date Modified: $Modtime: 2009-09-30 12:00:56+02:00 $ 
+     Date Checkin: $Date: 2009-10-01 10:45:24+02:00 $ 
+    Date Modified: $Modtime: 2009-10-01 09:03:33+02:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of child data, normally in a temp-table.
@@ -20,7 +20,7 @@ class paninui.view.use.sc_coll_widgetdata   :
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -374,8 +374,8 @@ class paninui.view.use.sc_coll_widgetdata   :
   
   method public static void DebugShowData():
 
-    if tool.sc-html:TempTableToHTML(buffer ttWidgetData:handle, tool.sc-path:cTempDir + "ttWidgetData.html") then 
-      tool.sc-win32:ShellExecute(tool.sc-path:cTempDir + "ttWidgetData.html"). /* Open bestandje */
+    if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(buffer ttWidgetData:handle, panaedra.msf.logic.sc_path:cTempDir + "ttWidgetData.html") then 
+      tool.sc-win32:ShellExecute(panaedra.msf.logic.sc_path:cTempDir + "ttWidgetData.html"). /* Open bestandje */
 
   end method. /* DebugShowData */
 
