@@ -7,10 +7,10 @@ class panaedra.msf.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msf/logic/sc_path.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-30 15:19:00+02:00 $ 
-    Date Modified: $Modtime: 2009-09-30 13:31:19+02:00 $ 
+     Date Checkin: $Date: 2009-10-01 10:45:25+02:00 $ 
+    Date Modified: $Modtime: 2009-09-30 16:08:55+02:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -22,7 +22,7 @@ class panaedra.msf.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 5 $", "{&sourcecontrolversions}").
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 6 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -194,7 +194,7 @@ class panaedra.msf.logic.sc_path:
     define buffer b-ttPath for ttPath.
     
     cEnv#          = panaedra.msb.logic.sc_boot:SessionParameter("Env").
-    cHostName#     = tool.sc-environment:GetHostName().
+    cHostName#     = panaedra.msb.logic.sc_environment:GetHostName().
     cDefaultOpsys# = subst("default_&1",opsys).
     
     find first b-ttPath 
