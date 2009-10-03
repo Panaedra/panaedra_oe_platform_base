@@ -7,20 +7,20 @@ class paninui.view.use.sc_coll_widgetdata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 11 $ 
+          Version: $Revision: 12 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-01 11:36:38+02:00 $ 
-    Date Modified: $Modtime: 2009-10-01 11:30:45+02:00 $ 
+     Date Checkin: $Date: 2009-10-03 22:39:49+02:00 $ 
+    Date Modified: $Modtime: 2009-10-03 22:21:39+02:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
-                   indicate local storage of child data, normally in a temp-table.
+                   indicate local storage of runtime data, normally in a temp-table.
       
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -179,6 +179,119 @@ class paninui.view.use.sc_coll_widgetdata   :
     end.
     
   end method. /* ItemAdd */
+ 
+ 
+  method public static Progress.Lang.Object GetBindingSource(
+    input  iPackIdIP#      as int64, 
+    input  cWidgetTypeIP#  as char, 
+    input  hBuffOrQueryIP# as handle,
+    input  cDataRefIP#     as character):
+      
+    define variable cLinkName#    as character no-undo.
+    define variable cLinkNameAlt# as character no-undo.
+    
+    define buffer ttUIFrame    for ttUIFrame.
+    define buffer ttWidgetData for ttWidgetData.
+    
+    do for ttUIFrame, ttWidgetData:
+      
+      GetLinkNameLinkNameAlt(cDataRefIP#, cWidgetTypeIP#, hBuffOrQueryIP#, output cLinkName#, output cLinkNameAlt#).
+      
+      b_getwidget:
+      for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
+        each ttWidgetData of ttUIFrame
+        where ttWidgetData.cWidgetType = cWidgetTypeIP#
+        and   ttWidgetData.cLinkName   = cLinkName#:
+        if ttWidgetData.oBindingSource <> ? then
+          return ttWidgetData.oBindingSource.
+      end.
+        
+      if cLinkNameAlt# > "" then
+        b_getwidgetAlt:
+        for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
+          each ttWidgetData of ttUIFrame
+          where ttWidgetData.cWidgetType = cWidgetTypeIP#
+          and   ttWidgetData.cLinkName   = cLinkNameAlt#:
+          if ttWidgetData.oBindingSource <> ? then
+            return ttWidgetData.oBindingSource.
+        end.
+        
+      return ?.
+        
+    end.
+          
+  end method. /* GetBindingSource */
+  
+  
+  method protected static void GetLinkNameLinkNameAlt(
+    cDataRefIP#       as character, 
+    cWidgetTypeIP#     as character, 
+    hBuffOrQueryIP# as handle, 
+    output cLinkNameOP# as character, 
+    output cLinkNameAltOP# as character):
+    
+    define variable iIndex# as integer no-undo.
+    
+    if cDataRefIP# > "" then 
+    do:
+      cLinkNameOP# = cDataRefIP#.
+    end.
+    else
+      case cWidgetTypeIP#:
+        when "grid" then 
+          case hBuffOrQueryIP#:type:
+            when "data-relation" then 
+              do:
+                assign
+                  /* We first search for a widget with the exact buffer name.
+                     If not found, we search for a widget with the temp-table name.
+                   */
+                  cLinkNameOP# = hBuffOrQueryIP#:child-buffer:name.
+                cLinkNameAltOP# = hBuffOrQueryIP#:child-buffer:table-handle:name.
+              end.
+            otherwise 
+            do:
+              assign
+                /* We first search for a widget with the exact buffer name.
+                   If not found, we search for a widget with the temp-table name.
+                 */
+                cLinkNameOP# = hBuffOrQueryIP#:name.
+              if hBuffOrQueryIP#:type = "buffer" then cLinkNameAltOP# = hBuffOrQueryIP#:table-handle:name.
+            end.
+          end case.
+        otherwise 
+        cLinkNameOP# = cDataRefIP#.
+      end case.
+      
+    /* Search the left 15 characters for a buffer temp-table prefix */
+    iIndex# = r-index(cLinkNameOP#,"-tt",15).
+    if iIndex# > 0 then 
+    do:
+      /* Translate example: b-xxx-ttYYY -> b_xxx_Yyy */
+      substring(cLinkNameOP#,iIndex# + 1, 2) = "".
+    end.
+      
+    /* Search the left 15 characters for a buffer temp-table prefix */
+    iIndex# = r-index(cLinkNameAltOP#,"-tt",15).
+    if iIndex# > 0 then 
+    do:
+      /* Translate example: b-xxx-ttYYY -> b_xxx_Yyy */
+      substring(cLinkNameAltOP#,iIndex# + 1, 2) = "".
+    end.
+      
+    /* Dash is not supported in dotnet, so they won't find a match. Must be translated to underscores. */
+    cLinkNameOP#    = replace(cLinkNameOP#,"-","_").
+    cLinkNameAltOP# = replace(cLinkNameAltOP#,"-","_").
+      
+    /* Hash is not supported in dotnet, so they won't find a match. Must be translated to underscores. */
+    cLinkNameOP#    = replace(cLinkNameOP#,"#","_").
+    cLinkNameAltOP# = replace(cLinkNameAltOP#,"#","_").
+      
+    /* Forced convention: "tt" is not needed in UI design and should be omitted. */
+    if cLinkNameOP#    begins "tt" then cLinkNameOP#    = substring(cLinkNameOP#,3).
+    if cLinkNameAltOP# begins "tt" then cLinkNameAltOP# = substring(cLinkNameAltOP#,3).
+      
+  end method. /* GetLinkNameLinkNameAlt */
   
   
   method public static Progress.Lang.Object GetWidget(
@@ -193,70 +306,12 @@ class paninui.view.use.sc_coll_widgetdata   :
     define variable cLinkName#    as character no-undo.
     define variable cLinkNameAlt# as character no-undo.
     
-    define variable iIndex#       as integer   no-undo.
-
     define buffer ttUIFrame    for ttUIFrame.
     define buffer ttWidgetData for ttWidgetData.
     
     do for ttUIFrame, ttWidgetData:
       
-      if cDataRefIP# > "" then do:
-        cLinkName# = cDataRefIP#.
-      end.
-      else
-      case cWidgetTypeIP#:
-        when "grid" then 
-          case hBuffOrQueryIP#:type:
-            when "data-relation" then 
-              do:
-                assign
-                  /* We first search for a widget with the exact buffer name.
-                     If not found, we search for a widget with the temp-table name.
-                   */
-                  cLinkName# = hBuffOrQueryIP#:child-buffer:name.
-                cLinkNameAlt# = hBuffOrQueryIP#:child-buffer:table-handle:name.
-              end.
-            otherwise 
-            do:
-              assign
-                /* We first search for a widget with the exact buffer name.
-                   If not found, we search for a widget with the temp-table name.
-                 */
-                cLinkName# = hBuffOrQueryIP#:name.
-              if hBuffOrQueryIP#:type = "buffer" then cLinkNameAlt# = hBuffOrQueryIP#:table-handle:name.
-            end.
-          end case.
-        otherwise 
-        cLinkName# = cDataRefIP#.
-      end case.
-      
-      /* Search the left 15 characters for a buffer temp-table prefix */
-      iIndex# = r-index(cLinkName#,"-tt",15).
-      if iIndex# > 0 then 
-      do:
-        /* Translate example: b-xxx-ttYYY -> b_xxx_Yyy */
-        substring(cLinkName#,iIndex# + 1, 2) = "".
-      end.
-      
-      /* Search the left 15 characters for a buffer temp-table prefix */
-      iIndex# = r-index(cLinkNameAlt#,"-tt",15).
-      if iIndex# > 0 then 
-      do:
-        /* Translate example: b-xxx-ttYYY -> b_xxx_Yyy */
-        substring(cLinkNameAlt#,iIndex# + 1, 2) = "".
-      end.
-      
-      /* Dash is not supported in dotnet, so they won't find a match. Must be translated to underscores. */
-      cLinkName#    = replace(cLinkName#,"-","_").
-      cLinkNameAlt# = replace(cLinkNameAlt#,"-","_").
-      
-      /* Hash is not supported in dotnet, so they won't find a match. Must be translated to underscores. */
-      cLinkName#    = replace(cLinkName#,"#","_").
-      cLinkNameAlt# = replace(cLinkNameAlt#,"#","_").
-      
-      /* Forced convention: "tt" is not needed in UI design and should be omitted. */
-      if cLinkName#    begins "tt" then cLinkName#    = substring(cLinkName#,3).
-      if cLinkNameAlt# begins "tt" then cLinkNameAlt# = substring(cLinkNameAlt#,3).
+      GetLinkNameLinkNameAlt(cDataRefIP#, cWidgetTypeIP#, hBuffOrQueryIP#, output cLinkName#, output cLinkNameAlt#).
       
       b_getwidget:
       for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
@@ -326,6 +381,23 @@ class paninui.view.use.sc_coll_widgetdata   :
   end method. /* GetWidget : only by type (or any type) and name */
   
   
+  method public static void SetBindingSource (oWidgetIP# as Progress.Lang.Object, oBindingSourceIP# as Progress.Lang.Object):
+    
+    define variable bEclipseFix# as logical no-undo.
+    define buffer ttWidgetData for ttWidgetData.
+    
+    if oWidgetIP# <> ? and oBindingSourceIP# <> ? then 
+    do for ttWidgetData:
+      
+      find first ttWidgetData where ttWidgetData.oWidget = oWidgetIP#.
+      
+      ttWidgetData.oBindingSource = oBindingSourceIP#.
+      
+    end.
+    
+  end method. /* SetBindingSource */
+  
+  
   method public static void SetDisplayLinked(oWidgetIP# as Progress.Lang.Object):
     
     define variable bEclipseFix# as logical no-undo.
@@ -375,7 +447,7 @@ class paninui.view.use.sc_coll_widgetdata   :
   method public static void DebugShowData():
 
     if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(buffer ttWidgetData:handle, panaedra.msf.logic.sc_path:cTempDir + "ttWidgetData.html") then 
-      panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msf.logic.sc_path:cTempDir + "ttWidgetData.html"). /* Open bestandje */
+      panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msf.logic.sc_path:cTempDir + "ttWidgetData.html"). /* Open file */
 
   end method. /* DebugShowData */
 
