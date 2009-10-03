@@ -6,10 +6,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-30 13:41:55+02:00 $ 
-    Date Modified: $Modtime: 2009-09-30 13:40:17+02:00 $ 
+     Date Checkin: $Date: 2009-10-03 22:39:49+02:00 $ 
+    Date Modified: $Modtime: 2009-10-03 22:02:42+02:00 $ 
 
       Description: Simple class for strong-typed query handle passing
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -110,8 +110,69 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     end.
 
   end method. /* PrepareStringSimpleGen */
-  
 
+  define public property PrepareString as character no-undo 
+    get:
+      return if valid-handle(hQuery) then hQuery:prepare-string else "[no_valid_query]".
+    end get. /* PrepareString */
+
+  method public logical SetWhere (iBufferIP# as integer, cWhereIP# as character):
+    
+    define variable cPrep#      as character no-undo.
+    define variable iStartPos#  as integer   no-undo.
+    define variable iEndPos#    as integer   no-undo.
+    define variable cTag#       as character no-undo.
+    define variable iTagLength# as integer   no-undo.
+    
+    /*for each b-qryfull-tt_DATA_ /*[qWhere_001]*/ no-lock, first b-qryfull-tt_DATA_ /*[qWhere_002]*/ of b-qryfull-tt_DATA_ no-lock, first b-qryfull-tt_DATA_Type /*[qWhere_003]*/ of b-qryfull-tt_DATA_ no-lock*/
+    if valid-handle(hQuery) then 
+    do:
+
+      cPrep# = hQuery:prepare-string.
+      if iBufferIP# = ? or iBufferIP# <=0 then iBufferIP# = 1.
+
+      assign
+        cTag#       = "/*[qWhere_" + trim(string(iBufferIP#,"999")) + "]*/"
+        iTagLength# = length(cTag#)
+        iStartPos#  = index(cPrep#, cTag#).
+      
+      if iStartPos# > 0 then 
+      do:
+        iEndPos# = 
+          index(cPrep#, ",", iStartPos#).
+        if iEndPos# = 0 then iEndPos# = length(cPrep#).
+        else iEndPos# = iEndPos# - 1.
+        
+        if substring(cPrep#, iEndPos# - 6, 7) = "no-lock" then iEndPos# = iEndPos# - 7.
+        if substring(cPrep#, iEndPos# - 13, 14) = "exclusive-lock" then iEndPos# = iEndPos# - 14.
+        
+        iStartPos# = iStartPos# + iTagLength#.
+        
+        /* Put space before and/or after submitted where phrase if necessary */
+        if (not cWhereIP# begins " ") and substring(cPrep#, iStartPos# - 1, 1) <> " " then cWhereIP# = " " + cWhereIP#.
+        if (not substring(cWhereIP#, length(cWhereIP#),1) = " ") and substring(cPrep#, iEndPos# + 1, 1) <> " " then cWhereIP# = cWhereIP# + " ".
+
+        substring(cPrep#, iStartPos#, max(1,iEndPos# - iStartPos#)) = cWhereIP#.
+        
+      end.
+      
+      if cPrep# <> hQuery:prepare-string then 
+      do:
+        do on error undo, throw:
+          hQuery:query-prepare(cPrep#).
+          hQuery:query-open().
+          hQuery:get-first().
+          catch e as Progress.Lang.Error :
+            undo, throw new panaedra.msex.logic.c__FCMPNY_exception(999500007,substitute("Query where '&1' is invalid.~n&2~n&3", cWhereIP#, cPrep#, e:GetMessage(1))).
+          end catch.
+        end.
+      end.
+      
+    end.
+
+  end method. /* SetWhere */
+
+  
 end class.
 
 /* EOF */ 
