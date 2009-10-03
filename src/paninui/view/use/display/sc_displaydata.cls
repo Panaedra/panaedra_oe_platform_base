@@ -7,10 +7,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-30 12:07:12+02:00 $ 
-    Date Modified: $Modtime: 2009-09-30 11:49:46+02:00 $ 
+     Date Checkin: $Date: 2009-10-03 22:39:49+02:00 $ 
+    Date Modified: $Modtime: 2009-10-03 16:19:35+02:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -19,7 +19,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -30,8 +30,10 @@ class paninui.view.use.display.sc_displaydata   :
     cWidgetNameIP# as character,
     oQryIP#        as panaedra.msroot.msdr.interfaces.i_qry):
     
-    define variable oWidget#            as Progress.Lang.Object no-undo.
-    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#              as Progress.Lang.Object no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource      no-undo.
+    define variable bIsDisplayLinkedOP#   as logical              no-undo.
     
     oWidget# = sc_coll_widgetdata:GetWidget(
       oFrmLogicIP#:iPackID, 
@@ -42,8 +44,19 @@ class paninui.view.use.display.sc_displaydata   :
     
     if not bIsDisplayLinkedOP# then 
     do:
-      DisplayDataSubGrid(oWidget#, oQryIP#:hQuery).
+
+      oBindingSource# = paninui.view.use.sc_coll_widgetdata:GetBindingSource(
+        oFrmLogicIP#:iPackID, 
+        "grid", 
+        oQryIP#:hQuery, 
+        cWidgetNameIP#).
+      
+
+      DisplayDataSubGrid(oWidget#, oQryIP#:hQuery, input-output oBindingSource#).
+
+      sc_coll_widgetdata:SetBindingSource(oWidget#, oBindingSource#).
       sc_coll_widgetdata:SetDisplayLinked(oWidget#).
+      
     end.
     
   end method. /* DisplayData: Grid + i_qry */
@@ -57,7 +70,7 @@ class paninui.view.use.display.sc_displaydata   :
     
     define variable oWidget#            as Progress.Lang.Object no-undo.
     define variable bIsDisplayLinkedOP# as logical              no-undo.
-    define variable oBindingSource#     as c_bindingsource      no-undo.
+    define variable oBindingSource#     as Progress.Lang.Object no-undo.
     define variable hQuery#             as handle               no-undo.
     define variable hRelation#          as handle               no-undo.
     
@@ -86,7 +99,7 @@ class paninui.view.use.display.sc_displaydata   :
         
       if (hQuery# <> ?) then 
       do: 
-        DisplayDataSubGrid(oWidget#, hQuery#).
+        DisplayDataSubGrid(oWidget#, hQuery#, input-output oBindingSource#).
         sc_coll_widgetdata:SetDisplayLinked(oWidget#).
       end. /* Valid query */
       
@@ -95,22 +108,28 @@ class paninui.view.use.display.sc_displaydata   :
   end method. /* DisplayData : Grid + DataSet */
 
 
-  method protected static void DisplayDataSubGrid(oWidgetIP# as Progress.Lang.Object, hQueryIP# as handle):
+  method protected static void DisplayDataSubGrid(oWidgetIP# as Progress.Lang.Object, hQueryIP# as handle, input-output oBindingSourceIOP# as Progress.Lang.Object):
     
-    define variable oFormsGrid#     as System.Windows.Forms.DataGridView       no-undo.
-    define variable oBindingSource# as c_bindingsource                         no-undo.
-    define variable oGridColumns#   as Progress.Lang.Object                    no-undo extent.
-    define variable iExtent#        as integer                                 no-undo.
-    define variable oColumn#        as System.Windows.Forms.DataGridViewColumn no-undo.
+    define variable oFormsGrid#           as System.Windows.Forms.DataGridView       no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource                         no-undo.
+    define variable oGridColumns#         as Progress.Lang.Object                    no-undo extent.
+    define variable iExtent#              as integer                                 no-undo.
+    define variable oColumn#              as System.Windows.Forms.DataGridViewColumn no-undo.
 
     if type-of(oWidgetIP#, System.Windows.Forms.DataGridView) then 
     do:
       oFormsGrid# = cast(oWidgetIP#, System.Windows.Forms.DataGridView).
       if (hQueryIP# <> ?) then 
-      do:                      
-        oBindingSource# = new c_bindingsource(sc_bindingsourcetype:i_Query, hQueryIP#).
+      do:
+        if oBindingSourceIOP# = ? then do:                      
+          oBindingSourceStrong# = new c_bindingsource(sc_bindingsourcetype:i_Query, hQueryIP#).
+          oBindingSourceIOP# = oBindingSourceStrong#.
+        end.
+        else do:
+          oBindingSourceStrong# = cast(oBindingSourceIOP#, c_bindingsource).
+        end.
         oFormsGrid#:AutoGenerateColumns = false.
-        oFormsGrid#:DataSource = oBindingSource#.
+        oFormsGrid#:DataSource = oBindingSourceStrong#.
         sc_coll_widgetdata:GetGridColumns(oFormsGrid#, output oGridColumns#).
         do iExtent# = 1 to extent(oGridColumns#):
           if type-of(oGridColumns#[iExtent#], System.Windows.Forms.DataGridViewColumn) then 
