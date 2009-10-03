@@ -1,19 +1,19 @@
 
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata_tt.i $ 
-        Version: $Revision: 3 $ 
+        Version: $Revision: 4 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-09-02 16:47:42+02:00 $ 
-  Date Modified: $Modtime: 2009-08-31 18:13:10+02:00 $ 
+   Date Checkin: $Date: 2009-10-03 22:39:49+02:00 $ 
+  Date Modified: $Modtime: 2009-10-03 16:05:13+02:00 $ 
 
     Description: add_your_comments_here
 
 \**************************** End of Dvcs_ Header ****************************/
 &if '{&dvcs__paninui_view_use_sc_coll_widgetdata_tt_i}' = '' &then
 &glob dvcs__paninui_view_use_sc_coll_widgetdata_tt_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_widgetdata_tt_i $Revision: 3 $
+&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_widgetdata_tt_i $Revision: 4 $
 &if '{&class}' = '' &then
-procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 3 $". end.
+procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 4 $". end.
 &endif
 /******************************* $NoKeywords:  $ *****************************/
 
@@ -43,6 +43,7 @@ procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 3 $
 
     field oParent             as Progress.Lang.Object
     field oWidget             as Progress.Lang.Object  
+    field oBindingSource      as Progress.Lang.Object  
     field cWidgetType         as character            format "x(50)" xml-node-type "attribute" 
     field cWidgetName         as character            format "x(50)" xml-node-type "attribute" 
     field cLinkName           as character            format "x(50)" xml-node-type "attribute" 
