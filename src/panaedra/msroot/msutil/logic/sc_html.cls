@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_html:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_html.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-02 11:47:19+02:00 $ 
-    Date Modified: $Modtime: 2009-10-02 11:46:49+02:00 $ 
+     Date Checkin: $Date: 2009-10-03 23:57:47+02:00 $ 
+    Date Modified: $Modtime: 2009-10-03 23:51:06+02:00 $ 
 
       Description: Genereren van HTML code, bv voor reporting.
 
@@ -16,7 +16,7 @@ class panaedra.msroot.msutil.logic.sc_html:
   /************************  Source control constructor ************************/
   constructor public sc_html(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -71,6 +71,7 @@ class panaedra.msroot.msutil.logic.sc_html:
     
     /* Foutfhandeling */
     catch e as Progress.Lang.Error :
+      panaedra.msex.logic.sc_showexception-win32:ShowException(e).
       return false.  		
     end catch.
     
@@ -103,35 +104,52 @@ class panaedra.msroot.msutil.logic.sc_html:
     define variable cBgColor#     as character no-undo.
     
     define variable cBGColorParm# as character no-undo.
+    define variable bHandled#     as logical   no-undo.
 
     put unformatted '<tr>'.
     
     do iField# = 1 to hBuffIP#:num-fields:
       
-      hField# = hBuffIP#:buffer-field(iField#).
+      assign
+        bHandled# = false
+        hField#   = hBuffIP#:buffer-field(iField#).
       
       /* Zet de waarde van het huidige veld om in html geschikte text en zet dit
          in het goede format */
-      cLine# = 
-        if hField#:data-type = "character" then 
-        hField#:buffer-value 
-        else 
-         (if hField#:data-type = "Progress.Lang.Object" 
-          then (if not valid-object(cast(hField#:buffer-value,Progress.Lang.Object)) 
-                then "no-object" 
-                else string(hField#:buffer-value))
-          else
-           (if hField#:data-type begins "datetime" 
-            then string(hField#:buffer-value,"99-99-9999 hh:mm:ss.sss")
-            else FormatBufferValue(hField#))). 
+      if not bHandled# and hField#:data-type = "character" then 
+        assign
+          bHandled# = true
+          cLine#    = hField#:buffer-value.
+          
+      if not bHandled# and hField#:data-type = "Progress.Lang.Object" then
+        assign
+          bHandled# = true
+          cLine#    = ( if not valid-object(cast(hField#:buffer-value,Progress.Lang.Object)) 
+                        then "no-object" 
+                        else string(hField#:buffer-value)).
+         
+      if not bHandled# and hField#:data-type begins "datetime"  then
+        assign
+          bHandled# = true
+          cLine#    = string(hField#:buffer-value,"99-99-9999 hh:mm:ss.sss").
+          
+      if not bHandled# and hField#:data-type = "int64"  then
+        assign
+          bHandled# = true
+          cLine#    = trim(string(hField#:buffer-value,"->>>,>>>,>>>,>>>,>>>,>>>,>>>,>>>,>>>,>>>,>>>,>>>,>>>,>>>,>>>,>>>,>>>,>>>,>>9")).
+          
+      if not bHandled# then
+        assign
+          bHandled# = true
+          cLine#    = FormatBufferValue(hField#). 
       
-      
-      cLine# = replace(cLine#, "~n", "<br/>").
-      cLine# = replace(cLine#, "<", "&lt;").
-      cLine# = replace(cLine#, ">", "&gt;").
-      cLine# = replace(cLine#, "&", "&amp;").
-      cLine# = replace(cLine#, "'", "&quot;").
-      cLine# = replace(cLine#, '"', "&quot;").
+      assign
+        cLine# = replace(cLine#, "~n", "<br/>")
+        cLine# = replace(cLine#, "<", "&lt;")
+        cLine# = replace(cLine#, ">", "&gt;")
+        cLine# = replace(cLine#, "&", "&amp;")
+        cLine# = replace(cLine#, "'", "&quot;")
+        cLine# = replace(cLine#, '"', "&quot;").
       
       cBGColorParm# = panaedra.msroot.msutil.logic.sc_string_csv:getparam(hBuffIP#:buffer-field(iField#):help, "HtmlBackColor"). 
        
