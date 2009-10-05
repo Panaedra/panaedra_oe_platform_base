@@ -5,10 +5,10 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/display/c_bindingsource.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-03 22:39:49+02:00 $ 
-    Date Modified: $Modtime: 2009-10-03 19:17:06+02:00 $ 
+     Date Checkin: $Date: 2009-10-05 09:49:09+02:00 $ 
+    Date Modified: $Modtime: 2009-10-04 02:31:55+02:00 $ 
 
     Description:  _CMPNY_ inheritance van de progress DataSource. 
                   Bedoeld om onvolkomenheden van de progress DataSource
@@ -19,7 +19,7 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
   /************************  Source control constructor ************************/
   constructor public c_bindingsource(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -32,6 +32,11 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
     
     super ().
     
+    /* TODO: Don't know the exact effects of the following three settings. */
+    this-object:AutoSort = true.
+    this-object:AutoSync = true.
+    this-object:Batching = true.
+    
   end constructor.
         
 
@@ -39,6 +44,10 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
     
     super (hQueryIP#).
     
+    this-object:AutoSort = true.
+    this-object:AutoSync = true.
+    this-object:Batching = true.
+
     cLocalName = hQueryIP#:name.
     
   end constructor.
@@ -47,6 +56,10 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
   constructor public c_bindingsource(oBufferOVIP# as paninui.view.init.display.i_bindingsourcetype_buffer, hBufferIP# as handle ):
     
     this-object(hBufferIP#).
+
+    this-object:AutoSort = true.
+    this-object:AutoSync = true.
+    this-object:Batching = true.
     
     cLocalName = hBufferIP#:name.
     
@@ -71,11 +84,15 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
     else
       hQuery# = hBufferOrQueryIP#.    
     
+    this-object:AutoSort = true.
+    this-object:AutoSync = true.
+    this-object:Batching = true.
+    
     this-object:handle = hQuery#.
     
     cLocalName = hBufferOrQueryIP#:name.
 
-  end constructor.      
+  end constructor.
   
   
   method public override character ToString():
