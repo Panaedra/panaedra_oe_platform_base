@@ -8,10 +8,10 @@ class paninui.view.use.sc_coll_eventdata:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-03 22:37:16+02:00 $ 
-    Date Modified: $Modtime: 2009-10-03 22:35:29+02:00 $ 
+     Date Checkin: $Date: 2009-10-05 09:49:09+02:00 $ 
+    Date Modified: $Modtime: 2009-10-04 22:33:11+02:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -23,7 +23,7 @@ class paninui.view.use.sc_coll_eventdata:
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -54,14 +54,20 @@ class paninui.view.use.sc_coll_eventdata:
     
     define variable oBindingSource#       as Progress.Lang.Object no-undo.
     define variable oBindingSourceStrong# as c_bindingsource      no-undo.
+    def buffer ttUiEvent for ttUiEvent.
     
-    oBindingSource# = paninui.view.use.sc_coll_widgetdata:GetBindingSource(iPackIDIP#,"grid",?,cWidgetNameIP#).
+    do for ttUiEvent:
+          
+      oBindingSource# = paninui.view.use.sc_coll_widgetdata:GetBindingSource(iPackIDIP#,"grid",?,cWidgetNameIP#).
     
-    if oBindingSource# <> ? and type-of(oBindingSource#,c_bindingsource) then 
-    do:
-      oBindingSourceStrong# = cast(oBindingSource#,c_bindingsource).
-      GetSingleton().
-      oBindingSourceStrong#:PositionChanged:Subscribe(oSingleton:OnPositionChanged).
+      if oBindingSource# <> ? and type-of(oBindingSource#,c_bindingsource) then 
+      do:
+        oBindingSourceStrong# = cast(oBindingSource#,c_bindingsource).
+        GetSingleton().
+        if not can-find(first ttUiEvent where ttUiEvent.oWidget = oBindingSource# and ttUiEvent.cEventType = "PositionChanged") then
+          oBindingSourceStrong#:PositionChanged:Subscribe(oSingleton:OnPositionChanged).
+      end.
+      
     end.
     
     return ItemAdd(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oBindingSource#, cWidgetNameIP#, "query", cEventTypeIP#).
