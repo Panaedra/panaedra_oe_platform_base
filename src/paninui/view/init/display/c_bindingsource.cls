@@ -5,10 +5,10 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/display/c_bindingsource.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-05 09:49:09+02:00 $ 
-    Date Modified: $Modtime: 2009-10-04 02:31:55+02:00 $ 
+     Date Checkin: $Date: 2009-10-05 15:56:09+02:00 $ 
+    Date Modified: $Modtime: 2009-10-05 15:35:47+02:00 $ 
 
     Description:  _CMPNY_ inheritance van de progress DataSource. 
                   Bedoeld om onvolkomenheden van de progress DataSource
@@ -19,7 +19,7 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
   /************************  Source control constructor ************************/
   constructor public c_bindingsource(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -79,6 +79,9 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
       hCustomQuery:set-buffers(hCustomBuffer).
       hCustomQuery:query-prepare(subst("for each &1", hCustomBuffer:name)).
       hCustomQuery:query-open.
+      if search("panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.p") <> ?
+      or search("panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.r") <> ?
+      then run panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.p("evt@c_bindingsource@queryopen", "", this-object).
       hQuery# = hCustomQuery.    
     end.
     else
