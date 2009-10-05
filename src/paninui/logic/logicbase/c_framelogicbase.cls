@@ -4,15 +4,14 @@ class paninui.logic.logicbase.c_framelogicbase
   inherits 
   paninui.view.framebase.c_uiframe 
   implements 
-  paninui.view.interfaces.i_frmlogic,  
-  tool.i-frm-join_base: 
+  paninui.view.interfaces.i_frmlogic: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/logic/logicbase/c_framelogicbase.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-05 14:48:49+02:00 $ 
-    Date Modified: $Modtime: 2009-10-05 11:57:59+02:00 $ 
+     Date Checkin: $Date: 2009-10-05 15:56:09+02:00 $ 
+    Date Modified: $Modtime: 2009-10-05 15:53:12+02:00 $ 
 
       Description: Baseclass for frame logic classes.
 
@@ -21,7 +20,7 @@ class paninui.logic.logicbase.c_framelogicbase
   /************************  Source control constructor ************************/
   constructor public c_framelogicbase(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -48,17 +47,6 @@ class paninui.logic.logicbase.c_framelogicbase
       return iFrmLogicIDProtected.
     end get.
   
-
-  define property UniqueUiLogicName as character no-undo 
-    public get:
-      return subst("&1_&2", this-object:ToString(), trim(string(iFrmLogicIDProtected))).
-    end get.
-
-
-  define property oJoiner as tool.c-ui_joiner no-undo 
-    public get. 
-    public set.
-
 
   method public void SetPackID (oPackIP# as paninui.pack.interfaces.i_pack):
     
