@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_eventbroadcaster.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-24 13:41:24+02:00 $ 
-    Date Modified: $Modtime: 2009-09-24 13:40:40+02:00 $ 
+     Date Checkin: $Date: 2009-10-05 14:48:49+02:00 $ 
+    Date Modified: $Modtime: 2009-10-05 11:13:55+02:00 $ 
 
       Description: Broadcasts events.
       
@@ -28,7 +28,7 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
   /************************  Source control constructor ************************/
   constructor public sc_eventbroadcaster(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -96,12 +96,33 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
   
   method public static void FireEvent (cEventNameIP# as char):
     
-    FireEvent(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#)).
+    FireEventSub(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#)).
 
   end method. /* FireEvent */  
   
   
-  method public static logical FireEvent (cEventNameIP# as char, oDataIP# as i_eventbroadcastdata ):
+  method public static void FireEvent (cEventNameIP# as char, cEventDataIP# as char):
+    
+    FireEventSub(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, cEventDataIP#)).
+
+  end method. /* FireEvent */  
+  
+  
+  method public static void FireEvent (cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object):
+    
+    FireEventSub(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#)).
+
+  end method. /* FireEvent */  
+  
+
+  method public static logical FireCustomEvent (cEventNameIP# as char, oDataIP# as i_eventbroadcastdata):
+    
+    FireEventSub(cEventNameIP#, oDataIP#).
+
+  end method. /* FireCustomEvent */  
+
+  
+  method protected static logical FireEventSub (cEventNameIP# as char, oDataIP# as i_eventbroadcastdata):
     
     define variable bEclipseFix# as logical no-undo.
     define buffer ttEventClient for ttEventClient.
