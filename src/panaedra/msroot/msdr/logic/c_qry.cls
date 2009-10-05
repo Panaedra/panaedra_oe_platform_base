@@ -6,24 +6,28 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-05 09:49:09+02:00 $ 
-    Date Modified: $Modtime: 2009-10-04 23:41:10+02:00 $ 
+     Date Checkin: $Date: 2009-10-05 14:48:49+02:00 $ 
+    Date Modified: $Modtime: 2009-10-05 14:33:04+02:00 $ 
 
-      Description: Simple class for strong-typed query handle passing
+      Description: ABL Query Wrapper Class for strong-typed query handle passing.
+                   
+                   This class is not dependent on sc_datasetpool (but does support 
+                   the datasetpool by loose coupling through a broadcastedevent).
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected variable hQueryPrivate       as handle no-undo.
   define protected variable hQueryOnHoldPrivate as handle no-undo.
+
 
   define public property hQuery as handle no-undo
     get:
@@ -33,6 +37,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
       hQueryPrivate = hQueryIP#.
     end set.
   
+
   define public property hQueryOnHold as handle no-undo
     get:
       return hQueryOnHoldPrivate.
@@ -41,6 +46,13 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
       hQueryOnHoldPrivate = hQueryIP#.
     end set.
   
+
+  define public property PrepareString as character no-undo 
+    get:
+      return if valid-handle(hQuery) then hQuery:prepare-string else "[no_valid_query]".
+    end get. /* PrepareString */
+
+
   constructor public c_qry(hQueryIP# as handle):
     
     hQuery = hQueryIP#.
@@ -50,6 +62,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   method public void PrepareStringSimpleGen():
     
+    /* Call the static version of this method */
     panaedra.msroot.msdr.logic.c_qry:PrepareStringSimpleGen(hQueryPrivate).
 
   end method. /* PrepareStringSimpleGen */
@@ -120,12 +133,16 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   end method. /* PrepareStringSimpleGen */
 
-  define public property PrepareString as character no-undo 
-    get:
-      return if valid-handle(hQuery) then hQuery:prepare-string else "[no_valid_query]".
-    end get. /* PrepareString */
 
   method public logical SetWhere (iBufferIP# as integer, cWhereIP# as character):
+    
+    /* Call the static version of this method */
+    panaedra.msroot.msdr.logic.c_qry:SetWhere(this-object,iBufferIP#,cWhereIP#).
+    
+  end method. /* SetWhere */
+  
+
+  method public static logical SetWhere (oQryIP# as panaedra.msroot.msdr.logic.c_qry, iBufferIP# as integer, cWhereIP# as character):
     
     define variable cPrep#      as character no-undo.
     define variable iStartPos#  as integer   no-undo.
@@ -134,10 +151,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     define variable iTagLength# as integer   no-undo.
     
     /*for each b-qryfull-tt_DATA_ /*[qWhere_001]*/ no-lock, first b-qryfull-tt_DATA_ /*[qWhere_002]*/ of b-qryfull-tt_DATA_ no-lock, first b-qryfull-tt_DATA_Type /*[qWhere_003]*/ of b-qryfull-tt_DATA_ no-lock*/
-    if valid-handle(hQuery) then 
+    if valid-handle(oQryIP#:hQuery) then 
     do:
 
-      cPrep# = hQuery:prepare-string.
+      cPrep# = oQryIP#:hQuery:prepare-string.
       if iBufferIP# = ? or iBufferIP# <=0 then iBufferIP# = 1.
 
       assign
@@ -165,12 +182,12 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
         
       end.
       
-      if cPrep# <> hQuery:prepare-string then 
+      if cPrep# <> oQryIP#:hQuery:prepare-string then 
       do:
         do on error undo, throw:
-          hQuery:query-prepare(cPrep#).
-          hQuery:query-open().
-          /*          hQuery:get-first().*/
+          oQryIP#:hQuery:query-prepare(cPrep#).
+          oQryIP#:hQuery:query-open().
+          sc_eventbroadcaster:FireEvent("evt@c_qry@queryopen", oQryIP#).
           catch e as Progress.Lang.Error :
             undo, throw new panaedra.msex.logic.c__FCMPNY_exception(999500007,substitute("Query where '&1' is invalid.~n&2~n&3", cWhereIP#, cPrep#, e:GetMessage(1))).
           end catch.
@@ -184,6 +201,14 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   method public void Resync():
     
+    /* Call the static version of this method */
+    panaedra.msroot.msdr.logic.c_qry:Resync(this-object).
+    
+  end method. /* Resync */
+
+
+  method public static void Resync(oQryIP# as panaedra.msroot.msdr.logic.c_qry):
+    
     /* Resync syncs the local buffers of the OnHold query to the rowid's of the query that's in use.
        Normally these are static buffers, so this method facilitates strong typed source code. 
     */
@@ -192,24 +217,43 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     define variable rRowid# as rowid   no-undo.
     
     if 
-      this-object:hQueryOnHold <> ? and 
-      this-object:hQueryOnHold <> this-object:hQuery then 
+      oQryIP#:hQueryOnHold <> ? and 
+      oQryIP#:hQueryOnHold <> oQryIP#:hQuery then 
     do:
       
-      do iTell# = 1 to this-object:hQueryOnHold:num-buffers:
+      do iTell# = 1 to oQryIP#:hQueryOnHold:num-buffers:
         
-        rRowid# = this-object:hQuery:get-buffer-handle(iTell#):rowid.
+        rRowid# = oQryIP#:hQuery:get-buffer-handle(iTell#):rowid.
         
         if rRowid# = ? then
-          this-object:hQueryOnHold:get-buffer-handle(iTell#):buffer-release().
+          oQryIP#:hQueryOnHold:get-buffer-handle(iTell#):buffer-release().
         else
-          this-object:hQueryOnHold:get-buffer-handle(iTell#):find-by-rowid(rRowid#, no-lock).
+          oQryIP#:hQueryOnHold:get-buffer-handle(iTell#):find-by-rowid(rRowid#, no-lock).
         
       end.
       
     end.
 
   end method. /* Resync */
+
+
+  method public logical QueryOpen():
+    
+    hQuery:query-open().
+    hQuery:get-first().
+    sc_eventbroadcaster:FireEvent("evt@c_qry@queryopen", this-object).
+    return hQuery:query-off-end.
+    
+  end method. /* QueryOpen */
+  
+
+  method public logical QueryGetNext():
+    
+    hQuery:get-next().
+    sc_eventbroadcaster:FireEvent("evt@c_qry@querygetnext", this-object).
+    return hQuery:query-off-end.
+    
+  end method. /* QueryOpen */
   
 
 end class.
