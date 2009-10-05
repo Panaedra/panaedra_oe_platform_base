@@ -12,10 +12,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-05 14:48:49+02:00 $ 
-    Date Modified: $Modtime: 2009-10-05 14:39:05+02:00 $ 
+     Date Checkin: $Date: 2009-10-05 19:48:09+02:00 $ 
+    Date Modified: $Modtime: 2009-10-05 19:36:35+02:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -27,7 +27,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -37,6 +37,7 @@ class paninui.view.use.sc_coll_eventdata
   constructor protected sc_coll_eventdata():
     
     sc_eventbroadcaster:SubscribeEvent(this-object,"evt@c_qry@queryopen").
+    sc_eventbroadcaster:SubscribeEvent(this-object,"evt@c_bindingsource@queryopen").
 
   end constructor.
 
@@ -172,6 +173,11 @@ class paninui.view.use.sc_coll_eventdata
           OnQueryOpen(cast(oBroadcastDataIP#:oData, panaedra.msroot.msdr.logic.c_qry)).
         end.
         
+      when "evt@c_bindingsource@queryopen" then 
+        do:
+          OnBindingSourceQueryOpen(cast(oBroadcastDataIP#:oData, paninui.view.init.display.c_bindingsource)).
+        end.
+        
     end case.
     
   end method. /* OnEventBroadcast */
@@ -206,10 +212,166 @@ class paninui.view.use.sc_coll_eventdata
   end method. /* OnQueryOpen */
   
 
+  method protected static void OnBindingSourceQueryOpen (oBindIP# as paninui.view.init.display.c_bindingsource):
+    
+    define variable iSuspendedPackID# as int64 no-undo.
+    define buffer ttUiEvent for ttUiEvent.
+    
+    iSuspendedPackID# = SuspendedEvent("query", "QueryOpen", oBindIP#).
+
+    if iSuspendedPackID# = 0 then do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.hWidget = oBindIP#:Handle and ttUiEvent.cEventType = "QueryOpen"
+        on error undo,throw:
+        paninui.view.use.delegates.sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events 
+           Note: QueryOpen in fact isn't a real .NET event, but a broadcasted event.
+                 For consistancy, we handle it the same way.
+         */
+        panaedra.msex.logic.sc_showexception-win32:ShowException(ex).
+      end catch.
+    
+    end. /* Strong scoping */
+
+  end method. /* OnBindingSourceQueryOpen */
+
+ 
+  method protected static int64 SuspendedEvent(
+    cEventNameIP# as character,
+    cEventTypeIP# as character,
+    oWidgetIP# as Progress.Lang.Object):
+
+    define variable iReturn# as int64 no-undo.
+    define buffer ttEventsSuspend for ttEventsSuspend.
+    
+    do for ttEventsSuspend:
+      
+      find first ttEventsSuspend
+        where   ttEventsSuspend.cEventName = cEventNameIP#
+        and     ttEventsSuspend.cEventType = cEventTypeIP#
+        and     ttEventsSuspend.bSuspendAll
+        no-error.
+      
+      if avail ttEventsSuspend then 
+      do:
+        
+        iReturn# = ttEventsSuspend.iPackID.
+        
+        create ttEventsSuspend.
+        sc_dbtrig:OnWriteOrCreate(buffer ttEventsSuspend:handle).
+        assign 
+          ttEventsSuspend.cEventName = cEventNameIP#
+          ttEventsSuspend.cEventType = cEventTypeIP#
+          ttEventsSuspend.oWidget    = oWidgetIP#.
+          
+        if type-of(oWidgetIP#,paninui.view.init.display.c_bindingsource) then
+          ttEventsSuspend.hWidget     = cast(oWidgetIP#,paninui.view.init.display.c_bindingsource):Handle.
+        else
+          if type-of(oWidgetIP#,panaedra.msroot.msdr.logic.c_qry) then
+            ttEventsSuspend.hWidget   = cast(oWidgetIP#,panaedra.msroot.msdr.logic.c_qry):hQuery.
+
+        return iReturn#.
+        
+      end.  
+      
+    end.
+    
+    return iReturn#.
+
+  end method. /* SuspendedEvent */ 
+ 
+
+  method public static void EventsSuspend(
+    iPackIDIP#    as int64,
+    cEventNameIP# as character,
+    cEventTypeIP# as character
+    ):
+    
+    /* Puts events in a seperate temp-table instead of firing them */
+    
+    define variable bEclipseFix# as logical no-undo.
+    define buffer ttEventsSuspend for ttEventsSuspend.
+    
+    do for ttEventsSuspend:
+      
+      create ttEventsSuspend.
+      sc_dbtrig:OnWriteOrCreate(buffer ttEventsSuspend:handle).
+      assign 
+        ttEventsSuspend.iPackID     = iPackIDIP#
+        ttEventsSuspend.cEventName  = cEventNameIP#
+        ttEventsSuspend.cEventType  = cEventTypeIP#
+        ttEventsSuspend.bSuspendAll = true
+        .
+        
+    end.
+    
+  end method. /* EventsSuspend */
+
+
+  method public static void EventsResume(iPackIDIP# as int64):
+    
+    /* Fires the suspended events and removes them from the temp-table */
+    
+    define variable bEclipseFix# as logical no-undo.
+    define buffer ttEventsSuspend for ttEventsSuspend.
+    
+    do for ttEventsSuspend:
+      
+      for each ttEventsSuspend
+        where ttEventsSuspend.iPackID = iPackIDIP#
+        and   ttEventsSuspend.bSuspendAll:
+          
+        delete ttEventsSuspend.
+        
+      end.
+      
+      if not can-find(first ttEventsSuspend where ttEventsSuspend.bSuspendAll) then 
+      do:
+        for each ttEventsSuspend 
+          /* Note: negative ID's, so sort descending */
+          by ttEventsSuspend.iIDEventsSuspend descending:
+          
+          case ttEventsSuspend.cEventType:
+          
+            when "QueryOpen" then 
+              do:
+                OnBindingSourceQueryOpen(cast(ttEventsSuspend.oWidget,paninui.view.init.display.c_bindingsource)).
+              end.
+          
+            otherwise 
+            do: 
+              System.Windows.Forms.MessageBox:Show(subst(
+                "Warning: '&1' has no support for suspending event types of '&2'.", 
+                program-name(1), 
+                ttEventsSuspend.cEventType)).
+            end.
+           
+          end case.
+        
+          delete ttEventsSuspend.
+           
+        end. /* For each */
+        
+      end. /* No blockade present; fire events */
+      
+    end. /* Strong scoping */
+    
+  end method. /* EventsResume */
+
+    
   method public static void DebugShowData():
 
-    if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(buffer ttUiEvent:handle, panaedra.msf.logic.sc_path:cTempDir + "ttuieventdata.html") then 
-      panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msf.logic.sc_path:cTempDir + "ttuieventdata.html"). /* Open file */
+    if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(buffer ttUiEvent:handle, panaedra.msf.logic.sc_path:cTempDir + "ttUiEventData.html") then 
+      panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msf.logic.sc_path:cTempDir + "ttUiEventData.html"). /* Open file */
+    
+    if can-find(first ttEventsSuspend) then 
+    do:
+      if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(buffer ttEventsSuspend:handle, panaedra.msf.logic.sc_path:cTempDir + "ttSuspendedEvents.html") then 
+        panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msf.logic.sc_path:cTempDir + "ttSuspendedEvents.html"). /* Open file */
+    end.
 
   end method. /* DebugShowData */    
 
