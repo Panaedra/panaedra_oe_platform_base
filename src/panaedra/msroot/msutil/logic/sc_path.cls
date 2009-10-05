@@ -7,10 +7,10 @@ class panaedra.msf.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msf/logic/sc_path.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-01 10:45:25+02:00 $ 
-    Date Modified: $Modtime: 2009-09-30 16:08:55+02:00 $ 
+     Date Checkin: $Date: 2009-10-05 09:49:09+02:00 $ 
+    Date Modified: $Modtime: 2009-10-05 00:10:27+02:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -22,7 +22,7 @@ class panaedra.msf.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 6 $", "{&sourcecontrolversions}").
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 7 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -321,6 +321,55 @@ class panaedra.msf.logic.sc_path:
   end method. /* Full2PartialPath */
 
 
+  method public static character SplitGetFullFileName (cPathIP# as character):
+    
+    /* Pure string calculation.
+       A string like "one/two/three.i" or "one\two\three.i" returns "three.i". 
+     */
+   
+    if cPathIP# = ? then return "".
+   
+    cPathIP# = replace(cPathIP#,"~\","/").
+   
+    return entry(num-entries(cPathIP#,"/"),cPathIP#,"/").
+
+  end method. /* SplitGetFullFileName */  
+
+
+  method public static character SplitGetFileName (cPathIP# as character):
+    
+    /* Pure string calculation.
+       A string like "one/two/three.i" or "one\two\three.i" returns "three". 
+     */
+     
+    define variable iIndex# as integer no-undo.
+   
+    cPathIP# = SplitGetFullFileName(cPathIP#).
+   
+    iIndex# = r-index(cPathIP#,".").
+    if iIndex# = 0 then return cPathIP#.
+    else return substring(cPathIP#,1,iIndex# - 1).
+
+  end method. /* SplitGetFileName */  
+
+
+  method public static character SplitGetFileExt (cPathIP# as character):
+    
+    /* Pure string calculation.
+       A string like "one/two/three.i" or "one\two\three.i" returns "i". 
+     */
+
+    define variable iIndex# as integer no-undo.
+   
+    cPathIP# = SplitGetFullFileName(cPathIP#).
+   
+    iIndex# = r-index(cPathIP#,".").
+    if iIndex# = 0 then return "".
+    else return substring(cPathIP#,iIndex# + 1).
+
+  end method. /* SplitGetFileExt */  
+
+   
 end class.
 
 /* EOF */
