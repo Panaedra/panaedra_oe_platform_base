@@ -6,10 +6,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-03 22:39:49+02:00 $ 
-    Date Modified: $Modtime: 2009-10-03 22:02:42+02:00 $ 
+     Date Checkin: $Date: 2009-10-05 09:49:09+02:00 $ 
+    Date Modified: $Modtime: 2009-10-04 23:41:10+02:00 $ 
 
       Description: Simple class for strong-typed query handle passing
 
@@ -18,11 +18,12 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  define protected variable hQueryPrivate as handle no-undo.
+  define protected variable hQueryPrivate       as handle no-undo.
+  define protected variable hQueryOnHoldPrivate as handle no-undo.
 
   define public property hQuery as handle no-undo
     get:
@@ -30,6 +31,14 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     end get.
     set(hQueryIP# as handle): 
       hQueryPrivate = hQueryIP#.
+    end set.
+  
+  define public property hQueryOnHold as handle no-undo
+    get:
+      return hQueryOnHoldPrivate.
+    end get.
+    set(hQueryIP# as handle): 
+      hQueryOnHoldPrivate = hQueryIP#.
     end set.
   
   constructor public c_qry(hQueryIP# as handle):
@@ -161,7 +170,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
         do on error undo, throw:
           hQuery:query-prepare(cPrep#).
           hQuery:query-open().
-          hQuery:get-first().
+          /*          hQuery:get-first().*/
           catch e as Progress.Lang.Error :
             undo, throw new panaedra.msex.logic.c__FCMPNY_exception(999500007,substitute("Query where '&1' is invalid.~n&2~n&3", cWhereIP#, cPrep#, e:GetMessage(1))).
           end catch.
@@ -172,7 +181,37 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   end method. /* SetWhere */
 
+
+  method public void Resync():
+    
+    /* Resync syncs the local buffers of the OnHold query to the rowid's of the query that's in use.
+       Normally these are static buffers, so this method facilitates strong typed source code. 
+    */
+    
+    define variable iTell#  as integer no-undo.
+    define variable rRowid# as rowid   no-undo.
+    
+    if 
+      this-object:hQueryOnHold <> ? and 
+      this-object:hQueryOnHold <> this-object:hQuery then 
+    do:
+      
+      do iTell# = 1 to this-object:hQueryOnHold:num-buffers:
+        
+        rRowid# = this-object:hQuery:get-buffer-handle(iTell#):rowid.
+        
+        if rRowid# = ? then
+          this-object:hQueryOnHold:get-buffer-handle(iTell#):buffer-release().
+        else
+          this-object:hQueryOnHold:get-buffer-handle(iTell#):find-by-rowid(rRowid#, no-lock).
+        
+      end.
+      
+    end.
+
+  end method. /* Resync */
   
+
 end class.
 
 /* EOF */ 
