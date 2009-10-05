@@ -3,12 +3,12 @@ interface paninui.view.interfaces.i_frmlogic:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/interfaces/i_frmlogic.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-03 22:39:49+02:00 $ 
-    Date Modified: $Modtime: 2009-10-03 14:16:40+02:00 $ 
+     Date Checkin: $Date: 2009-10-05 14:48:49+02:00 $ 
+    Date Modified: $Modtime: 2009-10-05 11:49:12+02:00 $ 
 
-      Description: add_your_comments_here
+      Description: Interface voor PaninUi Frame Logic Classes (*_frmlg_*.cls).
 
   \*****************************  Include Files ********************************/
 
@@ -16,9 +16,13 @@ interface paninui.view.interfaces.i_frmlogic:
 
   define property iPackID     as int64 get.
   define property iFrmLogicID as int64 get.
-  method logical  InitializeFrameLogic().
+  
   method void     SetPackID (oPackIP# as paninui.pack.interfaces.i_pack).
       
+  method logical  InitializeFrameLogic().
+  method logical  InitializeFrameEvents().
+  method logical  InitializeFrameView().
+  
 end interface.
 
 /* EOF */
