@@ -1,10 +1,10 @@
 &if no &then
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/paninui/logic/includes/c_frmlg_eventhandling.i $ 
-        Version: $Revision: 1 $ 
+        Version: $Revision: 2 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-10-04 00:12:38+02:00 $ 
-  Date Modified: $Modtime: 2009-10-04 00:12:38+02:00 $ 
+   Date Checkin: $Date: 2009-10-05 09:49:09+02:00 $ 
+  Date Modified: $Modtime: 2009-10-04 21:35:02+02:00 $ 
 
     Description: JoinUi uilogic class preprocessors.
 
@@ -28,7 +28,7 @@
 
 \**************************** End of Dvcs_ Header ****************************/
 &endif &glob ~
-    sourcecontrolversions {&sourcecontrolversions} | paninui_logic_includes_c_frmlg_eventhandling_i $Revision: 1 $
+    sourcecontrolversions {&sourcecontrolversions} | paninui_logic_includes_c_frmlg_eventhandling_i $Revision: 2 $
 &if no &then 
 /*$NoKeywords:  $*/ 
 &endif &glob JoinUiSystemObject ~
@@ -41,7 +41,7 @@
     def var iDelegateID# as int64 no-undo.
 &glob JoinUiEventCode ~~n~
     o-joinhelp = sc_coll_delegatedata:JoinInit(this-object,c_eventtype:~{&JoinUiWidget}_~{&JoinUiEvent}). ~~n~
-    o-joinhelp:JoinEvent:subscribe(On_~{&JoinUiWidgetName}_~{&JoinUiEvent}). ~~n~
+    o-joinhelp:JoinEvent:subscribe(On_~{&JoinUiWidget}_~{&JoinUiWidgetName}_~{&JoinUiEvent}). ~~n~
     iDelegateID# = sc_coll_delegatedata:JoinFinish(this-object,o-joinhelp). ~~n~
     delete object o-joinhelp. ~~n~
     paninui.view.use.sc_coll_eventdata:ItemAdd( ~~n~
