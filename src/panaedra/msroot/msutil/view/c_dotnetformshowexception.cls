@@ -10,21 +10,21 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/dotnetformshowexception.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-21 08:28:34+02:00 $ 
-    Date Modified: $Modtime: 2009-09-15 11:00:22+02:00 $ 
+     Date Checkin: $Date: 2009-10-05 16:10:49+02:00 $ 
+    Date Modified: $Modtime: 2009-10-05 16:06:56+02:00 $ 
 
       Description: Tonen van een willekeurige progress exception
 
   \*****************************  Include Files ********************************/
   
-  {panaedra/msex/logic/c__FCMPNY_exception_tt.i &reference-only=reference-only}
+  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &by-reference=by-reference &class=class}
   
   /************************  Source control constructor ************************/
   constructor public dotnetformshowexception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -204,11 +204,11 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
       def var o_CMPNY_Exception# as panaedra.msex.logic.c__FCMPNY_exception no-undo.
       o_CMPNY_Exception# = cast(ex, panaedra.msex.logic.c__FCMPNY_exception).
       
-      /* Controleer of er gebruik wordt gemaakt van DsExceptions 
+      /* Controleer of er gebruik wordt gemaakt van dsContext 
          (of de fout van de appserver/api komt)*/
       if o_CMPNY_Exception#:bUsesDataset then      
-        /* Haal dataset DsExceptions op, roep de callback routine aan in dit formpje */
-        o_CMPNY_Exception#:GetDsExceptions(this-object).
+        /* Haal dataset dsContext op, roep de callback routine aan in dit formpje */
+        o_CMPNY_Exception#:GetDsContext(this-object).
       else
       do:
         tbinfo:Text = ex:GetMessage(1).
@@ -241,16 +241,16 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   end method. /* ShowException */
 
   
-  method public void CallbackDsExceptions (dataset-handle hDsExceptions# /* by-ref */):
+  method public void CallbackDsContext (dataset-handle hDsContext# /* by-ref */):
     
-    /* Haal DsExceptions op by-reference */
+    /* Haal dsContext op by-reference */
     
-    CallbackDsExceptions2(dataset-handle hDsExceptions#  by-reference).    
+    CallbackDsContext2(dataset-handle hDsContext#  by-reference).    
     
   end method. 
 
 
-  method public void CallbackDsExceptions2(dataset DsExceptions /* dataset-handle hDsExceptions## by-ref */):
+  method public void CallbackDsContext2(dataset dsContext /* dataset-handle hDsContext## by-ref */):
 
     /* Hier is de dataset dsconfig dus opgehaald, en kan er mee gewerkt worden. */
 
