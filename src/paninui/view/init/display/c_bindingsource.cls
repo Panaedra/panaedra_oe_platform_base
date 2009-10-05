@@ -5,10 +5,10 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/display/c_bindingsource.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-05 15:56:09+02:00 $ 
-    Date Modified: $Modtime: 2009-10-05 15:35:47+02:00 $ 
+     Date Checkin: $Date: 2009-10-05 19:48:09+02:00 $ 
+    Date Modified: $Modtime: 2009-10-05 19:18:22+02:00 $ 
 
     Description:  _CMPNY_ inheritance van de progress DataSource. 
                   Bedoeld om onvolkomenheden van de progress DataSource
@@ -19,7 +19,7 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
   /************************  Source control constructor ************************/
   constructor public c_bindingsource(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -37,6 +37,8 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
     this-object:AutoSync = true.
     this-object:Batching = true.
     
+    cLocalName = "[blank]".
+    
   end constructor.
         
 
@@ -49,6 +51,12 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
     this-object:Batching = true.
 
     cLocalName = hQueryIP#:name.
+    if (cLocalName = "" or cLocalName = ?)   and hQueryIP#:type = "query" then cLocalName = hQueryIP#:get-buffer-handle(1):name no-error.
+    if (cLocalName = "" or cLocalName = ?)  then cLocalName = hQueryIP#:type.
+
+    if search("panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.p") <> ?
+    or search("panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.r") <> ?
+    then run panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.p("evt@c_bindingsource@queryopen", "", this-object).
     
   end constructor.
 
@@ -62,6 +70,8 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
     this-object:Batching = true.
     
     cLocalName = hBufferIP#:name.
+    if (cLocalName = "" or cLocalName = ?)   and hBufferIP#:type = "query" then cLocalName = hBufferIP#:get-buffer-handle(1):name no-error.
+    if (cLocalName = "" or cLocalName = ?)  then cLocalName = hBufferIP#:type.
     
   end constructor.      
 
@@ -77,11 +87,8 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
       create buffer hCustomBuffer for table hBufferOrQueryIP#:table-handle buffer-name hBufferOrQueryIP#:name.
       create query hCustomQuery.
       hCustomQuery:set-buffers(hCustomBuffer).
-      hCustomQuery:query-prepare(subst("for each &1", hCustomBuffer:name)).
+      hCustomQuery:query-prepare(subst("preselect each &1", hCustomBuffer:name)).
       hCustomQuery:query-open.
-      if search("panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.p") <> ?
-      or search("panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.r") <> ?
-      then run panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.p("evt@c_bindingsource@queryopen", "", this-object).
       hQuery# = hCustomQuery.    
     end.
     else
@@ -91,10 +98,16 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
     this-object:AutoSync = true.
     this-object:Batching = true.
     
-    this-object:handle = hQuery#.
-    
-    cLocalName = hBufferOrQueryIP#:name.
+    this-object:Handle = hQuery#.
 
+    cLocalName = hBufferOrQueryIP#:name.
+    if (cLocalName = "" or cLocalName = ?) and hBufferOrQueryIP#:type = "query" then cLocalName = hBufferOrQueryIP#:get-buffer-handle(1):name no-error.
+    if (cLocalName = "" or cLocalName = ?) then cLocalName = hBufferOrQueryIP#:type.
+
+    if search("panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.p") <> ?
+    or search("panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.r") <> ?
+    then run panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.p("evt@c_bindingsource@queryopen", "", this-object).
+    
   end constructor.
   
   
