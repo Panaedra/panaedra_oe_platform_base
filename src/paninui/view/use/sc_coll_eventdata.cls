@@ -12,10 +12,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-05 19:48:09+02:00 $ 
-    Date Modified: $Modtime: 2009-10-05 19:36:35+02:00 $ 
+     Date Checkin: $Date: 2009-10-06 09:29:38+02:00 $ 
+    Date Modified: $Modtime: 2009-10-06 09:28:53+02:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -27,7 +27,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -104,7 +104,7 @@ class paninui.view.use.sc_coll_eventdata
       
       catch ex as Progress.Lang.Error:
         /* Catch needed in all .NET events */
-        panaedra.msex.logic.sc_showexception-win32:ShowException(ex).
+        panaedra.msex.logic.sc_showexception:ShowException(ex).
       end catch.
     
     end.
@@ -203,7 +203,7 @@ class paninui.view.use.sc_coll_eventdata
            Note: QueryOpen in fact isn't a real .NET event, but a broadcasted event.
                  For consistancy, we handle it the same way.
          */
-        panaedra.msex.logic.sc_showexception-win32:ShowException(ex).
+        panaedra.msex.logic.sc_showexception:ShowException(ex).
       end catch.
     
     end.
@@ -231,7 +231,7 @@ class paninui.view.use.sc_coll_eventdata
            Note: QueryOpen in fact isn't a real .NET event, but a broadcasted event.
                  For consistancy, we handle it the same way.
          */
-        panaedra.msex.logic.sc_showexception-win32:ShowException(ex).
+        panaedra.msex.logic.sc_showexception:ShowException(ex).
       end catch.
     
     end. /* Strong scoping */
