@@ -9,10 +9,10 @@ class panaedra.msex.logic.sc_showexception:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/sc_showexception.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-06 21:50:54+02:00 $ 
-    Date Modified: $Modtime: 2009-10-06 21:47:48+02:00 $ 
+     Date Checkin: $Date: 2009-10-06 23:52:16+02:00 $ 
+    Date Modified: $Modtime: 2009-10-06 21:57:27+02:00 $ 
 
       Description: Stop alle informatie in .net window en toon hem daarna,
                    indien het fout gaat, geef een normale message.
@@ -22,7 +22,7 @@ class panaedra.msex.logic.sc_showexception:
   /************************  Source control constructor ************************/
   constructor public sc_showexception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -51,9 +51,9 @@ class panaedra.msex.logic.sc_showexception:
            gewoon een message tonen en niet re-throwen.
         */
         message 
-          ex:GetMessage(1) subst("[&1]",ex:GetMessageNum(1)) skip
-          ex:GetMessage(2) subst("[&1]",ex:GetMessageNum(2)) skip
-          ex:GetMessage(3) subst("[&1]",ex:GetMessageNum(3)) skip(1)
+          ex:GetMessage(1) skip
+          ex:GetMessage(2) skip
+          ex:GetMessage(3) skip(1)
           panaedra.msses.logic.sc_info:GetCallStack()
           view-as alert-box title "_CMPNY_ " + string(now,"99-99-9999 hh:mm").
         
@@ -66,15 +66,16 @@ class panaedra.msex.logic.sc_showexception:
     
     assign
       cLastProgram# = panaedra.msses.logic.sc_info:GetCallStack()
-      cLastProgram# = entry(num-entries(cLastProgram#," "), cLastProgram#, " ").
+      cLastProgram# = entry(num-entries(cLastProgram#,chr(10)), cLastProgram#, chr(10))
+      cLastProgram# = entry(num-entries(cLastProgram#," ")    , cLastProgram#, " ").
     
     if length(cLastProgram#) >= 60 then
       cLastProgram# = "..." + 
       substring(cLastProgram#, length(cLastProgram#) - 59).
     
     message 
-      ex:GetMessage(1) subst("[&1]",ex:GetMessageNum(1)) skip
-      ex:GetMessage(2) subst("[&1]",ex:GetMessageNum(2)) skip
+      ex:GetMessage(1) skip
+      ex:GetMessage(2) skip
       cLastProgram#
       view-as alert-box title "_CMPNY_ " + string(now,"99-99-99 hh:mm").
     
