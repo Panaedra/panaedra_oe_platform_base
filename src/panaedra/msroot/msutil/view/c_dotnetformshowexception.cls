@@ -9,10 +9,10 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/dotnetformshowexception.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-06 21:50:54+02:00 $ 
-    Date Modified: $Modtime: 2009-10-06 21:31:38+02:00 $ 
+     Date Checkin: $Date: 2009-10-06 23:52:16+02:00 $ 
+    Date Modified: $Modtime: 2009-10-06 22:51:20+02:00 $ 
 
       Description: Tonen van een willekeurige progress exception
 
@@ -26,7 +26,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   /************************  Source control constructor ************************/
   constructor public dotnetformshowexception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -314,7 +314,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     tbInfo:Text = "".
     if can-find(first ttExceptions) then 
       for each ttExceptions:
-        tbInfo:Text = tbInfo:Text + ttExceptions.cError + chr(13) + chr(10) + chr(13) + chr(10).
+        tbInfo:Text = tbInfo:Text + replace(ttExceptions.cError, chr(10), chr(13) + chr(10)) + chr(13) + chr(10) + chr(13) + chr(10).
       end.
     else 
       tbInfo:Text = "Unknown error.".
