@@ -7,24 +7,26 @@ using Progress.Windows.Form.
 
 class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inherits Form implements panaedra.msex.logic.i__FCMPNY_exception &endif : 
 
-
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/dotnetformshowexception.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-05 16:10:49+02:00 $ 
-    Date Modified: $Modtime: 2009-10-05 16:06:56+02:00 $ 
+     Date Checkin: $Date: 2009-10-06 21:50:54+02:00 $ 
+    Date Modified: $Modtime: 2009-10-06 21:31:38+02:00 $ 
 
       Description: Tonen van een willekeurige progress exception
 
   \*****************************  Include Files ********************************/
   
-  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &by-reference=by-reference &class=class}
+  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &class=class}
+  
+  define protected temp-table ttAblExceptions no-undo like ttExceptions.
+  define protected temp-table ttAblCallStack no-undo like ttCallStack.
   
   /************************  Source control constructor ************************/
   constructor public dotnetformshowexception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -57,7 +59,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 	
     define variable nestedvar as System.Windows.Forms.AnchorStyles no-undo.
 	
-	/* Als details nog niet weergegeven zijn mag dit 1 keer uitgevoerd worden */
+    /* Als details nog niet weergegeven zijn mag dit 1 keer uitgevoerd worden */
     if not bShowDetails then 
     do:
       /* Zet tbInfo anchor bottom uit */
@@ -194,14 +196,22 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 
   method public void ShowException(ex as Progress.Lang.Error):
     
-    this-object:Text = "_CMPNY_ " + string(now, "99-99-9999 hh:mm").
+    assign
+      this-object:Text = "_CMPNY_ " + string(now, "99-99-9999 hh:mm")
+      tbInfo:Text      = ""
+      tbStack:Text     = "".
     
-    tbInfo:Text = "".
+    empty temp-table ttExceptions.
+    empty temp-table ttCallstack.
+    empty temp-table ttAblExceptions.
+    empty temp-table ttAblCallstack.
     
     /* Als het een _FCMPNY_ exception is */
     if type-of(ex, panaedra.msex.logic.c__FCMPNY_exception) then 
     do:
+      
       def var o_CMPNY_Exception# as panaedra.msex.logic.c__FCMPNY_exception no-undo.
+      
       o_CMPNY_Exception# = cast(ex, panaedra.msex.logic.c__FCMPNY_exception).
       
       /* Controleer of er gebruik wordt gemaakt van dsContext 
@@ -211,70 +221,118 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
         o_CMPNY_Exception#:GetDsContext(this-object).
       else
       do:
-        tbinfo:Text = ex:GetMessage(1).
-        if ex:CallStack > "" then
-          tbStack:Text = ex:CallStack. 
-        else
-          tbStack:Text = panaedra.msses.logic.sc_info:GetCallStack() + chr(13) + chr(10).
+        ExceptionToTtAblException(ex).
+        CallstackToTtAblCallstack(ex).
+        /* Call the same method as used by the callback, but now with different (local) temp-tables. */
+        CallbackDsContextStrong(table ttAblExceptions, table ttAblCallStack).
       end.    
     end.
     else 
     do:
-      /* Als het een progress error is */
-      if type-of(ex, Progress.Lang.ProError) then 
-      do:
-        tbInfo:Text = ex:GetMessage(1).
-        SetErrorStack(ex).
-      end.
-      /* Alle overige errors */
-      else 
-      do:
-        tbInfo:Text = ex:GetMessage(1).
-      end.
+      ExceptionToTtAblException(ex).
+      CallstackToTtAblCallstack(ex).
+      /* Call the same method as used by the callback, but now with different (local) temp-tables. */
+      CallbackDsContextStrong(table ttAblExceptions, table ttAblCallStack).
     end.
     
-    if valid-object(ex) and tbStack:Text = "" then 
-    do:
-      tbStack:Text = panaedra.msses.logic.sc_info:GetCallStack().
-    end.     
+    EclipseTopMost().
     
   end method. /* ShowException */
+  
+  
+  method protected void EclipseTopMost():
 
+    define variable cProgramName# as character no-undo.
+    define variable iLastProgram# as integer   no-undo init 1.
+    
+    if not this-object:TopMost then 
+    do:
+      
+      do while program-name(iLastProgram#) > "":
+        iLastProgram# = iLastProgram# + 1.
+      end.
+    
+      this-object:TopMost = replace(program-name(iLastProgram# - 1),"~\","/") matches "*/eclipse/*".
+      
+    end.    
+    
+  end method. /* EclipseTopMost */
+  
+  
+  method protected void ExceptionToTtAblException(ex as Progress.Lang.Error):
+    
+    define variable iTell# as integer no-undo.
+    define buffer ttAblExceptions for ttAblExceptions.
+    
+    do for ttAblExceptions iTell# = 1 to ex:NumMessages:
+      create ttAblExceptions.
+      ttAblExceptions.cError = ex:GetMessage(iTell#).
+    end.
+    
+  end method. /* ExceptionToTtAblException */
+  
+  
+  method protected void CallstackToTtAblCallstack(ex as Progress.Lang.Error):
+    
+    define variable bEclipseFix# as logical no-undo.  
+    define buffer ttAblCallStack for ttAblCallStack.
+    
+    do for ttAblCallStack:
+    
+      create ttAblCallStack.
+      
+      if ex:CallStack > "" then 
+        ttAblCallStack.cCallStack = ex:CallStack.
+      else 
+        ttAblCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
+        
+    end.
+    
+  end method. /* CallstackToTtAblCallstack */
+  
   
   method public void CallbackDsContext (dataset-handle hDsContext# /* by-ref */):
     
-    /* Haal dsContext op by-reference */
+    /* Krijgt dsContext binnen van c__FCMPNY_exception via by-reference callback */
     
-    CallbackDsContext2(dataset-handle hDsContext#  by-reference).    
+    define variable hTt# as handle no-undo extent 2.
     
-  end method. 
+    hTt#[1] = hDsContext#:get-buffer-handle("ttExceptions"):table-handle. 
+    hTt#[2] = hDsContext#:get-buffer-handle("ttCallStack"):table-handle. 
+    
+    CallbackDsContextStrong(
+      table-handle hTt#[1] by-reference,
+      table-handle hTt#[2] by-reference).    
+    
+  end method. /* CallbackDsContext */
 
 
-  method public void CallbackDsContext2(dataset dsContext /* dataset-handle hDsContext## by-ref */):
+  method public void CallbackDsContextStrong(table ttExceptions, table ttCallStack):
 
     /* Hier is de dataset dsconfig dus opgehaald, en kan er mee gewerkt worden. */
-
-    find first ttExceptions.
-    tbInfo:Text = ttExceptions.cError.
-  
-    find first ttCallstack.
-    tbStack:Text = (trim(ttCallstack.cCallStack)) + chr(13) + chr(10).
     
-  end method.
-
-
-  method protected void SetErrorStack (input ex as Progress.Lang.Error):
+    tbInfo:Text = "".
+    if can-find(first ttExceptions) then 
+      for each ttExceptions:
+        tbInfo:Text = tbInfo:Text + ttExceptions.cError + chr(13) + chr(10) + chr(13) + chr(10).
+      end.
+    else 
+      tbInfo:Text = "Unknown error.".
     
-    if ex:CallStack > "" then 
-      /* oftewel: -errorstack staat aan */
-    do:
-      tbStack:Text = replace(ex:CallStack, chr(10), chr(13) + chr(10)).    
-    end.
-    else
-      tbStack:Text = panaedra.msses.logic.sc_info:GetCallStack().  
+    find first ttCallstack no-error.
+    if avail ttCallStack and ttCallStack.cCallStack > "" then
+      tbInfo:Text = tbInfo:Text + entry(num-entries(ttCallStack.cCallStack,chr(10)),ttCallStack.cCallStack,chr(10)) + chr(13) + chr(10) + chr(13) + chr(10).
     
-  end method. /* SetErrorStack */
-	
+    tbStack:Text = "".
+    if can-find(first ttCallstack) then 
+      for each ttCallStack:
+        tbStack:Text = tbStack:Text + replace(ttCallStack.cCallStack, chr(10), chr(13) + chr(10)) + chr(13) + chr(10).
+      end.
+    else 
+      tbStack:Text = "Unknown stack.".
+    
+  end method. /* CallbackDsContextStrong */
+
 
   @VisualDesigner.
   method private void tbStack_TextChanged( input sender as System.Object, input e as System.EventArgs ):
