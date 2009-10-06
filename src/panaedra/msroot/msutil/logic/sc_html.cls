@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_html:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_html.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-03 23:57:47+02:00 $ 
-    Date Modified: $Modtime: 2009-10-03 23:51:06+02:00 $ 
+     Date Checkin: $Date: 2009-10-06 09:29:38+02:00 $ 
+    Date Modified: $Modtime: 2009-10-06 09:26:24+02:00 $ 
 
       Description: Genereren van HTML code, bv voor reporting.
 
@@ -16,7 +16,7 @@ class panaedra.msroot.msutil.logic.sc_html:
   /************************  Source control constructor ************************/
   constructor public sc_html(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -71,7 +71,7 @@ class panaedra.msroot.msutil.logic.sc_html:
     
     /* Foutfhandeling */
     catch e as Progress.Lang.Error :
-      panaedra.msex.logic.sc_showexception-win32:ShowException(e).
+      panaedra.msex.logic.sc_showexception:ShowException(e).
       return false.  		
     end catch.
     
