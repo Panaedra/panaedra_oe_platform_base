@@ -4,19 +4,21 @@ class panaedra.msex.logic.sc_exception:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/sc_exception.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-02 12:18:34+02:00 $ 
-    Date Modified: $Modtime: 2009-10-02 12:18:26+02:00 $ 
+     Date Checkin: $Date: 2009-10-06 21:50:54+02:00 $ 
+    Date Modified: $Modtime: 2009-10-06 16:12:48+02:00 $ 
 
       Description: defineer speciale gebeurtenissen bij gekozen exceptions.
 
   \*****************************  Include Files ********************************/
   {def/_PRODUCT_.i &class=class}
+  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &reference-only=reference-only &class=class}
+  
   /************************  Source control constructor ************************/
   constructor public sc_exception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -66,6 +68,53 @@ class panaedra.msex.logic.sc_exception:
   
   end method. /* ErrorNumberRating */
   
+  method public static void FillTtExceptionTtCallstack(oExceptionIP as Progress.Lang.Error, dataset dsContext /* by ref */):
+    
+    define variable iNumErrorPS# as integer no-undo.
+    
+    if valid-object(oExceptionIP) then
+    do:
+      
+      /* Vul de Callstack (alle betrokken programma's) */
+      if oExceptionIP:CallStack > "" then 
+      /* oftewel: -errorstack staat aan */
+      do:
+        create ttCallstack.
+        ttCallStack.cCallStack = oExceptionIP:CallStack.
+      end.
+      else 
+      do:
+        /* We hebben dan niet de callstack van waar de fout is opgetreden, maar wel via welke api de appserver is benaderd. */
+        create ttCallstack.
+        ttCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
+      end.
+      
+      /* Vul alle excepties */
+      do iNumErrorPS# = 1 to oExceptionIP:NumMessages:
+        create ttExceptions.
+        ttExceptions.iOrder = iNumErrorPS#.
+        ttExceptions.iError = oExceptionIP:getMessageNum(iNumErrorPS#).
+        ttExceptions.cError = oExceptionIP:getMessage(iNumErrorPS#).
+      end.
+      
+    end. /* Valid exception object */
+    
+    if not can-find(first ttExceptions) then
+    do iNumErrorPS# = 1 to error-status:num-messages:
+      create ttExceptions.
+      ttExceptions.iOrder = iNumErrorPS#.
+      ttExceptions.iError = error-status:get-number(iNumErrorPS#).
+      ttExceptions.cError = error-status:get-message(iNumErrorPS#).
+    end.
+    
+    if not can-find(first ttCallstack) then
+    do:
+      /* We hebben dan niet de callstack van waar de fout is opgetreden, maar wel via welke api de appserver is benaderd. */
+      create ttCallstack.
+      ttCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
+    end.
+        
+  end method. /* FillTtExceptionTtCallstack */
 
 end class.
 
