@@ -4,10 +4,10 @@ class panaedra.msb.logic.sc_asconnect :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msb/logic/sc_asconnect.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-06 21:50:54+02:00 $ 
-    Date Modified: $Modtime: 2009-10-06 11:58:32+02:00 $ 
+     Date Checkin: $Date: 2009-10-06 23:52:16+02:00 $ 
+    Date Modified: $Modtime: 2009-10-06 22:50:01+02:00 $ 
 
       Description: Methods aan te roepen vanaf de client om een 
                    appserver connectie te maken.
@@ -17,7 +17,7 @@ class panaedra.msb.logic.sc_asconnect :
   /************************  Source control constructor ************************/
   constructor public sc_asconnect(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -69,12 +69,21 @@ class panaedra.msb.logic.sc_asconnect :
         end.
         /* Normale appserver connect */  
         else
-        do:
+        do on error undo, throw:
           create server ttAsConnect.hAppserver.
           ttAsConnect.hAppserver:connect(ttAsConnect.cConnect) no-error.
           
           if error-status:num-messages = 0 and valid-handle(ttAsConnect.hAppserver) and ttAsConnect.hAppserver:connected() then 
             return true.
+          else undo, throw new panaedra.msex.logic.c__FCMPNY_exception(
+            99909001,
+              subst("AppServer connection '&1' failed.~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'~n~n&5", 
+              ttAsConnect.cConnect, 
+              ttAsConnect.cEnv,
+              ttAsConnect.cMirror,
+              ttAsConnect.cSuffix,
+              error-status:get-message(1))).
+          
         end. /* else do */ 
       end. /* if not valid handle */    
     end. /* if avail ttAsConnect */
