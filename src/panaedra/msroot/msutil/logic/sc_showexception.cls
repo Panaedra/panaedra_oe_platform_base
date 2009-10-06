@@ -5,14 +5,14 @@ using System.*.
 using System.Windows.Forms.*.
 &endif
 
-class panaedra.msex.logic.sc_showexception-win32: 
+class panaedra.msex.logic.sc_showexception: 
 
   /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msex/logic/sc_showexception-win32.cls $ 
-          Version: $Revision: 3 $ 
+         Filename: $Archive: /ont/src/panaedra/msex/logic/sc_showexception.cls $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-06 09:22:56+02:00 $ 
-    Date Modified: $Modtime: 2009-10-06 09:22:28+02:00 $ 
+     Date Checkin: $Date: 2009-10-06 09:29:38+02:00 $ 
+    Date Modified: $Modtime: 2009-10-06 09:26:24+02:00 $ 
 
       Description: Stop alle informatie in .net window en toon hem daarna,
                    indien het fout gaat, geef een normale message.
@@ -20,9 +20,9 @@ class panaedra.msex.logic.sc_showexception-win32:
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public sc_showexception-win32(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_showexception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
