@@ -9,10 +9,10 @@ class panaedra.msex.logic.sc_showexception-win32:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/sc_showexception-win32.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-21 08:28:34+02:00 $ 
-    Date Modified: $Modtime: 2009-09-15 09:16:10+02:00 $ 
+     Date Checkin: $Date: 2009-10-06 09:22:56+02:00 $ 
+    Date Modified: $Modtime: 2009-10-06 09:22:28+02:00 $ 
 
       Description: Stop alle informatie in .net window en toon hem daarna,
                    indien het fout gaat, geef een normale message.
@@ -22,15 +22,18 @@ class panaedra.msex.logic.sc_showexception-win32:
   /************************  Source control constructor ************************/
   constructor public sc_showexception-win32(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
 
-  &if opsys = "win32" &then
+  &if opsys <> "unix" &then
   define protected static variable oForm as panaedra.msex.logic.dotnetformshowexception no-undo.
-
+  &endif
+  
   method public static void ShowException (input ex as Progress.Lang.Error):
+    
+    &if opsys <> "unix" &then
     
     if not valid-object(oForm) then 
       oForm = new panaedra.msex.logic.dotnetformshowexception().
@@ -55,8 +58,21 @@ class panaedra.msex.logic.sc_showexception-win32:
         
       end catch.
     end.
+    
+    &else
+
+    message 
+      ex:GetMessage(1) skip
+      ex:GetMessage(2) skip(1)
+      panaedra.msses.logic.sc_info:GetCallStack()
+      view-as alert-box title "_CMPNY_ " + string(now,"99-99-9999 hh:mm").
+    
+    &endif /* unix/win32 */
+    
   end method. /* ShowException */
 
+  
+  &if opsys <> "unix" &then
   
   method protected static void ShowFormSafe():
 
@@ -64,8 +80,8 @@ class panaedra.msex.logic.sc_showexception-win32:
     wait-for oForm:ShowDialog().
     
   end method.
-
-&endif
+  
+  &endif
 
 end class.
 
