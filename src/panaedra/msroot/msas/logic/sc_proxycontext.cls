@@ -4,10 +4,10 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_proxycontext.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-06 21:50:54+02:00 $ 
-    Date Modified: $Modtime: 2009-10-06 17:28:21+02:00 $ 
+     Date Checkin: $Date: 2009-10-06 23:52:16+02:00 $ 
+    Date Modified: $Modtime: 2009-10-06 23:48:24+02:00 $ 
 
       Description: Api-proxy functionaliteit: generieke methods die client-side (proxy)
                    worden aangeroepen.
@@ -20,7 +20,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   /************************  Source control constructor ************************/
   constructor public sc_proxycontext(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -50,8 +50,9 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   method public static void FinallyProxyCall(dataset dsContext /* by ref */):
     
-    /* If an exception has occurred, always throw a new Exception */
-    if bExceptions then 
+    /* If an exception has occurred locally (bExceptions) or on an AppServer (ttExceptions), 
+       always throw a new Exception */
+    if bExceptions or can-find(first ttExceptions) then 
     do:
       
       find first ttExceptions no-error.
@@ -61,7 +62,9 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       
       find first ttExceptions no-error.
       
-      undo, throw (new panaedra.msex.logic.c__FCMPNY_exception(999001, subst("Api/proxy exception: &1", if not avail ttExceptions then "Unknown Exception" else ttExceptions.cError), dataset dsContext /* ->not<- by-reference */ )).
+      undo, throw (new panaedra.msex.logic.c__FCMPNY_exception(99909002, 
+        subst("Api/proxy exception for: '&1' -> '&2'", program-name(4), program-name(3)), 
+        dataset dsContext /* ->not<- by-reference */ )).
         
     end.
      
