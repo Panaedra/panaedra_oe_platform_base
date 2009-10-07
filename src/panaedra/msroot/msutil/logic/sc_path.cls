@@ -7,10 +7,10 @@ class panaedra.msf.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msf/logic/sc_path.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-05 09:49:09+02:00 $ 
-    Date Modified: $Modtime: 2009-10-05 00:10:27+02:00 $ 
+     Date Checkin: $Date: 2009-10-07 09:13:08+02:00 $ 
+    Date Modified: $Modtime: 2009-10-06 12:32:04+02:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -22,7 +22,7 @@ class panaedra.msf.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 7 $", "{&sourcecontrolversions}").
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 8 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -366,6 +366,24 @@ class panaedra.msf.logic.sc_path:
     iIndex# = r-index(cPathIP#,".").
     if iIndex# = 0 then return "".
     else return substring(cPathIP#,iIndex# + 1).
+
+  end method. /* SplitGetFileExt */  
+
+   
+  method public static character SplitGetClassName (cPathIP# as character):
+    
+    /* Pure string calculation.
+       Get full class name.
+       A string like "panaedra/msf/logic/sc_path.cls" returns "panaedra.msf.logic.sc_path". 
+       A string like "panaedra/msf/logic/sc_path.r"   returns "panaedra.msf.logic.sc_path". 
+     */
+    
+    cPathIP# = replace(cPathIP#, "/", ".").
+    cPathIP# = replace(cPathIP#, "~\", ".").
+    
+    cPathIP# = substring(cPathIP#, 1, r-index(cPathIP#, ".") - 1).
+    
+    return cPathIP#.
 
   end method. /* SplitGetFileExt */  
 
