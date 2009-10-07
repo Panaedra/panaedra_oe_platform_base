@@ -9,10 +9,10 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/dotnetformshowexception.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-06 23:52:16+02:00 $ 
-    Date Modified: $Modtime: 2009-10-06 22:51:20+02:00 $ 
+     Date Checkin: $Date: 2009-10-07 09:23:37+02:00 $ 
+    Date Modified: $Modtime: 2009-10-07 08:23:40+02:00 $ 
 
       Description: Tonen van een willekeurige progress exception
 
@@ -26,7 +26,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   /************************  Source control constructor ************************/
   constructor public dotnetformshowexception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -201,8 +201,8 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
       tbInfo:Text      = ""
       tbStack:Text     = "".
     
-    empty temp-table ttExceptions.
-    empty temp-table ttCallstack.
+/*    empty temp-table ttExceptions.*/
+/*    empty temp-table ttCallstack. */
     empty temp-table ttAblExceptions.
     empty temp-table ttAblCallstack.
     
@@ -311,10 +311,15 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 
     /* Hier is de dataset dsconfig dus opgehaald, en kan er mee gewerkt worden. */
     
+    define variable cError# as character no-undo.
+    define variable iOrder# as integer no-undo.
+    
     tbInfo:Text = "".
     if can-find(first ttExceptions) then 
       for each ttExceptions:
-        tbInfo:Text = tbInfo:Text + replace(ttExceptions.cError, chr(10), chr(13) + chr(10)) + chr(13) + chr(10) + chr(13) + chr(10).
+        cError# = replace(ttExceptions.cError, chr(10), chr(13) + chr(10)).
+        iOrder# = ttExceptions.iOrder. /* For easy debugging */
+        tbInfo:Text = tbInfo:Text + cError# + chr(13) + chr(10) + chr(13) + chr(10).
       end.
     else 
       tbInfo:Text = "Unknown error.".
