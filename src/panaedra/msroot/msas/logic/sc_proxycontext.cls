@@ -4,10 +4,10 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_proxycontext.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-06 23:52:16+02:00 $ 
-    Date Modified: $Modtime: 2009-10-06 23:48:24+02:00 $ 
+     Date Checkin: $Date: 2009-10-07 09:23:37+02:00 $ 
+    Date Modified: $Modtime: 2009-10-07 09:09:42+02:00 $ 
 
       Description: Api-proxy functionaliteit: generieke methods die client-side (proxy)
                    worden aangeroepen.
@@ -20,7 +20,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   /************************  Source control constructor ************************/
   constructor public sc_proxycontext(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -50,20 +50,25 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   method public static void FinallyProxyCall(dataset dsContext /* by ref */):
     
-    /* If an exception has occurred locally (bExceptions) or on an AppServer (ttExceptions), 
+    define variable bEclipseFix# as logical no-undo.
+    define buffer b-ttExceptions for ttExceptions.
+    
+    /* If an exception has occurred locally (bExceptions) or on an AppServer (b-ttExceptions), 
        always throw a new Exception */
-    if bExceptions or can-find(first ttExceptions) then 
+    if bExceptions or can-find(first b-ttExceptions) then 
     do:
       
-      find first ttExceptions no-error.
+      find first b-ttExceptions no-error.
       
-      if not avail ttExceptions then
+      if not avail b-ttExceptions then
         panaedra.msex.logic.sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference).
       
-      find first ttExceptions no-error.
+      find first b-ttExceptions no-error.
       
       undo, throw (new panaedra.msex.logic.c__FCMPNY_exception(99909002, 
-        subst("Api/proxy exception for: '&1' -> '&2'", program-name(4), program-name(3)), 
+        subst("Api/proxy exception&1 for: '&2' -> '&3'",
+        if not avail b-ttExceptions then "" else " '" + b-ttExceptions.cError + "'",
+        program-name(4), program-name(3)), 
         dataset dsContext /* ->not<- by-reference */ )).
         
     end.
@@ -86,9 +91,6 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   end method. /* BeginProxyCall */
 
 
-
 end class.
-
-
 
 /* EOF */ 
