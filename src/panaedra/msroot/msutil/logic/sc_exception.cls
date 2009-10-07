@@ -4,10 +4,10 @@ class panaedra.msex.logic.sc_exception:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/sc_exception.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-06 21:50:54+02:00 $ 
-    Date Modified: $Modtime: 2009-10-06 16:12:48+02:00 $ 
+     Date Checkin: $Date: 2009-10-07 09:23:37+02:00 $ 
+    Date Modified: $Modtime: 2009-10-07 09:05:21+02:00 $ 
 
       Description: defineer speciale gebeurtenissen bij gekozen exceptions.
 
@@ -18,7 +18,7 @@ class panaedra.msex.logic.sc_exception:
   /************************  Source control constructor ************************/
   constructor public sc_exception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -72,6 +72,9 @@ class panaedra.msex.logic.sc_exception:
     
     define variable iNumErrorPS# as integer no-undo.
     
+    define buffer b-ttExceptions for ttExceptions.
+    define buffer b-ttCallstack  for ttCallstack.
+    
     if valid-object(oExceptionIP) then
     do:
       
@@ -79,39 +82,39 @@ class panaedra.msex.logic.sc_exception:
       if oExceptionIP:CallStack > "" then 
       /* oftewel: -errorstack staat aan */
       do:
-        create ttCallstack.
-        ttCallStack.cCallStack = oExceptionIP:CallStack.
+        create b-ttCallstack.
+        b-ttCallStack.cCallStack = oExceptionIP:CallStack.
       end.
       else 
       do:
         /* We hebben dan niet de callstack van waar de fout is opgetreden, maar wel via welke api de appserver is benaderd. */
-        create ttCallstack.
-        ttCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
+        create b-ttCallstack.
+        b-ttCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
       end.
       
       /* Vul alle excepties */
       do iNumErrorPS# = 1 to oExceptionIP:NumMessages:
-        create ttExceptions.
-        ttExceptions.iOrder = iNumErrorPS#.
-        ttExceptions.iError = oExceptionIP:getMessageNum(iNumErrorPS#).
-        ttExceptions.cError = oExceptionIP:getMessage(iNumErrorPS#).
+        create b-ttExceptions.
+        b-ttExceptions.iOrder = iNumErrorPS#.
+        b-ttExceptions.iError = oExceptionIP:getMessageNum(iNumErrorPS#).
+        b-ttExceptions.cError = oExceptionIP:getMessage(iNumErrorPS#).
       end.
       
     end. /* Valid exception object */
     
-    if not can-find(first ttExceptions) then
+    if not can-find(first b-ttExceptions) then
     do iNumErrorPS# = 1 to error-status:num-messages:
-      create ttExceptions.
-      ttExceptions.iOrder = iNumErrorPS#.
-      ttExceptions.iError = error-status:get-number(iNumErrorPS#).
-      ttExceptions.cError = error-status:get-message(iNumErrorPS#).
+      create b-ttExceptions.
+      b-ttExceptions.iOrder = iNumErrorPS#.
+      b-ttExceptions.iError = error-status:get-number(iNumErrorPS#).
+      b-ttExceptions.cError = error-status:get-message(iNumErrorPS#).
     end.
     
-    if not can-find(first ttCallstack) then
+    if not can-find(first b-ttCallstack) then
     do:
       /* We hebben dan niet de callstack van waar de fout is opgetreden, maar wel via welke api de appserver is benaderd. */
-      create ttCallstack.
-      ttCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
+      create b-ttCallstack.
+      b-ttCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
     end.
         
   end method. /* FillTtExceptionTtCallstack */
