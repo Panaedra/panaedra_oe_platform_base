@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_string_csv.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-25 12:24:27+02:00 $ 
-    Date Modified: $Modtime: 2009-09-25 12:24:12+02:00 $ 
+     Date Checkin: $Date: 2009-10-09 09:17:09+02:00 $ 
+    Date Modified: $Modtime: 2009-10-09 09:14:40+02:00 $ 
 
       Description: Class implementatie van de csvlib.
                    Bevat (C)omma (S)eparated (V)alue gerelateerde functionaliteit
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   /************************  Source control constructor ************************/
   constructor public sc_string_csv(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -253,8 +253,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   
 
   def protected static temp-table ttCsvSortList no-undo
-  field cValue as char
-  index cValue is primary cValue.
+    field cValue as char
+    index cValue is primary cValue.
 
   method public static character CsvSortList (
     cListIP# as char, 
@@ -288,6 +288,58 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   end method. /* CsvSortList */
 
 
+  method public static character CsvAddLast (cCsvIP# as character, cNewValueIP# as character):
+    
+    /* Voegt een waarde toe aan een seperated value, zonder dat er seperators teveel in komen.
+       Als deze aangeroepen wordt, is de seperator een komma (",") */
+    
+    return CsvAddLast(cCsvIP#, cNewValueIP#, ",").
+    
+  end method. /* CsvAddLast */
+
+
+  method public static character CsvAddLast (cCsvIP# as character, cNewValueIP# as character, cSeperatorIP# as character):
+    
+    /* Voegt een waarde toe aan een seperated value, zonder dat er seperators teveel in komen.
+       Als deze aangeroepen wordt, is de seperator variable */
+    
+    if cNewValueIP# = ? then cNewValueIP# = "?".
+    
+    cCsvIP# = cCsvIP# + cSeperatorIP# + cNewValueIP#.
+    cCsvIP# = trim(cCsvIP#, cSeperatorIP#).
+    
+    return cCsvIP#.
+    
+  end method. /* CsvAddLast */
+
+  
+  method public static character CsvAddFirst (cCsvIP# as character, cNewValueIP# as character):
+    
+    /* Voegt een waarde toe aan een seperated value vooraan de lijst, zonder dat er seperators teveel in komen.
+       Als deze aangeroepen wordt, is de seperator een komma (",") */
+    
+    return CsvAddLast(cCsvIP#, cNewValueIP#, ",").
+    
+  end method. /* CsvAddLast */
+
+
+  method public static character CsvAddFirst (cCsvIP# as character, cNewValueIP# as character, cSeperatorIP# as character):
+    
+    /* Voegt een waarde toe aan een seperated value vooraan de lijst, zonder dat er seperators teveel in komen.
+       Als deze aangeroepen wordt, is de seperator variable */
+    
+    if cNewValueIP# = ? then cNewValueIP# = "?".
+    
+    cCsvIP# = cNewValueIP# + cSeperatorIP# + cCsvIP#.
+    cCsvIP# = trim(cCsvIP#, cSeperatorIP#).
+    
+    return cCsvIP#.
+    
+  end method. /* CsvAddLast */
+
+  
+  
+  
 end class. 
 
 /* EOF */
