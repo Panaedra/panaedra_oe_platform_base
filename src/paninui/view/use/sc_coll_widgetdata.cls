@@ -7,10 +7,10 @@ class paninui.view.use.sc_coll_widgetdata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-03 22:39:49+02:00 $ 
-    Date Modified: $Modtime: 2009-10-03 22:21:39+02:00 $ 
+     Date Checkin: $Date: 2009-10-09 23:01:41+02:00 $ 
+    Date Modified: $Modtime: 2009-10-09 16:29:10+02:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -20,7 +20,7 @@ class paninui.view.use.sc_coll_widgetdata   :
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -223,7 +223,7 @@ class paninui.view.use.sc_coll_widgetdata   :
   end method. /* GetBindingSource */
   
   
-  method protected static void GetLinkNameLinkNameAlt(
+  method public static void GetLinkNameLinkNameAlt(
     cDataRefIP#       as character, 
     cWidgetTypeIP#     as character, 
     hBuffOrQueryIP# as handle, 
@@ -238,7 +238,7 @@ class paninui.view.use.sc_coll_widgetdata   :
     end.
     else
       case cWidgetTypeIP#:
-        when "grid" then 
+        when "grid" or when "bufferchilds" then 
           case hBuffOrQueryIP#:type:
             when "data-relation" then 
               do:
@@ -259,8 +259,8 @@ class paninui.view.use.sc_coll_widgetdata   :
               if hBuffOrQueryIP#:type = "buffer" then cLinkNameAltOP# = hBuffOrQueryIP#:table-handle:name.
             end.
           end case.
-        otherwise 
-        cLinkNameOP# = cDataRefIP#.
+        otherwise
+          cLinkNameOP# = cDataRefIP#.
       end case.
       
     /* Search the left 15 characters for a buffer temp-table prefix */
@@ -379,6 +379,67 @@ class paninui.view.use.sc_coll_widgetdata   :
     end.
     
   end method. /* GetWidget : only by type (or any type) and name */
+  
+
+  method public static Progress.Lang.Object extent GetChildWidgets(
+    input  iPackIdIP#      as int64, 
+    input  iGroupOVID#     as i_widgettype_groupframe, 
+    input  cDataRefIP#     as character,
+    output cLinkNamesOP#   as character extent)
+    :
+    
+    /* Get all the widgets from the widgetdata collection that have 
+       the incoming widget as their direct logical parent. */
+
+    define variable cLinkName#      as character            no-undo.
+    define variable oParent#        as Progress.Lang.Object no-undo.
+    define variable bDisplayLinked# as logical              no-undo.
+    define variable iExtentSize#    as integer              no-undo.
+    define variable oReturn#        as Progress.Lang.Object no-undo extent.
+
+    define buffer ttUIFrame    for ttUIFrame.
+    define buffer ttWidgetData for ttWidgetData.
+    
+    oParent# = GetWidget(iPackIdIP#, "groupframe", cDataRefIP#, output bDisplayLinked#).
+    
+    if valid-object(oParent#) then 
+    do for ttUIFrame, ttWidgetData:
+      
+      for  
+        each  ttWidgetData
+        where ttWidgetData.oParent = oParent#
+        ,
+        first ttUIFrame of ttWidgetData 
+        where ttUIFrame.iPackID = iPackIdIP#
+        :
+        iExtentSize# = iExtentSize# + 1.
+      end.
+      
+      if iExtentSize# > 0 then 
+      do:
+        assign
+          extent(oReturn#)      = iExtentSize#
+          extent(cLinkNamesOP#) = iExtentSize#.  
+        iExtentSize# = 0.
+        for  
+          each  ttWidgetData
+          where ttWidgetData.oParent = oParent#
+          ,
+          first ttUIFrame of ttWidgetData 
+          where ttUIFrame.iPackID = iPackIdIP#
+          :
+          assign
+            iExtentSize#                = iExtentSize# + 1
+            oReturn#[iExtentSize#]      = ttWidgetData.oWidget
+            cLinkNamesOP#[iExtentSize#] = ttWidgetData.cLinkName.
+        end.
+      end.
+      
+    end.
+    
+    return oReturn#.
+
+  end method.  /* GetChildWidgets */
   
   
   method public static void SetBindingSource (oWidgetIP# as Progress.Lang.Object, oBindingSourceIP# as Progress.Lang.Object):
