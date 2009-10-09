@@ -7,10 +7,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-03 22:39:49+02:00 $ 
-    Date Modified: $Modtime: 2009-10-03 16:19:35+02:00 $ 
+     Date Checkin: $Date: 2009-10-09 12:26:41+02:00 $ 
+    Date Modified: $Modtime: 2009-10-09 12:02:38+02:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -19,11 +19,41 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
+  method public static void DisplayData (
+    oFrmLogicIP#     as i_frmlogic,
+    iGroupFrameOVIP# as i_widgettype_groupframe,
+    iTextOVIP#       as i_widgetproperty_text,
+    cGroupNameIP#    as character,
+    oBufIP#          as panaedra.msroot.msdr.interfaces.i_buf):
 
+    define variable oWidget#              as Progress.Lang.Object no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource      no-undo.
+    define variable bIsDisplayLinkedOP#   as logical              no-undo.
+    
+    oWidget# = sc_coll_widgetdata:GetWidget(
+      oFrmLogicIP#:iPackID, 
+      "groupframe", 
+      oBufIP#:hBuffer, 
+      cGroupNameIP#, 
+      output bIsDisplayLinkedOP#).
+    
+    paninui.view.use.sc_coll_widgetdata:DebugShowData().
+    
+    System.Windows.Forms.MessageBox:Show(string(oWidget#)).
+    
+    if valid-object(oWidget#) and type-of(oWidget#, System.Windows.Forms.GroupBox) then do:
+      
+    end.
+    
+    
+  end method. /* DisplayData: GroupFrame widget + Text property */
+  
+  
   method public static void DisplayData (
     oFrmLogicIP#   as i_frmlogic,
     iGridOVIP#     as i_widgettype_grid,
@@ -121,11 +151,13 @@ class paninui.view.use.display.sc_displaydata   :
       oFormsGrid# = cast(oWidgetIP#, System.Windows.Forms.DataGridView).
       if (hQueryIP# <> ?) then 
       do:
-        if oBindingSourceIOP# = ? then do:                      
+        if oBindingSourceIOP# = ? then 
+        do:                      
           oBindingSourceStrong# = new c_bindingsource(sc_bindingsourcetype:i_Query, hQueryIP#).
           oBindingSourceIOP# = oBindingSourceStrong#.
         end.
-        else do:
+        else 
+        do:
           oBindingSourceStrong# = cast(oBindingSourceIOP#, c_bindingsource).
         end.
         oFormsGrid#:AutoGenerateColumns = false.
