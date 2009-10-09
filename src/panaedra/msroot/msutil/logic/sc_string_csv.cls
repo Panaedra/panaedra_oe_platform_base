@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_string_csv.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-09 09:17:09+02:00 $ 
-    Date Modified: $Modtime: 2009-10-09 09:14:40+02:00 $ 
+     Date Checkin: $Date: 2009-10-09 09:59:01+02:00 $ 
+    Date Modified: $Modtime: 2009-10-09 09:58:34+02:00 $ 
 
       Description: Class implementatie van de csvlib.
                    Bevat (C)omma (S)eparated (V)alue gerelateerde functionaliteit
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   /************************  Source control constructor ************************/
   constructor public sc_string_csv(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -320,7 +320,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     
     return CsvAddLast(cCsvIP#, cNewValueIP#, ",").
     
-  end method. /* CsvAddLast */
+  end method. /* CsvAddFirst */
 
 
   method public static character CsvAddFirst (cCsvIP# as character, cNewValueIP# as character, cSeperatorIP# as character):
@@ -335,9 +335,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     
     return cCsvIP#.
     
-  end method. /* CsvAddLast */
-
-  
+  end method. /* CsvAddFirst */
   
   
 end class. 
