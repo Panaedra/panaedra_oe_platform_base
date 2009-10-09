@@ -7,10 +7,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-09 12:26:41+02:00 $ 
-    Date Modified: $Modtime: 2009-10-09 12:02:38+02:00 $ 
+     Date Checkin: $Date: 2009-10-09 23:01:41+02:00 $ 
+    Date Modified: $Modtime: 2009-10-09 22:53:31+02:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -19,7 +19,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -30,28 +30,68 @@ class paninui.view.use.display.sc_displaydata   :
     cGroupNameIP#    as character,
     oBufIP#          as panaedra.msroot.msdr.interfaces.i_buf):
 
-    define variable oWidget#              as Progress.Lang.Object no-undo.
-    define variable oBindingSource#       as Progress.Lang.Object no-undo.
-    define variable oBindingSourceStrong# as c_bindingsource      no-undo.
-    define variable bIsDisplayLinkedOP#   as logical              no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource                         no-undo.
+    define variable oChildWidgets#        as Progress.Lang.Object                    no-undo extent.
+    define variable iExtentSize#          as integer                                 no-undo.
+    define variable iTell#                as integer                                 no-undo.
+    define variable oBindableComponent#   as System.Windows.Forms.IBindableComponent no-undo.
+    define variable oChildNames#          as character                               no-undo extent.
+
+    define variable cLinkName#            as character                               no-undo.
+    define variable cLinkNameAlt#         as character                               no-undo.
     
-    oWidget# = sc_coll_widgetdata:GetWidget(
-      oFrmLogicIP#:iPackID, 
-      "groupframe", 
+    paninui.view.use.sc_coll_widgetdata:GetLinkNameLinkNameAlt(
+      "" /* No named reference, get directly from the buffer handle */,
+      "bufferchilds", 
       oBufIP#:hBuffer, 
-      cGroupNameIP#, 
-      output bIsDisplayLinkedOP#).
+      output cLinkName#, 
+      output cLinkNameAlt#).
     
-    paninui.view.use.sc_coll_widgetdata:DebugShowData().
-    
-    System.Windows.Forms.MessageBox:Show(string(oWidget#)).
-    
-    if valid-object(oWidget#) and type-of(oWidget#, System.Windows.Forms.GroupBox) then do:
+    oChildWidgets# = sc_coll_widgetdata:GetChildWidgets(oFrmLogicIP#:iPackID, iGroupFrameOVIP#, cGroupNameIP#, output oChildNames#).
       
-    end.
+    iExtentSize# = extent(oChildWidgets#).
     
+    if iExtentSize# > 0 then 
+    do:
+      
+      if valid-object(oBufIP#:oBindingSource) then oBindingSourceStrong# = oBufIP#:oBindingSource.  
+      else assign
+          oBindingSourceStrong#  = new c_bindingsource(sc_bindingsourcetype:i_Buffer, oBufIP#:hBuffer)
+          oBufIP#:oBindingSource = oBindingSourceStrong#.
+
+      do iTell# = 1 to iExtentSize#:
+        if type-of(oChildWidgets#[iTell#], System.Windows.Forms.IBindableComponent) 
+          and num-entries(oChildNames#[iTell#],".") >= 2
+          then 
+        do: 
+          if entry(1,oChildNames#[iTell#],".") = cLinkName#
+            or
+            ( cLinkNameAlt# > "" and entry(1,oChildNames#[iTell#],".") = cLinkNameAlt#)
+            then 
+          do:
+            if entry(1,oChildNames#[iTell#],".") = cLinkName# then cLinkNameAlt#. /* Specific buffer name is found, 
+                                                                                     use this for the rest of the matches */
+            oBindableComponent# = cast(oChildWidgets#[iTell#], System.Windows.Forms.IBindableComponent).
+            /* Create a new binding between 
+               the binding source and the widget */
+            oBindableComponent#:DataBindings:Add(
+              new System.Windows.Forms.Binding(
+              "Text", 
+              oBindingSourceStrong#, 
+              entry(2,oChildNames#[iTell#],"."), 
+              true)).
+          end.
+        end.
+      end. 
+      
+      /* Cleanup */
+      assign
+        extent(oChildWidgets#) = ?
+        extent(oChildNames#)   = ?.
+      
+    end. /* We get something back in the extent */
     
-  end method. /* DisplayData: GroupFrame widget + Text property */
+  end method. /* DisplayData: GroupFrame child widgets Text property */
   
   
   method public static void DisplayData (
