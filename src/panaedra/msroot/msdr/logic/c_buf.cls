@@ -6,10 +6,10 @@ class panaedra.msroot.msdr.logic.c_buf implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_buf.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-09 23:01:41+02:00 $ 
-    Date Modified: $Modtime: 2009-10-09 15:27:58+02:00 $ 
+     Date Checkin: $Date: 2009-10-10 13:50:22+02:00 $ 
+    Date Modified: $Modtime: 2009-10-10 12:15:52+02:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -21,7 +21,7 @@ class panaedra.msroot.msdr.logic.c_buf implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_buf(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -87,6 +87,19 @@ class panaedra.msroot.msdr.logic.c_buf implements panaedra.msroot.msdr.interface
 
   end method. /* Resync */
 
+  
+  method public override character ToString():
+    
+    define variable cReturn# as character no-undo.
+    
+    cReturn# = super:ToString().
+    
+    if valid-handle(hBuffer) then
+      cReturn# = cReturn# + subst("_&1", hBuffer:name).
+      
+    return cReturn#.
+      
+  end method. /* ToString */
 
 end class.
 
