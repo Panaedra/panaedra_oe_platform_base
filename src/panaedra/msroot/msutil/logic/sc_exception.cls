@@ -4,10 +4,10 @@ class panaedra.msex.logic.sc_exception:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/sc_exception.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-07 09:23:37+02:00 $ 
-    Date Modified: $Modtime: 2009-10-07 09:05:21+02:00 $ 
+     Date Checkin: $Date: 2009-10-10 13:50:22+02:00 $ 
+    Date Modified: $Modtime: 2009-10-10 13:25:31+02:00 $ 
 
       Description: defineer speciale gebeurtenissen bij gekozen exceptions.
 
@@ -18,7 +18,7 @@ class panaedra.msex.logic.sc_exception:
   /************************  Source control constructor ************************/
   constructor public sc_exception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -118,6 +118,95 @@ class panaedra.msex.logic.sc_exception:
     end.
         
   end method. /* FillTtExceptionTtCallstack */
+
+
+  method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character):
+    
+    define variable cArrayMsgIP# as character no-undo extent 1.
+    
+    assign 
+      cArrayMsgIP#[1] = cMsgIP#.
+    
+    return ReThrowImplement(oExceptionIP#, cArrayMsgIP#).
+    
+  end method. /* ReThrow */  
+
+
+  method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character, cArg01IP# as character):
+    
+    define variable cArrayMsgIP# as character no-undo extent 2.
+    
+    assign 
+      cArrayMsgIP#[1] = cMsgIP#
+      cArrayMsgIP#[2] = cArg01IP#.
+    
+    return ReThrowImplement(oExceptionIP#, cArrayMsgIP#).
+    
+  end method. /* ReThrow */  
+
+
+  method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character, cArg01IP# as character, cArg02IP# as character):
+    
+    define variable cArrayMsgIP# as character no-undo extent 3.
+    
+    assign 
+      cArrayMsgIP#[1] = cMsgIP#
+      cArrayMsgIP#[2] = cArg01IP#
+      cArrayMsgIP#[3] = cArg02IP#.
+    
+    return ReThrowImplement(oExceptionIP#, cArrayMsgIP#).
+    
+  end method. /* ReThrow */  
+
+
+  method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character, cArg01IP# as character, cArg02IP# as character, cArg03IP# as character):
+    
+    define variable cArrayMsgIP# as character no-undo extent 4.
+    
+    assign 
+      cArrayMsgIP#[1] = cMsgIP#
+      cArrayMsgIP#[2] = cArg01IP#
+      cArrayMsgIP#[3] = cArg02IP#
+      cArrayMsgIP#[4] = cArg03IP#.
+    
+    return ReThrowImplement(oExceptionIP#, cArrayMsgIP#).
+    
+  end method. /* ReThrow */  
+
+
+  method protected static Progress.Lang.Error ReThrowImplement (oExceptionIP# as Progress.Lang.Error, cArrayMsgIP# as character extent):
+    
+    /* Kan gebruikt worden voor rethrow van een binnenkomende exception */
+    
+    define variable oReturn# as Progress.Lang.AppError no-undo.
+    define variable iTell#   as integer                no-undo.
+    define variable cMsg#    as character              no-undo.
+    
+    cMsg# = cArrayMsgIP#[1].
+    
+    case extent(cArrayMsgIP#):
+      
+      when 2 then 
+        cMsg# = subst(cMsg#, cArrayMsgIP#[2]).
+      when 3 then 
+        cMsg# = subst(cMsg#, cArrayMsgIP#[2], cArrayMsgIP#[3]).
+      when 4 then 
+        cMsg# = subst(cMsg#, cArrayMsgIP#[2], cArrayMsgIP#[3], cArrayMsgIP#[4]).
+       
+    end case.
+    
+    cMsg# = cMsg# + subst("~n&1", oExceptionIP#:GetMessage(1)).
+    
+    oReturn# = new Progress.Lang.AppError(cMsg#, oExceptionIP#:GetMessageNum(1)).
+    
+    do iTell# = 2 to oExceptionIP#:NumMessages:
+      oReturn#:AddMessage(oExceptionIP#:GetMessage(iTell#),oExceptionIP#:GetMessageNum(iTell#)).
+    end.
+    
+    return oReturn#.
+    
+  end method. /* ReThrowImplement */  
+
 
 end class.
 
