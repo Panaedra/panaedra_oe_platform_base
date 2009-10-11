@@ -9,10 +9,10 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/dotnetformshowexception.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-07 09:23:37+02:00 $ 
-    Date Modified: $Modtime: 2009-10-07 08:23:40+02:00 $ 
+     Date Checkin: $Date: 2009-10-11 11:31:27+02:00 $ 
+    Date Modified: $Modtime: 2009-10-11 11:08:00+02:00 $ 
 
       Description: Tonen van een willekeurige progress exception
 
@@ -26,7 +26,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   /************************  Source control constructor ************************/
   constructor public dotnetformshowexception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -115,7 +115,10 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     We strongly suggest that the contents of this method only be modified using the
     Visual Designer to avoid any incompatible modifications.
     
-    Modifying the contents of this method using a code editor will invalidate any support for this file. */    this-object:tbStack = new System.Windows.Forms.TextBox().
+    Modifying the contents of this method using a code editor will invalidate any support for this file. */    @VisualDesigner.FormMember (NeedsInitialize="true").
+    define variable resources as System.Resources.ResXResourceSet no-undo.
+    resources = Progress.Util.ResourceHelper:Load("panaedra\msex\logic\dotnetformshowexception.resx", PROPATH).
+    this-object:tbStack = new System.Windows.Forms.TextBox().
     this-object:btnOK = new System.Windows.Forms.Button().
     this-object:tbinfo = new System.Windows.Forms.TextBox().
     this-object:btnDetails = new System.Windows.Forms.Button().
@@ -180,6 +183,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     this-object:Controls:Add(this-object:tbinfo).
     this-object:Controls:Add(this-object:btnOK).
     this-object:Controls:Add(this-object:tbStack).
+    this-object:Icon = cast(resources:GetObject("$this.Icon"), System.Drawing.Icon).
     this-object:MinimumSize = new System.Drawing.Size(302, 95).
     this-object:Name = "dotnetformshowexception".
     this-object:SizeGripStyle = System.Windows.Forms.SizeGripStyle:Show.
