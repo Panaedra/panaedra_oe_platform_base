@@ -4,10 +4,10 @@ class panaedra.msb.logic.sc_environment:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msb/logic/sc_environment.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-17 13:25:58+02:00 $ 
-    Date Modified: $Modtime: 2009-08-17 13:24:13+02:00 $ 
+     Date Checkin: $Date: 2009-10-12 09:14:21+02:00 $ 
+    Date Modified: $Modtime: 2009-10-09 11:25:09+02:00 $ 
 
       Description: Haal informatie uit de omgeving op zoals het pid (process id).
 
@@ -16,7 +16,7 @@ class panaedra.msb.logic.sc_environment:
   /************************  Source control constructor ************************/
   constructor public sc_environment(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -60,7 +60,56 @@ class panaedra.msb.logic.sc_environment:
     
     &endif
     
-  end method. /* getProcessID */
+  end method. /* GetProcessID */
+
+
+  method public static character GetCommandLine():
+    
+    &if opsys = "unix" &then
+/*                                                                     */
+/*    define variable cParent# as character no-undo.                   */
+/*    define variable cTempID# as character no-undo.                   */
+/*    define variable cLine#   as character no-undo.                   */
+/*                                                                     */
+/*    cTempID# = "$A" + string(mtime,"999999999").                     */
+/*                                                                     */
+/*    input through value("ps -ef | grep $$ " + cTempID#).             */
+/*                                                                     */
+/*    repeat:                                                          */
+/*      import unformatted cLine#.                                     */
+/*      message cLine#                                                 */
+/*        view-as alert-box.                                           */
+/*                                                                     */
+/*      if cLine# matches "*grep $$ " + cTempID# + "*" then            */
+/*      do:                                                            */
+/*        /* Get the parent process id from the temporary shell/fork */*/
+/*        return cLine#.                                               */
+/*      end.                                                           */
+/*    end.                                                             */
+/*                                                                     */
+/*    return "[unknown]".                                              */
+
+    &else
+      
+/*      return sc_win32:GetCommandLine().*/
+      
+      
+      /* Werkt nog niet */ 
+           
+/*    define variable cReturn#  as character no-undo.                             */
+/*    define variable oCurProc# as System.Diagnostics.Process no-undo.            */
+/*                                                                                */
+/*    /* Use .NET Runtime */                                                      */
+/*    oCurProc# = System.Diagnostics.Process:GetCurrentProcess().                 */
+/*                                                                                */
+/*    cReturn# = string(oCurProc#:StartInfo:WorkingDirectory).                    */
+/*    /* oCurProc#:Dispose(). Don't know for sure if this is needed/better here */*/
+/*                                                                                */
+/*    return cReturn#.                                                            */
+    
+    &endif
+    
+  end method. /* GetCommandLine */
 
 
   method public static char GetHostName():
