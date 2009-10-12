@@ -4,10 +4,10 @@ class panaedra.msex.logic.sc_exception:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/sc_exception.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-10 13:50:22+02:00 $ 
-    Date Modified: $Modtime: 2009-10-10 13:25:31+02:00 $ 
+     Date Checkin: $Date: 2009-10-12 09:19:56+02:00 $ 
+    Date Modified: $Modtime: 2009-10-12 09:16:49+02:00 $ 
 
       Description: defineer speciale gebeurtenissen bij gekozen exceptions.
 
@@ -18,7 +18,7 @@ class panaedra.msex.logic.sc_exception:
   /************************  Source control constructor ************************/
   constructor public sc_exception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -68,7 +68,8 @@ class panaedra.msex.logic.sc_exception:
   
   end method. /* ErrorNumberRating */
   
-  method public static void FillTtExceptionTtCallstack(oExceptionIP as Progress.Lang.Error, dataset dsContext /* by ref */):
+
+  method public static void FillTtExceptionTtCallstack(oExceptionIP as Progress.Lang.Error, dataset dsContext /* by ref */, cMirrorIP# as character):
     
     define variable iNumErrorPS# as integer no-undo.
     
@@ -77,13 +78,20 @@ class panaedra.msex.logic.sc_exception:
     
     if valid-object(oExceptionIP) then
     do:
-      
       /* Vul de Callstack (alle betrokken programma's) */
       if oExceptionIP:CallStack > "" then 
       /* oftewel: -errorstack staat aan */
       do:
         create b-ttCallstack.
-        b-ttCallStack.cCallStack = oExceptionIP:CallStack.
+        b-ttCallStack.cCallStack = replace(oExceptionIP:CallStack, 
+          ":IMPLICIT", ":IMPLICIT (AppServer Boundary on ~"" +
+          &if opsys = "unix" &then
+          "unix"  +
+          &else
+          "win32" +
+          &endif 
+          "~" ~"" + 
+          panaedra.msb.logic.sc_asconnect:GetAppserverID() + "~")").
       end.
       else 
       do:
@@ -99,7 +107,6 @@ class panaedra.msex.logic.sc_exception:
         b-ttExceptions.iError = oExceptionIP:getMessageNum(iNumErrorPS#).
         b-ttExceptions.cError = oExceptionIP:getMessage(iNumErrorPS#).
       end.
-      
     end. /* Valid exception object */
     
     if not can-find(first b-ttExceptions) then
@@ -116,6 +123,14 @@ class panaedra.msex.logic.sc_exception:
       create b-ttCallstack.
       b-ttCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
     end.
+        
+    if panaedra.msb.logic.sc_boot:SessionParameter("UiMode") <> "AppServer"
+      and panaedra.msb.logic.sc_asconnect:GetAppserver(cMirrorIP#) <> session:handle then
+    do:
+      /* Dit regelt het laatste ontbrekende stukje callstack */
+      create b-ttCallstack.
+      b-ttCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
+    end.        
         
   end method. /* FillTtExceptionTtCallstack */
 
