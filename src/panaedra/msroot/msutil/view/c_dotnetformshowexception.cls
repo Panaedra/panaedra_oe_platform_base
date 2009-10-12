@@ -9,10 +9,10 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/dotnetformshowexception.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-11 11:31:27+02:00 $ 
-    Date Modified: $Modtime: 2009-10-11 11:08:00+02:00 $ 
+     Date Checkin: $Date: 2009-10-12 09:11:30+02:00 $ 
+    Date Modified: $Modtime: 2009-10-12 09:09:26+02:00 $ 
 
       Description: Tonen van een willekeurige progress exception
 
@@ -26,7 +26,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   /************************  Source control constructor ************************/
   constructor public dotnetformshowexception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -115,7 +115,8 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     We strongly suggest that the contents of this method only be modified using the
     Visual Designer to avoid any incompatible modifications.
     
-    Modifying the contents of this method using a code editor will invalidate any support for this file. */    @VisualDesigner.FormMember (NeedsInitialize="true").
+    Modifying the contents of this method using a code editor will invalidate any support for this file. */
+    @VisualDesigner.FormMember (NeedsInitialize="true").
     define variable resources as System.Resources.ResXResourceSet no-undo.
     resources = Progress.Util.ResourceHelper:Load("panaedra\msex\logic\dotnetformshowexception.resx", PROPATH).
     this-object:tbStack = new System.Windows.Forms.TextBox().
@@ -318,6 +319,9 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     define variable cError# as character no-undo.
     define variable iOrder# as integer no-undo.
     
+    define buffer b-ttCallStack for ttCallStack.
+    define query hQuery# for b-ttCallStack.
+    
     tbInfo:Text = "".
     if can-find(first ttExceptions) then 
       for each ttExceptions:
@@ -328,14 +332,21 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     else 
       tbInfo:Text = "Unknown error.".
     
+    /* Zet in de normale bovenste textbox, aan het eind: de laatste procedure van de eerste callstack. */
     find first ttCallstack no-error.
     if avail ttCallStack and ttCallStack.cCallStack > "" then
       tbInfo:Text = tbInfo:Text + entry(num-entries(ttCallStack.cCallStack,chr(10)),ttCallStack.cCallStack,chr(10)) + chr(13) + chr(10) + chr(13) + chr(10).
     
+    /* Zorg ervoor de de gehele callstack in de juiste volgorde getoond wordt */
+    open query hQuery# for each b-ttCallStack.
+    get last hQuery#.
+    
+    /* Vul de "Details" textbox met de complete stack */
     tbStack:Text = "".
     if can-find(first ttCallstack) then 
-      for each ttCallStack:
-        tbStack:Text = tbStack:Text + replace(ttCallStack.cCallStack, chr(10), chr(13) + chr(10)) + chr(13) + chr(10).
+    do while not query-off-end ("hQuery#"):
+      tbStack:Text = tbStack:Text + replace(b-ttCallStack.cCallStack, chr(10), chr(13) + chr(10)) + chr(13) + chr(10). 
+      get prev hQuery#.
       end.
     else 
       tbStack:Text = "Unknown stack.".
