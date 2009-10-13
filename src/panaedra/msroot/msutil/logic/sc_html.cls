@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_html:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_html.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-06 09:29:38+02:00 $ 
-    Date Modified: $Modtime: 2009-10-06 09:26:24+02:00 $ 
+     Date Checkin: $Date: 2009-10-13 11:22:14+02:00 $ 
+    Date Modified: $Modtime: 2009-10-13 11:16:39+02:00 $ 
 
       Description: Genereren van HTML code, bv voor reporting.
 
@@ -16,7 +16,7 @@ class panaedra.msroot.msutil.logic.sc_html:
   /************************  Source control constructor ************************/
   constructor public sc_html(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -144,12 +144,16 @@ class panaedra.msroot.msutil.logic.sc_html:
           cLine#    = FormatBufferValue(hField#). 
       
       assign
-        cLine# = replace(cLine#, "~n", "<br/>")
-        cLine# = replace(cLine#, "<", "&lt;")
-        cLine# = replace(cLine#, ">", "&gt;")
-        cLine# = replace(cLine#, "&", "&amp;")
-        cLine# = replace(cLine#, "'", "&quot;")
-        cLine# = replace(cLine#, '"', "&quot;").
+        cLine# = replace(cLine#, "~n", "<br/>~n")
+        /* Keep first */
+        cLine# = replace(cLine#, "~& ", "~&amp; ")
+        cLine# = replace(cLine#, " ~&", " ~&amp;")
+        /* Then the rest */
+        cLine# = replace(cLine#, "'", "~&#39;")
+        cLine# = replace(cLine#, '"', "~&quot;")
+        cLine# = replace(cLine#, "<", "~&lt;")
+        cLine# = replace(cLine#, ">", "~&gt;")
+        .
       
       cBGColorParm# = panaedra.msroot.msutil.logic.sc_string_csv:getparam(hBuffIP#:buffer-field(iField#):help, "HtmlBackColor"). 
        
