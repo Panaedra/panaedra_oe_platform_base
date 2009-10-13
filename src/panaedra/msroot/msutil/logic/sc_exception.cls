@@ -4,10 +4,10 @@ class panaedra.msex.logic.sc_exception:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/sc_exception.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-13 06:51:51+02:00 $ 
-    Date Modified: $Modtime: 2009-10-13 06:50:00+02:00 $ 
+     Date Checkin: $Date: 2009-10-13 07:00:28+02:00 $ 
+    Date Modified: $Modtime: 2009-10-13 06:59:59+02:00 $ 
 
       Description: defineer speciale gebeurtenissen bij gekozen exceptions.
 
@@ -18,7 +18,7 @@ class panaedra.msex.logic.sc_exception:
   /************************  Source control constructor ************************/
   constructor public sc_exception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -33,9 +33,21 @@ class panaedra.msex.logic.sc_exception:
 
   /********************************** Methods **********************************/
   
-  method public static integer ErrorNumberRating (iErrorIP# as integer):
+  method public static integer ErrorNumberRating():
+    
+    /* De overload zonder parameters kijkt naar de error-status system handle.
+       Geeft unknown value terug bij 0 errors, zodat je bv "if rating <= 10" kunt doen.
+     */
+     
+    if error-status:num-messages = 0 then return ?.
+    else return ErrorNumberRating(error-status:get-number(1)).
+    
+  end method. /* ErrorNumberRating */
+  
+  
+  method public static integer ErrorNumberRating(iErrorIP# as integer):
    
-    /* deze method geeft foutmeldingen een rating, van 1 tot 30, op dit moment opgedeeld in 10 20 en 30.
+    /* Deze method geeft foutmeldingen een rating, van 1 tot 30, op dit moment opgedeeld in 10 20 en 30.
        10 = hoog (default), 20 = middel en 30 = laag (zoals verkeerde dataconversie) */
     define variable cHostname# as character no-undo.   
        
