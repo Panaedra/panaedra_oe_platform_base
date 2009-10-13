@@ -4,10 +4,10 @@ class panaedra.msex.logic.sc_exception:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/sc_exception.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-13 07:00:28+02:00 $ 
-    Date Modified: $Modtime: 2009-10-13 06:59:59+02:00 $ 
+     Date Checkin: $Date: 2009-10-13 07:08:54+02:00 $ 
+    Date Modified: $Modtime: 2009-10-13 07:06:08+02:00 $ 
 
       Description: defineer speciale gebeurtenissen bij gekozen exceptions.
 
@@ -18,7 +18,7 @@ class panaedra.msex.logic.sc_exception:
   /************************  Source control constructor ************************/
   constructor public sc_exception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -41,6 +41,18 @@ class panaedra.msex.logic.sc_exception:
      
     if error-status:num-messages = 0 then return ?.
     else return ErrorNumberRating(error-status:get-number(1)).
+    
+  end method. /* ErrorNumberRating */
+  
+  
+  method public static integer ErrorNumberRating(ex as Progress.Lang.Error):
+    
+    /* De overload via een exception kijkt naar de 1e error in de exception.
+       Geeft unknown value terug bij 0 errors, zodat je bv "if rating <= 10" kunt doen.
+     */
+     
+    if ex:NumMessages = 0 then return ?.
+    else return ErrorNumberRating(ex:GetMessageNum(1)).
     
   end method. /* ErrorNumberRating */
   
