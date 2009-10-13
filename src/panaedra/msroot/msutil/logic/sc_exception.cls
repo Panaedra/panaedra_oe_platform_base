@@ -4,10 +4,10 @@ class panaedra.msex.logic.sc_exception:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/sc_exception.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-12 12:05:24+02:00 $ 
-    Date Modified: $Modtime: 2009-10-12 12:02:42+02:00 $ 
+     Date Checkin: $Date: 2009-10-13 06:51:51+02:00 $ 
+    Date Modified: $Modtime: 2009-10-13 06:50:00+02:00 $ 
 
       Description: defineer speciale gebeurtenissen bij gekozen exceptions.
 
@@ -18,7 +18,7 @@ class panaedra.msex.logic.sc_exception:
   /************************  Source control constructor ************************/
   constructor public sc_exception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -26,7 +26,11 @@ class panaedra.msex.logic.sc_exception:
   
   define protected static variable oLastException as Progress.Lang.Error no-undo.
 
-  
+  define protected static temp-table ttCallStackCache no-undo rcode-info
+    field cName      as character
+    field cVersion   as character
+    index cName is primary unique cName.
+
   /********************************** Methods **********************************/
   
   method public static integer ErrorNumberRating (iErrorIP# as integer):
@@ -141,11 +145,6 @@ class panaedra.msex.logic.sc_exception:
   end method. /* FillTtExceptionTtCallstack */
 
 
-  define protected static temp-table ttCallStackClasses
-    field cClassName# as character
-    field cVersion#   as character
-    index ClassName is primary unique cClassName#.
-
   method protected static void AddVersionsToTtCallStack ():
     
     /* Moet nog afgemaakt worden */
@@ -206,6 +205,9 @@ class panaedra.msex.logic.sc_exception:
   
   method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character):
     
+    /* [EN] Can be used for rethrowing a catched exception */
+    /* [NL] Kan gebruikt worden voor rethrow van een binnenkomende exception */
+    
     define variable cArrayMsgIP# as character no-undo extent 1.
     
     assign 
@@ -217,6 +219,9 @@ class panaedra.msex.logic.sc_exception:
 
 
   method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character, cArg01IP# as character):
+    
+    /* [EN] Can be used for rethrowing a catched exception */
+    /* [NL] Kan gebruikt worden voor rethrow van een binnenkomende exception */
     
     define variable cArrayMsgIP# as character no-undo extent 2.
     
@@ -231,6 +236,9 @@ class panaedra.msex.logic.sc_exception:
 
   method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character, cArg01IP# as character, cArg02IP# as character):
     
+    /* [EN] Can be used for rethrowing a catched exception */
+    /* [NL] Kan gebruikt worden voor rethrow van een binnenkomende exception */
+    
     define variable cArrayMsgIP# as character no-undo extent 3.
     
     assign 
@@ -244,6 +252,9 @@ class panaedra.msex.logic.sc_exception:
 
 
   method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character, cArg01IP# as character, cArg02IP# as character, cArg03IP# as character):
+    
+    /* [EN] Can be used for rethrowing a catched exception */
+    /* [NL] Kan gebruikt worden voor rethrow van een binnenkomende exception */
     
     define variable cArrayMsgIP# as character no-undo extent 4.
     
@@ -260,7 +271,8 @@ class panaedra.msex.logic.sc_exception:
 
   method protected static Progress.Lang.Error ReThrowImplement (oExceptionIP# as Progress.Lang.Error, cArrayMsgIP# as character extent):
     
-    /* Kan gebruikt worden voor rethrow van een binnenkomende exception */
+    /* [EN] Can be used for rethrowing a catched exception */
+    /* [NL] Kan gebruikt worden voor rethrow van een binnenkomende exception */
     
     define variable oReturn# as Progress.Lang.AppError no-undo.
     define variable iTell#   as integer                no-undo.
@@ -286,6 +298,8 @@ class panaedra.msex.logic.sc_exception:
     do iTell# = 2 to oExceptionIP#:NumMessages:
       oReturn#:AddMessage(oExceptionIP#:GetMessage(iTell#),oExceptionIP#:GetMessageNum(iTell#)).
     end.
+    
+    if oExceptionIP#:CallStack > "" then oReturn#:AddMessage(oExceptionIP#:CallStack,99950005).
     
     return oReturn#.
     
