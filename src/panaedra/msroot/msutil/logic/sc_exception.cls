@@ -4,10 +4,10 @@ class panaedra.msex.logic.sc_exception:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/sc_exception.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-13 07:08:54+02:00 $ 
-    Date Modified: $Modtime: 2009-10-13 07:06:08+02:00 $ 
+     Date Checkin: $Date: 2009-10-14 08:54:20+02:00 $ 
+    Date Modified: $Modtime: 2009-10-14 08:47:09+02:00 $ 
 
       Description: defineer speciale gebeurtenissen bij gekozen exceptions.
 
@@ -18,7 +18,7 @@ class panaedra.msex.logic.sc_exception:
   /************************  Source control constructor ************************/
   constructor public sc_exception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -27,10 +27,10 @@ class panaedra.msex.logic.sc_exception:
   define protected static variable oLastException as Progress.Lang.Error no-undo.
 
   define protected static temp-table ttCallStackCache no-undo rcode-info
-    field cName      as character
-    field cVersion   as character
+    field cName    as character
+    field cVersion as character
     index cName is primary unique cName.
-
+  
   /********************************** Methods **********************************/
   
   method public static integer ErrorNumberRating():
@@ -59,8 +59,9 @@ class panaedra.msex.logic.sc_exception:
   
   method public static integer ErrorNumberRating(iErrorIP# as integer):
    
-    /* Deze method geeft foutmeldingen een rating, van 1 tot 30, op dit moment opgedeeld in 10 20 en 30.
+    /* deze method geeft foutmeldingen een rating, van 1 tot 30, op dit moment opgedeeld in 10 20 en 30.
        10 = hoog (default), 20 = middel en 30 = laag (zoals verkeerde dataconversie) */
+    
     define variable cHostname# as character no-undo.   
        
     case iErrorIP#:
@@ -99,7 +100,7 @@ class panaedra.msex.logic.sc_exception:
 
   method public static void FillTtExceptionTtCallstack(oExceptionIP as Progress.Lang.Error, dataset dsContext /* by ref */, cMirrorIP# as character):
     
-    define variable iNumErrorPS# as integer   no-undo.
+    define variable iNumErrorPS# as integer no-undo.
     
     define buffer b-ttExceptions for ttExceptions.
     define buffer b-ttCallstack  for ttCallstack.
@@ -163,74 +164,143 @@ class panaedra.msex.logic.sc_exception:
       b-ttCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
       release b-ttCallStack.
     end.        
-    
-    AddVersionsToTtCallStack().     
+     
+    AddVersionsToTtCallStack().
         
   end method. /* FillTtExceptionTtCallstack */
 
 
   method protected static void AddVersionsToTtCallStack ():
     
-    /* Moet nog afgemaakt worden */
+    define variable cNewCallStack as character no-undo.
+      
+    define buffer b-ttCallStack for ttCallStack.
     
-/*    define variable iRow#        as integer   no-undo.                                                                                                                            */
-/*    define variable cRow#        as character no-undo.                                                                                                                            */
-/*    define variable iRowEntry#   as integer   no-undo.                                                                                                                            */
-/*    define variable cRowEntry#   as character no-undo.                                                                                                                            */
-/*    define variable cClassName#  as character no-undo.                                                                                                                            */
-/*                                                                                                                                                                                  */
-/*    define buffer b-ttCallStack for ttCallStack.                                                                                                                                  */
-/*                                                                                                                                                                                  */
-/*    /* ttCallStack heeft geen index, dus wordt hier de laatst aangemaakte gevonden.                                                                                               */
-/*       Zou geen probleem moeten zijn, anders geindexeerd veld toevoegen.                                                                                                          */
-/*     */                                                                                                                                                                           */
-/*    find last b-ttCallStack no-error.                                                                                                                                             */
-/*                                                                                                                                                                                  */
-/*    /* Ga de laatst aangemaakte callstack na en haal kopieer elke class die er in staat 1x                                                                                        */
-/*       zodat er geen duplicaten onstaan */                                                                                                                                        */
-/*    if available b-ttCallStack then                                                                                                                                               */
-/*    do:                                                                                                                                                                           */
-/*      replace(b-ttCallStack.cCallStack, chr(13) + chr(10), chr(10)).                                                                                                              */
-/*                                                                                                                                                                                  */
-/*      /* Loop alles entries in de callstack door om er de juist versie bij te vinden */                                                                                           */
-/*      do iRow# = 1 to num-entries(b-ttCallStack.cCallStack, chr(10)):                                                                                                             */
-/*                                                                                                                                                                                  */
-/*        cRow# = entry(iRow#, b-ttCallStack.cCallStack, chr(10)).                                                                                                                  */
-/*                                                                                                                                                                                  */
-/*        /* Sommige rows hebben eerst een method en dan pas de classname, gescheiden door een spatie */                                                                            */
-/*        do iRowEntry# = 1 to num-entries(cRow#, chr(20)):                                                                                                                         */
-/*                                                                                                                                                                                  */
-/*          cRowEntry# = entry(iRowEntry#, chr(20)).                                                                                                                                */
-/*                                                                                                                                                                                  */
-/*          file-info:filename = cRowEntry#.                                                                                                                                        */
-/*                                                                                                                                                                                  */
-/*          /* Als deze entrie een bestaande class is */                                                                                                                            */
-/*          if file-info:full-pathname <> ? then                                                                                                                                    */
-/*          do:                                                                                                                                                                     */
-/*            find ttCallStackClasses where ttCallStackClasses.cClassName = file-info:full-pathname                                                                                 */
-/*              no-error.                                                                                                                                                           */
-/*                                                                                                                                                                                  */
-/*            /* Als we deze class nog niet gedaan hebben, voeg deze dan toe */                                                                                                     */
-/*            if not available ttCallStackClasses then                                                                                                                              */
-/*            do:                                                                                                                                                                   */
-/*              create ttCallStackClasses.                                                                                                                                          */
-/*              assign                                                                                                                                                              */
-/*                ttCallStackClasses.cClassName# = file-info:full-pathname.                                                                                                         */
-/*              ttCallStackClasses.cVersion#   = panaedra.xd.sourcecontrol.logic.sc_sourcecontrol:GetSourceVersion(panaedra.msf.logic.sc_path:SplitGetClassName(file-info:full-pathname)).*/
-/*            end. /* if not available ttCallStackClasses then */                                                                                                                   */
-/*                                                                                                                                                                                  */
-/*          end. /* if file-info:full-pathname <> ? then */                                                                                                                         */
-/*        end. /* do iRowEntry# = 1 to num-entries(cRow#, chr(20)): */                                                                                                              */
-/*      end. /* do iEntry# = 1 to num-entries(b-ttCallStack.cCallStack, chr(10)) */                                                                                                 */
-/*    end. /* if available b-ttCallStack then */                                                                                                                                    */
-/*                                                                                                                                                                                  */
+    do for b-ttCallStack:
+    
+      /* ttCallStack heeft geen index, dus wordt hier de laatst aangemaakte gevonden.
+         Zou geen probleem moeten zijn, anders geindexeerd veld toevoegen.
+       */
+      find last b-ttCallStack no-error.
+      
+      /* Ga de laatst aangemaakte callstack na en haal kopieer elke class die er in staat 1x
+         zodat er geen duplicaten onstaan */
+      if available b-ttCallStack then
+      do:
+        
+        /* Loop de callstack door en filter de dubbele bestanden die er in staan */
+        FilterDoublesFromCallStack(replace(b-ttCallStack.cCallStack, chr(13) + chr(10), chr(10))). 
+        
+        find current b-ttCallStack no-error.
+      
+        if available b-ttCallStack then
+        do:
+          /* Loop de callstack door en voeg versie nummers toe aan de callstack */
+          b-ttCallStack.cCallStack = PutVersionsF_SRVR_llStack(replace(b-ttCallStack.cCallStack, chr(13) + chr(10), chr(10))).
+        end.  
+      
+      end. /* if available b-ttCallStack then */
+    
+    end. /* do for b-ttCallStack */
+    
   end method. /* AddVersionsToTtCallStack */
 
   
-  method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character):
+  method protected static void FilterDoublesFromCallStack (cCallStackIP# as character):
     
-    /* [EN] Can be used for rethrowing a catched exception */
-    /* [NL] Kan gebruikt worden voor rethrow van een binnenkomende exception */
+    define variable iRow#      as integer   no-undo.
+    define variable cRow#      as character no-undo.
+    define variable iRowEntry# as integer   no-undo.
+    define variable cRowEntry# as character no-undo.
+    define variable cVersion#  as character no-undo.
+    
+    /* Loop alles entries in de callstack door om de dubbele er uit te filteren */
+    do iRow# = 1 to num-entries(cCallStackIP#, chr(10)):
+
+      cRow# = entry(iRow#, cCallStackIP#, chr(10)).
+      
+      /* Sommige rows hebben eerst een method en dan pas de classname, gescheiden door een spatie */
+      do iRowEntry# = 1 to num-entries(cRow#, " "):
+        
+        cRowEntry# = entry(iRowEntry#, cRow#, ""). 
+        
+        /* Zet de entry en het versienummer in de callstackcache */
+        AddToTtCallStackCache(cRowEntry#).
+        
+      end. /* do iRowEntry# = 1 to num-entries(cRow#, chr(20)): */
+    end. /* do iEntry# = 1 to num-entries(b-ttCallStack.cCallStack, chr(10)) */
+    
+  end method. /* FilterDoublesFromCallStack */  
+  
+  
+  method protected static void AddToTtCallStackCache (cRowEntryIP# as character):
+    
+    define variable cVersion# as character no-undo.
+    
+    define buffer b-ttCallStackCache for ttCallStackCache.
+    
+    /* Bekijk of deze entry er al in staat (in de callstack komen dubbele voor) */
+    find b-ttCallStackCache where b-ttCallStackCache.cName = cRowEntryIP#
+      no-error.
+    
+    /* Als we deze entry nog niet gehad hebben, voeg deze dan toe */
+    if not available b-ttCallStackCache then
+    do:
+      /* Haal het juiste versienummer erbij (string) */
+      cVersion# = panaedra.xd.sourcecontrol.logic.sc_sourcecontrol:GetSourceVersion(cRowEntryIP#).
+      
+      create b-ttCallStackCache.
+      assign
+        b-ttCallStackCache.cName    = cRowEntryIP#
+        b-ttCallStackCache.cVersion = cVersion#.
+    end. /* if not available ttCallStackCache then */
+
+  end method. /* AddToTtCallStackCache */  
+  
+  
+  method protected static character PutVersionsF_SRVR_llStack (cCallStackIP# as character):
+    
+    define variable iRow#              as integer   no-undo.
+    define variable cRow#              as character no-undo.
+    define variable iRowEntry#         as integer   no-undo.
+    define variable cRowEntry#         as character no-undo.
+    define variable cUpdatedCallStack# as character no-undo.
+    
+    define variable Eclipsefix         as character no-undo.
+    define buffer b-ttCallStackCache for ttCallStackCache.
+    
+    /* Loop alles entries in de callstack door om er de juist versie bij te vinden */
+    do iRow# = 1 to num-entries(cCallStackIP#, chr(10)):
+
+      cRow# = entry(iRow#, cCallStackIP#, chr(10)).
+
+      /* Sommige rows hebben eerst een method en dan pas de classname, gescheiden door een spatie */
+      do iRowEntry# = 1 to num-entries(cRow#, " "):
+
+        cRowEntry# = entry(iRowEntry#, cRow#, " ").
+
+        /* Zoek de juiste entry erbij */
+        find b-ttCallStackCache where b-ttCallStackCache.cName = cRowEntry#. 
+        
+        /* Plaats het versie nummer, als deze not available is is deze leeg */
+        cUpdatedCallStack# = cUpdatedCallStack# + cRowEntry# + b-ttCallStackCache.cVersion.                  
+        
+        /* Plaats de huidige seperator terug */
+        cUpdatedCallStack# = cUpdatedCallStack# + " ".
+        
+      end. /* do iRowEntry# = 1 to num-entries(cRow#, chr(20)): */
+      
+      /* Plaats de huidige seperator terug */
+      cUpdatedCallStack# = cUpdatedCallStack# + chr(10).
+      
+    end. /* do iEntry# = 1 to num-entries(b-ttCallStack.cCallStack, chr(10)) */
+    
+    return trim(cUpdatedCallStack#, chr(10)).
+    
+  end method. /* WalkThroughCallStack */  
+
+
+  method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character):
     
     define variable cArrayMsgIP# as character no-undo extent 1.
     
@@ -243,9 +313,6 @@ class panaedra.msex.logic.sc_exception:
 
 
   method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character, cArg01IP# as character):
-    
-    /* [EN] Can be used for rethrowing a catched exception */
-    /* [NL] Kan gebruikt worden voor rethrow van een binnenkomende exception */
     
     define variable cArrayMsgIP# as character no-undo extent 2.
     
@@ -260,9 +327,6 @@ class panaedra.msex.logic.sc_exception:
 
   method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character, cArg01IP# as character, cArg02IP# as character):
     
-    /* [EN] Can be used for rethrowing a catched exception */
-    /* [NL] Kan gebruikt worden voor rethrow van een binnenkomende exception */
-    
     define variable cArrayMsgIP# as character no-undo extent 3.
     
     assign 
@@ -276,9 +340,6 @@ class panaedra.msex.logic.sc_exception:
 
 
   method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character, cArg01IP# as character, cArg02IP# as character, cArg03IP# as character):
-    
-    /* [EN] Can be used for rethrowing a catched exception */
-    /* [NL] Kan gebruikt worden voor rethrow van een binnenkomende exception */
     
     define variable cArrayMsgIP# as character no-undo extent 4.
     
@@ -295,8 +356,7 @@ class panaedra.msex.logic.sc_exception:
 
   method protected static Progress.Lang.Error ReThrowImplement (oExceptionIP# as Progress.Lang.Error, cArrayMsgIP# as character extent):
     
-    /* [EN] Can be used for rethrowing a catched exception */
-    /* [NL] Kan gebruikt worden voor rethrow van een binnenkomende exception */
+    /* Kan gebruikt worden voor rethrow van een binnenkomende exception */
     
     define variable oReturn# as Progress.Lang.AppError no-undo.
     define variable iTell#   as integer                no-undo.
@@ -322,8 +382,6 @@ class panaedra.msex.logic.sc_exception:
     do iTell# = 2 to oExceptionIP#:NumMessages:
       oReturn#:AddMessage(oExceptionIP#:GetMessage(iTell#),oExceptionIP#:GetMessageNum(iTell#)).
     end.
-    
-    if oExceptionIP#:CallStack > "" then oReturn#:AddMessage(oExceptionIP#:CallStack,99950005).
     
     return oReturn#.
     
