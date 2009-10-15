@@ -4,10 +4,10 @@ class panaedra.msb.logic.sc_asconnect :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msb/logic/sc_asconnect.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-12 11:58:19+02:00 $ 
-    Date Modified: $Modtime: 2009-10-12 11:23:11+02:00 $ 
+     Date Checkin: $Date: 2009-10-15 10:09:27+02:00 $ 
+    Date Modified: $Modtime: 2009-10-14 20:31:08+02:00 $ 
 
       Description: Methods aan te roepen vanaf de client om een 
                    appserver connectie te maken.
@@ -17,12 +17,13 @@ class panaedra.msb.logic.sc_asconnect :
   /************************  Source control constructor ************************/
   constructor public sc_asconnect(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
+  define protected static variable bInitialized as logical no-undo.
   
-  def protected static temp-table ttAsConnect no-undo rcode-info
+  define protected static temp-table ttAsConnect no-undo rcode-info
     field cEnv       as char xml-node-type "attribute"
     field cMirror    as char xml-node-type "attribute"
     field cSuffix    as char xml-node-type "attribute"
@@ -31,14 +32,15 @@ class panaedra.msb.logic.sc_asconnect :
     index cEnv_cMirror is primary unique cEnv cMirror cSuffix
     .
   
-  define protected static variable bInitialized as logical no-undo.
   
   method public static void Initialize():
+    
     temp-table ttAsConnect:read-xml("file", panaedra.msf.logic.sc_path:cIniDir + "sc-asconnect.config", "empty", ?, false).
-  end method.
+    
+  end method. /* Initialize */
 
 
-  method public static logical ConnectToServer(cMirrorIP# as char /* Leeg = default */ ):
+  method protected static logical ConnectToServer(cMirrorIP# as char /* Leeg = default */ ):
     
     define variable cEnv#    as character no-undo.
     define variable cSuffix# as character no-undo.
@@ -52,51 +54,76 @@ class panaedra.msb.logic.sc_asconnect :
     cEnv#    = panaedra.msb.logic.sc_boot:SessionParameter("Env").
     cSuffix# = GetSuffix().
     
-    find ttAsConnect where ttAsConnect.cEnv = cEnv#
-      and ttAsConnect.cMirror = cMirrorIP#
-      and ttAsConnect.cSuffix = cSuffix#
+    find first ttAsConnect 
+      where ttAsConnect.cEnv    = cEnv#
+      and   ttAsConnect.cMirror = cMirrorIP#
+      and   ttAsConnect.cSuffix = cSuffix#
       no-error.
     
-    if avail ttAsConnect then 
+    if not avail ttAsConnect then 
     do:
-      if not valid-handle(ttAsConnect.hAppserver) or (ttAsConnect.hAppserver = session:handle) or not ttAsConnect.hAppserver:connected() then 
+      
+      undo, throw new panaedra.msex.logic.c__FCMPNY_exception(
+        99909002,
+        subst("AppServer configuration (sc_asconnect.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+        cEnv#,
+        cMirrorIP#,
+        cSuffix#)).
+        
+    end. 
+    else 
+    do: /* avail ttAsConnect */
+      
+      /* Als er inline gerunned moet worden, voor b.v. debuggen */
+      if ttAsConnect.cConnect = "[session:handle]" or ttAsConnect.hAppserver = session:handle /* Keep save for intermediate changes */ then
       do:
-        /* Als er inline gerunned moet worden voor b.v. debuggen */
-        if ttAsConnect.cConnect = "[session:handle]" then
-        do:
-          ttAsConnect.hAppserver = session:handle.
-          return true.
-        end.
-        /* Normale appserver connect */  
-        else
-        do on error undo, throw:
+        ttAsConnect.hAppserver = session:handle.
+      end.
+      
+      /* Appserver connect with actual appserver */  
+      else
+      do on error undo, throw:
+
+        if not valid-handle(ttAsConnect.hAppserver) then
           create server ttAsConnect.hAppserver.
+        
+        /* Note: Take extra care with :connected() method. 
+           Exception is hidden for a loooong time and thrown at close of the session.
+           10.2A02 TW
+        */
+        if not ttAsConnect.hAppserver:connected() then
           ttAsConnect.hAppserver:connect(ttAsConnect.cConnect) no-error.
           
-          if error-status:num-messages = 0 and valid-handle(ttAsConnect.hAppserver) and ttAsConnect.hAppserver:connected() then 
-            return true.
-          else undo, throw new panaedra.msex.logic.c__FCMPNY_exception(
-              99909001,
-              subst("AppServer connection '&1' failed.~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'~n~n&5", 
-              ttAsConnect.cConnect, 
-              ttAsConnect.cEnv,
-              ttAsConnect.cMirror,
-              ttAsConnect.cSuffix,
-              error-status:get-message(1))).
+        /* Note: Take extra care with :connected() method. 
+           Exception is hidden for a loooong time and thrown at close of the session.
+           10.2A02 TW
+        */
+        if error-status:num-messages = 0 and ttAsConnect.hAppserver:connected() then 
+          return true.
+        else undo, throw new panaedra.msex.logic.c__FCMPNY_exception(
+            99909001,
+            subst("AppServer connection '&1' failed.~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'~n~n&5", 
+            ttAsConnect.cConnect, 
+            ttAsConnect.cEnv,
+            ttAsConnect.cMirror,
+            ttAsConnect.cSuffix,
+            error-status:get-message(1))).
           
-        end. /* else do */ 
-      end. /* if not valid handle */    
-    end. /* if avail ttAsConnect */
+      end. /* Appserver connect with actual appserver */ 
+
+    end. /* avail ttAsConnect */
     
-    return false.
+    return true.
     
-  end method. 
+  end method. /* ConnectToServer */
 
 
   method public static handle GetAppServer(input cMirrorIP# as char):
+    
     /* This method returns an appserverhandle of the default appserver (cMirrorIP# = empty) or 
        a mirror appserver.
     */
+    
     define variable hReturn# as handle    no-undo.
     define variable cEnv#    as character no-undo.
     define variable cSuffix# as character no-undo.
@@ -115,18 +142,31 @@ class panaedra.msb.logic.sc_asconnect :
       and ttAsConnect.cSuffix = cSuffix#
       no-error.
         
-    if avail ttAsConnect then 
+    if not avail ttAsConnect then 
+      undo, throw new panaedra.msex.logic.c__FCMPNY_exception(
+        99909002,
+        subst("AppServer configuration (sc_asconnect.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+        cEnv#,
+        cMirrorIP#,
+        cSuffix#)).
+
+    if ttAsConnect.hAppserver <> session:handle then 
     do:
-      if not valid-handle(ttAsConnect.hAppserver) or not ttAsConnect.hAppserver:connected() then 
-      do:
-        ConnectToServer(cMirrorIP#).
-      end.    
-      hReturn# = ttAsConnect.hAppserver.
+      if not valid-handle(ttAsConnect.hAppserver) 
+        then ConnectToServer(cMirrorIP#).
+      /* Note: Take extra care with :connected() method. 
+         Exception is hidden for a loooong time and thrown at close of the session.
+         10.2A02 TW
+      */
+      else if not ttAsConnect.hAppserver:connected() 
+        then ConnectToServer(cMirrorIP#).
     end.
+      
+    hReturn# = ttAsConnect.hAppserver.
     
     return hReturn#.
 
-  end method.
+  end method. /* GetAppServer */
   
   
   method protected static char GetSuffix ():
@@ -154,7 +194,7 @@ class panaedra.msb.logic.sc_asconnect :
     
     return cReturn#.
 
-  end method. /* getSuffix */  
+  end method. /* GetSuffix */  
 
 
   method public static character GetAppserverID ():
@@ -170,5 +210,6 @@ class panaedra.msb.logic.sc_asconnect :
 
   end method. /* GetAppserverID */  
 
-  
 end class.
+
+/* EOF */
