@@ -4,10 +4,10 @@ class panaedra.msex.logic.sc_exception:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/sc_exception.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-14 08:54:20+02:00 $ 
-    Date Modified: $Modtime: 2009-10-14 08:47:09+02:00 $ 
+     Date Checkin: $Date: 2009-10-15 10:43:35+02:00 $ 
+    Date Modified: $Modtime: 2009-10-15 10:40:47+02:00 $ 
 
       Description: defineer speciale gebeurtenissen bij gekozen exceptions.
 
@@ -18,7 +18,7 @@ class panaedra.msex.logic.sc_exception:
   /************************  Source control constructor ************************/
   constructor public sc_exception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -382,6 +382,8 @@ class panaedra.msex.logic.sc_exception:
     do iTell# = 2 to oExceptionIP#:NumMessages:
       oReturn#:AddMessage(oExceptionIP#:GetMessage(iTell#),oExceptionIP#:GetMessageNum(iTell#)).
     end.
+
+    if oExceptionIP#:CallStack > "" then oReturn#:AddMessage(oExceptionIP#:CallStack,99950005).
     
     return oReturn#.
     
