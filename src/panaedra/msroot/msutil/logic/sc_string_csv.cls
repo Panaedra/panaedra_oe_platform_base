@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_string_csv.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-14 09:19:57+02:00 $ 
-    Date Modified: $Modtime: 2009-10-14 09:19:31+02:00 $ 
+     Date Checkin: $Date: 2009-10-15 09:53:14+02:00 $ 
+    Date Modified: $Modtime: 2009-10-14 21:35:04+02:00 $ 
 
       Description: Class implementatie van de csvlib.
                    Bevat (C)omma (S)eparated (V)alue gerelateerde functionaliteit
@@ -18,129 +18,136 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   /************************  Source control constructor ************************/
   constructor public sc_string_csv(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  method public static char GetParam
-    (cParamIP# as char, cTokenIP# as char):
+  define protected static temp-table ttCsvSortList no-undo
+    field cValue as character
+    index cValue is primary cValue.
+
+
+  method public static character GetParam(
+    cParamIP# as character, 
+    cTokenIP# as character):
   
     /* Haalt waardes uit een goed te lezen string als " [Hallo] hoi [Bla] boe ".
        Trim vindt automatisch plaats.
        Dit formaat wordt ook bij session:parameter (de -param bij opstarten) gebruikt.
     */
   
-    define variable iTell as integer   no-undo.
-    define variable cPara as character no-undo.
-    define variable cEntr as character no-undo.
+    define variable iTell# as integer   no-undo.
+    define variable cPara# as character no-undo.
+    define variable cEntr# as character no-undo.
 
-    cPara = cParamIP#.
+    cPara# = cParamIP#.
 
-    do iTell = 1 to num-entries(cPara,"["):
-      cEntr = entry(iTell,cPara,"[").
-      if cEntr = "" then next.
-      if cTokenIP# = trim(entry(1,cEntr,"]")) then
-        return trim(entry(2,cEntr,"]")).
+    do iTell# = 1 to num-entries(cPara#,"["):
+      cEntr# = entry(iTell#,cPara#,"[").
+      if cEntr# = "" then next.
+      if cTokenIP# = trim(entry(1,cEntr#,"]")) then
+        return trim(entry(2,cEntr#,"]")).
     end.
   
     return "".
 
-  end method. /* getParam */
+  end method. /* GetParam */
 
 
-  method public static character SetSubParam (
+  method public static character SetSubParam(
     cParamIP#  as character, 
     cTokenIP#  as character, 
     cSearchIP# as character, 
     cValueIP#  as character):
       
-    /* Als setParam, maar een searchstring waarnaar 
-   gezocht wordt in de parameter value
-   kan worden overschreven met een nieuwe waarde.
-   Indien de searchstring niet wordt gevonden,
-   wordt de nieuwe waarde geappend.
-   De volgende wildcard mag worden gebruikt: sterretje plus delimiter aan het eind.
-   Sterretje mag only op voorlaatste positie, anders
-   wordt het niet als wildcard beschouwd.
-    
-   Vb. " [Param1] sub1 = yes | sub2 = no | sub3 = waarde [Param2] waarde2 " 
-      met
-      "Param1", "sub1 =*|", "sub1 = no"
-      wordt 
-      " [Param1] sub1 = no | sub2 = no | sub3 = waarde [Param2] waarde2 "
-   De gehele (nieuwe) parameter string wordt teruggegeven.
-*/
+    /* Als SetParam, maar een searchstring waarnaar 
+       gezocht wordt in de parameter value
+       kan worden overschreven met een nieuwe waarde.
+       Indien de searchstring niet wordt gevonden,
+       wordt de nieuwe waarde geappend.
+       De volgende wildcard mag worden gebruikt: sterretje plus delimiter aan het eind.
+       Sterretje mag only op voorlaatste positie, anders
+       wordt het niet als wildcard beschouwd.
+	    
+       Vb. " [Param1] sub1 = yes | sub2 = no | sub3 = waarde [Param2] waarde2 " 
+          met
+          "Param1", "sub1 =*|", "sub1 = no"
+          wordt 
+          " [Param1] sub1 = no | sub2 = no | sub3 = waarde [Param2] waarde2 "
+       De gehele (nieuwe) parameter string wordt teruggegeven.
+    */
   
-    define variable iTell   as integer   no-undo.
-    define variable iTell2  as integer   no-undo.
-    define variable cPara   as character no-undo.
-    define variable cEntr   as character no-undo.
+    define variable iTell#   as integer   no-undo.
+    define variable iTell2#  as integer   no-undo.
+    define variable cPara#   as character no-undo.
+    define variable cEntr#   as character no-undo.
   
-    define variable cToken  as character no-undo.
-    define variable cValue  as character no-undo.
+    define variable cToken#  as character no-undo.
+    define variable cValue#  as character no-undo.
   
-    define variable cReturn as character no-undo.
-    define variable bReuse  as log       no-undo.
-    define variable bReuse2 as log       no-undo.
-    define variable cDelim  as character no-undo.
+    define variable cReturn# as character no-undo.
+    define variable bReuse#  as logical   no-undo.
+    define variable bReuse2# as logical   no-undo.
+    define variable cDelim#  as character no-undo.
   
-    cPara = cParamIP#.
+    cPara# = cParamIP#.
 
-    do iTell = 1 to num-entries(cPara,"["):
-      cEntr = entry(iTell,cPara,"[").
-      if cEntr = "" then next.
-      cToken = trim(entry(1,cEntr,"]")).
+    do iTell# = 1 to num-entries(cPara#,"["):
+      cEntr#= entry(iTell#,cPara#,"[").
+      if cEntr#= "" then next.
+      cToken# = trim(entry(1,cEntr#,"]")).
     
-      if cTokenIP# = cToken then 
+      if cTokenIP# = cToken# then 
       do:
-        bReuse = yes.
+        bReuse# = true.
         if cSearchIP# > "" then 
         do:
-          cValue = trim(entry(2,cEntr,"]")).
+          cValue# = trim(entry(2,cEntr#,"]")).
           if cSearchIP# matches "*~~*." then 
           do:
             /* wildcard + delimiter ; sterretje is voorlaatste karakter */
-            cDelim = substring(cSearchIP#,length(cSearchIP#)).
+            cDelim# = substring(cSearchIP#,length(cSearchIP#)).
             cSearchIP# = substring(cSearchIP#,1,length(cSearchIP#) - 2).
-            do iTell2 = 1 to num-entries(cValue, cDelim):
-              if trim(entry(iTell2, cValue, cDelim)) begins cSearchIP#
+            do iTell2# = 1 to num-entries(cValue#, cDelim#):
+              if trim(entry(iTell2#, cValue#, cDelim#)) begins cSearchIP#
                 then 
-                assign bReuse2                       = yes
-                  entry(iTell2, cValue, cDelim) = " " + trim(cValueIP#) + " ".
+                assign 
+                  bReuse2#                         = true
+                  entry(iTell2#, cValue#, cDelim#) = " " + trim(cValueIP#) + " ".
             end.
-            if not bReuse2 then
-              cValue = " " + trim(cValue + " " + cDelim + " " + cValueIP#, cDelim + " ") + " ".
+            if not bReuse2# then
+              cValue# = " " + trim(cValue# + " " + cDelim# + " " + cValueIP#, cDelim# + " ") + " ".
           end.
-          else cValue = cValueIP#.
+          else cValue# = cValueIP#.
         end. /* search string opgegeven */
-        else cValue = cValueIP#.
+        else cValue# = cValueIP#.
       end.
       else
-        cValue = trim(entry(2,cEntr,"]")).
+        cValue# = trim(entry(2,cEntr#,"]")).
     
-      cReturn = cReturn + " [" + cToken + "] " + cValue. 
+      cReturn# = cReturn# + " [" + cToken# + "] " + cValue#. 
     
     end.
   
-    if not bReuse then
-      cReturn = cReturn + " [" + cTokenIP# + "] " + cValueIP#. 
+    if not bReuse# then
+      cReturn# = cReturn# + " [" + cTokenIP# + "] " + cValueIP#. 
   
-    cReturn = substring(cReturn, 2).
+    cReturn# = substring(cReturn#, 2).
   
-    return cReturn.
+    return cReturn#.
 
   end method. /* SetSubParam */
 
 
-  method public static character SetParam (
-    cParamIP# as char, 
-    cTokenIP# as char,
-    cValueIP# as char):
+  method public static character SetParam(
+    cParamIP# as character, 
+    cTokenIP# as character,
+    cValueIP# as character):
     
     /* Stel een parameter in, op de ingegeven tekst. 
-     Een bestaande waarde wordt overschreven.
-     Vb. " [Param1] waarde1 [Param2] waarde2 " wordt " [Param1] waardenieuw [Param2] waarde2 "
-     De gehele (nieuwe) parameter string wordt teruggegeven.
+       Een bestaande waarde wordt overschreven.
+       Vb. " [Param1] waarde1 [Param2] waarde2 " wordt " [Param1] waardenieuw [Param2] waarde2 "
+       De gehele (nieuwe) parameter string wordt teruggegeven.
     */
     
     return panaedra.msroot.msutil.logic.sc_string_csv:SetSubParam(cParamIP#, cTokenIP#, "", cValueIP#).
@@ -148,17 +155,17 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   end method. /* SetParam */
  
  
-  method public static character CsvGetJoinList (
-    csvOneIP#   as char, 
-    csvTwoIP#   as char, 
-    cDelimIP#   as char, 
-    cOptionsIP# as char):
+  method public static character CsvGetJoinList(
+    csvOneIP#   as character, 
+    csvTwoIP#   as character, 
+    cDelimIP#   as character, 
+    cOptionsIP# as character):
 
     /* Vergelijkt twee csv lijsten met elkaar, en geeft de Join terug. */
     
-    def var csvJoin# as char no-undo.
-    def var iTell#   as int   no-undo.
-    def var iTell2#  as int   no-undo.
+    define variable csvJoin# as character no-undo.
+    define variable iTell#   as integer   no-undo.
+    define variable iTell2#  as integer   no-undo.
   
     if csvOneIP# = csvTwoIP# then 
     do:
@@ -197,68 +204,66 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   end method. /* CsvGetJoinList */ 
  
 
-  method public static logical CsvIsSubset (
-    cSmallListIP# as char, 
-    cBigListIP# as char, 
-    cDelim# as char):
+  method public static logical CsvIsSubset(
+    cSmallListIP# as character, 
+    cBigListIP#   as character, 
+    cDelim#       as character):
   
     /*------------------------------------------------------------------------------
       Purpose:  Test if all entries of cSmallListIP# are in cBigListIP#
         Notes:  I.E.: "1,3" "1,2,3" "," returns true
     ------------------------------------------------------------------------------*/
    
-    def var iTell#  as int   no-undo.
-    def var cEntry# as char no-undo.
+    define variable iTell#  as integer   no-undo.
+    define variable cEntry# as character no-undo.
   
-    if cSmallListIP# = ? or cBigListIP# = ? or cDelim# = ? then return no.
+    if cSmallListIP# = ? or cBigListIP# = ? or cDelim# = ? then return false.
   
     do iTell# = 1 to num-entries(cSmallListIP#, cDelim#):
    
       cEntry# = entry(iTell#, cSmallListIP#, cDelim#).
-      if lookup (cEntry#, cBigListIP#, cDelim#) = 0 then return no.
+      if lookup (cEntry#, cBigListIP#, cDelim#) = 0 then return false.
    
     end.
   
-    return yes.
+    return true.
   
   end method. /* CsvIsSubset */
 
 
-  method public static logical CsvIndexHit  (
-    cListIP#       as char, 
-    cTestStringIP# as char, 
-    cDelimIP#      as char):
+  method public static logical CsvIndexHit(
+    cListIP#       as character, 
+    cTestStringIP# as character, 
+    cDelimIP#      as character):
 
     /*------------------------------------------------------------------------------
       Purpose:  Kijkt of minstens 1 onderdeel van cListIP# in cTestStringIP# voorkomt
-        Notes:  Vb.: "tic,tac,toe" "ik wou dat ik een aap was" "," geeft yes
+                via index functie
+        Notes:  Vb1.: "tic,tac,toe" "ik wou dat ik een aap was"    "," geeft yes
+                Vb2.: "tic,tac,toe" "ik wou dat ik een schaap was" "," geeft yes
     ------------------------------------------------------------------------------*/
    
-    def var iTell#     as int   no-undo.
-    def var cEntry#    as char no-undo.
-    def var bRetValOP# as log       no-undo init no.
+    define variable iTell#     as integer   no-undo.
+    define variable cEntry#    as character no-undo.
+    define variable bRetValOP# as logical   no-undo init false.
   
-    if cListIP# = ? or cTestStringIP# = ? or cDelimIP# = ? then return no.
+    if cListIP# = ? or cTestStringIP# = ? or cDelimIP# = ? then return false.
   
-    do iTell# = 1 to num-entries(cListIP#, cDelimIP#) while bRetValOP# = no:
+    do iTell# = 1 to num-entries(cListIP#, cDelimIP#) while bRetValOP# = false:
       cEntry# = entry(iTell#,cListIP#,cDelimIP#).
       if 
         index(cTestStringIP#, cEntry#) > 0 then 
-        bRetValOP# = yes.
+        bRetValOP# = true.
     end.
   
     return bRetValOP#.
 
   end method. /* CsvIndexHit  */
   
-
-  def protected static temp-table ttCsvSortList no-undo
-    field cValue as char
-    index cValue is primary cValue.
-
-  method public static character CsvSortList (
-    cListIP# as char, 
-    cDelimIP# as char):
+  
+  method public static character CsvSortList(
+    cListIP#  as character, 
+    cDelimIP# as character):
   
     /* _TERM_UNDISCLOSED_ een lijst, gescheiden door delimiters.
        Maak van bv A,D,C,B een lijst A,B,C,D.
@@ -266,8 +271,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
        Dubbele entries worden niet opgeschoond.
     */
   
-    def var iTell#   as int   no-undo.
-    def var cReturn# as char no-undo.
+    define variable iTell#   as integer   no-undo.
+    define variable cReturn# as character no-undo.
   
     empty temp-table ttCsvSortList.
   
@@ -288,59 +293,76 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   end method. /* CsvSortList */
 
 
-  method public static character CsvAddLast (cCsvIP# as character, cNewValueIP# as character):
+  method public static character CsvAddLast(cCsvIP# as character, cNewValueIP# as character):
     
-    /* Voegt een waarde toe aan een seperated value, zonder dat er seperators teveel in komen.
-       Als deze aangeroepen wordt, is de seperator een komma (",") */
+    /* ToDo: beslissing nemen over comment en annotation standaard */
+    @panaedra.comment.method file
+      (nl_desc="
+       Voegt een waarde toe aan een seperated value list, zonder dat er delimiters teveel in komen. ~n
+       "
+      ,nl_note="
+       In deze overload is de delimiter een komma (~",~") ~n
+       "
+      ,en_desc="
+       Adds a value to a seperated value list, unknown-value safe and with trim. ~n
+       "
+      ,en_note="
+	   In this overload, the delimiter is a comma (~",~") ~n
+	   "
+      ).
     
     return CsvAddLast(cCsvIP#, cNewValueIP#, ",").
     
-  end method. /* CsvAddLast */
+  end method. /* CsvAddLast ; delimiter = "," */
 
 
-  method public static character CsvAddLast (cCsvIP# as character, cNewValueIP# as character, cSeperatorIP# as character):
+  method public static character CsvAddLast(cCsvIP# as character, cNewValueIP# as character, cDelimiterIP# as character):
     
-    /* Voegt een waarde toe aan een seperated value, zonder dat er seperators teveel in komen.
-       Als deze aangeroepen wordt, is de seperator variable */
+    /* Voegt een waarde toe aan een seperated value, zonder dat er delimiters teveel in komen.
+       Als deze overload aangeroepen wordt, is de delimiter op te geven. 
+    */
     
-    define variable cCsvReturn# as character no-undo.
+    define variable cReturn# as character no-undo.
     
+    if cCsvIP#      = ? then cCsvIP# = "".
     if cNewValueIP# = ? then cNewValueIP# = "?".
     
-    cCsvReturn# = cCsvIP# + cSeperatorIP# + cNewValueIP#.
-    cCsvReturn# = trim(cCsvReturn#, cSeperatorIP#).
+    cReturn# = cCsvIP# + cDelimiterIP# + cNewValueIP#.
+    cReturn# = trim(cReturn#, cDelimiterIP#).
     
-    return cCsvReturn#.
+    return cReturn#.
     
-  end method. /* CsvAddLast */
+  end method. /* CsvAddLast ; any delimiter */
 
   
-  method public static character CsvAddFirst (cCsvIP# as character, cNewValueIP# as character):
+  method public static character CsvAddFirst(cCsvIP# as character, cNewValueIP# as character):
     
-    /* Voegt een waarde toe aan een seperated value vooraan de lijst, zonder dat er seperators teveel in komen.
-       Als deze aangeroepen wordt, is de seperator een komma (",") */
+    /* Voegt een waarde toe aan een seperated value vooraan de lijst, zonder dat er delimiters teveel in komen.
+       Als deze overload aangeroepen wordt, is de delimiter een komma (",") 
+    */
     
     return CsvAddFirst(cCsvIP#, cNewValueIP#, ",").
     
-  end method. /* CsvAddFirst */
+  end method. /* CsvAddFirst ; delimiter = "," */
 
 
-  method public static character CsvAddFirst (cCsvIP# as character, cNewValueIP# as character, cSeperatorIP# as character):
+  method public static character CsvAddFirst(cCsvIP# as character, cNewValueIP# as character, cDelimiterIP# as character):
     
-    /* Voegt een waarde toe aan een seperated value vooraan de lijst, zonder dat er seperators teveel in komen.
-       Als deze aangeroepen wordt, is de seperator variable */
+    /* Voegt een waarde toe aan een seperated value vooraan de lijst, zonder dat er delimiters teveel in komen.
+       Als deze overload aangeroepen wordt, is de delimiter op te geven. 
+    */
     
-    define variable cCsvReturn# as character no-undo.
+    define variable cReturn# as character no-undo.
     
+    if cCsvIP#      = ? then cCsvIP# = "".
     if cNewValueIP# = ? then cNewValueIP# = "?".
     
-    cCsvReturn# = cNewValueIP# + cSeperatorIP# + cCsvIP#.
-    cCsvReturn# = trim(cCsvReturn#, cSeperatorIP#).
+    cReturn# = cNewValueIP# + cDelimiterIP# + cCsvIP#.
+    cReturn# = trim(cReturn#, cDelimiterIP#).
     
-    return cCsvReturn#.
+    return cReturn#.
     
-  end method. /* CsvAddFirst */
-  
+  end method. /* CsvAddFirst ; any delimiter */
   
 end class. 
 
