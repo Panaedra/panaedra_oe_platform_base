@@ -6,29 +6,47 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_eventbroadcaster.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-05 14:48:49+02:00 $ 
-    Date Modified: $Modtime: 2009-10-05 11:13:55+02:00 $ 
+     Date Checkin: $Date: 2009-10-16 09:03:31+02:00 $ 
+    Date Modified: $Modtime: 2009-10-16 00:08:29+02:00 $ 
 
-      Description: Broadcasts events.
+      Description: Broadcasts events; 
+                   loose-coupled event mechanism for session-wide events.
+      
+                   Can be used on windows as well as unix platforms.
       
                    Can be used by any class (just implement i_eventbroadcastclient 
-                   if you want to subscribe to events; anyone can publish).
+                   if you want to subscribe to events; anyone can publish, even 
+                   static methods and procedures).
                    
                    Preferred over ABL publish/subscribe, waiting
-                   for real ABL event support (as of 10.2A01).
+                   for real ABL event support (as of 10.2A02).
+                   
+                   For the data transmitted in the event, you can use one
+                   of the following techniques:
+                   1) Use FireEvent(text, text) and pass a simple string.
+                   2) Use FireEvent(text, Object) and do a cast of oData on the recieving end.
+                   3) Make your own i_eventbroadcastdata class, and extend it
+                      to your liking. Use FireCustomEvent for firing the event.
                    
                    Suggested event name convention:
                    Prefix the eventname with "evt@" for easy grepping.
                    This convention is technically not required.
+                   
+                   Outside of Panaedra:
+                   External platforms (like OE Eclipse boot procedures) can use 
+                   sc_eventbroadcaster_loose.p.
+                   Do a search for the .p or the .r, and run it if found.
+                   This is a loose coupling to the whole broadcasted event mechanism,
+                   and prevents syntax errors if the Panaedra platform is not present.
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
   constructor public sc_eventbroadcaster(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -37,10 +55,7 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
     field cEventName as character
     index cEventName_oClient is primary unique cEventName oClient.
   
-  define protected static variable hBroadcastLibPS# as handle no-undo.
-  
-  
-  method public static void SubscribeEvent (oClientIP# as i_eventbroadcastclient , cEventNameIP# as char):
+  method public static void SubscribeEvent(oClientIP# as i_eventbroadcastclient , cEventNameIP# as char):
     
     define variable bEclipseFix# as logical no-undo.
     define buffer ttEventClient for ttEventClient.
@@ -52,10 +67,10 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
         ttEventClient.cEventName = cEventNameIP#.
     end.
     
-  end method. /* SubscribeToEvent */  
+  end method. /* SubscribeEvent */  
   
   
-  method public static void UnSubscribeEvent (oClientIP# as i_eventbroadcastclient , cEventNameIP# as char):
+  method public static void UnSubscribeEvent(oClientIP# as i_eventbroadcastclient , cEventNameIP# as char):
     
     define variable bEclipseFix# as logical no-undo.
     define buffer ttEventClient for ttEventClient.
@@ -74,7 +89,7 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
   end method. /* UnSubscribeEvent */  
   
   
-  method public static void UnSubscribeAllEvents (oClientIP# as i_eventbroadcastclient):
+  method public static void UnSubscribeAllEvents(oClientIP# as i_eventbroadcastclient):
     
     define variable bEclipseFix# as logical no-undo.
     define buffer ttEventClient for ttEventClient.
@@ -94,35 +109,35 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
   end method. /* UnSubscribeAllEvents */  
   
   
-  method public static void FireEvent (cEventNameIP# as char):
+  method public static void FireEvent(cEventNameIP# as char):
     
-    FireEventSub(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#)).
+    FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#)).
 
-  end method. /* FireEvent */  
+  end method. /* FireEvent ; char */  
   
   
-  method public static void FireEvent (cEventNameIP# as char, cEventDataIP# as char):
+  method public static void FireEvent(cEventNameIP# as char, cEventDataIP# as char):
     
-    FireEventSub(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, cEventDataIP#)).
+    FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, cEventDataIP#)).
 
-  end method. /* FireEvent */  
+  end method. /* FireEvent ; char + char */  
   
   
-  method public static void FireEvent (cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object):
+  method public static void FireEvent(cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object):
     
-    FireEventSub(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#)).
+    FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#)).
 
-  end method. /* FireEvent */  
+  end method. /* FireEvent ; char + Object */  
   
 
-  method public static logical FireCustomEvent (cEventNameIP# as char, oDataIP# as i_eventbroadcastdata):
+  method public static logical FireCustomEvent(cEventNameIP# as char, oDataIP# as i_eventbroadcastdata):
     
-    FireEventSub(cEventNameIP#, oDataIP#).
+    FireEventImplement(cEventNameIP#, oDataIP#).
 
   end method. /* FireCustomEvent */  
 
   
-  method protected static logical FireEventSub (cEventNameIP# as char, oDataIP# as i_eventbroadcastdata):
+  method protected static logical FireEventImplement(cEventNameIP# as char, oDataIP# as i_eventbroadcastdata):
     
     define variable bEclipseFix# as logical no-undo.
     define buffer ttEventClient for ttEventClient.
@@ -137,8 +152,7 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
     
     return true.
 
-  end method. /* FireEvent */  
-  
+  end method. /* FireEventImplement */  
 
 end class.
 
