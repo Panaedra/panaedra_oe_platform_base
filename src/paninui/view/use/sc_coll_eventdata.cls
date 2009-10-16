@@ -1,6 +1,8 @@
 {panaedra/msi/logic/ctop_class.i} 
 using paninui.view.init.display.*.
 using paninui.view.interfaces.*.
+using paninui.view.use.*.
+using paninui.view.use.delegates.*.
 using paninui.pack.interfaces.*.
 using panaedra.msdr.logic.*.
 using panaedra.msroot.msutil.logic.*.
@@ -12,10 +14,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-06 09:29:38+02:00 $ 
-    Date Modified: $Modtime: 2009-10-06 09:28:53+02:00 $ 
+     Date Checkin: $Date: 2009-10-16 12:29:50+02:00 $ 
+    Date Modified: $Modtime: 2009-10-16 12:27:20+02:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -27,11 +29,11 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  define protected static variable oSingleton as paninui.view.use.sc_coll_eventdata no-undo.
+  define protected static variable oSingleton as sc_coll_eventdata no-undo.
 
 
   constructor protected sc_coll_eventdata():
@@ -44,12 +46,15 @@ class paninui.view.use.sc_coll_eventdata
   
   method public static void Initialize():
     
-    if oSingleton = ? then oSingleton = new paninui.view.use.sc_coll_eventdata().
+    /* Can be fired from outside, to ensure our singleton 
+      reacts to broadcasted events. */
+      
+    if oSingleton = ? then oSingleton = new sc_coll_eventdata().
       
   end method. /* Initialize */
   
 
-  method public static int64 ItemAdd (
+  method public static int64 ItemAdd(
   
     oWidgetTypeDataSourceOVID# as i_widgettype_query, /* *OVID# is not a real parameter, but an interface overload ID */
     iPackIDIP#                 as int64,
@@ -63,34 +68,92 @@ class paninui.view.use.sc_coll_eventdata
     define variable oBindingSourceStrong# as c_bindingsource      no-undo.
     def buffer ttUiEvent for ttUiEvent.
 
-    if oSingleton = ? then oSingleton = new paninui.view.use.sc_coll_eventdata().
+    if oSingleton = ? then oSingleton = new sc_coll_eventdata().
     
     if lookup(cEventTypeIP#,"QueryOpen,QueryClose,DeleteObject") > 0 then 
     do:
       
-      return ItemAdd(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oFrmLogicObjectIP#, oFrmLogicObjectIP#:hQuery, cWidgetNameIP#, "query", cEventTypeIP#).
+      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oFrmLogicObjectIP#, oFrmLogicObjectIP#:hQuery, cWidgetNameIP#, "query", cEventTypeIP#).
     
     end.    
     else
     do for ttUiEvent:
           
-      oBindingSource# = paninui.view.use.sc_coll_widgetdata:GetBindingSource(iPackIDIP#,"grid",?,cWidgetNameIP#).
+      oBindingSource# = sc_coll_widgetdata:GetBindingSource(iPackIDIP#,"grid",?,cWidgetNameIP#).
     
       if oBindingSource# <> ? and type-of(oBindingSource#,c_bindingsource) then 
       do:
         oBindingSourceStrong# = cast(oBindingSource#,c_bindingsource).
         if not can-find(first ttUiEvent where ttUiEvent.oWidget = oBindingSource# and ttUiEvent.cEventType = "PositionChanged") then
-          oBindingSourceStrong#:PositionChanged:Subscribe(oSingleton:OnPositionChanged).
+          oBindingSourceStrong#:PositionChanged:Subscribe(oSingleton:OnEventArgsHandler).
       end.
       
-      return ItemAdd(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oBindingSource#, oFrmLogicObjectIP#:hQuery, cWidgetNameIP#, "query", cEventTypeIP#).
+      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oBindingSource#, oFrmLogicObjectIP#:hQuery, cWidgetNameIP#, "query", cEventTypeIP#).
     
     end.
     
   end method. /* ItemAdd ; Query */
+  
+
+  method public static int64 ItemAdd(
+  
+    oWidgetTypeDataSourceOVID# as i_widgettype_button, 
+    iPackIDIP#                 as int64,
+    iFrmLogicIDIP#             as int64,
+    iDelegateIDIP#             as int64,
+    oFrmLogicObjectIP#         as panaedra.msroot.msdr.logic.c_buf,
+    cWidgetNameIP#             as character,
+    cEventTypeIP#              as character):
+
+    define variable oWidget#              as Progress.Lang.Object          no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object          no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource               no-undo.
+    define variable bDummy#               as logical                       no-undo.
+    define variable oFormsButton#         as System.Windows.Forms.Button   no-undo.
+    define variable oFormsCheckBox#       as System.Windows.Forms.CheckBox no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+
+    if oSingleton = ? then oSingleton = new sc_coll_eventdata().
+    
+    do for ttUiEvent:
+          
+      assign
+        cWidgetNameIP#  = replace(cWidgetNameIP#,"_",".")
+        oWidget#        = sc_coll_widgetdata:GetWidget(iPackIDIP#,"button",?,cWidgetNameIP#, output bDummy#)
+        oBindingSource# = sc_coll_widgetdata:GetBindingSource(iPackIDIP#,"button",?,cWidgetNameIP#).
+        
+      if oWidget# <> ? then 
+      do:
+        
+        if oBindingSource# = ? then 
+          oBindingSource# = new c_bindingsource(sc_bindingsourcetype:i_Buffer, oFrmLogicObjectIP#:hBuffer).
+      
+        oBindingSourceStrong# = cast(oBindingSource#,c_bindingsource).
+        
+        if type-of(oWidget#,System.Windows.Forms.CheckBox) then 
+        do:
+          
+          oFormsCheckBox# = cast(oWidget#,System.Windows.Forms.CheckBox).
+          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+            case cEventTypeIP#:
+              when "Press" then oFormsCheckBox#:CheckedChanged:Subscribe(oSingleton:OnEventArgsHandler).
+            end case.
+            
+        end.
+        
+        return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oWidget#, oFrmLogicObjectIP#:hBuffer, cWidgetNameIP#, "button", cEventTypeIP#).
+      
+      end.
+      
+    end. /* oWidget# is found */
+
+    return 0.
+    
+  end method. /* ItemAdd ; Button */
 
 
-  method private void OnPositionChanged(oSender# as System.Object, oArgs# as System.EventArgs):
+  method private void OnEventArgsHandler(oSender# as System.Object, oArgs# as System.EventArgs):
     
     define variable bEclipseFix# as logical no-undo.
     define buffer ttUiEvent for ttUiEvent.
@@ -99,7 +162,12 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "PositionChanged"
         on error undo,throw:
-        paninui.view.use.delegates.sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID).
+      end.
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "Press"
+        on error undo,throw:
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -109,10 +177,10 @@ class paninui.view.use.sc_coll_eventdata
     
     end.
     
-  end. /* OnPositionChanged */
+  end. /* OnEventArgsHandler */
   
   
-  method public static int64 ItemAdd (
+  method public static int64 ItemAddXXX(
     oWidgetTypeDataSourceOVID# as i_widgettype_datasource, /* OVID# is not a real parameter, but an interface overload ID */
     iPackIDIP#                 as int64,
     iFrmLogicIDIP#             as int64,
@@ -127,7 +195,7 @@ class paninui.view.use.sc_coll_eventdata
   end method. /* ItemAdd */
 
 
-  method protected static int64 ItemAdd (
+  method protected static int64 ItemAddImplement(
     iPackIDIP#     as int64,
     iFrmLogicIDIP# as int64,
     iDelegateIDIP# as int64,
@@ -139,9 +207,9 @@ class paninui.view.use.sc_coll_eventdata
     
     /* This method returns the new iID of the created ttUiEvent. */ 
     
-    def buffer ttUiEvent for ttUiEvent.
+    define buffer ttUiEvent for ttUiEvent.
     
-    if oSingleton = ? then oSingleton = new paninui.view.use.sc_coll_eventdata().
+    if oSingleton = ? then oSingleton = new sc_coll_eventdata().
     
     do for ttUiEvent:
     
@@ -161,7 +229,7 @@ class paninui.view.use.sc_coll_eventdata
       
     end.
     
-  end method. /* ItemAdd */
+  end method. /* ItemAddImplement */
 
 
   method public void OnEventBroadcast(oBroadcastDataIP# as i_eventbroadcastdata):
@@ -183,7 +251,7 @@ class paninui.view.use.sc_coll_eventdata
   end method. /* OnEventBroadcast */
 
 
-  method protected static void OnQueryOpen (oQryIP# as panaedra.msroot.msdr.logic.c_qry):
+  method protected static void OnQueryOpen(oQryIP# as panaedra.msroot.msdr.logic.c_qry):
     
     define variable bEclipseFix# as logical no-undo.
     define buffer ttUiEvent for ttUiEvent.
@@ -195,7 +263,7 @@ class paninui.view.use.sc_coll_eventdata
       */      
       for each ttUiEvent where ttUiEvent.hWidget = oQryIP#:hQuery and ttUiEvent.cEventType = "QueryOpen"
         on error undo,throw:
-        paninui.view.use.delegates.sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -212,18 +280,19 @@ class paninui.view.use.sc_coll_eventdata
   end method. /* OnQueryOpen */
   
 
-  method protected static void OnBindingSourceQueryOpen (oBindIP# as paninui.view.init.display.c_bindingsource):
+  method protected static void OnBindingSourceQueryOpen(oBindIP# as paninui.view.init.display.c_bindingsource):
     
     define variable iSuspendedPackID# as int64 no-undo.
     define buffer ttUiEvent for ttUiEvent.
     
     iSuspendedPackID# = SuspendedEvent("query", "QueryOpen", oBindIP#).
 
-    if iSuspendedPackID# = 0 then do for ttUiEvent on error undo, throw:
+    if iSuspendedPackID# = 0 then 
+    do for ttUiEvent on error undo, throw:
       
       for each ttUiEvent where ttUiEvent.hWidget = oBindIP#:Handle and ttUiEvent.cEventType = "QueryOpen"
         on error undo,throw:
-        paninui.view.use.delegates.sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -375,7 +444,6 @@ class paninui.view.use.sc_coll_eventdata
 
   end method. /* DebugShowData */    
 
-          
 end class.
 
 /* EOF */ 
