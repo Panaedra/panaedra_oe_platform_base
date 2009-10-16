@@ -3,14 +3,18 @@ using paninui.view.interfaces.*.
 using paninui.pack.interfaces.*.
 using panaedra.msdr.logic.*.
 
-class paninui.view.use.sc_coll_widgetdata   : 
+class paninui.view.use.sc_coll_widgetdata   
+  /*  implements                                            */
+  /*  panaedra.msroot.msutil.interfaces.i_eventbroadcastclient:*/
+  
+  : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 13 $ 
+          Version: $Revision: 14 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-09 23:01:41+02:00 $ 
-    Date Modified: $Modtime: 2009-10-09 16:29:10+02:00 $ 
+     Date Checkin: $Date: 2009-10-16 12:29:50+02:00 $ 
+    Date Modified: $Modtime: 2009-10-16 09:35:40+02:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -20,7 +24,7 @@ class paninui.view.use.sc_coll_widgetdata   :
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -165,7 +169,14 @@ class paninui.view.use.sc_coll_widgetdata   :
         when "combobox"   then 
           ttWidgetData.cLinkName = substring(ttWidgetData.cWidgetName,3).
         when "button"     then 
-          ttWidgetData.cLinkName = substring(ttWidgetData.cWidgetName,4).
+          case GetPrefix(ttWidgetData.cWidgetName):
+            when "tb" then 
+              ttWidgetData.cLinkName = substring(ttWidgetData.cWidgetName, 3). /* Toggle-box */
+            when "btn" then 
+              ttWidgetData.cLinkName = substring(ttWidgetData.cWidgetName, 4). /* Button */
+            otherwise 
+            ttWidgetData.cLinkName = ttWidgetData.cWidgetName.
+          end case.
         when "tree"       then 
           ttWidgetData.cLinkName = substring(ttWidgetData.cWidgetName,5).
         when "groupframe" then 
@@ -179,6 +190,27 @@ class paninui.view.use.sc_coll_widgetdata   :
     end.
     
   end method. /* ItemAdd */
+  
+  
+  method protected static character GetPrefix(cCamelcaseNameIP# as character):
+    
+    /* tbSomeThing -> "tb"
+       SomeThing -> "" 
+    */
+    
+    define variable iTell#   as integer   no-undo.
+    define variable cLett#   as character no-undo.
+    define variable cReturn# as character no-undo.
+    
+    do iTell# = 1 to length(cCamelcaseNameIP#):
+      cLett# = substring(cCamelcaseNameIP#, iTell#, 1).
+      if asc(cLett#) < asc("a") or asc(cLett#) > asc("z") then return cReturn#. 
+      cReturn# = cReturn# + cLett#.
+    end.
+    
+    return cReturn#.
+    
+  end method. /* GetPrefix */
  
  
   method public static Progress.Lang.Object GetBindingSource(
@@ -238,7 +270,8 @@ class paninui.view.use.sc_coll_widgetdata   :
     end.
     else
       case cWidgetTypeIP#:
-        when "grid" or when "bufferchilds" then 
+        when "grid" or 
+        when "bufferchilds" then 
           case hBuffOrQueryIP#:type:
             when "data-relation" then 
               do:
@@ -260,7 +293,7 @@ class paninui.view.use.sc_coll_widgetdata   :
             end.
           end case.
         otherwise
-          cLinkNameOP# = cDataRefIP#.
+        cLinkNameOP# = cDataRefIP#.
       end case.
       
     /* Search the left 15 characters for a buffer temp-table prefix */
