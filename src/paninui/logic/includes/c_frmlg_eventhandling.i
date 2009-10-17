@@ -1,10 +1,10 @@
 &if no &then
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/paninui/logic/includes/c_frmlg_eventhandling.i $ 
-        Version: $Revision: 4 $ 
+        Version: $Revision: 5 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-10-05 19:48:09+02:00 $ 
-  Date Modified: $Modtime: 2009-10-05 19:07:06+02:00 $ 
+   Date Checkin: $Date: 2009-10-17 16:30:35+02:00 $ 
+  Date Modified: $Modtime: 2009-10-17 16:19:06+02:00 $ 
 
     Description: JoinUi uilogic class preprocessors.
 
@@ -28,7 +28,7 @@
 
 \**************************** End of Dvcs_ Header ****************************/
 &endif &glob ~
-    sourcecontrolversions {&sourcecontrolversions} | paninui_logic_includes_c_frmlg_eventhandling_i $Revision: 4 $
+    sourcecontrolversions {&sourcecontrolversions} | paninui_logic_includes_c_frmlg_eventhandling_i $Revision: 5 $
 &if no &then 
 /*$NoKeywords:  $*/ 
 &endif &glob JoinUiNull ~
@@ -51,8 +51,11 @@
 &glob JoinUiEventCodeFooter 
 using Progress.Lang.*.
 &if opsys <> "unix" &then using paninui.view.init.delegates.* from assembly. 
-using paninui.view.eventargs.* from assembly. 
 using paninui.view.enums.* from assembly. 
+using paninui.view.eventargs.* from assembly. 
+using paninui.view.use.*.
+using paninui.view.use.display.*.
 using paninui.view.use.delegates.* from assembly. 
-using paninui.view.use.events.*. &endif
+using paninui.view.use.events.*. 
+using paninui.view.interfaces.*. &endif
 /* EOF : paninui/logic/includes/c_frmlg_eventhandling.i */
