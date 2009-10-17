@@ -3,8 +3,10 @@ using paninui.view.init.display.*.
 using paninui.view.interfaces.*.
 using paninui.view.use.*.
 using paninui.view.use.delegates.*.
+using paninui.view.use.events.*.
 using paninui.pack.interfaces.*.
 using panaedra.msdr.logic.*.
+using panaedra.msex.logic.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
@@ -14,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-16 12:29:50+02:00 $ 
-    Date Modified: $Modtime: 2009-10-16 12:27:20+02:00 $ 
+     Date Checkin: $Date: 2009-10-17 16:30:35+02:00 $ 
+    Date Modified: $Modtime: 2009-10-17 16:23:39+02:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -29,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -155,24 +157,33 @@ class paninui.view.use.sc_coll_eventdata
 
   method private void OnEventArgsHandler(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix# as logical no-undo.
+    define variable bEclipseFix# as logical                           no-undo.
+    define variable oCheckBox#   as System.Windows.Forms.CheckBox     no-undo.
+    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    
     define buffer ttUiEvent for ttUiEvent.
     
     do for ttUiEvent on error undo, throw:
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "PositionChanged"
         on error undo,throw:
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "Press"
         on error undo,throw:
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID).
+        if type-of(oSender#, System.Windows.Forms.CheckBox) then 
+        do:
+          assign
+            oCheckBox# = cast(oSender#, System.Windows.Forms.CheckBox)
+            oUiValue#  = new c_uivalue_button(oCheckBox#:Name, oCheckBox#:Enabled, oCheckBox#:Visible, oCheckBox#:Checked).
+        end.
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
       
       catch ex as Progress.Lang.Error:
         /* Catch needed in all .NET events */
-        panaedra.msex.logic.sc_showexception:ShowException(ex).
+        sc_showexception:ShowException(ex).
       end catch.
     
     end.
@@ -263,7 +274,7 @@ class paninui.view.use.sc_coll_eventdata
       */      
       for each ttUiEvent where ttUiEvent.hWidget = oQryIP#:hQuery and ttUiEvent.cEventType = "QueryOpen"
         on error undo,throw:
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, ?,new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -292,7 +303,7 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.hWidget = oBindIP#:Handle and ttUiEvent.cEventType = "QueryOpen"
         on error undo,throw:
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, ?, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -356,8 +367,7 @@ class paninui.view.use.sc_coll_eventdata
   method public static void EventsSuspend(
     iPackIDIP#    as int64,
     cEventNameIP# as character,
-    cEventTypeIP# as character
-    ):
+    cEventTypeIP# as character):
     
     /* Puts events in a seperate temp-table instead of firing them */
     
