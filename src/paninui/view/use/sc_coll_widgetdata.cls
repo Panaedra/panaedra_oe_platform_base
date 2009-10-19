@@ -12,10 +12,10 @@ class paninui.view.use.sc_coll_widgetdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 15 $ 
+          Version: $Revision: 16 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-19 10:55:43+02:00 $ 
-    Date Modified: $Modtime: 2009-10-19 10:38:35+02:00 $ 
+     Date Checkin: $Date: 2009-10-19 14:09:45+02:00 $ 
+    Date Modified: $Modtime: 2009-10-19 12:11:40+02:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -25,7 +25,7 @@ class paninui.view.use.sc_coll_widgetdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 16 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -238,6 +238,7 @@ class paninui.view.use.sc_coll_widgetdata
         and   ttWidgetData.cLinkName   = cLinkName#
         on error undo, throw:
         oReturn# = ttWidgetData.oBindingSource.
+        if oReturn# <> ? then leave b_getwidget.
       end.
       
       if oReturn# = ? and cLinkNameAlt# > "" then
@@ -248,6 +249,7 @@ class paninui.view.use.sc_coll_widgetdata
           and   ttWidgetData.cLinkName   = cLinkNameAlt#
           on error undo, throw:
           oReturn# = ttWidgetData.oBindingSource.
+          if oReturn# <> ? then leave b_getwidgetAlt.
         end.
       
       if oReturn# = ? then 
@@ -256,11 +258,13 @@ class paninui.view.use.sc_coll_widgetdata
            the bindingsource is registered on the buffer
            associated with that widget. 
         */
+        b_getBuffOrQuery:
         for each ttWidgetData
           where ttWidgetData.hBufferOrQuery = hBuffOrQueryIP#
           and   ttWidgetData.oBindingSource <> ?
           on error undo, throw:
           oReturn# = ttWidgetData.oBindingSource.
+          if oReturn# <> ? then leave b_getBuffOrQuery.
         end.
         
       end.
@@ -511,11 +515,9 @@ class paninui.view.use.sc_coll_widgetdata
 
   end method.  /* GetChildWidgets */
   
+
   
-  method public static void SetBindingSource(
-    oWidgetIP#        as Progress.Lang.Object, 
-    oBindingSourceIP# as c_bindingsource, 
-    hBufferOrQueryIP# as handle):
+  method public static void SetBindingSource (oWidgetIP# as Progress.Lang.Object, oBindingSourceIP# as Progress.Lang.Object, hBufferOrQueryIP# as handle):
     
     define variable bEclipseFix# as logical no-undo.
     define buffer ttWidgetData for ttWidgetData.
@@ -523,23 +525,44 @@ class paninui.view.use.sc_coll_widgetdata
     if oWidgetIP# <> ? and oBindingSourceIP# <> ? then 
     do for ttWidgetData:
       
-      find first ttWidgetData where ttWidgetData.oWidget = oWidgetIP# no-error.
+      find first ttWidgetData where ttWidgetData.oWidget = oWidgetIP#.
       
-      if not avail ttWidgetData then 
-      do:
-        create ttWidgetData.
-        assign 
-          ttWidgetData.oWidget = oWidgetIP#.
-      end.
-      
-      assign 
-        ttWidgetData.hBufferOrQuery = hBufferOrQueryIP#
-        ttWidgetData.oBindingSource = oBindingSourceIP#.
+      ttWidgetData.oBindingSource = oBindingSourceIP#.
       
     end.
     
   end method. /* SetBindingSource */
   
+
+  
+/*  method public static void SetBindingSource(                                  */
+/*    oWidgetIP#        as Progress.Lang.Object,                                 */
+/*    oBindingSourceIP# as c_bindingsource,                                      */
+/*    hBufferOrQueryIP# as handle):                                              */
+/*                                                                               */
+/*    define variable bEclipseFix# as logical no-undo.                           */
+/*    define buffer ttWidgetData for ttWidgetData.                               */
+/*                                                                               */
+/*    if oWidgetIP# <> ? and oBindingSourceIP# <> ? then                         */
+/*    do for ttWidgetData:                                                       */
+/*                                                                               */
+/*      find first ttWidgetData where ttWidgetData.oWidget = oWidgetIP# no-error.*/
+/*                                                                               */
+/*      if not avail ttWidgetData then                                           */
+/*      do:                                                                      */
+/*        create ttWidgetData.                                                   */
+/*        assign                                                                 */
+/*          ttWidgetData.oWidget = oWidgetIP#.                                   */
+/*      end.                                                                     */
+/*                                                                               */
+/*      assign                                                                   */
+/*        ttWidgetData.hBufferOrQuery = hBufferOrQueryIP#                        */
+/*        ttWidgetData.oBindingSource = oBindingSourceIP#.                       */
+/*                                                                               */
+/*    end.                                                                       */
+/*                                                                               */
+/*  end method. /* SetBindingSource */                                           */
+/*                                                                               */
   
   method public static void SetDisplayLinked(oWidgetIP# as Progress.Lang.Object):
     
