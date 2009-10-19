@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-17 16:30:35+02:00 $ 
-    Date Modified: $Modtime: 2009-10-17 16:23:39+02:00 $ 
+     Date Checkin: $Date: 2009-10-19 10:55:43+02:00 $ 
+    Date Modified: $Modtime: 2009-10-19 10:49:58+02:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -49,7 +49,8 @@ class paninui.view.use.sc_coll_eventdata
   method public static void Initialize():
     
     /* Can be fired from outside, to ensure our singleton 
-      reacts to broadcasted events. */
+       reacts to broadcasted events. 
+    */
       
     if oSingleton = ? then oSingleton = new sc_coll_eventdata().
       
@@ -58,13 +59,13 @@ class paninui.view.use.sc_coll_eventdata
 
   method public static int64 ItemAdd(
   
-    oWidgetTypeDataSourceOVID# as i_widgettype_query, /* *OVID# is not a real parameter, but an interface overload ID */
-    iPackIDIP#                 as int64,
-    iFrmLogicIDIP#             as int64,
-    iDelegateIDIP#             as int64,
-    oFrmLogicObjectIP#         as panaedra.msroot.msdr.logic.c_qry,
-    cWidgetNameIP#             as character,
-    cEventTypeIP#              as character):
+    oWidgetType_QueryOVID# as i_widgettype_query, /* *OVID# is not a real parameter, but an interface overload ID */
+    iPackIDIP#             as int64,
+    iFrmLogicIDIP#         as int64,
+    iDelegateIDIP#         as int64,
+    oFrmLogicObjectIP#     as panaedra.msroot.msdr.logic.c_qry,
+    cWidgetNameIP#         as character,
+    cEventTypeIP#          as character):
     
     define variable oBindingSource#       as Progress.Lang.Object no-undo.
     define variable oBindingSourceStrong# as c_bindingsource      no-undo.
@@ -87,7 +88,7 @@ class paninui.view.use.sc_coll_eventdata
       do:
         oBindingSourceStrong# = cast(oBindingSource#,c_bindingsource).
         if not can-find(first ttUiEvent where ttUiEvent.oWidget = oBindingSource# and ttUiEvent.cEventType = "PositionChanged") then
-          oBindingSourceStrong#:PositionChanged:Subscribe(oSingleton:OnEventArgsHandler).
+          oBindingSourceStrong#:PositionChanged:Subscribe(oSingleton:OnEventArgsHandler_PositionChanged).
       end.
       
       return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oBindingSource#, oFrmLogicObjectIP#:hQuery, cWidgetNameIP#, "query", cEventTypeIP#).
@@ -99,13 +100,13 @@ class paninui.view.use.sc_coll_eventdata
 
   method public static int64 ItemAdd(
   
-    oWidgetTypeDataSourceOVID# as i_widgettype_button, 
-    iPackIDIP#                 as int64,
-    iFrmLogicIDIP#             as int64,
-    iDelegateIDIP#             as int64,
-    oFrmLogicObjectIP#         as panaedra.msroot.msdr.logic.c_buf,
-    cWidgetNameIP#             as character,
-    cEventTypeIP#              as character):
+    oWidgetType_ButtonOVID# as i_widgettype_button, 
+    iPackIDIP#              as int64,
+    iFrmLogicIDIP#          as int64,
+    iDelegateIDIP#          as int64,
+    oFrmLogicBufferIP#      as panaedra.msroot.msdr.logic.c_buf,
+    cWidgetNameIP#          as character,
+    cEventTypeIP#           as character):
 
     define variable oWidget#              as Progress.Lang.Object          no-undo.
     define variable oBindingSource#       as Progress.Lang.Object          no-undo.
@@ -121,17 +122,23 @@ class paninui.view.use.sc_coll_eventdata
     do for ttUiEvent:
           
       assign
-        cWidgetNameIP#  = replace(cWidgetNameIP#,"_",".")
-        oWidget#        = sc_coll_widgetdata:GetWidget(iPackIDIP#,"button",?,cWidgetNameIP#, output bDummy#)
-        oBindingSource# = sc_coll_widgetdata:GetBindingSource(iPackIDIP#,"button",?,cWidgetNameIP#).
+        cWidgetNameIP# = replace(cWidgetNameIP#,"_",".")
+        oWidget#       = sc_coll_widgetdata:GetWidget(iPackIDIP#,"button",?,cWidgetNameIP#, output bDummy#).
         
       if oWidget# <> ? then 
       do:
         
+        oBindingSource# = sc_coll_widgetdata:GetBindingSource(iPackIDIP#,"button",oFrmLogicBufferIP#:hBuffer,cWidgetNameIP#).
+        
         if oBindingSource# = ? then 
-          oBindingSource# = new c_bindingsource(sc_bindingsourcetype:i_Buffer, oFrmLogicObjectIP#:hBuffer).
-      
-        oBindingSourceStrong# = cast(oBindingSource#,c_bindingsource).
+        do:
+          assign
+            oBindingSourceStrong# = new c_bindingsource(sc_bindingsourcetype:i_Buffer, oFrmLogicBufferIP#:hBuffer)
+            oBindingSource#       = oBindingSourceStrong#.
+          sc_coll_widgetdata:SetBindingSource(oFrmLogicBufferIP#, oBindingSourceStrong#, oFrmLogicBufferIP#:hBuffer).
+        end.
+        else
+          oBindingSourceStrong# = cast(oBindingSource#,c_bindingsource).
         
         if type-of(oWidget#,System.Windows.Forms.CheckBox) then 
         do:
@@ -139,12 +146,12 @@ class paninui.view.use.sc_coll_eventdata
           oFormsCheckBox# = cast(oWidget#,System.Windows.Forms.CheckBox).
           if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
             case cEventTypeIP#:
-              when "Press" then oFormsCheckBox#:CheckedChanged:Subscribe(oSingleton:OnEventArgsHandler).
+              when "Press" then oFormsCheckBox#:CheckedChanged:Subscribe(oSingleton:OnEventArgsHandler_Press).
             end case.
             
         end.
         
-        return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oWidget#, oFrmLogicObjectIP#:hBuffer, cWidgetNameIP#, "button", cEventTypeIP#).
+        return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oWidget#, oFrmLogicBufferIP#:hBuffer, cWidgetNameIP#, "button", cEventTypeIP#).
       
       end.
       
@@ -155,10 +162,9 @@ class paninui.view.use.sc_coll_eventdata
   end method. /* ItemAdd ; Button */
 
 
-  method private void OnEventArgsHandler(oSender# as System.Object, oArgs# as System.EventArgs):
+  method public void OnEventArgsHandler_PositionChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
     define variable bEclipseFix# as logical                           no-undo.
-    define variable oCheckBox#   as System.Windows.Forms.CheckBox     no-undo.
     define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
@@ -169,6 +175,26 @@ class paninui.view.use.sc_coll_eventdata
         on error undo,throw:
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end. /* OnEventArgsHandler_PositionChanged */
+  
+  
+  method public void OnEventArgsHandler_Press(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable bEclipseFix# as logical                           no-undo.
+    define variable oCheckBox#   as System.Windows.Forms.CheckBox     no-undo.
+    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "Press"
         on error undo,throw:
@@ -188,7 +214,7 @@ class paninui.view.use.sc_coll_eventdata
     
     end.
     
-  end. /* OnEventArgsHandler */
+  end. /* OnEventArgsHandler_Press */
   
   
   method public static int64 ItemAddXXX(
