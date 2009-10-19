@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-19 10:55:43+02:00 $ 
-    Date Modified: $Modtime: 2009-10-19 10:49:58+02:00 $ 
+     Date Checkin: $Date: 2009-10-19 14:09:45+02:00 $ 
+    Date Modified: $Modtime: 2009-10-19 11:52:24+02:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -128,17 +128,22 @@ class paninui.view.use.sc_coll_eventdata
       if oWidget# <> ? then 
       do:
         
-        oBindingSource# = sc_coll_widgetdata:GetBindingSource(iPackIDIP#,"button",oFrmLogicBufferIP#:hBuffer,cWidgetNameIP#).
-        
-        if oBindingSource# = ? then 
+        if oFrmLogicBufferIP# <> ? then 
         do:
-          assign
-            oBindingSourceStrong# = new c_bindingsource(sc_bindingsourcetype:i_Buffer, oFrmLogicBufferIP#:hBuffer)
-            oBindingSource#       = oBindingSourceStrong#.
-          sc_coll_widgetdata:SetBindingSource(oFrmLogicBufferIP#, oBindingSourceStrong#, oFrmLogicBufferIP#:hBuffer).
-        end.
-        else
-          oBindingSourceStrong# = cast(oBindingSource#,c_bindingsource).
+          
+          oBindingSource# = sc_coll_widgetdata:GetBindingSource(iPackIDIP#,"button",oFrmLogicBufferIP#:hBuffer,cWidgetNameIP#).
+        
+          if oBindingSource# = ? then 
+          do:
+            assign
+              oBindingSourceStrong# = new c_bindingsource(sc_bindingsourcetype:i_Buffer, oFrmLogicBufferIP#:hBuffer)
+              oBindingSource#       = oBindingSourceStrong#.
+            sc_coll_widgetdata:SetBindingSource(oFrmLogicBufferIP#, oBindingSourceStrong#, oFrmLogicBufferIP#:hBuffer).
+          end.
+          else
+            oBindingSourceStrong# = cast(oBindingSource#,c_bindingsource).
+            
+        end. /* A c_buf object is given. This is optional, you can also solely use the screen values (i_uivalue). */
         
         if type-of(oWidget#,System.Windows.Forms.CheckBox) then 
         do:
@@ -151,7 +156,15 @@ class paninui.view.use.sc_coll_eventdata
             
         end.
         
-        return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oWidget#, oFrmLogicBufferIP#:hBuffer, cWidgetNameIP#, "button", cEventTypeIP#).
+        return ItemAddImplement(
+          iPackIDIP#, 
+          iFrmLogicIDIP#, 
+          iDelegateIDIP#, 
+          oWidget#, 
+          (if oFrmLogicBufferIP# = ? then ? else oFrmLogicBufferIP#:hBuffer), 
+          cWidgetNameIP#, 
+          "button", 
+          cEventTypeIP#).
       
       end.
       
@@ -162,7 +175,7 @@ class paninui.view.use.sc_coll_eventdata
   end method. /* ItemAdd ; Button */
 
 
-  method public void OnEventArgsHandler_PositionChanged(oSender# as System.Object, oArgs# as System.EventArgs):
+  method private void OnEventArgsHandler_PositionChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
     define variable bEclipseFix# as logical                           no-undo.
     define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
@@ -186,7 +199,7 @@ class paninui.view.use.sc_coll_eventdata
   end. /* OnEventArgsHandler_PositionChanged */
   
   
-  method public void OnEventArgsHandler_Press(oSender# as System.Object, oArgs# as System.EventArgs):
+  method private void OnEventArgsHandler_Press(oSender# as System.Object, oArgs# as System.EventArgs):
     
     define variable bEclipseFix# as logical                           no-undo.
     define variable oCheckBox#   as System.Windows.Forms.CheckBox     no-undo.
