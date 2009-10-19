@@ -1,19 +1,19 @@
 
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata_tt.i $ 
-        Version: $Revision: 4 $ 
+        Version: $Revision: 5 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-10-03 22:39:49+02:00 $ 
-  Date Modified: $Modtime: 2009-10-03 16:05:13+02:00 $ 
+   Date Checkin: $Date: 2009-10-19 10:55:43+02:00 $ 
+  Date Modified: $Modtime: 2009-10-19 09:59:03+02:00 $ 
 
-    Description: add_your_comments_here
+    Description: Widgetdata collection temp-tables
 
 \**************************** End of Dvcs_ Header ****************************/
 &if '{&dvcs__paninui_view_use_sc_coll_widgetdata_tt_i}' = '' &then
 &glob dvcs__paninui_view_use_sc_coll_widgetdata_tt_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_widgetdata_tt_i $Revision: 4 $
+&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_widgetdata_tt_i $Revision: 5 $
 &if '{&class}' = '' &then
-procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 4 $". end.
+procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 5 $". end.
 &endif
 /******************************* $NoKeywords:  $ *****************************/
 
@@ -42,7 +42,8 @@ procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 4 $
     field iIDWidgetData       as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" 
 
     field oParent             as Progress.Lang.Object
-    field oWidget             as Progress.Lang.Object  
+    field oWidget             as Progress.Lang.Object
+    field hBufferOrQuery      as handle  
     field oBindingSource      as Progress.Lang.Object  
     field cWidgetType         as character            format "x(50)" xml-node-type "attribute" 
     field cWidgetName         as character            format "x(50)" xml-node-type "attribute" 
@@ -50,14 +51,15 @@ procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 4 $
 
     field bIsDisplayLinked    as logical              xml-node-type "attribute" 
 
-    index iIDWidgetData            is unique iIDWidgetData ascending 
+    index iIDWidgetData            is unique iIDWidgetData 
     index i_frame_parent_self      is primary iIDUiFrame ascending iIDWidgetDataParent descending iIDWidgetData descending 
     index iIDUIFrame_Type_LinkName iIDUIFrame cWidgetType cLinkName 
     index iIDUIFrame_LinkName      iIDUIFrame cLinkName 
-    index dtmCreWidgetData         dtmCreWidgetData ascending 
-    index dtmModWidgetData         dtmModWidgetData ascending 
-    index oWidget                  oWidget          ascending
-    index oParent                  oParent          ascending
+    index dtmCreWidgetData         dtmCreWidgetData 
+    index dtmModWidgetData         dtmModWidgetData 
+    index oWidget                  oWidget          
+    index oParent                  oParent          
+    index hBufferOrQuery_Bind      hBufferOrQuery oBindingSource 
     .
 
 &endif
