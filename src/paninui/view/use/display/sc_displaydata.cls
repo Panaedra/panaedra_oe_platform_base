@@ -2,15 +2,16 @@
 using paninui.view.interfaces.*.
 using paninui.view.use.*.
 using paninui.view.init.display.*.
+using panaedra.msroot.msdr.interfaces.*.
 
 class paninui.view.use.display.sc_displaydata   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 11 $ 
+          Version: $Revision: 12 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-19 10:55:43+02:00 $ 
-    Date Modified: $Modtime: 2009-10-19 10:32:59+02:00 $ 
+     Date Checkin: $Date: 2009-10-19 14:09:45+02:00 $ 
+    Date Modified: $Modtime: 2009-10-19 13:58:24+02:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -19,7 +20,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -28,7 +29,7 @@ class paninui.view.use.display.sc_displaydata   :
     iGroupFrameOVIP# as i_widgettype_groupframe,
     iTextOVIP#       as i_widgetproperty_text,
     cGroupNameIP#    as character,
-    oBufIP#          as panaedra.msroot.msdr.interfaces.i_buf):
+    oBufIP#          as i_buf):
 
     define variable oBindingSourceStrong# as c_bindingsource                         no-undo.
     define variable oChildWidgets#        as Progress.Lang.Object                    no-undo extent.
@@ -104,7 +105,7 @@ class paninui.view.use.display.sc_displaydata   :
     oFrmLogicIP#   as i_frmlogic,
     iGridOVIP#     as i_widgettype_grid,
     cWidgetNameIP# as character,
-    oQryIP#        as panaedra.msroot.msdr.interfaces.i_qry):
+    oQryIP#        as i_qry):
     
     define variable oWidget#              as Progress.Lang.Object no-undo.
     define variable oBindingSource#       as Progress.Lang.Object no-undo.
@@ -127,17 +128,20 @@ class paninui.view.use.display.sc_displaydata   :
         oQryIP#:hQuery, 
         cWidgetNameIP#).
 
+      DisplayDataSubGrid(
+        oWidget#, 
+        oQryIP#:hQuery, 
+        input-output oBindingSource#).
+
       if oBindingSource# <> ? then
         oBindingSourceStrong# = cast(oBindingSource#, c_bindingsource).
       else 
         oBindingSourceStrong# = ?.
 
-      DisplayDataSubGrid(oWidget#, oQryIP#:hQuery, input-output oBindingSource#).
-
       sc_coll_widgetdata:SetBindingSource(oWidget#, oBindingSourceStrong#, oQryIP#:hQuery).
       sc_coll_widgetdata:SetDisplayLinked(oWidget#).
       
-    end.
+    end. /* Not linked yet */
     
   end method. /* DisplayData: Grid + i_qry */
 
@@ -178,9 +182,15 @@ class paninui.view.use.display.sc_displaydata   :
       end.
         
       if (hQuery# <> ?) then 
-      do: 
-        DisplayDataSubGrid(oWidget#, hQuery#, input-output oBindingSource#).
+      do:
+         
+        DisplayDataSubGrid(
+          oWidget#, 
+          hQuery#, 
+          input-output oBindingSource#).
+          
         sc_coll_widgetdata:SetDisplayLinked(oWidget#).
+        
       end. /* Valid query */
       
     end. /* Not displayLinked */
