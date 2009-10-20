@@ -6,10 +6,10 @@ class paninui.view.interfaces.sc_widgettype:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/interfaces/sc_widgettype.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-03 22:39:49+02:00 $ 
-    Date Modified: $Modtime: 2009-10-03 15:00:52+02:00 $ 
+     Date Checkin: $Date: 2009-10-20 14:17:50+02:00 $ 
+    Date Modified: $Modtime: 2009-10-20 09:51:32+02:00 $ 
 
       Description: Helper class for overload ID interfaces. 
                    
@@ -25,7 +25,7 @@ class paninui.view.interfaces.sc_widgettype:
   /************************  Source control constructor ************************/
   constructor public sc_widgettype(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -36,6 +36,7 @@ class paninui.view.interfaces.sc_widgettype:
   define public static property i_GridItem   as i_widgettype_griditem   no-undo get.
   define public static property i_Tree       as i_widgettype_tree       no-undo get.
   define public static property i_GroupFrame as i_widgettype_groupframe no-undo get.
+  define public static property i_Toolbar    as i_widgettype_toolbar    no-undo get.
   define public static property i_DataSource as i_widgettype_datasource no-undo get.
   define public static property i_Query      as i_widgettype_query      no-undo get.
 
