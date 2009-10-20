@@ -9,10 +9,10 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/dotnetformshowexception.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-12 09:11:30+02:00 $ 
-    Date Modified: $Modtime: 2009-10-12 09:09:26+02:00 $ 
+     Date Checkin: $Date: 2009-10-20 12:18:56+02:00 $ 
+    Date Modified: $Modtime: 2009-10-20 12:18:21+02:00 $ 
 
       Description: Tonen van een willekeurige progress exception
 
@@ -26,7 +26,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   /************************  Source control constructor ************************/
   constructor public dotnetformshowexception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -118,7 +118,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     Modifying the contents of this method using a code editor will invalidate any support for this file. */
     @VisualDesigner.FormMember (NeedsInitialize="true").
     define variable resources as System.Resources.ResXResourceSet no-undo.
-    resources = Progress.Util.ResourceHelper:Load("panaedra\msex\logic\dotnetformshowexception.resx", PROPATH).
+    resources = Progress.Util.ResourceHelper:Load("panaedra\msex\logic\dotnetformshowexception.resx", propath).
     this-object:tbStack = new System.Windows.Forms.TextBox().
     this-object:btnOK = new System.Windows.Forms.Button().
     this-object:tbinfo = new System.Windows.Forms.TextBox().
