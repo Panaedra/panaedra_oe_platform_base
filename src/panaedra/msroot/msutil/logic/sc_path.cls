@@ -7,10 +7,10 @@ class panaedra.msf.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msf/logic/sc_path.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-07 16:43:19+02:00 $ 
-    Date Modified: $Modtime: 2009-10-07 16:41:18+02:00 $ 
+     Date Checkin: $Date: 2009-10-20 08:18:47+02:00 $ 
+    Date Modified: $Modtime: 2009-10-19 15:19:27+02:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -22,7 +22,7 @@ class panaedra.msf.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 9 $", "{&sourcecontrolversions}").
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 10 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -381,7 +381,9 @@ class panaedra.msf.logic.sc_path:
     cPathIP# = replace(cPathIP#, "/", ".").
     cPathIP# = replace(cPathIP#, "~\", ".").
     
-    cPathIP# = substring(cPathIP#, 1, r-index(cPathIP#, ".") - 1).
+    if cPathIP# matches "*~~.r*"
+      or cPathIP# matches "*~~.cls*" then
+      cPathIP# = substring(cPathIP#, 1, r-index(cPathIP#, ".") - 1).
     
     return cPathIP#.
 
