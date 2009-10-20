@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_data_analysis.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-20 12:17:07+02:00 $ 
-    Date Modified: $Modtime: 2009-10-20 12:16:25+02:00 $ 
+     Date Checkin: $Date: 2009-10-20 13:58:31+02:00 $ 
+    Date Modified: $Modtime: 2009-10-20 13:47:41+02:00 $ 
 
       Description: Class voor b.v. het inlezen van een temp-table record en te kijken of deze
                    leeg is.
@@ -17,70 +17,93 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
   /************************  Source control constructor ************************/
   constructor public sc_data_analysis(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
 
-  method public static logical IsRecordEmpty (hRecordBufferIP# as handle, cSvExcludeFieldsIP# as character):
+  method public static logical IsRecordEmpty (hBufferIP# as handle, cSvExcludeFieldsIP# as character):
+
+    /* bouw support voor extents in                                                                                                  */
+    /*  bTrimIP# als optie meegeven                                                                                            */
+    /* maak drie overloads; eentje zonder cSv, eentje zonder bTrimIP#, en eentje zonder cSv en bTrimIP#                              */
+    /* Nog inbouwen: 
+       - Progress.Lang.Object 
+       - com-handle 
+       - date 
+       - datetime 
+       - datetime-tz
+       - handle 
+       - int64 
+       - logical
+       - longchar
+       - memptr
+       - blob
+       - clob
+       - raw 
+       - recid 
+       - rowid */
     
     /* Bekijkt een record van een meegegeven buffer en beoordeel of deze leeg is of niet */
     /* Je kan velden negeren als deze niet meegenomen hoeven te worden in de beoordeling */
     define variable hField#    as handle    no-undo.
     define variable iFieldNr#  as integer   no-undo.
     define variable bEmpty#    as logical   no-undo initial true.
-    define variable cInitial#  as character no-undo.
-    define variable cValue#    as character no-undo.
     define variable cDataType# as character no-undo.
     
-    loopdoorvelden:
-    do iFieldNr# = 1 to hRecordBufferIP#:num-fields:
+    if hBufferIP# <> ? then 
+    do:
+    
+      b_LoopDoorVelden:
+      do iFieldNr# = 1 to hBufferIP#:num-fields:
       
-      assign
-        hField#    = hRecordBufferIP#:buffer-field(iFieldNr#)
-        cInitial#  = hField#:initial
-        cValue#    = hField#:buffer-value
-        cDataType# = hField#:data-type.
-      
-      if lookup(cSvExcludeFieldsIP#, hField#:name) = 0 then
-      do:
-      
-        case cDataType#:
+        assign
+          hField#    = hBufferIP#:buffer-field(iFieldNr#)
+          cDataType# = hField#:data-type.
         
-          when "character" then
+        if lookup(hField#:name, cSvExcludeFieldsIP#) = 0 then
+        do:
+      
+          case cDataType#:
+        
+            when "character" then
+              do:
+                if hField#:buffer-value <> hField#:initial then
+                  bEmpty# = false.
+              end. /* character */  
+      
+            when "integer" then
+              do:
+                if hField#:buffer-value <> int(hField#:initial) then
+                  bEmpty# = false.
+              end. /* integer */  
+      
+            when "decimal" then
+              do:
+                if hField#:buffer-value <> dec(hField#:initial) then
+                  bEmpty# = false.
+              end. /* decimal */  
+      
+            otherwise 
             do:
-              if trim(cValue#) <> trim(cInitial#) then
-                bEmpty# = false.
-            end. /* character */  
+              undo, throw new AppError(subst("sc_data_analysis is een onbekend data-type tegengekomen: &1", hField#:data-type), 99950080).
+            end. /* Otherwise */  
       
-          when "integer" then
-            do:
-              if int(cValue#) <> int(cInitial#) then
-                bEmpty# = false.
-            end. /* integer */  
+          end case. /* cDataType# */
       
-          when "decimal" then
-            do:
-              if dec(cValue#) <> dec(cInitial#) then
-                bEmpty# = false.
-            end. /* decimal */  
+          /* Als we hebben bepaald dat het record niet leeg is heeft heeft het geen zin om verder te zoeken */
+          if bEmpty# = false then 
+            leave b_LoopDoorVelden.
       
-          otherwise 
-          do:
-          
-          end. /* Otherwise */  
-      
-        end case. /* cDataType# */
-      
-        /* Als we hebben bepaald dat het record niet leeg is heeft heeft het geen zin om verder te zoeken */
-        if bEmpty# = false then 
-          leave loopdoorvelden.
-      
-      end. /* iFieldNr# = 1 to hRecordBufferIP#:num-fields */ 
+        end. /* lookup(cSvExcludeFieldsIP#, hBufferIP#:name) */ 
     
-    end. /* lookup(cSvExcludeFieldsIP#, hRecordBufferIP#:name) */
+      end. /* iFieldNr# = 1 to hBufferIP#:num-fields */
     
-    return bEmpty#.
+      return bEmpty#.
+    
+    end. /* if hBufferIP# <> ? */
+    else
+      return ?.
     
   end method. /* IsRecordEmpty */
 
