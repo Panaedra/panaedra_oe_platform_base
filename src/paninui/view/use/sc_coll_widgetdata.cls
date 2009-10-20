@@ -1,7 +1,11 @@
 {panaedra/msi/logic/ctop_class.i}
+
 using paninui.view.interfaces.*.
 using paninui.pack.interfaces.*.
 using paninui.view.init.display.*.
+
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 using panaedra.msdr.logic.*.
 
 class paninui.view.use.sc_coll_widgetdata   
@@ -12,10 +16,10 @@ class paninui.view.use.sc_coll_widgetdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 16 $ 
+          Version: $Revision: 17 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-19 14:09:45+02:00 $ 
-    Date Modified: $Modtime: 2009-10-19 12:11:40+02:00 $ 
+     Date Checkin: $Date: 2009-10-20 14:17:50+02:00 $ 
+    Date Modified: $Modtime: 2009-10-20 14:14:36+02:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -25,7 +29,7 @@ class paninui.view.use.sc_coll_widgetdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 16 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 17 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -38,10 +42,16 @@ class paninui.view.use.sc_coll_widgetdata
     
     do for ttUIFrame:
       
-      create ttUIFrame.
-      assign 
-        ttUIFrame.iIDUIFrame = oUiFrameIP#:UniqueInstanceID.
-      sc_dbtrig:OnWriteOrCreate(buffer ttUIFrame:handle ).
+      find first ttUIFrame where ttUIFrame.iIDUIFrame = oUiFrameIP#:UniqueInstanceID no-error.
+      
+      if not avail ttUIFrame then 
+      do:
+        create ttUIFrame.
+        assign 
+          ttUIFrame.iIDUIFrame = oUiFrameIP#:UniqueInstanceID.
+        sc_dbtrig:OnWriteOrCreate(buffer ttUIFrame:handle ).
+      end.
+      
       assign
         ttUIFrame.iPackID    = oPackIP#:UniqueInstanceID 
         ttUIFrame.cFrameName = oUiFrameIP#:UniqueFrameName
@@ -57,30 +67,32 @@ class paninui.view.use.sc_coll_widgetdata
   method public static int64 ItemAdd (
     input  oWidgettypeGridOVID# as i_widgettype_grid, /* *OVID# is not a real parameter, but an interface overload ID */
     input  iIDUIFrameIP#        as int64,
-    input  cNameIP#             as char,
+    input  cFullNameIP#         as character,
+    input  cNameIP#             as character,
     input  iIDParentIP#         as int64,
     input  oParentIP#           as Progress.Lang.Object,
     input  oWidgetIP#           as Progress.Lang.Object):
     
     /* This method returns the new iID of the created ttWidgetData. */ 
     
-    return ItemAddImplement(iIDUIFrameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "grid"). 
+    return ItemAddImplement(iIDUIFrameIP#, cFullNameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "grid"). 
     
     
   end method. /* ItemAdd */
 
 
   method public static int64 ItemAdd (
-    input  oWidgettypeGridOVID# as i_widgettype_griditem, /* *OVID# is not a real parameter, but an interface overload ID */
-    input  iIDUIFrameIP#        as int64,
-    input  cNameIP#             as char,
-    input  iIDParentIP#         as int64,
-    input  oParentIP#           as Progress.Lang.Object,
-    input  oWidgetIP#           as Progress.Lang.Object):
+    input  oWidgettypeGriditemOVID# as i_widgettype_griditem, /* *OVID# is not a real parameter, but an interface overload ID */
+    input  iIDUIFrameIP#            as int64,
+    input  cFullNameIP#         as character,
+    input  cNameIP#                 as character,
+    input  iIDParentIP#             as int64,
+    input  oParentIP#               as Progress.Lang.Object,
+    input  oWidgetIP#               as Progress.Lang.Object):
     
     /* This method returns the new iID of the created ttWidgetData. */ 
     
-    return ItemAddImplement(iIDUIFrameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "griditem"). 
+    return ItemAddImplement(iIDUIFrameIP#, cFullNameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "griditem"). 
     
     
   end method. /* ItemAdd */
@@ -89,58 +101,77 @@ class paninui.view.use.sc_coll_widgetdata
   method public static int64 ItemAdd (
     input  oWidgettypeComboboxOVID# as i_widgettype_combobox, /* *OVID# is not a real parameter, but an interface overload ID */
     input  iIDUIFrameIP#            as int64,
-    input  cNameIP#                 as char,
+    input  cFullNameIP#         as character,
+    input  cNameIP#                 as character,
     input  iIDParentIP#             as int64,
     input  oParentIP#               as Progress.Lang.Object,
     input  oWidgetIP#               as Progress.Lang.Object):
 
-    return ItemAddImplement(iIDUIFrameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "combobox"). 
+    return ItemAddImplement(iIDUIFrameIP#, cFullNameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "combobox"). 
 
   end method. /* ItemAdd */
 
 
   method public static int64 ItemAdd (
-    input  oWidgettypeComboboxOVID# as i_widgettype_groupframe, /* *OVID# is not a real parameter, but an interface overload ID */
+    input  oWidgettypeGroupframeOVID# as i_widgettype_groupframe, /* *OVID# is not a real parameter, but an interface overload ID */
     input  iIDUIFrameIP#            as int64,
-    input  cNameIP#                 as char,
+    input  cFullNameIP#         as character,
+    input  cNameIP#                 as character,
     input  iIDParentIP#             as int64,
     input  oParentIP#               as Progress.Lang.Object,
     input  oWidgetIP#               as Progress.Lang.Object):
 
-    return ItemAddImplement(iIDUIFrameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "groupframe"). 
+    return ItemAddImplement(iIDUIFrameIP#, cFullNameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "groupframe"). 
 
   end method. /* ItemAdd */
 
 
   method public static int64 ItemAdd (
-    input  oWidgettypeComboboxOVID# as i_widgettype_button, /* *OVID# is not a real parameter, but an interface overload ID */
+    input  oWidgettypeToolbarOVID# as i_widgettype_toolbar, /* *OVID# is not a real parameter, but an interface overload ID */
     input  iIDUIFrameIP#            as int64,
-    input  cNameIP#                 as char,
+    input  cFullNameIP#         as character,
+    input  cNameIP#                 as character,
     input  iIDParentIP#             as int64,
     input  oParentIP#               as Progress.Lang.Object,
     input  oWidgetIP#               as Progress.Lang.Object):
 
-    return ItemAddImplement(iIDUIFrameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "button"). 
+    return ItemAddImplement(iIDUIFrameIP#, cFullNameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "toolbar"). 
 
   end method. /* ItemAdd */
 
 
   method public static int64 ItemAdd (
-    input  oWidgettypeComboboxOVID# as i_widgettype_tree, /* *OVID# is not a real parameter, but an interface overload ID */
-    input  iIDUIFrameIP#            as int64,
-    input  cNameIP#                 as char,
-    input  iIDParentIP#             as int64,
-    input  oParentIP#               as Progress.Lang.Object,
-    input  oWidgetIP#               as Progress.Lang.Object):
+    input  oWidgettypeButtonOVID# as i_widgettype_button, /* *OVID# is not a real parameter, but an interface overload ID */
+    input  iIDUIFrameIP#          as int64,
+    input  cFullNameIP#         as character,
+    input  cNameIP#               as character,
+    input  iIDParentIP#           as int64,
+    input  oParentIP#             as Progress.Lang.Object,
+    input  oWidgetIP#             as Progress.Lang.Object):
 
-    return ItemAddImplement(iIDUIFrameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "tree"). 
+    return ItemAddImplement(iIDUIFrameIP#, cFullNameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "button"). 
+
+  end method. /* ItemAdd */
+
+
+  method public static int64 ItemAdd (
+    input  oWidgettypeTreeOVID# as i_widgettype_tree, /* *OVID# is not a real parameter, but an interface overload ID */
+    input  iIDUIFrameIP#        as int64,
+    input  cFullNameIP#         as character,
+    input  cNameIP#             as character,
+    input  iIDParentIP#         as int64,
+    input  oParentIP#           as Progress.Lang.Object,
+    input  oWidgetIP#           as Progress.Lang.Object):
+
+    return ItemAddImplement(iIDUIFrameIP#, cFullNameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "tree"). 
 
   end method. /* ItemAdd */
 
 
   method protected static int64 ItemAddImplement(
     input  iIDUIFrameIP#        as int64,
-    input  cNameIP#             as char,
+    input  cFullNameIP#         as character,
+    input  cNameIP#             as character,
     input  iIDParentIP#         as int64,
     input  oParentIP#           as Progress.Lang.Object,
     input  oWidgetIP#           as Progress.Lang.Object,
@@ -148,15 +179,16 @@ class paninui.view.use.sc_coll_widgetdata
     
     /* This method returns the new iID of the created ttWidgetData. */ 
     
-    def buffer ttWidgetData for ttWidgetData.
+    def buffer ttWidgetData          for ttWidgetData.
+    def buffer b-parent-ttWidgetData for ttWidgetData.
     
-    do for ttWidgetData:
+    do for ttWidgetData, b-parent-ttWidgetData:
     
       create ttWidgetData.
       panaedra.msdr.logic.sc_dbtrig:OnWriteOrCreate(buffer ttWidgetData:handle ).
       assign 
         ttWidgetData.iIDUiFrame          = iIDUIFrameIP#
-        ttWidgetData.cWidgetName         = cNameIP#
+        ttWidgetData.cWidgetName         = cFullNameIP#
         ttWidgetData.iIDWidgetDataParent = iIDParentIP#
         ttWidgetData.cWidgetType         = cWidgetTypeIP#
         ttWidgetData.oWidget             = oWidgetIP#
@@ -164,27 +196,34 @@ class paninui.view.use.sc_coll_widgetdata
       
       case cWidgetTypeIP#:
         when "grid"       then 
-          ttWidgetData.cLinkName = substring(ttWidgetData.cWidgetName,7).
+          ttWidgetData.cLinkName = cNameIP#.
         when "griditem"   then 
-          ttWidgetData.cLinkName = ttWidgetData.cWidgetName.
+          ttWidgetData.cLinkName = cNameIP#.
         when "combobox"   then 
-          ttWidgetData.cLinkName = substring(ttWidgetData.cWidgetName,3).
+          ttWidgetData.cLinkName = cNameIP#.
         when "button"     then 
-          case GetPrefix(ttWidgetData.cWidgetName):
-            when "tb" then 
-              ttWidgetData.cLinkName = substring(ttWidgetData.cWidgetName, 3). /* Toggle-box */
-            when "btn" then 
-              ttWidgetData.cLinkName = substring(ttWidgetData.cWidgetName, 4). /* Button */
-            otherwise 
-            ttWidgetData.cLinkName = ttWidgetData.cWidgetName.
-          end case.
+          ttWidgetData.cLinkName = cNameIP#.
         when "tree"       then 
-          ttWidgetData.cLinkName = substring(ttWidgetData.cWidgetName,5).
+          ttWidgetData.cLinkName = cNameIP#.
         when "groupframe" then 
-          ttWidgetData.cLinkName = substring(ttWidgetData.cWidgetName,6).
+          ttWidgetData.cLinkName = cNameIP#.
+        when "toolbar" then
+          ttWidgetData.cLinkName = cNameIP#.
       end case.
       
       ttWidgetData.cLinkName = replace(ttWidgetData.cLinkName,"__",".").
+
+      if ttWidgetData.cLinkName begins "." and iIDParentIP# <> 0 then 
+      do:
+        find b-parent-ttWidgetData where b-parent-ttWidgetData.iIDWidgetData = iIDParentIP# no-error.
+        if avail b-parent-ttWidgetData and b-parent-ttWidgetData.cWidgetType = "toolbar" then 
+        do:
+          ttWidgetData.cLinkName = subst("&1&2", b-parent-ttWidgetData.cLinkName, ttWidgetData.cLinkName).
+        end.  
+      end.
+      
+      /* Always trim any start dots off the LinkName (Parent is already prepended here). */
+      ttWidgetData.cLinkName = left-trim(ttWidgetData.cLinkName,".").
 
       return ttWidgetData.iIDWidgetData.
       
@@ -193,27 +232,6 @@ class paninui.view.use.sc_coll_widgetdata
   end method. /* ItemAddImplement */
   
   
-  method protected static character GetPrefix(cCamelcaseNameIP# as character):
-    
-    /* tbSomeThing -> "tb"
-       SomeThing -> "" 
-    */
-    
-    define variable iTell#   as integer   no-undo.
-    define variable cLett#   as character no-undo.
-    define variable cReturn# as character no-undo.
-    
-    do iTell# = 1 to length(cCamelcaseNameIP#):
-      cLett# = substring(cCamelcaseNameIP#, iTell#, 1).
-      if asc(cLett#) < asc("a") or asc(cLett#) > asc("z") then return cReturn#. 
-      cReturn# = cReturn# + cLett#.
-    end.
-    
-    return cReturn#.
-    
-  end method. /* GetPrefix */
- 
- 
   method public static Progress.Lang.Object GetBindingSource(
     input  iPackIdIP#      as int64, 
     input  cWidgetTypeIP#  as character, 
@@ -370,7 +388,7 @@ class paninui.view.use.sc_coll_widgetdata
   
   method public static Progress.Lang.Object GetWidget(
     input  iPackIdIP#      as int64, 
-    input  cWidgetTypeIP#  as char, 
+    input  cWidgetTypeIP#  as character, 
     input  hBuffOrQueryIP# as handle,
     input  cDataRefIP#     as character,
     output bIsDisplayLinkedOP# as logical):
@@ -413,7 +431,7 @@ class paninui.view.use.sc_coll_widgetdata
   
   method public static Progress.Lang.Object GetWidget(
     input  iPackIdIP#      as int64, 
-    input  cWidgetTypeIP#  as char, 
+    input  cWidgetTypeIP#  as character, 
     input  cDataRefIP#     as character,
     output bIsDisplayLinkedOP# as logical):
     
@@ -470,6 +488,7 @@ class paninui.view.use.sc_coll_widgetdata
     define variable bDisplayLinked# as logical              no-undo.
     define variable iExtentSize#    as integer              no-undo.
     define variable oReturn#        as Progress.Lang.Object no-undo extent.
+    define variable cSvWidgetTypes# as character            no-undo init "combobox". /* We will probable support other widget types in the future. */
 
     define buffer ttUIFrame    for ttUIFrame.
     define buffer ttWidgetData for ttWidgetData.
@@ -481,7 +500,8 @@ class paninui.view.use.sc_coll_widgetdata
       
       for  
         each  ttWidgetData
-        where ttWidgetData.oParent = oParent#
+        where ttWidgetData.oParent     = oParent#
+        and   lookup(cSvWidgetTypes#, ttWidgetData.cWidgetType) > 0 
         ,
         first ttUIFrame of ttWidgetData 
         where ttUIFrame.iPackID = iPackIdIP#
@@ -498,6 +518,7 @@ class paninui.view.use.sc_coll_widgetdata
         for  
           each  ttWidgetData
           where ttWidgetData.oParent = oParent#
+          and   lookup(cSvWidgetTypes#, ttWidgetData.cWidgetType) > 0 
           ,
           first ttUIFrame of ttWidgetData 
           where ttUIFrame.iPackID = iPackIdIP#
@@ -535,34 +556,34 @@ class paninui.view.use.sc_coll_widgetdata
   
 
   
-/*  method public static void SetBindingSource(                                  */
-/*    oWidgetIP#        as Progress.Lang.Object,                                 */
-/*    oBindingSourceIP# as c_bindingsource,                                      */
-/*    hBufferOrQueryIP# as handle):                                              */
-/*                                                                               */
-/*    define variable bEclipseFix# as logical no-undo.                           */
-/*    define buffer ttWidgetData for ttWidgetData.                               */
-/*                                                                               */
-/*    if oWidgetIP# <> ? and oBindingSourceIP# <> ? then                         */
-/*    do for ttWidgetData:                                                       */
-/*                                                                               */
-/*      find first ttWidgetData where ttWidgetData.oWidget = oWidgetIP# no-error.*/
-/*                                                                               */
-/*      if not avail ttWidgetData then                                           */
-/*      do:                                                                      */
-/*        create ttWidgetData.                                                   */
-/*        assign                                                                 */
-/*          ttWidgetData.oWidget = oWidgetIP#.                                   */
-/*      end.                                                                     */
-/*                                                                               */
-/*      assign                                                                   */
-/*        ttWidgetData.hBufferOrQuery = hBufferOrQueryIP#                        */
-/*        ttWidgetData.oBindingSource = oBindingSourceIP#.                       */
-/*                                                                               */
-/*    end.                                                                       */
-/*                                                                               */
-/*  end method. /* SetBindingSource */                                           */
-/*                                                                               */
+  /*  method public static void SetBindingSource(                                  */
+  /*    oWidgetIP#        as Progress.Lang.Object,                                 */
+  /*    oBindingSourceIP# as c_bindingsource,                                      */
+  /*    hBufferOrQueryIP# as handle):                                              */
+  /*                                                                               */
+  /*    define variable bEclipseFix# as logical no-undo.                           */
+  /*    define buffer ttWidgetData for ttWidgetData.                               */
+  /*                                                                               */
+  /*    if oWidgetIP# <> ? and oBindingSourceIP# <> ? then                         */
+  /*    do for ttWidgetData:                                                       */
+  /*                                                                               */
+  /*      find first ttWidgetData where ttWidgetData.oWidget = oWidgetIP# no-error.*/
+  /*                                                                               */
+  /*      if not avail ttWidgetData then                                           */
+  /*      do:                                                                      */
+  /*        create ttWidgetData.                                                   */
+  /*        assign                                                                 */
+  /*          ttWidgetData.oWidget = oWidgetIP#.                                   */
+  /*      end.                                                                     */
+  /*                                                                               */
+  /*      assign                                                                   */
+  /*        ttWidgetData.hBufferOrQuery = hBufferOrQueryIP#                        */
+  /*        ttWidgetData.oBindingSource = oBindingSourceIP#.                       */
+  /*                                                                               */
+  /*    end.                                                                       */
+  /*                                                                               */
+  /*  end method. /* SetBindingSource */                                           */
+  /*                                                                               */
   
   method public static void SetDisplayLinked(oWidgetIP# as Progress.Lang.Object):
     
