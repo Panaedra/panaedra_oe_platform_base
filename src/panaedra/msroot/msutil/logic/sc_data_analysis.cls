@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_data_analysis.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-21 19:15:03+02:00 $ 
-    Date Modified: $Modtime: 2009-10-21 19:14:41+02:00 $ 
+     Date Checkin: $Date: 2009-10-21 19:18:37+02:00 $ 
+    Date Modified: $Modtime: 2009-10-21 19:17:52+02:00 $ 
 
       Description: Class met static methods voor het analyseren van de 
                    inhoud van een (temp-)table of (temp-)table buffer.
@@ -17,7 +17,7 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
   /************************  Source control constructor ************************/
   constructor public sc_data_analysis(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -25,7 +25,6 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
   method public static logical IsRecordEmpty(
     
     /* Kijk of een record leeg is; d.w.z. gelijk aan zijn initial values.
-       Parameter cSvExcludeFieldsIP# : velden om te negeren bij de compare. 
     */
 
     hBufferIP# as handle):
