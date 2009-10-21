@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-20 16:08:26+02:00 $ 
-    Date Modified: $Modtime: 2009-10-20 15:50:27+02:00 $ 
+     Date Checkin: $Date: 2009-10-21 13:43:07+02:00 $ 
+    Date Modified: $Modtime: 2009-10-21 13:30:25+02:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -187,6 +187,82 @@ class paninui.view.use.sc_coll_eventdata
   end method. /* ItemAdd ; Button */
 
 
+  method public static int64 ItemAdd(
+  
+    oWidgetType_ComboBoxOVID# as i_widgettype_combobox, 
+    iPackIDIP#                as int64,
+    iFrmLogicIDIP#            as int64,
+    iDelegateIDIP#            as int64,
+    oFrmLogicBufferIP#        as panaedra.msroot.msdr.logic.c_buf,
+    cWidgetNameIP#            as character,
+    cEventTypeIP#             as character):
+
+    define variable oWidget#              as Progress.Lang.Object           no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object           no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource                no-undo.
+    define variable bDummy#               as logical                        no-undo.
+    define variable oFormsCombobox#       as System.Windows.Forms.ComboBox  no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+
+    if oSingleton = ? then oSingleton = new sc_coll_eventdata().
+    
+    do for ttUiEvent:
+          
+      assign
+        cWidgetNameIP# = replace(cWidgetNameIP#,"_",".")
+        oWidget#       = sc_coll_widgetdata:GetWidget(iPackIDIP#,"combobox",?,cWidgetNameIP#, output bDummy#).
+        
+      if oWidget# <> ? then 
+      do:
+        
+        if oFrmLogicBufferIP# <> ? then 
+        do:
+          
+          oBindingSource# = sc_coll_widgetdata:GetBindingSource(iPackIDIP#,"combobox",oFrmLogicBufferIP#:hBuffer,cWidgetNameIP#).
+        
+          if oBindingSource# = ? then 
+          do:
+            assign
+              oBindingSourceStrong# = new c_bindingsource(sc_bindingsourcetype:i_Buffer, oFrmLogicBufferIP#:hBuffer)
+              oBindingSource#       = oBindingSourceStrong#.
+            sc_coll_widgetdata:SetBindingSource(oFrmLogicBufferIP#, oBindingSourceStrong#, oFrmLogicBufferIP#:hBuffer).
+          end.
+          else
+            oBindingSourceStrong# = cast(oBindingSource#,c_bindingsource).
+            
+        end. /* A c_buf object is given. This is optional, you can also solely use the screen values (i_uivalue). */
+        
+        if type-of(oWidget#,System.Windows.Forms.ComboBox) then 
+        do:
+          
+          oFormsCombobox# = cast(oWidget#,System.Windows.Forms.ComboBox).
+          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+            case cEventTypeIP#:
+              when "TextChanged" then oFormsCombobox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+            end case.
+            
+        end.
+        
+        return ItemAddImplement(
+          iPackIDIP#, 
+          iFrmLogicIDIP#, 
+          iDelegateIDIP#, 
+          oWidget#, 
+          (if oFrmLogicBufferIP# = ? then ? else oFrmLogicBufferIP#:hBuffer), 
+          cWidgetNameIP#, 
+          "combobox", 
+          cEventTypeIP#).
+      
+      end.
+      
+    end. /* oWidget# is found */
+
+    return 0.
+    
+  end method. /* ItemAdd ; ComboBox */
+
+
   method private void OnEventArgsHandler_PositionChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
     define variable bEclipseFix# as logical                           no-undo.
@@ -240,6 +316,37 @@ class paninui.view.use.sc_coll_eventdata
     end.
     
   end. /* OnEventArgsHandler_Press */
+  
+  
+  method private void OnEventArgsHandler_TextChanged(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable bEclipseFix# as logical                           no-undo.
+    define variable oComboBox#   as System.Windows.Forms.ComboBox     no-undo.
+    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "TextChanged"
+        on error undo,throw:
+        if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+        do:
+          assign
+            oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
+            oUiValue#  = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+        end.
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end. /* OnEventArgsHandler_TextChanged */
   
   
   method public static int64 ItemAddXXX(
