@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 11 $ 
+          Version: $Revision: 12 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-21 13:43:07+02:00 $ 
-    Date Modified: $Modtime: 2009-10-21 13:30:25+02:00 $ 
+     Date Checkin: $Date: 2009-10-21 16:02:53+02:00 $ 
+    Date Modified: $Modtime: 2009-10-21 15:58:00+02:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -197,11 +197,11 @@ class paninui.view.use.sc_coll_eventdata
     cWidgetNameIP#            as character,
     cEventTypeIP#             as character):
 
-    define variable oWidget#              as Progress.Lang.Object           no-undo.
-    define variable oBindingSource#       as Progress.Lang.Object           no-undo.
-    define variable oBindingSourceStrong# as c_bindingsource                no-undo.
-    define variable bDummy#               as logical                        no-undo.
-    define variable oFormsCombobox#       as System.Windows.Forms.ComboBox  no-undo.
+    define variable oWidget#              as Progress.Lang.Object          no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object          no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource               no-undo.
+    define variable bDummy#               as logical                       no-undo.
+    define variable oFormsCombobox#       as System.Windows.Forms.ComboBox no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
 
@@ -289,9 +289,12 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_Press(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix# as logical                           no-undo.
-    define variable oCheckBox#   as System.Windows.Forms.CheckBox     no-undo.
-    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    define variable bEclipseFix#     as logical                           no-undo.
+    define variable oCheckBox#       as System.Windows.Forms.CheckBox     no-undo.
+    define variable oFormsButton#    as System.Windows.Forms.Button       no-undo.
+    define variable oWpfButton#      as System.Windows.Controls.Button    no-undo.
+    define variable oUiValue#        as paninui.view.interfaces.i_uivalue no-undo.
+    define variable bInvokePrepared# as logical                           no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -299,13 +302,46 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "Press"
         on error undo,throw:
-        if type-of(oSender#, System.Windows.Forms.CheckBox) then 
+
+        bInvokePrepared# = false.
+        
+        if not bInvokePrepared# and type-of(oSender#, System.Windows.Forms.CheckBox) then 
         do:
           assign
-            oCheckBox# = cast(oSender#, System.Windows.Forms.CheckBox)
-            oUiValue#  = new c_uivalue_button(oCheckBox#:Name, oCheckBox#:Enabled, oCheckBox#:Visible, oCheckBox#:Checked).
+            bInvokePrepared# = true
+            oCheckBox#       = cast(oSender#, System.Windows.Forms.CheckBox)
+            oUiValue#        = new c_uivalue_button(oCheckBox#:Name, oCheckBox#:Enabled, oCheckBox#:Visible, oCheckBox#:Checked).
         end.
+        
+        if not bInvokePrepared# and type-of(oSender#, System.Windows.Forms.Button) then 
+        do:
+          assign
+            bInvokePrepared# = true
+            oFormsButton#    = cast(oSender#, System.Windows.Forms.Button)
+            oUiValue#        = new c_uivalue_button(oFormsButton#:Name, oFormsButton#:Enabled, oFormsButton#:Visible, false).
+        end.
+        
+        if not bInvokePrepared# and type-of(oSender#, System.Windows.Controls.Button) then 
+        do:
+          assign
+            bInvokePrepared# = true
+            oWpfButton#      = cast(oSender#, System.Windows.Controls.Button)
+            oUiValue#        = new c_uivalue_button(oWpfButton#:Name, oWpfButton#:IsEnabled, oWpfButton#:IsVisible, false).
+        end.
+        
+        if not bInvokePrepared# then 
+        do:
+          assign
+            bInvokePrepared# = true
+            /* Make sure we provide a valid uivalue object, but it should be obvious that the actual data can't be determined.
+               The ToString() function should give a clue for debugging. The sender object handle will ofcourse never 
+               be passed to the logic layer.
+             */
+            oUiValue# = new c_uivalue_button(oSender#:ToString(), ?, ?, ?).
+        end.
+        
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        
       end.
       
       catch ex as Progress.Lang.Error:
