@@ -4,48 +4,64 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_data_analysis.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-21 08:44:11+02:00 $ 
-    Date Modified: $Modtime: 2009-10-21 08:37:10+02:00 $ 
+     Date Checkin: $Date: 2009-10-21 19:15:03+02:00 $ 
+    Date Modified: $Modtime: 2009-10-21 19:14:41+02:00 $ 
 
-      Description: Class voor b.v. het inlezen van een temp-table record en te kijken of deze
-                   leeg is.
+      Description: Class met static methods voor het analyseren van de 
+                   inhoud van een (temp-)table of (temp-)table buffer.
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
   constructor public sc_data_analysis(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
 
-  method public static logical IsRecordEmpty (hBufferIP# as handle):
+  method public static logical IsRecordEmpty(
     
+    /* Kijk of een record leeg is; d.w.z. gelijk aan zijn initial values.
+       Parameter cSvExcludeFieldsIP# : velden om te negeren bij de compare. 
+    */
+
+    hBufferIP# as handle):
+      
     return IsRecordEmpty(hBufferIP#, "", false).
     
-  end method. /* IsRecordEmpty */
+  end method. /* IsRecordEmpty ; only een buffer handle */
   
   
-  method public static logical IsRecordEmpty (
+  method public static logical IsRecordEmpty(
+  
+    /* Kijk of een record leeg is; d.w.z. gelijk aan zijn initial values.
+       Parameter cSvExcludeFieldsIP# : velden om te negeren bij de compare. 
+    */
+
     hBufferIP#          as handle, 
     cSvExcludeFieldsIP# as character):
   
     return IsRecordEmpty(hBufferIP#, cSvExcludeFieldsIP#, false).
   
-  end method. /* IsRecordEmpty */
+  end method. /* IsRecordEmpty ; buffer handle + cSvExcludeFieldsIP# */
   
 
-  method public static logical IsRecordEmpty (
+  method public static logical IsRecordEmpty(
+  
+    /* Kijk of een record leeg is; d.w.z. gelijk aan zijn initial values.
+       Parameter cSvExcludeFieldsIP# : velden om te negeren bij de compare. 
+       Parameter bTrimIP#            : optioneel trimmen char en longchar 'before compare'. 
+    */
+  
     hBufferIP#          as handle, 
     cSvExcludeFieldsIP# as character, 
     bTrimIP#            as logical):
 
-    /*  bTrimIP# als optie meegeven                                                                                            */
-
-    /* Nog inbouwen: 
+    /* TODO:
+       Nog inbouwen: 
        - Progress.Lang.Object 
        - com-handle 
        - date 
@@ -54,16 +70,15 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
        - handle 
        - int64 
        - logical
-       - longchar trim ?
+       - longchar + trim
        - memptr
        - blob
        - clob
        - raw 
        - recid 
-       - rowid */
+       - rowid 
+    */
     
-    /* Bekijkt een record van een meegegeven buffer en beoordeel of deze leeg is of niet */
-    /* Je kan velden negeren als deze niet meegenomen hoeven te worden in de beoordeling */
     define variable hField#     as handle    no-undo.
     define variable iFieldNr#   as integer   no-undo.
     define variable bEmpty#     as logical   no-undo initial true.
@@ -74,13 +89,15 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
     if hBufferIP# <> ? then 
     do:
       
+      if not hBufferIP#:available then bEmpty# = ?.
+      else
       /* Behandel elk veld */
       b_LoopDoorVelden:
       do iFieldNr# = 1 to hBufferIP#:num-fields:
         
-        hField#    = hBufferIP#:buffer-field(iFieldNr#).
+        hField# = hBufferIP#:buffer-field(iFieldNr#).
         
-        /* Als dit veld niet bij de exludes hoort */
+        /* Als dit veld niet bij de excludes hoort */
         if lookup(hField#:name, cSvExcludeFieldsIP#) = 0 then
         do:
           
@@ -89,7 +106,7 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
             (if hField#:extent = 0 then 0 else 1) to 
             (if hField#:extent = 0 then 0 else hField#:extent):
           
-            /* Onthou datatype */
+            /* Onthoud datatype */
             cDataType# = hField#:data-type.
                    
             /* Behandel elk data-type op zijn eigen manier */
@@ -136,7 +153,7 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
               otherwise 
               do:
                 undo, throw new AppError(subst("Het datatype '&1' wordt (nog) niet ondersteund.", hField#:data-type), 99950080).
-              end. /* Otherwise */  
+              end. /* otherwise ; onbekend datatype */  
       
             end case. /* cDataType# */
       
@@ -144,11 +161,11 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
             if bEmpty# = false then 
               leave b_LoopDoorVelden.
       
-          end. /* do iExtent = */   
+          end. /* do iExtent# = */   
       
         end. /* lookup(hField#:name, cSvExcludeFieldsIP#) = 0 */ 
     
-      end. /* iFieldNr# = 1 to hBufferIP#:num-fields */
+      end. /* buffer is available; iFieldNr# = 1 to hBufferIP#:num-fields */
     
       return bEmpty#.
     
@@ -156,7 +173,7 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
     else
       return ?.
     
-  end method. /* IsRecordEmpty */
+  end method. /* IsRecordEmpty ; buffer handle + cSvExcludeFieldsIP# + bTrimIP# */
 
 end class.
 
