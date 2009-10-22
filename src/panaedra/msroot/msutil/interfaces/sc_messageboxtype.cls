@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.interfaces.sc_messageboxtype:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/interfaces/sc_messageboxtype.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-24 12:38:53+02:00 $ 
-    Date Modified: $Modtime: 2009-09-24 12:38:53+02:00 $ 
+     Date Checkin: $Date: 2009-10-22 20:16:38+02:00 $ 
+    Date Modified: $Modtime: 2009-10-22 16:55:05+02:00 $ 
 
       Description: Overload ID static class
 
@@ -17,7 +17,7 @@ class panaedra.msroot.msutil.interfaces.sc_messageboxtype:
   /************************  Source control constructor ************************/
   constructor public sc_messageboxtype(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -25,6 +25,7 @@ class panaedra.msroot.msutil.interfaces.sc_messageboxtype:
   define public static property Simple_OnTop as i_messageboxtype_simple_ontop  no-undo get.
   define public static property YesNo        as i_messageboxtype_yesno         no-undo get.
   define public static property YesNo_OnTop  as i_messageboxtype_yesno_ontop   no-undo get.
+  define public static property oDebug       as i_messageboxtype_debug         no-undo get.
 
 end class.
 
