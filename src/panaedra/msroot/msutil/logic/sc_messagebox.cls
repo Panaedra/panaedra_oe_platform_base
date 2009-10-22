@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-25 10:52:51+02:00 $ 
-    Date Modified: $Modtime: 2009-09-25 10:52:23+02:00 $ 
+     Date Checkin: $Date: 2009-10-22 20:16:38+02:00 $ 
+    Date Modified: $Modtime: 2009-10-22 18:34:46+02:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -26,19 +26,19 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
 
-  method public static void Show (cMsgIP# as character):
+  method public static void Show(cMsgIP# as character):
     
     Show(sc_messageboxtype:Simple, cMsgIP#).
 
   end method. /* Show; simple */
 
 
-  method public static void Show (oTypeOVID# as i_messageboxtype_simple, cMsgIP# as character):
+  method public static void Show(oTypeOVID# as i_messageboxtype_simple, cMsgIP# as character):
     
     message cMsgIP#
       view-as alert-box.
@@ -46,31 +46,31 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   end method. /* Show; simple */
 
 
-  method public static void Show (oTypeOVID# as i_messageboxtype_simple_ontop, cMsgIP# as character):
+  method public static void Show(oTypeOVID# as i_messageboxtype_simple_ontop, cMsgIP# as character):
     
     &if opsys <> "unix" &then
     define variable oForm as panaedra.msroot.msutil.view.c_messagebox_win32 no-undo.
     &endif
     
     &if opsys = "unix" &then
-      message cMsgIP#
-        view-as alert-box.
+    message cMsgIP#
+      view-as alert-box.
     &else
-      oForm = new panaedra.msroot.msutil.view.c_messagebox_win32(true, cMsgIP#).
-      wait-for oForm:ShowDialog().
+    oForm = new panaedra.msroot.msutil.view.c_messagebox_win32(true, cMsgIP#).
+    wait-for oForm:ShowDialog().
     &endif
 
   end method. /* Show; simple_ontop */
 
 
-  method public static logical Show (oTypeOVID# as i_messageboxtype_yesno, cMsgIP# as character):
+  method public static logical Show(oTypeOVID# as i_messageboxtype_yesno, cMsgIP# as character):
     
     return Show(sc_messageboxtype:YesNo, cMsgIP#, true).
 
   end method. /* Show; yesno, default=true */
 
 
-  method public static logical Show (oTypeOVID# as i_messageboxtype_yesno, cMsgIP# as character, bDefaultOkayIP# as logical):
+  method public static logical Show(oTypeOVID# as i_messageboxtype_yesno, cMsgIP# as character, bDefaultOkayIP# as logical):
 
     message cMsgIP#
       view-as alert-box buttons yes-no update bDefaultOkayIP#.
@@ -80,7 +80,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   end method. /* Show; yesno */
 
 
-  method public static logical Show (oTypeOVID# as i_messageboxtype_yesno_ontop, cMsgIP# as character, bDefaultOkayIP# as logical):
+  method public static logical Show(oTypeOVID# as i_messageboxtype_yesno_ontop, cMsgIP# as character, bDefaultOkayIP# as logical):
 
     message "Not yet implemented" skip program-name(1) skip program-name(2) skip(2) cMsgIP#.
     
@@ -88,6 +88,126 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   end method. /* Show; yesno_ontop */
 
+
+  method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP# as character):
+    
+    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP#)).
+
+  end method. /* Show; type_debug , 1 character input */
+
+
+  method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character):
+    
+    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#)).
+
+  end method. /* Show; type_debug , 2 character inputs */
+
+
+  method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character):
+    
+    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#)).
+
+  end method. /* Show; type_debug , 3 character inputs */
+
+
+  method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character, cMsgIP_004# as character):
+    
+    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#)).
+
+  end method. /* Show; type_debug , 4 character inputs */
+
+
+  method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character, cMsgIP_004# as character, cMsgIP_005# as character):
+    
+    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#)).
+
+  end method. /* Show; type_debug , 5 character inputs */
+
+
+  method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character, cMsgIP_004# as character, cMsgIP_005# as character, cMsgIP_006# as character):
+    
+    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#, cMsgIP_006#)).
+
+  end method. /* Show; type_debug , 6 character inputs */
+
+
+  method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character, cMsgIP_004# as character, cMsgIP_005# as character, cMsgIP_006# as character, cMsgIP_007# as character):
+    
+    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#, cMsgIP_006#, cMsgIP_007#)).
+
+  end method. /* Show; type_debug , 7 character inputs */
+
+
+  method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character, cMsgIP_004# as character, cMsgIP_005# as character, cMsgIP_006# as character, cMsgIP_007# as character, cMsgIP_008# as character):
+    
+    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#, cMsgIP_006#, cMsgIP_007#, cMsgIP_008#)).
+
+  end method. /* Show; type_debug , 8 character inputs */
+
+
+  method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character, cMsgIP_004# as character, cMsgIP_005# as character, cMsgIP_006# as character, cMsgIP_007# as character, cMsgIP_008# as character, cMsgIP_009# as character):
+    
+    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#, cMsgIP_006#, cMsgIP_007#, cMsgIP_008#, cMsgIP_009#)).
+
+  end method. /* Show; type_debug , 9 character inputs */
+
+
+  method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP# as character extent):
+    
+    &if opsys = "unix" &then
+
+    message 
+      cMsgIP#[1] skip
+      if extent(cMsgIP#) < 2 then "" else cMsgIP#[2] skip
+      if extent(cMsgIP#) < 3 then "" else cMsgIP#[3] skip
+      if extent(cMsgIP#) < 4 then "" else cMsgIP#[4] skip
+      if extent(cMsgIP#) < 5 then "" else cMsgIP#[5] skip
+      if extent(cMsgIP#) < 6 then "" else cMsgIP#[6] skip
+      if extent(cMsgIP#) < 7 then "" else cMsgIP#[7] skip
+      if extent(cMsgIP#) < 8 then "" else cMsgIP#[8] skip
+      if extent(cMsgIP#) < 9 then "" else cMsgIP#[9]
+      view-as alert-box title
+      subst("Panaedra Debug &1", substring(iso-date(now),1,23)
+      ).    
+      
+    &else
+
+    if panaedra.msb.logic.sc_environment:IsIdeRunning() then 
+    do:
+      panaedra.msroot.msutil.logic.sc_win32:MessageBox(subst("01: &1~n02: &2~n03: &3~n04: &4~n05: &5~n06: &6~n07: &7~n08: &8~n09: &9",
+        cMsgIP#[1],
+        if extent(cMsgIP#) < 2 then "" else cMsgIP#[2],
+        if extent(cMsgIP#) < 3 then "" else cMsgIP#[3],
+        if extent(cMsgIP#) < 4 then "" else cMsgIP#[4],
+        if extent(cMsgIP#) < 5 then "" else cMsgIP#[5],
+        if extent(cMsgIP#) < 6 then "" else cMsgIP#[6],
+        if extent(cMsgIP#) < 7 then "" else cMsgIP#[7],
+        if extent(cMsgIP#) < 8 then "" else cMsgIP#[8],
+        if extent(cMsgIP#) < 9 then "" else cMsgIP#[9]
+        ),
+        subst("Panaedra Debug &1", substring(iso-date(now),1,23))).
+    end.
+    else 
+    do:
+      System.Windows.Forms.MessageBox:Show(subst("01: &1~n02: &2~n03: &3~n04: &4~n05: &5~n06: &6~n07: &7~n08: &8~n09: &9",
+        cMsgIP#[1],
+        if extent(cMsgIP#) < 2 then "" else cMsgIP#[2],
+        if extent(cMsgIP#) < 3 then "" else cMsgIP#[3],
+        if extent(cMsgIP#) < 4 then "" else cMsgIP#[4],
+        if extent(cMsgIP#) < 5 then "" else cMsgIP#[5],
+        if extent(cMsgIP#) < 6 then "" else cMsgIP#[6],
+        if extent(cMsgIP#) < 7 then "" else cMsgIP#[7],
+        if extent(cMsgIP#) < 8 then "" else cMsgIP#[8],
+        if extent(cMsgIP#) < 9 then "" else cMsgIP#[9]
+        ),
+        subst("Panaedra Debug &1", substring(iso-date(now),1,23)),
+        System.Windows.Forms.MessageBoxButtons:OK, 
+        System.Windows.Forms.MessageBoxIcon:Stop
+        ).    
+    end.
+     &endif
+     
+  end method. /* Show; type_debug , variable extent */
 
 end class.
 
