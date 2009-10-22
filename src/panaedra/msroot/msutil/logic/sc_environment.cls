@@ -4,10 +4,10 @@ class panaedra.msb.logic.sc_environment:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msb/logic/sc_environment.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-12 09:14:21+02:00 $ 
-    Date Modified: $Modtime: 2009-10-09 11:25:09+02:00 $ 
+     Date Checkin: $Date: 2009-10-22 20:16:38+02:00 $ 
+    Date Modified: $Modtime: 2009-10-22 18:37:59+02:00 $ 
 
       Description: Haal informatie uit de omgeving op zoals het pid (process id).
 
@@ -16,11 +16,13 @@ class panaedra.msb.logic.sc_environment:
   /************************  Source control constructor ************************/
   constructor public sc_environment(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define stream str-in.
+  
+  define protected static variable cBootProcedure as character no-undo.
   
   method public static integer GetProcessID():
     
@@ -133,6 +135,43 @@ class panaedra.msb.logic.sc_environment:
     return cReturn#.
     
   end method. /* GetHostName */
+  
+  
+  method public static logical IsIdeRunning():
+  
+    /* Checks if an IDE (like Eclipse) is running this session. */
+  
+    /* If it's a seperate Eclipse session, we can use an environment variable */
+    if os-getenv("ECLIPSE_PROJECT") > "" then return true.
+    
+    /* Otherwise check the boot procedure */    
+    
+    return GetBootProcedure() matches "*/eclipse/*".
+      
+  end method. /* IsIdeRunning */  
+
+
+  method public static character GetBootProcedure():
+  
+    /* Gives back program-name(highest), with forward slashes. 
+       
+       Note:
+       Evaluated only once, for efficiency.
+    */
+  
+    define variable iLastProgram#   as integer   no-undo init 1.
+    
+    if cBootProcedure = "" then 
+    do:    
+      do while program-name(iLastProgram#) > "":
+        iLastProgram# = iLastProgram# + 1.
+      end.
+      cBootProcedure = replace(program-name(iLastProgram# - 1),"~\","/").
+    end.
+    
+    return cBootProcedure.
+      
+  end method. /* IsIdeRunning */  
 
 end class.
 
