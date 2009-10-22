@@ -1,9 +1,9 @@
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/i_array_generic.i $ 
-        Version: $Revision: 1 $ 
+        Version: $Revision: 2 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-10-22 20:14:40+02:00 $ 
-  Date Modified: $Modtime: 2009-10-22 20:12:55+02:00 $ 
+   Date Checkin: $Date: 2009-10-23 00:52:33+02:00 $ 
+  Date Modified: $Modtime: 2009-10-23 00:48:30+02:00 $ 
 
       Description: This include makes a variable sized array of any datatype, wrapping
                    the variable extent functionality of ABL.
@@ -34,7 +34,7 @@
 \**************************** End of Dvcs_ Header ****************************/
 &if "{&dvcs__panaedra_msroot_msutil_logic_i_array_generic_i}" = "" &then
 &glob dvcs__panaedra_msroot_msutil_logic_i_array_generic_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_i_array_generic_i $Revision: 1 $
+&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_i_array_generic_i $Revision: 2 $
 /******************************* $NoKeywords:  $ *****************************/
 
   define protected static variable iDefaultExtentSizeInitial   as integer   no-undo init 25.
@@ -52,11 +52,7 @@
   
   define public property iExtent as integer 
     get:
-      define variable iReturn# as integer no-undo.
-      if not bUseSecondary then iReturn# = extent(sys__{&VarPre}ValuePrimary).
-      else iReturn# = extent(sys__{&VarPre}ValueSecondary).
-      if iReturn# = ? then iReturn# = 0.
-      return iReturn#.
+      return GetLastUsedIndex(this-object, bUseSecondary).
     end get.
   
   
@@ -144,7 +140,7 @@
       end.
     end.  
 
-    if bUseSecondaryIOP#  then
+    else
     do:
       if extent(oThisIP#:sys__{&VarPre}ValueSecondary) = 0 or extent(oThisIP#:sys__{&VarPre}ValueSecondary) = ?
         then SetNewExtentSize(oThisIP#, bUseSecondaryIOP#, iIndexIP#).
@@ -167,7 +163,7 @@
   end method. /* SetValueImplement */  
   
   
-  method protected static integer SetNewExtentSize(oThisIP# as {&ClassType}, bUseSecondaryIOP# as logical, iNewSizeIP# as int):
+  method protected static integer SetNewExtentSize(oThisIP# as {&ClassType}, bUseSecondaryIP# as logical, iNewSizeIP# as int):
     
     define variable iSize#          as integer no-undo.
     define variable iNumIncrements# as integer no-undo.
@@ -180,7 +176,7 @@
       iSize# = iSize# + (iNumIncrements# * iDefaultExtentSizeIncrement).
     end.
     
-    if not bUseSecondaryIOP# then 
+    if not bUseSecondaryIP# then 
       extent(oThisIP#:sys__{&VarPre}ValuePrimary) = iSize#.
     else 
       extent(oThisIP#:sys__{&VarPre}ValueSecondary) = iSize#.
@@ -188,11 +184,11 @@
   end method. /* SetNewExtentSize */
   
   
-  method protected static void CopyArray(oThisIP# as {&ClassType}, bUseSecondaryIOP# as logical):
+  method protected static void CopyArray(oThisIP# as {&ClassType}, bUseSecondaryIP# as logical):
     
     define variable iTell# as integer no-undo.
     
-    if not bUseSecondaryIOP# then 
+    if not bUseSecondaryIP# then 
     do iTell# = 1 to extent(oThisIP#:sys__{&VarPre}ValuePrimary):
       oThisIP#:sys__{&VarPre}ValueSecondary[iTell#] = oThisIP#:sys__{&VarPre}ValuePrimary[iTell#].
     end.
@@ -202,6 +198,41 @@
     end.
 
   end method. /* CopyArray */
+
+  method protected static integer GetLastUsedIndex(oThisIP# as {&ClassType}, bUseSecondaryIP# as logical):
+
+    define variable iTell#   as integer no-undo.
+    define variable iReturn# as integer no-undo.
+    define variable iExtent# as integer no-undo.
+    
+    if not bUseSecondaryIP# then
+    b_LastIndexPri: 
+    do iTell# = extent(oThisIP#:sys__{&VarPre}ValuePrimary) to 1 by -1:
+      if oThisIP#:sys__{&VarPre}ValuePrimary[iTell#] <> ? 
+      and oThisIP#:sys__{&VarPre}ValuePrimary[iTell#] <> {&VarNull} 
+      then do:
+        iReturn# = iTell#.
+        leave b_LastIndexPri.
+      end.
+    end.
+    else
+    b_LastIndexSec: 
+    do iTell# = extent(oThisIP#:sys__{&VarPre}ValueSecondary) to 1 by -1:
+      if  oThisIP#:sys__{&VarPre}ValueSecondary[iTell#] <> ? 
+      and oThisIP#:sys__{&VarPre}ValueSecondary[iTell#] <> {&VarNull} 
+      then do:
+        iReturn# = iTell#.
+        leave b_LastIndexSec.
+      end.
+    end.
+    
+    
+    if iReturn# >= 1 then.
+    else iReturn# = 1.
+    
+    return iReturn#.
+    
+  end method. /* GetLastUsedIndex */
 
 &endif /* {&dvcs__panaedra_msroot_msutil_logic_i_array_generic_i} */
 
