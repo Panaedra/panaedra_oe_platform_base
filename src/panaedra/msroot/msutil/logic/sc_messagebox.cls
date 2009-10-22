@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-22 20:16:38+02:00 $ 
-    Date Modified: $Modtime: 2009-10-22 18:34:46+02:00 $ 
+     Date Checkin: $Date: 2009-10-23 00:52:33+02:00 $ 
+    Date Modified: $Modtime: 2009-10-23 00:13:29+02:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -26,7 +26,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -91,63 +91,63 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP# as character):
     
-    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP#)).
+    Show(oTypeOVID#, sc_overload_conversions_char:MapCharacter(cMsgIP#)).
 
   end method. /* Show; type_debug , 1 character input */
 
 
   method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character):
     
-    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#)).
+    Show(oTypeOVID#, sc_overload_conversions_char:MapCharacter(cMsgIP_001#, cMsgIP_002#)).
 
   end method. /* Show; type_debug , 2 character inputs */
 
 
   method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character):
     
-    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#)).
+    Show(oTypeOVID#, sc_overload_conversions_char:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#)).
 
   end method. /* Show; type_debug , 3 character inputs */
 
 
   method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character, cMsgIP_004# as character):
     
-    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#)).
+    Show(oTypeOVID#, sc_overload_conversions_char:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#)).
 
   end method. /* Show; type_debug , 4 character inputs */
 
 
   method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character, cMsgIP_004# as character, cMsgIP_005# as character):
     
-    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#)).
+    Show(oTypeOVID#, sc_overload_conversions_char:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#)).
 
   end method. /* Show; type_debug , 5 character inputs */
 
 
   method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character, cMsgIP_004# as character, cMsgIP_005# as character, cMsgIP_006# as character):
     
-    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#, cMsgIP_006#)).
+    Show(oTypeOVID#, sc_overload_conversions_char:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#, cMsgIP_006#)).
 
   end method. /* Show; type_debug , 6 character inputs */
 
 
   method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character, cMsgIP_004# as character, cMsgIP_005# as character, cMsgIP_006# as character, cMsgIP_007# as character):
     
-    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#, cMsgIP_006#, cMsgIP_007#)).
+    Show(oTypeOVID#, sc_overload_conversions_char:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#, cMsgIP_006#, cMsgIP_007#)).
 
   end method. /* Show; type_debug , 7 character inputs */
 
 
   method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character, cMsgIP_004# as character, cMsgIP_005# as character, cMsgIP_006# as character, cMsgIP_007# as character, cMsgIP_008# as character):
     
-    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#, cMsgIP_006#, cMsgIP_007#, cMsgIP_008#)).
+    Show(oTypeOVID#, sc_overload_conversions_char:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#, cMsgIP_006#, cMsgIP_007#, cMsgIP_008#)).
 
   end method. /* Show; type_debug , 8 character inputs */
 
 
   method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP_001# as character, cMsgIP_002# as character, cMsgIP_003# as character, cMsgIP_004# as character, cMsgIP_005# as character, cMsgIP_006# as character, cMsgIP_007# as character, cMsgIP_008# as character, cMsgIP_009# as character):
     
-    Show(oTypeOVID#, sc_overload_conversions:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#, cMsgIP_006#, cMsgIP_007#, cMsgIP_008#, cMsgIP_009#)).
+    Show(oTypeOVID#, sc_overload_conversions_char:MapCharacter(cMsgIP_001#, cMsgIP_002#, cMsgIP_003#, cMsgIP_004#, cMsgIP_005#, cMsgIP_006#, cMsgIP_007#, cMsgIP_008#, cMsgIP_009#)).
 
   end method. /* Show; type_debug , 9 character inputs */
 
