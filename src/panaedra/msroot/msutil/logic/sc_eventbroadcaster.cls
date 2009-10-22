@@ -8,10 +8,10 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_eventbroadcaster.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-22 20:16:38+02:00 $ 
-    Date Modified: $Modtime: 2009-10-22 20:02:19+02:00 $ 
+     Date Checkin: $Date: 2009-10-22 20:26:35+02:00 $ 
+    Date Modified: $Modtime: 2009-10-22 20:22:10+02:00 $ 
 
       Description: Broadcasts events; 
                    loose-coupled event mechanism for session-wide events.
@@ -48,7 +48,7 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
   /************************  Source control constructor ************************/
   constructor public sc_eventbroadcaster(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -172,11 +172,12 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
     cRuntimeHelp = new c_array_char().
     
     cRuntimeHelp:AddLast(
-      "Type=Method~n" +
-      "Language=English~n" +
-      "Format=WpfFlowDocument~n" +
       "Item=FireEventImplement~n" +
-      "[ContentStart]~n" +
+      "Type=Method~n"             +
+      "Audience=Developers~n"     +
+      "Language=English~n"        +
+      "Format=WpfFlowDocument~n"  +
+      "[ContentStart]~n"          +
       '
 <FlowDocument 
   LineHeight="5" PagePadding="5,0,5,0" AllowDrop="True" NumberSubstitution.CultureSource="User" 
