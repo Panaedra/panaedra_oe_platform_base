@@ -9,10 +9,10 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msex/logic/dotnetformshowexception.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-20 12:18:56+02:00 $ 
-    Date Modified: $Modtime: 2009-10-20 12:18:21+02:00 $ 
+     Date Checkin: $Date: 2009-10-22 20:16:38+02:00 $ 
+    Date Modified: $Modtime: 2009-10-22 18:10:41+02:00 $ 
 
       Description: Tonen van een willekeurige progress exception
 
@@ -26,7 +26,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   /************************  Source control constructor ************************/
   constructor public dotnetformshowexception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -206,8 +206,8 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
       tbInfo:Text      = ""
       tbStack:Text     = "".
     
-/*    empty temp-table ttExceptions.*/
-/*    empty temp-table ttCallstack. */
+    /*    empty temp-table ttExceptions.*/
+    /*    empty temp-table ttCallstack. */
     empty temp-table ttAblExceptions.
     empty temp-table ttAblCallstack.
     
@@ -247,19 +247,10 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   
   method protected void EclipseTopMost():
 
-    define variable cProgramName# as character no-undo.
-    define variable iLastProgram# as integer   no-undo init 1.
-    
-    if not this-object:TopMost then 
-    do:
-      
-      do while program-name(iLastProgram#) > "":
-        iLastProgram# = iLastProgram# + 1.
-      end.
-    
-      this-object:TopMost = replace(program-name(iLastProgram# - 1),"~\","/") matches "*/eclipse/*".
-      
-    end.    
+    if    (not this-object:TopMost) 
+      and (panaedra.msb.logic.sc_environment:IsIdeRunning()) 
+      then 
+      this-object:TopMost = true.
     
   end method. /* EclipseTopMost */
   
@@ -317,7 +308,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     /* Hier is de dataset dsconfig dus opgehaald, en kan er mee gewerkt worden. */
     
     define variable cError# as character no-undo.
-    define variable iOrder# as integer no-undo.
+    define variable iOrder# as integer   no-undo.
     
     define buffer b-ttCallStack for ttCallStack.
     define query hQuery# for b-ttCallStack.
@@ -337,8 +328,8 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     if avail ttCallStack and ttCallStack.cCallStack > "" then
       tbInfo:Text = tbInfo:Text + entry(num-entries(ttCallStack.cCallStack,chr(10)),ttCallStack.cCallStack,chr(10)) + chr(13) + chr(10) + chr(13) + chr(10).
     
-    /* Zorg ervoor de de gehele callstack in de juiste volgorde getoond wordt */
-    open query hQuery# for each b-ttCallStack.
+      /* Zorg ervoor de de gehele callstack in de juiste volgorde getoond wordt */
+      open query hQuery# for each b-ttCallStack.
     get last hQuery#.
     
     /* Vul de "Details" textbox met de complete stack */
@@ -347,7 +338,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     do while not query-off-end ("hQuery#"):
       tbStack:Text = tbStack:Text + replace(b-ttCallStack.cCallStack, chr(10), chr(13) + chr(10)) + chr(13) + chr(10). 
       get prev hQuery#.
-      end.
+    end.
     else 
       tbStack:Text = "Unknown stack.".
     
