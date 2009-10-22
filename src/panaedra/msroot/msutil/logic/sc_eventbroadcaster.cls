@@ -2,14 +2,16 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
-class panaedra.msroot.msutil.logic.sc_eventbroadcaster   : 
+class panaedra.msroot.msutil.logic.sc_eventbroadcaster
+  implements
+  i_help_runtime: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_eventbroadcaster.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-16 09:03:31+02:00 $ 
-    Date Modified: $Modtime: 2009-10-16 00:08:29+02:00 $ 
+     Date Checkin: $Date: 2009-10-22 20:16:38+02:00 $ 
+    Date Modified: $Modtime: 2009-10-22 20:02:19+02:00 $ 
 
       Description: Broadcasts events; 
                    loose-coupled event mechanism for session-wide events.
@@ -46,15 +48,23 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
   /************************  Source control constructor ************************/
   constructor public sc_eventbroadcaster(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
+  define public property bHelpInstance as logical no-undo get. set. 
+    
   define protected static temp-table ttEventClient no-undo rcode-information
-    field oClient    as Progress.Lang.Object /* always i_eventbroadcastclient*/
+    field oClient    as Progress.Lang.Object /* Always i_eventbroadcastclient*/
     field cEventName as character
     index cEventName_oClient is primary unique cEventName oClient.
-  
+ 
+ 
+  constructor static sc_eventbroadcaster():
+    
+  end constructor. /* Static constructor */
+ 
+ 
   method public static void SubscribeEvent(oClientIP# as i_eventbroadcastclient , cEventNameIP# as char):
     
     define variable bEclipseFix# as logical no-undo.
@@ -153,6 +163,64 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster   :
     return true.
 
   end method. /* FireEventImplement */  
+  
+
+  method public c_array_char GetRuntimeHelp():
+    
+    define variable cRuntimeHelp as c_array_char no-undo.
+
+    cRuntimeHelp = new c_array_char().
+    
+    cRuntimeHelp:AddLast(
+      "Type=Method~n" +
+      "Language=English~n" +
+      "Format=WpfFlowDocument~n" +
+      "Item=FireEventImplement~n" +
+      "[ContentStart]~n" +
+      '
+<FlowDocument 
+  LineHeight="5" PagePadding="5,0,5,0" AllowDrop="True" NumberSubstitution.CultureSource="User" 
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+  xmlns:ebs="clr-namespace:EmbeddedBitmapSample;assembly=EmbeddedBitmapSample">
+
+  <Paragraph> <Run FontWeight="Bold" FontSize="14">CD Collection Tips &amp; Tricks</Run> </Paragraph>
+  
+  <Paragraph><Run FontWeight="Bold" FontSize="12.5">Scrapbook editing</Run></Paragraph>
+  
+  <Paragraph><Run FontStyle="Italic">You can use the following keys to format selected text:</Run></Paragraph>
+  
+  <Paragraph>Ctrl+] : Increase font size</Paragraph>
+  
+  <Paragraph>Ctrl+[ : Decrease font size</Paragraph><Paragraph>Ctrl+E: Center text</Paragraph>
+
+  <Paragraph>Ctrl+R: Right-justify</Paragraph>
+
+  <Paragraph>Ctrl+L: Left-justify</Paragraph>
+
+  <Paragraph>Ctrl+B: Bold</Paragraph>
+
+  <Paragraph>Ctrl+I: Italic</Paragraph>
+
+  <Paragraph>Ctrl+U: Underline</Paragraph>
+  
+  <Paragraph><Run FontStyle="Italic">You can use Ctrl+C, Ctrl+X and Ctrl+V for copy, cut and paste.</Run></Paragraph>
+  
+  <Paragraph><Run FontStyle="Italic">Ctrl+Z is undo of the last action.</Run></Paragraph>
+
+  <Paragraph Margin="0,0,0,0" TextAlignment="Center" FontFamily="Tw Cen MT" FontSize="16">
+    <Hyperlink NavigateUri="http://www._FCMPNY_.com/"><Span Foreground="#FF000000" xml:lang="en-us">
+      <Span.TextDecorations>
+      <TextDecoration Location="Underline" />
+      </Span.TextDecorations>www._FCMPNY_.com</Span>
+    </Hyperlink>
+  </Paragraph>
+  
+</FlowDocument>      
+      ' + "~n[ContentEnd]~n").
+    
+    return cRuntimeHelp.
+    
+  end method. /* GetRuntimeHelp */
 
 end class.
 
