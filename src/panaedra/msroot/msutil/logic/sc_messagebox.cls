@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-23 00:52:33+02:00 $ 
-    Date Modified: $Modtime: 2009-10-23 00:13:29+02:00 $ 
+     Date Checkin: $Date: 2009-10-23 18:12:33+02:00 $ 
+    Date Modified: $Modtime: 2009-10-23 07:24:32+02:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -26,7 +26,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -48,16 +48,18 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   method public static void Show(oTypeOVID# as i_messageboxtype_simple_ontop, cMsgIP# as character):
     
-    &if opsys <> "unix" &then
-    define variable oForm as panaedra.msroot.msutil.view.c_messagebox_win32 no-undo.
-    &endif
-    
-    &if opsys = "unix" &then
+    &if opsys = "unix" or "{&window-system}" = "tty" &then
+
     message cMsgIP#
       view-as alert-box.
+
     &else
+
+    define variable oForm as panaedra.msroot.msutil.view.c_messagebox_win32 no-undo.
+
     oForm = new panaedra.msroot.msutil.view.c_messagebox_win32(true, cMsgIP#).
     wait-for oForm:ShowDialog().
+
     &endif
 
   end method. /* Show; simple_ontop */
@@ -154,7 +156,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP# as character extent):
     
-    &if opsys = "unix" &then
+    &if opsys = "unix" or "{&window-system}" = "tty" &then
 
     message 
       cMsgIP#[1] skip
