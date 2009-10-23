@@ -8,10 +8,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 13 $ 
+          Version: $Revision: 14 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-21 16:02:53+02:00 $ 
-    Date Modified: $Modtime: 2009-10-21 15:40:08+02:00 $ 
+     Date Checkin: $Date: 2009-10-23 18:12:33+02:00 $ 
+    Date Modified: $Modtime: 2009-10-23 13:50:27+02:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -20,7 +20,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -352,6 +352,29 @@ class paninui.view.use.display.sc_displaydata   :
 
   method public static void SetUiValue(
     
+    /* Directly set any property of a combobox widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oFrmLogicIP#    as i_frmlogic,
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    iValueIP#       as integer):
+      
+    define variable bIsDisplayLinkedOP# as logical                      no-undo.
+    define variable oWidget#            as Progress.Lang.Object         no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, iValueIP#).
+
+  end method. /* SetUiValue ; ComboBox */
+
+
+  method public static void SetUiValue(
+    
     /* Directly set any property of a button widget to a new value, without databinding.
        See the overload without OVID# parameter for more information.
      */
@@ -375,7 +398,7 @@ class paninui.view.use.display.sc_displaydata   :
 
   method public static void SetUiValue(
     
-    /* Directly set any property of a button widget to a new value, without databinding.
+    /* Directly set any property of a groupframe widget to a new value, without databinding.
        See the overload without OVID# parameter for more information.
      */
     
@@ -393,7 +416,7 @@ class paninui.view.use.display.sc_displaydata   :
     if valid-object(oWidget#) then 
       SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
 
-  end method. /* SetUiValue ; Button */
+  end method. /* SetUiValue ; Groupframe */
 
 
   method public static void SetUiValue(
@@ -437,6 +460,29 @@ class paninui.view.use.display.sc_displaydata   :
     if valid-object(oWidgetIP#) then do:
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cValueIP#).
+    end.
+
+  end method. /* SetUiValueImplement */
+
+
+  method protected static void SetUiValueImplement(
+    
+    /* Directly set any property of any widget to a new value, without databinding.
+     */
+    
+    oWidgetIP#    as Progress.Lang.Object,
+    cPropertyIP#    as character,
+    iValueIP#       as integer):
+
+    define variable oControl#           as System.Object                no-undo.
+
+    /* We only support Text objects for cValueIP#, and we can convert this to other objects
+       later in time 
+       (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
+    */
+    if valid-object(oWidgetIP#) then do:
+      oControl# = cast(oWidgetIP#, System.Object).
+      paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, iValueIP#).
     end.
 
   end method. /* SetUiValueImplement */
