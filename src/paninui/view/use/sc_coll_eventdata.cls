@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-21 16:02:53+02:00 $ 
-    Date Modified: $Modtime: 2009-10-21 15:58:00+02:00 $ 
+     Date Checkin: $Date: 2009-10-23 18:12:33+02:00 $ 
+    Date Modified: $Modtime: 2009-10-23 16:44:53+02:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -263,6 +263,73 @@ class paninui.view.use.sc_coll_eventdata
   end method. /* ItemAdd ; ComboBox */
 
 
+  method public static int64 ItemAdd(
+  
+    oWidgetType_FormOVID# as i_widgettype_form, 
+    iPackIDIP#                as int64,
+    iFrmLogicIDIP#            as int64,
+    iDelegateIDIP#            as int64,
+    oFrmLogicBufferIP#        as panaedra.msroot.msdr.logic.c_buf,
+    cWidgetNameIP#            as character,
+    cEventTypeIP#             as character):
+
+    define variable oWidget#              as Progress.Lang.Object      no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object      no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource           no-undo.
+    define variable bDummy#               as logical                   no-undo.
+    define variable oFormsForm#           as System.Windows.Forms.Form no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+
+    if oSingleton = ? then oSingleton = new sc_coll_eventdata().
+    
+    do for ttUiEvent:
+          
+      assign
+        cWidgetNameIP# = replace(cWidgetNameIP#,"_",".").
+      
+      if cWidgetNameIP# = "MdiMaster" then
+        oWidget#       = paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow.
+        
+      if oWidget# <> ? then 
+      do:
+        
+        if oFrmLogicBufferIP# <> ? then 
+        do:
+          undo, throw new AppError(subst("The paninUi event 'form' shouldn't be passed a c_buf object '&1'.", oFrmLogicBufferIP#:ToString()), 99950121).
+        end. /* A c_buf object is given. This is optional, you can also solely use the screen values (i_uivalue). */
+        
+        if type-of(oWidget#,System.Windows.Forms.Form) then 
+        do:
+          
+          oFormsForm# = cast(oWidget#,System.Windows.Forms.Form).
+          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+            case cEventTypeIP#:
+              when "KeyDown" then oFormsForm#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).
+              when "KeyUp"   then oFormsForm#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyUp).
+            end case.
+            
+        end.
+        
+        return ItemAddImplement(
+          iPackIDIP#, 
+          iFrmLogicIDIP#, 
+          iDelegateIDIP#, 
+          oWidget#, 
+          (if oFrmLogicBufferIP# = ? then ? else oFrmLogicBufferIP#:hBuffer), 
+          cWidgetNameIP#, 
+          "form", 
+          cEventTypeIP#).
+      
+      end.
+      
+    end. /* oWidget# is found */
+
+    return 0.
+    
+  end method. /* ItemAdd ; Form */
+
+
   method private void OnEventArgsHandler_PositionChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
     define variable bEclipseFix# as logical                           no-undo.
@@ -337,7 +404,7 @@ class paninui.view.use.sc_coll_eventdata
                The ToString() function should give a clue for debugging. The sender object handle will ofcourse never 
                be passed to the logic layer.
              */
-            oUiValue# = new c_uivalue_button(oSender#:ToString(), ?, ?, ?).
+            oUiValue#        = new c_uivalue_button(oSender#:ToString(), ?, ?, ?).
         end.
         
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
@@ -383,6 +450,80 @@ class paninui.view.use.sc_coll_eventdata
     end.
     
   end. /* OnEventArgsHandler_TextChanged */
+  
+  
+  method private void OnEventArgsHandler_KeyDown(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable bEclipseFix#   as logical                               no-undo.
+    define variable oFormsForm#    as System.Windows.Forms.Form             no-undo.
+    define variable oFormsKeyArgs# as System.Windows.Forms.KeyEventArgs     no-undo.
+    define variable oUiValue#      as paninui.view.interfaces.i_uivalue     no-undo.
+    define variable oUiEventData#  as paninui.view.interfaces.i_uieventdata no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "KeyDown"
+        on error undo,throw:
+        if type-of(oSender#, System.Windows.Forms.Form) then 
+        do:
+          assign
+            oFormsForm# = cast(oSender#, System.Windows.Forms.Form)
+            oUiValue#  = new c_uivalue_form(oFormsForm#:Name, oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text).
+        end.
+        if type-of(oArgs#, System.Windows.Forms.KeyEventArgs) then 
+        do:
+          assign
+            oFormsKeyArgs# = cast(oArgs#, System.Windows.Forms.KeyEventArgs)
+            oUiEventData#  = new c_uieventdata_key("","",?,?,subst("&1~n&2~n&3~n&4", 
+            string(oFormsKeyArgs#:KeyCode), 
+            string(oFormsKeyArgs#:KeyData), 
+            string(oFormsKeyArgs#:Modifiers)), 
+            oFormsKeyArgs#:Shift, oFormsKeyArgs#:Control, oFormsKeyArgs#:Alt).
+        end.
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, oUiEventData#).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end. /* OnEventArgsHandler_KeyDown */
+  
+  
+  method private void OnEventArgsHandler_KeyUp(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable bEclipseFix# as logical                           no-undo.
+    define variable oFormsForm#  as System.Windows.Forms.Form         no-undo.
+    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "KeyUp"
+        on error undo,throw:
+        if type-of(oSender#, System.Windows.Forms.Form) then 
+        do:
+          assign
+            oFormsForm# = cast(oSender#, System.Windows.Forms.Form)
+            oUiValue#  = new c_uivalue_combobox(oFormsForm#:Name, oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text).
+        end.
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end. /* OnEventArgsHandler_KeyUp */
   
   
   method public static int64 ItemAddXXX(
