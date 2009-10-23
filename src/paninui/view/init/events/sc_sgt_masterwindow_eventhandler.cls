@@ -5,10 +5,10 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/events/sc_sgt_masterwindow_eventhandler.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-06 09:29:38+02:00 $ 
-    Date Modified: $Modtime: 2009-10-06 09:28:07+02:00 $ 
+     Date Checkin: $Date: 2009-10-23 18:12:33+02:00 $ 
+    Date Modified: $Modtime: 2009-10-23 11:26:18+02:00 $ 
 
       Description: Static Class Singleton implementation for Masterwindow / MDI Window
 
@@ -17,23 +17,26 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
   /************************  Source control constructor ************************/
   constructor public sc_sgt_masterwindow_eventhandler(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  constructor protected sc_sgt_masterwindow_eventhandler():
-  end constructor.
-  
-  define protected static variable p_oSgt# as sc_sgt_masterwindow_eventhandler no-undo.
-  
-  define public static property oSgt as sc_sgt_masterwindow_eventhandler no-undo
+  define protected static variable p_oSgt#      as sc_sgt_masterwindow_eventhandler no-undo.
+  define public           variable cInitialPack as character                        no-undo.
+
+  define public static property oMdiWindow as paninui.view.interfaces.i_masterwindow no-undo get. set.
+  define public static property oSgt       as sc_sgt_masterwindow_eventhandler       no-undo
     get:
       if p_oSgt# = ? then p_oSgt# = new sc_sgt_masterwindow_eventhandler().
       return p_oSgt#.
     end get.
 
-  define public static property oMdiWindow as paninui.view.interfaces.i_masterwindow get. set.
 
+  constructor protected sc_sgt_masterwindow_eventhandler():
+
+  end constructor.
+  
+  
   method public void MdiOnLoadOrShown(input sender as System.Object, input e as System.EventArgs ):
 		
     /* Note: "Load" and "Shown" are functionally the same in paninUi.
@@ -55,7 +58,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
    
     /* Later via: [RunObject] session parameter */
 
-    oPack# = dynamic-new "panaedra.ar.pack.c_pack__DATA_" ().
+    oPack# = dynamic-new cInitialPack ().
 
     oPack#:LoadPack(oMdiWindow).
     
