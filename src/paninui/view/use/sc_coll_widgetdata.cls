@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_widgetdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 17 $ 
+          Version: $Revision: 18 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-20 14:17:50+02:00 $ 
-    Date Modified: $Modtime: 2009-10-20 14:14:36+02:00 $ 
+     Date Checkin: $Date: 2009-10-25 21:17:54+01:00 $ 
+    Date Modified: $Modtime: 2009-10-25 21:06:47+01:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -29,7 +29,7 @@ class paninui.view.use.sc_coll_widgetdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 17 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 18 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -62,6 +62,28 @@ class paninui.view.use.sc_coll_widgetdata
     end.
     
   end method. /* FrameAdd */
+
+  
+  method public static void HidePackFrames (iPackIDIP# as int64):
+
+    define variable bEclipseFix# as logical no-undo.  
+    def buffer ttUIFrame for ttUIFrame.
+    
+    do for ttUIFrame:
+      
+      find first ttUIFrame where ttUIFrame.iPackID = iPackIDIP#  no-error.
+      
+      if avail ttUIFrame then 
+      do:
+        
+        if valid-object(ttUIFrame.oFrame) and type-of(ttUIFrame.oFrame, System.Windows.Forms.Control) 
+          then cast(ttUIFrame.oFrame, System.Windows.Forms.Control):Visible = false.
+        
+      end.
+      
+    end.
+    
+  end method. /* HidePackFrames */
 
   
   method public static int64 ItemAdd (
@@ -428,7 +450,7 @@ class paninui.view.use.sc_coll_widgetdata
     
   end method. /* GetWidget : with dataset */
   
-  
+
   method public static Progress.Lang.Object GetWidget(
     input  iPackIdIP#      as int64, 
     input  cWidgetTypeIP#  as character, 
@@ -472,7 +494,35 @@ class paninui.view.use.sc_coll_widgetdata
     
   end method. /* GetWidget : only by type (or any type) and name */
   
+  
+  method public static Progress.Lang.Object GetWidgetByHandle(
+    input  oWidgetIP#   as Progress.Lang.Object,
+    output iPackIDOP#   as int64,
+    output cLinkNameOP# as character):
+    
+    /* Get a widget from the widgetdata collection (filled by AnalyzeFrame). */
+    
+    define buffer ttUIFrame    for ttUIFrame.
+    define buffer ttWidgetData for ttWidgetData.
+    
+    do for ttWidgetData:
+      
+      find first ttWidgetData where ttWidgetData.oWidget = oWidgetIP# no-error.
 
+      if available ttWidgetData then 
+      do:
+        cLinkNameOP# = ttWidgetData.cLinkName.
+        find first ttUIFrame of ttWidgetData no-error.
+        iPackIDOP# = if available ttUIFrame then ttUIFrame.iPackID else 0.
+      end.       
+
+      return if available ttWidgetData then ttWidgetData.oWidget else ?.
+        
+    end.
+    
+  end method. /* GetWidgetByHandle */
+
+  
   method public static Progress.Lang.Object extent GetChildWidgets(
     input  iPackIdIP#      as int64, 
     input  iGroupOVID#     as i_widgettype_groupframe, 
