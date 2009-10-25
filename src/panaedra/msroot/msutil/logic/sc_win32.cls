@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_win32:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_win32.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-22 20:16:38+02:00 $ 
-    Date Modified: $Modtime: 2009-10-22 17:54:51+02:00 $ 
+     Date Checkin: $Date: 2009-10-25 21:17:54+01:00 $ 
+    Date Modified: $Modtime: 2009-10-25 16:41:00+01:00 $ 
 
       Description: Algemene Windows API calls
 
@@ -16,11 +16,13 @@ class panaedra.msroot.msutil.logic.sc_win32:
   /************************  Source control constructor ************************/
   constructor public sc_win32(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  define protected static variable hExternalProcs# as handle no-undo.
+  define protected static variable hExternalProcs# as handle  no-undo.
+  
+  define protected static variable VK_CAPITAL      as integer no-undo init 20. /* 0x14 */
   
   method public static void ShellExecute(cFileIP# as char):
     
@@ -36,6 +38,7 @@ class panaedra.msroot.msutil.logic.sc_win32:
     
   end method. /* ShellExecute */
 
+
   method public static void MessageBox(cMsgIP# as char, cTitleIP# as char):
     
     /* MessageBox via de api */
@@ -47,8 +50,40 @@ class panaedra.msroot.msutil.logic.sc_win32:
 
     run MessageBoxA in hExternalProcs# (0, cMsgIP#, cTitleIP#, 0, output iReturn#).
     
-  end method. /* ShellExecute */
+  end method. /* MessageBox */
 
+
+  method protected static integer GetKeyState(iKeyIP# as int):
+    
+    /* GetKeyState via api */
+    
+    if not valid-handle(hExternalProcs#) then 
+      run PersistentProcedure ( "panaedra/msroot/msutil/logic/sc_win32_sub.p", output hExternalProcs#).
+    
+    define variable iReturn# as integer no-undo.
+
+    run GetKeyState in hExternalProcs# (iKeyIP#, output iReturn#).
+    
+    return iReturn#.
+    
+  end method. /* GetKeyState */
+
+
+  method public static logical GetCapsLockOn():
+    
+    /* GetKeyState via api */
+    
+    define variable bReturn#   as logical no-undo.
+    define variable iKeystate# as integer no-undo.
+    
+    iKeystate# = GetKeyState(VK_CAPITAL).
+    
+    /* TODO: should be bit-wise, but will do for now. */
+    if iKeystate# >= 1 then bReturn# = true.
+    
+    return bReturn#.
+    
+  end method. /* GetCapsLockOn */
 
 
 end class.
