@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 13 $ 
+          Version: $Revision: 14 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-23 18:12:33+02:00 $ 
-    Date Modified: $Modtime: 2009-10-23 16:44:53+02:00 $ 
+     Date Checkin: $Date: 2009-10-25 21:17:54+01:00 $ 
+    Date Modified: $Modtime: 2009-10-25 20:32:52+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -153,6 +153,17 @@ class paninui.view.use.sc_coll_eventdata
           if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
             case cEventTypeIP#:
               when "Press" then oFormsCheckBox#:CheckedChanged:Subscribe(oSingleton:OnEventArgsHandler_Press).
+            end case.
+            
+        end.
+        
+        if type-of(oWidget#,System.Windows.Forms.Button) then 
+        do:
+          
+          oFormsButton# = cast(oWidget#,System.Windows.Forms.Button).
+          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+            case cEventTypeIP#:
+              when "Press" then oFormsButton#:Click:Subscribe(oSingleton:OnEventArgsHandler_Press).
             end case.
             
         end.
@@ -305,8 +316,9 @@ class paninui.view.use.sc_coll_eventdata
           oFormsForm# = cast(oWidget#,System.Windows.Forms.Form).
           if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
             case cEventTypeIP#:
-              when "KeyDown" then oFormsForm#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).
-              when "KeyUp"   then oFormsForm#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyUp).
+              when "KeyPress" then oFormsForm#:KeyPress:Subscribe(oSingleton:OnEventArgsHandler_KeyPress).
+              when "KeyDown"  then oFormsForm#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).
+              when "KeyUp"    then oFormsForm#:KeyUp:Subscribe(oSingleton:OnEventArgsHandler_KeyUp).
             end case.
             
         end.
@@ -452,38 +464,188 @@ class paninui.view.use.sc_coll_eventdata
   end. /* OnEventArgsHandler_TextChanged */
   
   
-  method private void OnEventArgsHandler_KeyDown(oSender# as System.Object, oArgs# as System.EventArgs):
+  method private void OnEventArgsHandler_KeyPress(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix#   as logical                               no-undo.
-    define variable oFormsForm#    as System.Windows.Forms.Form             no-undo.
-    define variable oFormsKeyArgs# as System.Windows.Forms.KeyEventArgs     no-undo.
-    define variable oUiValue#      as paninui.view.interfaces.i_uivalue     no-undo.
-    define variable oUiEventData#  as paninui.view.interfaces.i_uieventdata no-undo.
+    define variable bEclipseFix#        as logical                                        no-undo.
+    define variable oFormsForm#         as System.Windows.Forms.Form                      no-undo.
+    define variable oFormsKeyPressArgs# as System.Windows.Forms.KeyPressEventArgs         no-undo.
+    define variable oUiValue#           as paninui.view.interfaces.i_uivalue              no-undo.
+    define variable oUiEventData#       as paninui.view.use.events.c_uieventdata_keypress no-undo.
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable iAscii#             as integer                                        no-undo.
+    define variable bHandled#           as logical                                        no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
     do for ttUiEvent on error undo, throw:
       
-      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "KeyDown"
+      b_EachUiEvent:
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "KeyPress"
         on error undo,throw:
+        
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
+        
+        if ttUiEvent.iPackID <> iFocusPackID# then next b_EachUiEvent.
+          
         if type-of(oSender#, System.Windows.Forms.Form) then 
         do:
           assign
             oFormsForm# = cast(oSender#, System.Windows.Forms.Form)
-            oUiValue#  = new c_uivalue_form(oFormsForm#:Name, oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text).
+            oUiValue#   = new c_uivalue_form(oFormsForm#:Name, oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text, cFocusLinkName#).
+        end.
+        if type-of(oArgs#, System.Windows.Forms.KeyPressEventArgs) then 
+        do:
+          assign
+            oFormsKeyPressArgs# = cast(oArgs#, System.Windows.Forms.KeyPressEventArgs).
+          /*            cCasedLetter#  = string(oFormsKeyPressArgs#:KeyChar).                                                  */
+          /*          if length(cCasedLetter#) <> 1 then cCasedLetter# = "".                                                   */
+          /*          if                                                                                                       */
+          /*            (asc(cCasedLetter#) >= asc("A") and asc(cCasedLetter#) <= asc("Z"))                                    */
+          /*            or                                                                                                     */
+          /*            (asc(cCasedLetter#) >= asc("a") and asc(cCasedLetter#) <= asc("z"))                                    */
+          /*            then                                                                                                   */
+          /*          do:                                                                                                      */
+          /*          end.                                                                                                     */
+          /*          else cCasedLetter# = "". /* Platform user should use cKeyArgs for special characters, not cCasedLetter */*/
+          assign
+            oUiEventData# = new c_uieventdata_keypress("","",?,?, 
+            string(oFormsKeyPressArgs#:KeyChar)).
+        end.
+        
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, oUiEventData#).
+        
+        if valid-object(oUiEventData#) and type-of(oUiEventData#, paninui.view.use.events.c_uieventdata_handled) then 
+        do:
+          bHandled# = cast(oUiEventData#, paninui.view.use.events.c_uieventdata_handled):bHandled.
+          if bHandled# and valid-object(oFormsKeyPressArgs#) then 
+          do:
+            oFormsKeyPressArgs#:Handled = true.
+          end.
+        end.
+        
+        if    valid-object(oUiEventData#) 
+          and oUiEventData#:bKeyCharChanged
+          and valid-object(oFormsKeyPressArgs#) then 
+        do:
+          iAscii# = asc(oUiEventData#:cKeyChar).
+          
+/*          panaedra.msroot.msutil.logic.sc_messagebox:Show(           */
+/*          panaedra.msroot.msutil.interfaces.sc_messageboxtype:oDebug,*/
+/*          string(iAscii#)                                         */
+/*          ).                                                      */
+          
+/*          define variable oUtf8 as System.Text.Encoding no-undo.*/
+/*          oUtf8 = System.Text.Encoding:UTF8.                    */
+
+
+          if iAscii# > 1114111 then iAscii# = 42. /* Character '*' */ 
+          
+          oFormsKeyPressArgs#:KeyChar = System.Char:ConvertFromUtf32(iAscii#). 
+
+        end.
+        
+        if bHandled# then leave b_EachUiEvent.
+        
+      end. /* b_EachUiEvent */
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end. /* OnEventArgsHandler_KeyPress */
+  
+  
+  method private void OnEventArgsHandler_KeyDown(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable bEclipseFix#    as logical                               no-undo.
+    define variable oFormsForm#     as System.Windows.Forms.Form             no-undo.
+    define variable oFormsKeyArgs#  as System.Windows.Forms.KeyEventArgs     no-undo.
+    define variable oUiValue#       as paninui.view.interfaces.i_uivalue     no-undo.
+    define variable oUiEventData#   as paninui.view.interfaces.i_uieventdata no-undo.
+    define variable bFirst#         as logical                               no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object                  no-undo.
+    define variable iFocusPackID#   as int64                                 no-undo.
+    define variable cFocusLinkName# as character                             no-undo.
+    define variable cCasedLetter#   as character                             no-undo.
+    define variable bCapsLock#      as logical                               no-undo.
+    define variable bShift#         as logical                               no-undo.
+    define variable bHandled#       as logical                               no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      b_EachUiEvent:
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "KeyDown"
+        on error undo,throw:
+        
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
+        
+        if ttUiEvent.iPackID <> iFocusPackID# then next b_EachUiEvent.
+          
+        if type-of(oSender#, System.Windows.Forms.Form) then 
+        do:
+          assign
+            oFormsForm# = cast(oSender#, System.Windows.Forms.Form)
+            oUiValue#   = new c_uivalue_form(oFormsForm#:Name, oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text, cFocusLinkName#).
         end.
         if type-of(oArgs#, System.Windows.Forms.KeyEventArgs) then 
         do:
           assign
             oFormsKeyArgs# = cast(oArgs#, System.Windows.Forms.KeyEventArgs)
-            oUiEventData#  = new c_uieventdata_key("","",?,?,subst("&1~n&2~n&3~n&4", 
+            cCasedLetter#  = string(oFormsKeyArgs#:KeyCode).
+          if length(cCasedLetter#) <> 1 then cCasedLetter# = "".
+          if 
+            (asc(cCasedLetter#) >= asc("A") and asc(cCasedLetter#) <= asc("Z"))
+            or  
+            (asc(cCasedLetter#) >= asc("a") and asc(cCasedLetter#) <= asc("z"))
+            then 
+          do:
+            bCapsLock# = panaedra.msroot.msutil.logic.sc_win32:GetCapsLockOn().
+            bShift# = oFormsKeyArgs#:Shift.
+            if not bCapsLock# then 
+              cCasedLetter# = if bShift# then caps(cCasedLetter#) else lc(cCasedLetter#).
+            else 
+              cCasedLetter# = if not bShift# then caps(cCasedLetter#) else lc(cCasedLetter#).
+          end.
+          else cCasedLetter# = "". /* Platform user should use cKeyArgs for special characters, not cCasedLetter */
+          assign
+            oUiEventData# = new c_uieventdata_key("","",?,?, 
             string(oFormsKeyArgs#:KeyCode), 
-            string(oFormsKeyArgs#:KeyData), 
-            string(oFormsKeyArgs#:Modifiers)), 
+            cCasedLetter#,
             oFormsKeyArgs#:Shift, oFormsKeyArgs#:Control, oFormsKeyArgs#:Alt).
         end.
+        
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, oUiEventData#).
-      end.
+        
+        if valid-object(oUiEventData#) and type-of(oUiEventData#, paninui.view.use.events.c_uieventdata_handled) then 
+        do:
+          bHandled# = cast(oUiEventData#, paninui.view.use.events.c_uieventdata_handled):bHandled.
+          if bHandled# and valid-object(oFormsKeyArgs#) then 
+          do:
+            oFormsKeyArgs#:Handled = true.
+          end.
+        end.
+        
+        if bHandled# then leave b_EachUiEvent.
+        
+      end. /* b_EachUiEvent */
       
       catch ex as Progress.Lang.Error:
         /* Catch needed in all .NET events */
@@ -511,7 +673,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oFormsForm# = cast(oSender#, System.Windows.Forms.Form)
-            oUiValue#  = new c_uivalue_combobox(oFormsForm#:Name, oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text).
+            oUiValue#   = new c_uivalue_combobox(oFormsForm#:Name, oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
