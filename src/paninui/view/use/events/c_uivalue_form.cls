@@ -13,10 +13,10 @@ class paninui.view.use.events.c_uivalue_form
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/events/c_uivalue_form.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-23 18:11:54+02:00 $ 
-    Date Modified: $Modtime: 2009-10-23 18:07:54+02:00 $ 
+     Date Checkin: $Date: 2009-10-25 21:17:54+01:00 $ 
+    Date Modified: $Modtime: 2009-10-25 16:04:58+01:00 $ 
 
       Description: Represents the screen value of an editor, combobox, textbox 
                    or even a simple label
@@ -26,13 +26,14 @@ class paninui.view.use.events.c_uivalue_form
   /************************  Source control constructor ************************/
   constructor public c_uivalue_form(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define public property cTitle as character no-undo get. set.
-
-  constructor public c_uivalue_form(cNameIP# as character, bEnabledIP# as logical, bVisibleIP# as logical, cTitleIP# as character):
+  define public property cFocus as character no-undo get. set.
+ 
+  constructor public c_uivalue_form(cNameIP# as character, bEnabledIP# as logical, bVisibleIP# as logical, cTitleIP# as character, cFocusIP# as character):
     
     super().
     
@@ -40,7 +41,8 @@ class paninui.view.use.events.c_uivalue_form
       cName    = cNameIP#
       bEnabled = bEnabledIP#
       bVisible = bVisibleIP#
-      cTitle   = cTitleIP#. 
+      cTitle   = cTitleIP#
+      cFocus   = cFocusIP#. 
     
   end constructor.
 
