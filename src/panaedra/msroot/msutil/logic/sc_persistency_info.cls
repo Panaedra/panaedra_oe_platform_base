@@ -7,10 +7,10 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_persistency_info.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-15 10:16:07+02:00 $ 
-    Date Modified: $Modtime: 2009-10-15 10:14:37+02:00 $ 
+     Date Checkin: $Date: 2009-10-26 14:34:58+01:00 $ 
+    Date Modified: $Modtime: 2009-10-26 14:31:02+01:00 $ 
 
       Description: Uses the session handle to find persistent buffers, procedures, or objects.
                    Very useful for checking if you didn't forget to clean something up.
@@ -20,7 +20,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
   /************************  Source control constructor ************************/
   constructor public sc_persistency_info(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -104,49 +104,13 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
           ttPersistentThings.cName = oObj#:ToString()
           /*          ttPersistentThings.oObject = oObj#*/
           .
-        if type-of(oObj#,paninui.view.init.display.c_bindingsource) then 
-        do on error undo, throw:
-/*          if retry then do:                                                                        */
-/*            System.Windows.Forms.MessageBox:SHow(subst("eerste subretry &1 &2", program-name(1) )).*/
-/*            end.                                                                                   */
-/*            System.Windows.Forms.MessageBox:SHow(subst("voor delete &1 &2", program-name(1) )).    */
-          DeleteBindingSource(cast(oObj#,paninui.view.init.display.c_bindingsource)).
-/*          process events.                                                                    */
-/*          pause 0 before-hide no-message.                                                    */
-/*            System.Windows.Forms.MessageBox:SHow(subst("na delete &1 &2", program-name(1) )).*/
-          /*          delete object oObj#.                                                       */
-          /*                    cast(oObj#,paninui.view.init.display.c_bindingsource):Handle = ?.*/
-          /*                    cast(oObj#,paninui.view.init.display.c_bindingsource):Dispose(). */
-/*          catch ex as Progress.Lang.Error :                                                                          */
-/*            System.Windows.Forms.MessageBox:SHow(subst("eerste subcatch &1 &2", program-name(1) , ex:getMessage(1))).*/
-/*          end catch.                                                                                                 */
-/*          finally:                                                                                                   */
-/*            System.Windows.Forms.MessageBox:SHow(subst("eerste subfinally &1 &2", program-name(1) )).                */
-/*                                                                                                                     */
-/*          end.                                                                                                       */
-        end.
         oObj# = oObjNext#.
       end.
-       
-/*          catch ex2 as Progress.Lang.Error :                                                                                          */
-/*            System.Windows.Forms.MessageBox:SHow(subst("nog een catch &1 &2 &3", program-name(1) , ex2:getMessage(1), ex2:CallStack)).*/
-/*          end catch.                                                                                                                  */
     end.
     
   end method. /* FillPersistentObjects */
   
   
-  method public static void DeleteBindingSource (oBindingSourceIP# as paninui.view.init.display.c_bindingsource):
-    do on error undo, throw:
-      if valid-object(oBindingSourceIP#) then
-        delete object oBindingSourceIP#.
-/*      catch e as Progress.Lang.Error :*/
-/*                                      */
-/*      end catch.                      */
-    
-    end.
-  end method. /* DeleteBindingSource */  
-
   method protected static void FillPersistentProcedures():
     
     define variable hProc# as handle no-undo.
