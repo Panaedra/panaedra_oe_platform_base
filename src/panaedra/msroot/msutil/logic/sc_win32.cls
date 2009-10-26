@@ -1,13 +1,15 @@
 {panaedra/msi/logic/ctop_class.i} 
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_win32: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_win32.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-25 21:17:54+01:00 $ 
-    Date Modified: $Modtime: 2009-10-25 16:41:00+01:00 $ 
+     Date Checkin: $Date: 2009-10-26 09:26:36+01:00 $ 
+    Date Modified: $Modtime: 2009-10-26 08:41:54+01:00 $ 
 
       Description: Algemene Windows API calls
 
@@ -16,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_win32:
   /************************  Source control constructor ************************/
   constructor public sc_win32(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -28,8 +30,8 @@ class panaedra.msroot.msutil.logic.sc_win32:
     
     /* 'dubbelklik' een bestandje vanaf Windows Explorer. */
     
-    if not valid-handle(hExternalProcs#) then 
-      run PersistentProcedure ( "panaedra/msroot/msutil/logic/sc_win32_sub.p", output hExternalProcs#).
+    if not valid-handle(hExternalProcs#) then
+      sc_procedurehandles:PersistentProcedure("panaedra/msroot/msutil/logic/sc_win32_sub.p", output hExternalProcs#). 
     
     file-info:file-name = cFileIP#.
     cFileIP# = replace(file-info:full-pathname, "/", "~\").
@@ -43,8 +45,8 @@ class panaedra.msroot.msutil.logic.sc_win32:
     
     /* MessageBox via de api */
     
-    if not valid-handle(hExternalProcs#) then 
-      run PersistentProcedure ( "panaedra/msroot/msutil/logic/sc_win32_sub.p", output hExternalProcs#).
+    if not valid-handle(hExternalProcs#) then
+      sc_procedurehandles:PersistentProcedure("panaedra/msroot/msutil/logic/sc_win32_sub.p", output hExternalProcs#). 
     
     define variable iReturn# as integer no-undo.
 
@@ -57,8 +59,8 @@ class panaedra.msroot.msutil.logic.sc_win32:
     
     /* GetKeyState via api */
     
-    if not valid-handle(hExternalProcs#) then 
-      run PersistentProcedure ( "panaedra/msroot/msutil/logic/sc_win32_sub.p", output hExternalProcs#).
+    if not valid-handle(hExternalProcs#) then
+      sc_procedurehandles:PersistentProcedure("panaedra/msroot/msutil/logic/sc_win32_sub.p", output hExternalProcs#). 
     
     define variable iReturn# as integer no-undo.
 
