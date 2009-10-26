@@ -7,10 +7,10 @@ class panaedra.msf.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msf/logic/sc_path.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-20 08:18:47+02:00 $ 
-    Date Modified: $Modtime: 2009-10-19 15:19:27+02:00 $ 
+     Date Checkin: $Date: 2009-10-26 13:17:05+01:00 $ 
+    Date Modified: $Modtime: 2009-10-26 13:15:02+01:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -22,11 +22,12 @@ class panaedra.msf.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 10 $", "{&sourcecontrolversions}").
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 11 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
   define protected static variable bIniInitialized    as logical                       no-undo.
+  define protected static variable bLocalInitialized  as logical                       no-undo.
   define protected static variable bTtPathInitialized as logical                       no-undo.
   define protected static variable bPropathDirty      as logical                       no-undo init true.
   define protected static variable cPropathFull       as character                     no-undo.
@@ -83,7 +84,24 @@ class panaedra.msf.logic.sc_path:
     protected set.
   
   
-  /* systeem directory */
+  /* Local ini directory */
+  define public static property cLocalIniDir as character no-undo 
+    get():
+      if not bIniInitialized then 
+        IniInitialize().
+      if not bLocalInitialized then do:
+        bLocalInitialized = true.
+        cLocalIniDir = cWorkDir + "ini_local/".
+        file-info:file-name = cLocalIniDir. 
+        if file-info:full-pathname = ? then os-create-dir value(cLocalIniDir).
+        if os-error > 0 then undo, throw new Progress.Lang.AppError(subst("Directory &1 could not be created.", cLocalIniDir),99950019).
+      end.
+      return cLocalIniDir.
+    end get.
+    protected set.
+  
+  
+  /* Systeem directory */
   define public static property cSysteemDir as character no-undo 
     get():
       if not bTtPathInitialized then 
