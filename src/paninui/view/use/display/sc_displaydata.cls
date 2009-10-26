@@ -8,10 +8,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 14 $ 
+          Version: $Revision: 15 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-23 18:12:33+02:00 $ 
-    Date Modified: $Modtime: 2009-10-23 13:50:27+02:00 $ 
+     Date Checkin: $Date: 2009-10-26 14:56:39+01:00 $ 
+    Date Modified: $Modtime: 2009-10-26 12:22:06+01:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -20,7 +20,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -316,8 +316,8 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     cValueIP#       as character):
 
-    define variable bIsDisplayLinkedOP# as logical                      no-undo.
-    define variable oWidget#            as Progress.Lang.Object         no-undo.
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
 
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "any", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
@@ -339,8 +339,8 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     cValueIP#       as character):
       
-    define variable bIsDisplayLinkedOP# as logical                      no-undo.
-    define variable oWidget#            as Progress.Lang.Object         no-undo.
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
 
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
@@ -348,6 +348,47 @@ class paninui.view.use.display.sc_displaydata   :
       SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
 
   end method. /* SetUiValue ; ComboBox */
+
+
+  method public static void SetUiValue(
+    
+    /* Directly set a special semi-property like "Focus" of a combobox widget, without databinding.
+     */
+    
+    oFrmLogicIP#    as i_frmlogic,
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character):
+      
+    define variable bIsDisplayLinkedOP# as logical                      no-undo.
+    define variable oWidget#            as Progress.Lang.Object         no-undo.
+    define variable cSvAllowed#         as character                    no-undo init "Focus".
+    define variable oFormsControl#      as System.Windows.Forms.Control no-undo.
+    
+    if lookup(cPropertyIP#, cSvAllowed#) > 0 then 
+    do:
+    
+      oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+      
+      if valid-object(oWidget#) then 
+      do:
+        
+        if type-of(oWidget#, System.Windows.Forms.Control) then do:
+          oFormsControl# = cast(oWidget#, System.Windows.Forms.Control).
+        end.
+        
+        case cPropertyIP#: 
+          when "Focus" then 
+            do:
+              if oFormsControl# <> ? then oFormsControl#:Focus().
+            end.
+        end case.
+      end.
+    end.
+    else 
+      undo, throw new Progress.Lang.AppError(subst("Invalid property without value: '&1'", cPropertyIP#),99950017).
+    
+  end method. /* SetUiValue ; ComboBox - only property name (like Focus) */
 
 
   method public static void SetUiValue(
@@ -362,8 +403,8 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     iValueIP#       as integer):
       
-    define variable bIsDisplayLinkedOP# as logical                      no-undo.
-    define variable oWidget#            as Progress.Lang.Object         no-undo.
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
 
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
@@ -385,8 +426,8 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     cValueIP#       as character):
       
-    define variable bIsDisplayLinkedOP# as logical                      no-undo.
-    define variable oWidget#            as Progress.Lang.Object         no-undo.
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
 
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "button", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
@@ -394,6 +435,28 @@ class paninui.view.use.display.sc_displaydata   :
       SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
 
   end method. /* SetUiValue ; Button */
+
+  method public static void SetUiValue(
+    
+    /* Directly set any property of a button widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oFrmLogicIP#    as i_frmlogic,
+    oButtonOVID#    as i_widgettype_button,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    bValueIP#       as logical):
+      
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "button", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, bValueIP#).
+
+  end method. /* SetUiValue ; Button + logical */
 
 
   method public static void SetUiValue(
@@ -408,8 +471,8 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#     as character,
     cValueIP#        as character):
       
-    define variable bIsDisplayLinkedOP# as logical                      no-undo.
-    define variable oWidget#            as Progress.Lang.Object         no-undo.
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
 
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "groupframe", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
@@ -431,8 +494,8 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     cValueIP#       as character):
       
-    define variable bIsDisplayLinkedOP# as logical                      no-undo.
-    define variable oWidget#            as Progress.Lang.Object         no-undo.
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
 
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
@@ -451,18 +514,19 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     cValueIP#       as character):
 
-    define variable oControl#           as System.Object                no-undo.
+    define variable oControl# as System.Object no-undo.
 
     /* We only support Text objects for cValueIP#, and we can convert this to other objects
        later in time 
        (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
     */
-    if valid-object(oWidgetIP#) then do:
+    if valid-object(oWidgetIP#) then 
+    do:
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cValueIP#).
     end.
 
-  end method. /* SetUiValueImplement */
+  end method. /* SetUiValueImplement ; character */
 
 
   method protected static void SetUiValueImplement(
@@ -474,18 +538,43 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     iValueIP#       as integer):
 
-    define variable oControl#           as System.Object                no-undo.
+    define variable oControl# as System.Object no-undo.
 
     /* We only support Text objects for cValueIP#, and we can convert this to other objects
        later in time 
        (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
     */
-    if valid-object(oWidgetIP#) then do:
+    if valid-object(oWidgetIP#) then 
+    do:
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, iValueIP#).
     end.
 
-  end method. /* SetUiValueImplement */
+  end method. /* SetUiValueImplement ; integer */
+
+
+  method protected static void SetUiValueImplement(
+    
+    /* Directly set any property of any widget to a new value, without databinding.
+     */
+    
+    oWidgetIP#    as Progress.Lang.Object,
+    cPropertyIP#    as character,
+    bValueIP#       as logical):
+
+    define variable oControl# as System.Object no-undo.
+
+    /* We only support Text objects for cValueIP#, and we can convert this to other objects
+       later in time 
+       (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
+    */
+    if valid-object(oWidgetIP#) then 
+    do:
+      oControl# = cast(oWidgetIP#, System.Object).
+      paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, bValueIP#).
+    end.
+
+  end method. /* SetUiValueImplement ; logical */
 
 
 end class.
