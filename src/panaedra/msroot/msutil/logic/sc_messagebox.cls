@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-23 18:12:33+02:00 $ 
-    Date Modified: $Modtime: 2009-10-23 07:24:32+02:00 $ 
+     Date Checkin: $Date: 2009-10-26 13:17:05+01:00 $ 
+    Date Modified: $Modtime: 2009-10-26 09:59:01+01:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -26,7 +26,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -40,9 +40,33 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   method public static void Show(oTypeOVID# as i_messageboxtype_simple, cMsgIP# as character):
     
-    message cMsgIP#
-      view-as alert-box.
 
+    &if opsys = "unix" or "{&window-system}" = "tty" &then
+
+    message 
+      cMsgIP#
+      view-as alert-box title
+      subst("Panaedra &1", substring(iso-date(now),1,23)
+      ).    
+      
+    &else
+
+    if panaedra.msb.logic.sc_environment:IsIdeRunning() then
+    do:
+      panaedra.msroot.msutil.logic.sc_win32:MessageBox(subst("&1",cMsgIP#),
+        subst("Panaedra &1", substring(iso-date(now),1,23))).
+    end.
+    else
+    do:
+      System.Windows.Forms.MessageBox:Show(subst("&1", cMsgIP#),
+        subst("Panaedra &1", substring(iso-date(now),1,23)),
+        System.Windows.Forms.MessageBoxButtons:OK, 
+        System.Windows.Forms.MessageBoxIcon:Information
+        ).    
+    end.
+     &endif
+
+    
   end method. /* Show; simple */
 
 
