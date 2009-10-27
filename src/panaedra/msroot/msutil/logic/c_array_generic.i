@@ -1,9 +1,9 @@
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/i_array_generic.i $ 
-        Version: $Revision: 2 $ 
+        Version: $Revision: 3 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-10-23 00:52:33+02:00 $ 
-  Date Modified: $Modtime: 2009-10-23 00:48:30+02:00 $ 
+   Date Checkin: $Date: 2009-10-27 04:58:36+01:00 $ 
+  Date Modified: $Modtime: 2009-10-27 04:58:17+01:00 $ 
 
       Description: This include makes a variable sized array of any datatype, wrapping
                    the variable extent functionality of ABL.
@@ -32,9 +32,9 @@
                    end set.
 
 \**************************** End of Dvcs_ Header ****************************/
-&if "{&dvcs__panaedra_msroot_msutil_logic_i_array_generic_i}" = "" &then
-&glob dvcs__panaedra_msroot_msutil_logic_i_array_generic_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_i_array_generic_i $Revision: 2 $
+&if "{&dvcs__panaedra_msroot_msutil_logic_c_array_generic_i}" = "" &then
+&glob dvcs__panaedra_msroot_msutil_logic_c_array_generic_i yes
+&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_c_array_generic_i $Revision: 3 $
 /******************************* $NoKeywords:  $ *****************************/
 
   define protected static variable iDefaultExtentSizeInitial   as integer   no-undo init 25.
@@ -226,14 +226,29 @@
       end.
     end.
     
-    
     if iReturn# >= 1 then.
-    else iReturn# = 1.
+    else iReturn# = 0.
     
     return iReturn#.
     
   end method. /* GetLastUsedIndex */
 
-&endif /* {&dvcs__panaedra_msroot_msutil_logic_i_array_generic_i} */
+  
+  method public void ClearAll():
+    
+    extent(sys__{&VarPre}ValuePrimary)   = ?.
+    extent(sys__{&VarPre}ValueSecondary) = ?.
+    iAddPosition = 0.
+    
+  end method. /* OnDestructor */
 
-/* EOF : panaedra/msroot/msutil/logic/i_array_generic.i */ 
+
+  method protected void OnDestructor():
+    
+    ClearAll().
+    
+  end method. /* OnDestructor */
+
+&endif /* {&dvcs__panaedra_msroot_msutil_logic_c_array_generic_i} */
+
+/* EOF : panaedra/msroot/msutil/logic/c_array_generic.i */ 
