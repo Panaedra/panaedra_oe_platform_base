@@ -1,9 +1,9 @@
 /******************************  Dvcs_ Header ********************************\
-       Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/i_array_generic.i $ 
-        Version: $Revision: 3 $ 
+       Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_array_generic.i $ 
+        Version: $Revision: 5 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-10-27 04:58:36+01:00 $ 
-  Date Modified: $Modtime: 2009-10-27 04:58:17+01:00 $ 
+   Date Checkin: $Date: 2009-10-27 05:06:59+01:00 $ 
+  Date Modified: $Modtime: 2009-10-27 05:03:27+01:00 $ 
 
       Description: This include makes a variable sized array of any datatype, wrapping
                    the variable extent functionality of ABL.
@@ -34,7 +34,7 @@
 \**************************** End of Dvcs_ Header ****************************/
 &if "{&dvcs__panaedra_msroot_msutil_logic_c_array_generic_i}" = "" &then
 &glob dvcs__panaedra_msroot_msutil_logic_c_array_generic_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_c_array_generic_i $Revision: 3 $
+&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_c_array_generic_i $Revision: 5 $
 /******************************* $NoKeywords:  $ *****************************/
 
   define protected static variable iDefaultExtentSizeInitial   as integer   no-undo init 25.
@@ -198,6 +198,7 @@
     end.
 
   end method. /* CopyArray */
+
 
   method protected static integer GetLastUsedIndex(oThisIP# as {&ClassType}, bUseSecondaryIP# as logical):
 
