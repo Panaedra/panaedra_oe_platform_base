@@ -1,9 +1,9 @@
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_array_generic.i $ 
-        Version: $Revision: 6 $ 
+        Version: $Revision: 7 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-10-27 09:52:09+01:00 $ 
-  Date Modified: $Modtime: 2009-10-27 09:50:36+01:00 $ 
+   Date Checkin: $Date: 2009-10-28 09:04:12+01:00 $ 
+  Date Modified: $Modtime: 2009-10-27 13:51:29+01:00 $ 
 
       Description: This include makes a variable sized array of any datatype, wrapping
                    the variable extent functionality of ABL.
@@ -34,10 +34,10 @@
 \**************************** End of Dvcs_ Header ****************************/
 &if "{&dvcs__panaedra_msroot_msutil_logic_c_array_generic_i}" = "" &then
 &glob dvcs__panaedra_msroot_msutil_logic_c_array_generic_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_c_array_generic_i $Revision: 6 $
+&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_c_array_generic_i $Revision: 7 $
 /******************************* $NoKeywords:  $ *****************************/
 
-define protected static variable iDefaultExtentSizeInitial    as integer    no-undo init 25.
+define protected static variable iDefaultExtentSizeInitial    as integer    no-undo init 10.
 define protected static variable iDefaultExtentSizeIncrement  as integer    no-undo init 25.
   
 /* These two data members should be protected, but static methods need to be able to access them.
@@ -209,7 +209,6 @@ method protected static integer GetLastUsedIndex(oThisIP# as {&ClassType}, bUseS
 
   define variable iTell#   as integer no-undo.
   define variable iReturn# as integer no-undo.
-  define variable iExtent# as integer no-undo.
     
   if not bUseSecondaryIP# then
   b_LastIndexPri: 
@@ -274,8 +273,11 @@ method public handle CreateGenericFieldHandle():
   define variable iTell#      as integer   no-undo.
   define variable hBuff#      as handle    no-undo.
   define variable hField#     as handle    no-undo.
+  define variable iExtent# as integer no-undo.
   
-  if iExtent >= 1 then 
+  iExtent# = iExtent.
+  
+  if iExtent# >= 1 then 
   do:
     
     create temp-table hTempTable#.
@@ -288,17 +290,17 @@ method public handle CreateGenericFieldHandle():
     cDataType# = "Progress.Lang.Object".
     &endif
     
-    hTempTable#:add-new-field("{&VarPre}Value", cDataType#, iExtent).  
+    hTempTable#:add-new-field("{&VarPre}Value", cDataType#, iExtent#).  
     hTempTable#:temp-table-prepare("tt" + cName#).
   
     hField# = hTempTable#:default-buffer-handle:buffer-field(1).
     hTempTable#:default-buffer-handle:buffer-create().
   
-    do iTell# = 1 to iExtent: 
+    do iTell# = 1 to iExtent#: 
       hField#:buffer-value[iTell#] = GetValue(iTell#).
     end.
   
-  end. /* iExtent >= 1 */
+  end. /* iExtent# >= 1 */
   
   return hField#.
   
