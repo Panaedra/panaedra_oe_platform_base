@@ -6,10 +6,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-28 09:04:12+01:00 $ 
-    Date Modified: $Modtime: 2009-10-28 08:55:35+01:00 $ 
+     Date Checkin: $Date: 2009-10-28 14:15:58+01:00 $ 
+    Date Modified: $Modtime: 2009-10-28 13:19:07+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -21,7 +21,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -255,13 +255,22 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   end method. /* QueryOpen */
   
 
+  method public logical QueryGetPrev():
+    
+    hQuery:get-prev().
+    sc_eventbroadcaster:FireEvent("evt@c_qry@querygetprev", this-object).
+    return hQuery:query-off-end.
+    
+  end method. /* QueryGetPrev */
+  
+
   method public logical QueryGetNext():
     
     hQuery:get-next().
     sc_eventbroadcaster:FireEvent("evt@c_qry@querygetnext", this-object).
     return hQuery:query-off-end.
     
-  end method. /* QueryOpen */
+  end method. /* QueryGetNext */
   
 end class.
 
