@@ -6,10 +6,10 @@ class panaedra.msdr.logic.sc_dbtrig   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msdr/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-25 12:23:20+02:00 $ 
-    Date Modified: $Modtime: 2009-09-25 12:20:50+02:00 $ 
+     Date Checkin: $Date: 2009-10-28 09:38:17+01:00 $ 
+    Date Modified: $Modtime: 2009-10-21 10:33:11+02:00 $ 
 
       Description: Deze class wordt aangeroepen door db delete en write triggers,
                    voor dynamische afhandeling.
@@ -28,7 +28,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -143,6 +143,11 @@ class panaedra.msdr.logic.sc_dbtrig   :
       if hBuffNewIP# <> ? and hBuffNewIP#:avail then hBuffInput# = hBuffNewIP#.
       else hBuffInput# = hBuffIP#.
       
+      /* Elke Panaedra tabel heeft ook een cased versie van de tabelnaam.
+         Dat is de "logische" naam van de tabel, die verder in dbtrig wordt gebruikt.
+         Bij bijvoorbeeld de _DATA_, wijkt de logische naam _DATA_ af van
+         de fysieke database tabelnaam.
+       */
       cCased# = GetCased(hBuffInput#).
       
       if ExecuteLogic(hBuffInput#, hBuffOldIP#, "wri") then.
