@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-26 13:17:05+01:00 $ 
-    Date Modified: $Modtime: 2009-10-26 09:59:01+01:00 $ 
+     Date Checkin: $Date: 2009-10-28 11:49:00+01:00 $ 
+    Date Modified: $Modtime: 2009-10-28 11:09:06+01:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -26,7 +26,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -180,10 +180,18 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   method public static void Show(oTypeOVID# as i_messageboxtype_debug, cMsgIP# as character extent):
     
+    define variable cProgramName# as character no-undo.
+    
+    cProgramName# = if program-name(2) matches "*sc_messagebox*" then program-name(3) else program-name(2).
+    
     &if opsys = "unix" or "{&window-system}" = "tty" &then
+    
+    if length(cProgramName#) > 40
+      then cProgramName# = substring(cProgramName#, length(cProgramName#) - 39).
 
     message 
-      cMsgIP#[1] skip
+      cProgramName# skip
+      cMsgIP#[1]    skip
       if extent(cMsgIP#) < 2 then "" else cMsgIP#[2] skip
       if extent(cMsgIP#) < 3 then "" else cMsgIP#[3] skip
       if extent(cMsgIP#) < 4 then "" else cMsgIP#[4] skip
@@ -198,40 +206,23 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
       
     &else
 
-    if panaedra.msb.logic.sc_environment:IsIdeRunning() then 
-    do:
-      panaedra.msroot.msutil.logic.sc_win32:MessageBox(subst("01: &1~n02: &2~n03: &3~n04: &4~n05: &5~n06: &6~n07: &7~n08: &8~n09: &9",
-        cMsgIP#[1],
-        if extent(cMsgIP#) < 2 then "" else cMsgIP#[2],
-        if extent(cMsgIP#) < 3 then "" else cMsgIP#[3],
-        if extent(cMsgIP#) < 4 then "" else cMsgIP#[4],
-        if extent(cMsgIP#) < 5 then "" else cMsgIP#[5],
-        if extent(cMsgIP#) < 6 then "" else cMsgIP#[6],
-        if extent(cMsgIP#) < 7 then "" else cMsgIP#[7],
-        if extent(cMsgIP#) < 8 then "" else cMsgIP#[8],
-        if extent(cMsgIP#) < 9 then "" else cMsgIP#[9]
-        ),
-        subst("Panaedra Debug &1", substring(iso-date(now),1,23))).
-    end.
-    else 
-    do:
-      System.Windows.Forms.MessageBox:Show(subst("01: &1~n02: &2~n03: &3~n04: &4~n05: &5~n06: &6~n07: &7~n08: &8~n09: &9",
-        cMsgIP#[1],
-        if extent(cMsgIP#) < 2 then "" else cMsgIP#[2],
-        if extent(cMsgIP#) < 3 then "" else cMsgIP#[3],
-        if extent(cMsgIP#) < 4 then "" else cMsgIP#[4],
-        if extent(cMsgIP#) < 5 then "" else cMsgIP#[5],
-        if extent(cMsgIP#) < 6 then "" else cMsgIP#[6],
-        if extent(cMsgIP#) < 7 then "" else cMsgIP#[7],
-        if extent(cMsgIP#) < 8 then "" else cMsgIP#[8],
-        if extent(cMsgIP#) < 9 then "" else cMsgIP#[9]
-        ),
-        subst("Panaedra Debug &1", substring(iso-date(now),1,23)),
-        System.Windows.Forms.MessageBoxButtons:OK, 
-        System.Windows.Forms.MessageBoxIcon:Stop
-        ).    
-    end.
-     &endif
+    System.Windows.Forms.MessageBox:Show(cProgramName# + "~n" + subst("01: &1~n02: &2~n03: &3~n04: &4~n05: &5~n06: &6~n07: &7~n08: &8~n09: &9",
+      cMsgIP#[1],
+      if extent(cMsgIP#) < 2 then "" else cMsgIP#[2],
+      if extent(cMsgIP#) < 3 then "" else cMsgIP#[3],
+      if extent(cMsgIP#) < 4 then "" else cMsgIP#[4],
+      if extent(cMsgIP#) < 5 then "" else cMsgIP#[5],
+      if extent(cMsgIP#) < 6 then "" else cMsgIP#[6],
+      if extent(cMsgIP#) < 7 then "" else cMsgIP#[7],
+      if extent(cMsgIP#) < 8 then "" else cMsgIP#[8],
+      if extent(cMsgIP#) < 9 then "" else cMsgIP#[9]
+      ),
+      subst("Panaedra Debug &1", substring(iso-date(now),1,23)),
+      System.Windows.Forms.MessageBoxButtons:OK, 
+      System.Windows.Forms.MessageBoxIcon:Asterisk
+      ).    
+      
+  &endif /* unix or tty */
      
   end method. /* Show; type_debug , variable extent */
 
