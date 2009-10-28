@@ -6,10 +6,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-06 09:29:38+02:00 $ 
-    Date Modified: $Modtime: 2009-10-06 09:26:24+02:00 $ 
+     Date Checkin: $Date: 2009-10-28 09:04:12+01:00 $ 
+    Date Modified: $Modtime: 2009-10-28 08:55:35+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -21,7 +21,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -63,24 +63,25 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   method public void PrepareStringSimpleGen():
     
     /* Call the static version of this method */
-    panaedra.msroot.msdr.logic.c_qry:PrepareStringSimpleGen(hQueryPrivate).
+    panaedra.msroot.msdr.logic.c_qry:PrepareStringSimpleGenImplement(hQueryPrivate).
 
   end method. /* PrepareStringSimpleGen */
   
 
-  method public static void PrepareStringSimpleGen (hQueryIP# as handle):
+  method public static void PrepareStringSimpleGenImplement(hQueryIP# as handle):
 
     /* Generate a simple prepare string using "of" and "first" or "each" statements */
     
-    define variable cPrep#    as character no-undo.
-    define variable iBuff#    as integer   no-undo.
-    define variable iBuffSub# as integer   no-undo.
-    define variable cBuff#    as character no-undo.
-    define variable hBuff#    as handle    no-undo.
-    define variable hBuffSub# as handle    no-undo.
-    define variable cIDfield# as character no-undo.
-    define variable cFiach#   as character no-undo.
-    define variable hField#   as handle    no-undo.
+    define variable cPrep#     as character no-undo.
+    define variable iBuff#     as integer   no-undo.
+    define variable iBuffSub#  as integer   no-undo.
+    define variable cBuff#     as character no-undo.
+    define variable hBuff#     as handle    no-undo.
+    define variable hBuffSub#  as handle    no-undo.
+    define variable cIDfield#  as character no-undo.
+    define variable cFiach#    as character no-undo. /* first or each */
+    define variable hField#    as handle    no-undo.
+    define variable iOfBuffer# as integer   no-undo.
     
     do iBuff# = 1 to hQueryIP#:num-buffers:
       
@@ -95,8 +96,9 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
       do:
         /* If parent iID is present in previous buffer(s), use first. Else use each. */
         assign
-          cFiach#   = ""
-          cIDfield# = "iID" + panaedra.msdr.logic.sc_dbtrig:GetCased(hBuff#).
+          cFiach#    = ""
+          cIDfield#  = "iID" + panaedra.msdr.logic.sc_dbtrig:GetCased(hBuff#)
+          iOfBuffer# = iBuff# - 1.
         if cIDfield# > "" then
         b_BuffSub:
         do iBuffSub# = 1 to iBuff# - 1:
@@ -104,7 +106,9 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
           hField# =  hBuffSub#:buffer-field(cIDfield#) no-error.
           if hField# <> ? then 
           do:
-            cFiach# = "first".
+            assign
+              iOfBuffer# = iBuffSub#
+              cFiach#    = "first".
             leave b_BuffSub.
           end.
         end.
@@ -115,9 +119,13 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
       cPrep# = 
         cPrep# + (if iBuff# = 1 then "for " else ", ") + cFiach# + " " +
         cBuff# + " /*[qWhere_" + trim(string(iBuff#,"999")) + "]*/"  + 
-        (if iBuff# = 1 then "" else " of " + hQueryIP#:get-buffer-handle(iBuff# - 1):name) + 
-        " no-lock". 
-        
+        (if iBuff# = 1 then "" else " of " 
+        + 
+        (if cBuff# begins "ttCalc" or cBuff# matches("*-ttCalc*") then replace(cBuff#,"ttCalc","tt") else hQueryIP#:get-buffer-handle(iOfBuffer#):name))
+         + 
+        " no-lock " +
+        (if cBuff# begins "ttCalc" or cBuff# matches("*-ttCalc*") then "outer-join " else ""). 
+      
     end.
     
     do on error undo, throw:
@@ -131,18 +139,18 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
       
     end.
 
-  end method. /* PrepareStringSimpleGen */
+  end method. /* PrepareStringSimpleGenImplement */
 
 
-  method public logical SetWhere (iBufferIP# as integer, cWhereIP# as character):
+  method public logical SetWhere(iBufferIP# as integer, cWhereIP# as character):
     
     /* Call the static version of this method */
-    panaedra.msroot.msdr.logic.c_qry:SetWhere(this-object,iBufferIP#,cWhereIP#).
+    panaedra.msroot.msdr.logic.c_qry:SetWhereImplement(this-object,iBufferIP#,cWhereIP#).
     
   end method. /* SetWhere */
   
 
-  method public static logical SetWhere (oQryIP# as panaedra.msroot.msdr.logic.c_qry, iBufferIP# as integer, cWhereIP# as character):
+  method public static logical SetWhereImplement(oQryIP# as panaedra.msroot.msdr.logic.c_qry, iBufferIP# as integer, cWhereIP# as character):
     
     define variable cPrep#      as character no-undo.
     define variable iStartPos#  as integer   no-undo.
@@ -188,7 +196,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
           oQryIP#:hQuery:query-prepare(cPrep#).
           oQryIP#:hQuery:query-open().
           sc_eventbroadcaster:FireEvent("evt@c_qry@queryopen", oQryIP#).
-          catch e as Progress.Lang.Error :
+          catch e as Progress.Lang.Error:
             undo, throw new panaedra.msex.logic.c__FCMPNY_exception(999500007,substitute("Query where '&1' is invalid.~n&2~n&3", cWhereIP#, cPrep#, e:GetMessage(1))).
           end catch.
         end.
@@ -196,18 +204,18 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
       
     end.
 
-  end method. /* SetWhere */
+  end method. /* SetWhereImplement */
 
 
   method public void Resync():
     
     /* Call the static version of this method */
-    panaedra.msroot.msdr.logic.c_qry:Resync(this-object).
+    panaedra.msroot.msdr.logic.c_qry:ResyncImplement(this-object).
     
   end method. /* Resync */
 
 
-  method public static void Resync(oQryIP# as panaedra.msroot.msdr.logic.c_qry):
+  method public static void ResyncImplement(oQryIP# as panaedra.msroot.msdr.logic.c_qry):
     
     /* Resync syncs the local buffers of the OnHold query to the rowid's of the query that's in use.
        Normally these are static buffers, so this method facilitates strong typed source code. 
@@ -234,7 +242,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
       
     end.
 
-  end method. /* Resync */
+  end method. /* ResyncImplement */
 
 
   method public logical QueryOpen():
@@ -255,7 +263,6 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     
   end method. /* QueryOpen */
   
-
 end class.
 
 /* EOF */ 
