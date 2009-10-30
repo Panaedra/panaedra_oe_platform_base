@@ -7,10 +7,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-30 09:28:34+01:00 $ 
-    Date Modified: $Modtime: 2009-10-30 04:34:51+01:00 $ 
+     Date Checkin: $Date: 2009-10-30 15:51:27+01:00 $ 
+    Date Modified: $Modtime: 2009-10-30 14:39:17+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -22,7 +22,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -50,6 +50,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     get:
       return if valid-handle(sys__hQuery) then sys__hQuery:prepare-string else "[no_valid_query]".
     end get. /* cPrepareString */
+
 
   define public property cName as character no-undo 
     get:
@@ -124,7 +125,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
           if hField# <> ? then 
           do:
             assign
-              iOfBuffer# = iBuffSub#
+/*              iOfBuffer# = iBuffSub#*/
               cFiach#    = "first".
             leave b_BuffSub.
           end.
@@ -146,7 +147,12 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     end.
     
     do on error undo, throw:
-    
+      
+      if cPrep# matches "*AddressCompany*" then
+      sc_messagebox:Show(sc_messageboxtype:oDebug,
+        cPrep#).
+      
+      
       hQueryIP#:query-prepare(cPrep#).
     
       catch e as Progress.Lang.Error :
