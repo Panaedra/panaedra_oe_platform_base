@@ -9,10 +9,10 @@ class panaedra.msroot.msdr.logic.c_buf
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_buf.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-26 14:47:36+01:00 $ 
-    Date Modified: $Modtime: 2009-10-26 14:44:58+01:00 $ 
+     Date Checkin: $Date: 2009-10-30 09:28:34+01:00 $ 
+    Date Modified: $Modtime: 2009-10-30 01:20:06+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -24,7 +24,7 @@ class panaedra.msroot.msdr.logic.c_buf
   /************************  Source control constructor ************************/
   constructor public c_buf(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -175,6 +175,12 @@ class panaedra.msroot.msdr.logic.c_buf
 
   
   method public void RefreshBindings():
+    
+    /* Call this method after you've modified data that is displayed
+       in the user interface.
+       
+       This method forces a refresh.
+    */
     
     if valid-object(oBindingSource) then 
     do:
