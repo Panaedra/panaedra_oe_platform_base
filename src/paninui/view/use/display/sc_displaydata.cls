@@ -8,10 +8,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 15 $ 
+          Version: $Revision: 16 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-26 14:56:39+01:00 $ 
-    Date Modified: $Modtime: 2009-10-26 12:22:06+01:00 $ 
+     Date Checkin: $Date: 2009-10-30 09:28:34+01:00 $ 
+    Date Modified: $Modtime: 2009-10-30 02:10:49+01:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -20,7 +20,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 16 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -117,7 +117,7 @@ class paninui.view.use.display.sc_displaydata   :
     oWidget# = sc_coll_widgetdata:GetWidget(
       oFrmLogicIP#:iPackID, 
       "grid", 
-      oQryIP#:hQuery, 
+      oQryIP#:sys__hQuery, 
       cWidgetNameIP#, 
       output bIsDisplayLinkedOP#).
     
@@ -127,12 +127,12 @@ class paninui.view.use.display.sc_displaydata   :
       oBindingSource# = paninui.view.use.sc_coll_widgetdata:GetBindingSource(
         oFrmLogicIP#:iPackID, 
         "grid", 
-        oQryIP#:hQuery, 
+        oQryIP#:sys__hQuery, 
         cWidgetNameIP#).
 
       DisplayDataSubGrid(
         oWidget#, 
-        oQryIP#:hQuery, 
+        oQryIP#:sys__hQuery, 
         input-output oBindingSource#).
 
       if oBindingSource# <> ? then
@@ -140,7 +140,7 @@ class paninui.view.use.display.sc_displaydata   :
       else 
         oBindingSourceStrong# = ?.
 
-      sc_coll_widgetdata:SetBindingSource(oWidget#, oBindingSourceStrong#, oQryIP#:hQuery).
+      sc_coll_widgetdata:SetBindingSource(oWidget#, oBindingSourceStrong#, oQryIP#:sys__hQuery).
       sc_coll_widgetdata:SetDisplayLinked(oWidget#).
       
     end. /* Not linked yet */
