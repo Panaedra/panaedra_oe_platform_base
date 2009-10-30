@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 14 $ 
+          Version: $Revision: 15 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-25 21:17:54+01:00 $ 
-    Date Modified: $Modtime: 2009-10-25 20:32:52+01:00 $ 
+     Date Checkin: $Date: 2009-10-30 09:28:34+01:00 $ 
+    Date Modified: $Modtime: 2009-10-30 02:13:02+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -63,7 +63,7 @@ class paninui.view.use.sc_coll_eventdata
     iPackIDIP#             as int64,
     iFrmLogicIDIP#         as int64,
     iDelegateIDIP#         as int64,
-    oFrmLogicObjectIP#     as panaedra.msroot.msdr.logic.c_qry,
+    oFrmLogicObjectIP#     as panaedra.msroot.msdr.interfaces.i_qry,
     cWidgetNameIP#         as character,
     cEventTypeIP#          as character):
     
@@ -76,7 +76,7 @@ class paninui.view.use.sc_coll_eventdata
     if lookup(cEventTypeIP#,"QueryOpen,QueryClose,DeleteObject") > 0 then 
     do:
       
-      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oFrmLogicObjectIP#, oFrmLogicObjectIP#:hQuery, cWidgetNameIP#, "query", cEventTypeIP#).
+      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oFrmLogicObjectIP#, oFrmLogicObjectIP#:sys__hQuery, cWidgetNameIP#, "query", cEventTypeIP#).
     
     end.    
     else
@@ -91,7 +91,7 @@ class paninui.view.use.sc_coll_eventdata
           oBindingSourceStrong#:PositionChanged:Subscribe(oSingleton:OnEventArgsHandler_PositionChanged).
       end.
       
-      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oBindingSource#, oFrmLogicObjectIP#:hQuery, cWidgetNameIP#, "query", cEventTypeIP#).
+      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oBindingSource#, oFrmLogicObjectIP#:sys__hQuery, cWidgetNameIP#, "query", cEventTypeIP#).
     
     end.
     
@@ -759,7 +759,7 @@ class paninui.view.use.sc_coll_eventdata
   end method. /* OnEventBroadcast */
 
 
-  method protected static void OnQueryOpen(oQryIP# as panaedra.msroot.msdr.logic.c_qry):
+  method protected static void OnQueryOpen(oQryIP# as panaedra.msroot.msdr.interfaces.i_qry):
     
     define variable bEclipseFix# as logical no-undo.
     define buffer ttUiEvent for ttUiEvent.
@@ -769,7 +769,7 @@ class paninui.view.use.sc_coll_eventdata
       /* For queries (a normal ABL query, packed in a c_qry object) we 
          use hWidget (the ABL query handle) and not oWidget. 
       */      
-      for each ttUiEvent where ttUiEvent.hWidget = oQryIP#:hQuery and ttUiEvent.cEventType = "QueryOpen"
+      for each ttUiEvent where ttUiEvent.hWidget = oQryIP#:sys__hQuery and ttUiEvent.cEventType = "QueryOpen"
         on error undo,throw:
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, ?,new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
@@ -847,8 +847,8 @@ class paninui.view.use.sc_coll_eventdata
         if type-of(oWidgetIP#,paninui.view.init.display.c_bindingsource) then
           ttEventsSuspend.hWidget     = cast(oWidgetIP#,paninui.view.init.display.c_bindingsource):Handle.
         else
-          if type-of(oWidgetIP#,panaedra.msroot.msdr.logic.c_qry) then
-            ttEventsSuspend.hWidget   = cast(oWidgetIP#,panaedra.msroot.msdr.logic.c_qry):hQuery.
+          if type-of(oWidgetIP#,panaedra.msroot.msdr.interfaces.i_qry) then
+            ttEventsSuspend.hWidget   = cast(oWidgetIP#,panaedra.msroot.msdr.interfaces.i_qry):sys__hQuery.
 
         return iReturn#.
         
