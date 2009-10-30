@@ -5,21 +5,21 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/display/c_bindingsource.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-15 09:49:06+02:00 $ 
-    Date Modified: $Modtime: 2009-10-15 09:48:18+02:00 $ 
+     Date Checkin: $Date: 2009-10-30 09:28:34+01:00 $ 
+    Date Modified: $Modtime: 2009-10-30 04:35:33+01:00 $ 
 
-    Description:  _CMPNY_ inheritance van de progress DataSource. 
-                  Bedoeld om onvolkomenheden van de progress DataSource
-                  in te vullen. Geen data access.
+      Description:  _CMPNY_ inheritance van de progress DataSource. 
+                    Bedoeld om onvolkomenheden van de progress DataSource
+                    in te vullen. Geen data access.
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
   constructor public c_bindingsource(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
