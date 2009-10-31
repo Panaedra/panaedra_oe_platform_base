@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_string_format_eol:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_string_format_eol.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-30 13:44:53+01:00 $ 
-    Date Modified: $Modtime: 2009-10-30 13:43:14+01:00 $ 
+     Date Checkin: $Date: 2009-10-31 01:20:17+01:00 $ 
+    Date Modified: $Modtime: 2009-10-30 22:52:31+01:00 $ 
 
       Description: Formats EOL (end of line) characters in multi-line strings; 
                    chr(10) and chr(13)
@@ -19,7 +19,7 @@ class panaedra.msroot.msutil.logic.sc_string_format_eol:
   /************************  Source control constructor ************************/
   constructor public sc_string_format_eol(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -59,6 +59,12 @@ class panaedra.msroot.msutil.logic.sc_string_format_eol:
     do while 
       index(cReturn#, " " + chr(10)) > 0:
       cReturn# = replace(cReturn#, " " + chr(10), chr(10)).
+    end.
+    
+    /* Cleanup unknown lines */
+    do while 
+      index(cReturn#, chr(10) + "?" + chr(10)) > 0:
+      cReturn# = replace(cReturn#, chr(10) + "?" + chr(10), chr(10)).
     end.
     
     /* Cleanup empty lines */
@@ -108,6 +114,12 @@ class panaedra.msroot.msutil.logic.sc_string_format_eol:
     do while 
       index(cReturn#, " " + chr(10)) > 0:
       cReturn# = replace(cReturn#, " " + chr(10), chr(10)).
+    end.
+    
+    /* Cleanup unknown lines */
+    do while 
+      index(cReturn#, chr(10) + "?" + chr(10)) > 0:
+      cReturn# = replace(cReturn#, chr(10) + "?" + chr(10), chr(10)).
     end.
     
     /* Cleanup empty lines */
