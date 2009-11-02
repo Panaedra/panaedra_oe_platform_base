@@ -1,18 +1,18 @@
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata_tt.i $ 
-        Version: $Revision: 4 $ 
+        Version: $Revision: 5 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-10-26 14:56:39+01:00 $ 
-  Date Modified: $Modtime: 2009-10-26 06:05:51+01:00 $ 
+   Date Checkin: $Date: 2009-11-02 15:29:38+01:00 $ 
+  Date Modified: $Modtime: 2009-11-02 13:05:14+01:00 $ 
 
     Description: Temp-table definitions
 
 \**************************** End of Dvcs_ Header ****************************/
 &if "{&dvcs__paninui_view_use_sc_coll_eventdata_tt_i}" = "" &then
 &glob dvcs__paninui_view_use_sc_coll_eventdata_tt_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_eventdata_tt_i $Revision: 4 $
+&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_eventdata_tt_i $Revision: 5 $
 &if '{&class}' = '' &then
-procedure dvcs__paninui_view_use_sc_coll_eventdata_tt_i: return "$Revision: 4 $". end.
+procedure dvcs__paninui_view_use_sc_coll_eventdata_tt_i: return "$Revision: 5 $". end.
 &endif
 /******************************* $NoKeywords:  $ *****************************/
 
@@ -30,6 +30,7 @@ procedure dvcs__paninui_view_use_sc_coll_eventdata_tt_i: return "$Revision: 4 $"
     
     field cEventName       as character            format "x(50)"               xml-node-type "attribute"
     field cEventType       as character            format "x(50)"               xml-node-type "attribute"
+    field cEventOptions    as character            format "x(50)"               xml-node-type "attribute"
 
     index iIDUiEvent       is unique iIDUiEvent ascending 
     
