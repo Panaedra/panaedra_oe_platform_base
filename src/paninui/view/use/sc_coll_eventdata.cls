@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 15 $ 
+          Version: $Revision: 16 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-30 09:28:34+01:00 $ 
-    Date Modified: $Modtime: 2009-10-30 02:13:02+01:00 $ 
+     Date Checkin: $Date: 2009-11-02 15:29:38+01:00 $ 
+    Date Modified: $Modtime: 2009-11-02 14:55:24+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 16 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -69,14 +69,14 @@ class paninui.view.use.sc_coll_eventdata
     
     define variable oBindingSource#       as Progress.Lang.Object no-undo.
     define variable oBindingSourceStrong# as c_bindingsource      no-undo.
-    def buffer ttUiEvent for ttUiEvent.
+    define buffer ttUiEvent for ttUiEvent.
 
     if oSingleton = ? then oSingleton = new sc_coll_eventdata().
     
     if lookup(cEventTypeIP#,"QueryOpen,QueryClose,DeleteObject") > 0 then 
     do:
       
-      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oFrmLogicObjectIP#, oFrmLogicObjectIP#:sys__hQuery, cWidgetNameIP#, "query", cEventTypeIP#).
+      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oFrmLogicObjectIP#, oFrmLogicObjectIP#:sys__hQuery, cWidgetNameIP#, "query", cEventTypeIP#, "").
     
     end.    
     else
@@ -87,15 +87,70 @@ class paninui.view.use.sc_coll_eventdata
       if oBindingSource# <> ? and type-of(oBindingSource#,c_bindingsource) then 
       do:
         oBindingSourceStrong# = cast(oBindingSource#,c_bindingsource).
-        if not can-find(first ttUiEvent where ttUiEvent.oWidget = oBindingSource# and ttUiEvent.cEventType = "PositionChanged") then
-          oBindingSourceStrong#:PositionChanged:Subscribe(oSingleton:OnEventArgsHandler_PositionChanged).
+        case cEventTypeIP#:
+          when "PositionChanged" then 
+            do:
+              if not can-find(first ttUiEvent where ttUiEvent.oWidget = oBindingSource# and ttUiEvent.cEventType = cEventTypeIP#) then
+                oBindingSourceStrong#:PositionChanged:Subscribe(oSingleton:OnEventArgsHandler_PositionChanged).
+            end.
+        end case.
       end.
       
-      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oBindingSource#, oFrmLogicObjectIP#:sys__hQuery, cWidgetNameIP#, "query", cEventTypeIP#).
+      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oBindingSource#, oFrmLogicObjectIP#:sys__hQuery, cWidgetNameIP#, "query", cEventTypeIP#, "").
     
     end.
     
   end method. /* ItemAdd ; Query */
+  
+
+  method public static int64 ItemAdd(
+  
+    oWidgetType_GridOVID# as i_widgettype_grid, /* *OVID# is not a real parameter, but an interface overload ID */
+    iPackIDIP#             as int64,
+    iFrmLogicIDIP#         as int64,
+    iDelegateIDIP#         as int64,
+    oFrmLogicObjectIP#     as panaedra.msroot.msdr.interfaces.i_qry,
+    cWidgetNameIP#         as character,
+    cEventTypeIP#          as character,
+    cEventOptionsIP#       as character):
+    
+    define variable oFormsGrid# as System.Windows.Forms.DataGridView no-undo.
+    define variable oWidget#    as Progress.Lang.Object              no-undo.
+    define variable bDummy#     as logical                           no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+
+    if oSingleton = ? then oSingleton = new sc_coll_eventdata().
+    
+    do for ttUiEvent:
+          
+      assign
+        cWidgetNameIP# = replace(cWidgetNameIP#,"_",".")
+        oWidget#       = sc_coll_widgetdata:GetWidget(iPackIDIP#,"grid",?,cWidgetNameIP#, output bDummy#).
+
+      if oWidget# <> ? then 
+      do:
+
+        if type-of(oWidget#, System.Windows.Forms.DataGridView) then 
+          oFormsGrid# = cast(oWidget#, System.Windows.Forms.DataGridView).
+
+        case cEventTypeIP#:
+
+          when "SelectionChanged" then 
+            do:
+              if not can-find(first ttUiEvent where ttUiEvent.oWidget = oFormsGrid# and ttUiEvent.cEventType = cEventTypeIP#) then
+                oFormsGrid#:SelectionChanged:Subscribe(oSingleton:OnEventArgsHandler_SelectionChanged).
+            end.
+
+        end case.
+        
+      end. /* Widget is found */
+            
+      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oWidget#, if oFrmLogicObjectIP# = ? then ? else oFrmLogicObjectIP#:sys__hQuery, cWidgetNameIP#, "grid", cEventTypeIP#, cEventOptionsIP#).
+    
+    end.
+    
+  end method. /* ItemAdd ; Grid */
   
 
   method public static int64 ItemAdd(
@@ -187,7 +242,8 @@ class paninui.view.use.sc_coll_eventdata
           (if oFrmLogicBufferIP# = ? then ? else oFrmLogicBufferIP#:hBuffer), 
           cWidgetNameIP#, 
           "button", 
-          cEventTypeIP#).
+          cEventTypeIP#,
+          "").
       
       end.
       
@@ -263,7 +319,8 @@ class paninui.view.use.sc_coll_eventdata
           (if oFrmLogicBufferIP# = ? then ? else oFrmLogicBufferIP#:hBuffer), 
           cWidgetNameIP#, 
           "combobox", 
-          cEventTypeIP#).
+          cEventTypeIP#,
+          "").
       
       end.
       
@@ -331,7 +388,8 @@ class paninui.view.use.sc_coll_eventdata
           (if oFrmLogicBufferIP# = ? then ? else oFrmLogicBufferIP#:hBuffer), 
           cWidgetNameIP#, 
           "form", 
-          cEventTypeIP#).
+          cEventTypeIP#,
+          "").
       
       end.
       
@@ -364,6 +422,98 @@ class paninui.view.use.sc_coll_eventdata
     end.
     
   end. /* OnEventArgsHandler_PositionChanged */
+  
+  
+  method private void OnEventArgsHandler_SelectionChanged(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable bEclipseFix#          as logical                                                 no-undo.
+    define variable oUiValue#             as paninui.view.interfaces.i_uivalue                       no-undo.
+    define variable oSelection#           as c_uivalue_selection                                     no-undo.
+    define variable oFormsGrid#           as System.Windows.Forms.DataGridView                       no-undo.
+    define variable bFirst#               as logical                                                 no-undo init true.
+    define variable iRow#                 as integer                                                 no-undo.
+    define variable iCell#                as integer                                                 no-undo.
+    define variable oGridSelection_Rows#  as System.Windows.Forms.DataGridViewSelectedRowCollection  no-undo.
+    define variable oGridSelection_Cells# as System.Windows.Forms.DataGridViewSelectedCellCollection no-undo.
+    define variable oGridCell#            as System.Windows.Forms.DataGridViewCell                   no-undo.
+    define variable iCellsToRows#         as int64                                                   no-undo extent. 
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "SelectionChanged"
+        on error undo,throw:
+        
+        if ttUiEvent.cEventOptions <> "Rows" then 
+        do:
+          undo, throw new AppError(subst("For SelectionChanged, EventOptions should be 'Rows' at this moment. '&1'.", ttUiEvent.cEventOptions), 99950122).
+        end.
+          
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          if type-of(ttUiEvent.oWidget, System.Windows.Forms.DataGridView) then 
+          do: 
+
+            oFormsGrid# = cast(ttUiEvent.oWidget, System.Windows.Forms.DataGridView).
+            oSelection# = new c_uivalue_selection(oFormsGrid#:Name, oFormsGrid#:Enabled, oFormsGrid#:Visible).
+            
+            assign
+              oGridSelection_Rows#  = oFormsGrid#:SelectedRows
+              oGridSelection_Cells# = oFormsGrid#:SelectedCells.
+            
+            if oGridSelection_Rows#:Count > 0 then 
+            do: 
+              /* Find the selected rows and put them in a flexible extent property */
+              extent(oSelection#:iSelectionID_Rows) = oGridSelection_Rows#:Count.
+              do iRow# = 0 to oGridSelection_Rows#:Count - 1:
+                /* Get the iID value and put it in the uivalue array, to give to the subscribers */
+                oSelection#:iSelectionID_Rows[iRow# + 1] = int64(cast(cast(oGridSelection_Rows#:Item[iRow#],Progress.Lang.Object),System.Windows.Forms.DataGridViewRow):Cells[
+                  "iID"
+                  + entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") 
+                  ]).
+              end.          
+            end.
+            else 
+            do:
+              if oGridSelection_Cells#:Count > 0 then 
+              do:
+                
+                /* Find the selected Cells and put them in a flexible extent */
+                extent(iCellsToRows#) = oGridSelection_Cells#:Count.
+                do iCell# = 0 to oGridSelection_Cells#:Count - 1:
+                  /* Get the iID value and put it in the uivalue array, to give to the subscribers 
+                     For now, only "Rows" is supported.
+                   */
+                  &scop EclipseFixIndex :Index
+                  iCellsToRows#[iCell# + 1] = cast(cast(oGridSelection_Cells#:Item[iCell#],Progress.Lang.Object),System.Windows.Forms.DataGridViewCell):OwningRow{&EclipseFixIndex}.
+                end.          
+                
+                  /* Remove duplicate rows */
+                oSelection#:iSelectionID_Rows = sc_array_calculations:ArrayRemoveDuplicates(iCellsToRows#).
+                
+                /* Cleanup resources */
+                extent(iCellsToRows#) = ?.
+                
+                /* Note: Example cell value: oRow#:Cells["DesplegadoEnPantalla"].Value = false. */
+              end.
+            end.
+          end.
+        end.  
+
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oSelection#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end. /* OnEventArgsHandler_SelectionChanged */
   
   
   method private void OnEventArgsHandler_Press(oSender# as System.Object, oArgs# as System.EventArgs):
@@ -537,13 +687,13 @@ class paninui.view.use.sc_coll_eventdata
         do:
           iAscii# = asc(oUiEventData#:cKeyChar).
           
-/*          panaedra.msroot.msutil.logic.sc_messagebox:Show(           */
-/*          panaedra.msroot.msutil.interfaces.sc_messageboxtype:oDebug,*/
-/*          string(iAscii#)                                         */
-/*          ).                                                      */
+          /*          panaedra.msroot.msutil.logic.sc_messagebox:Show(           */
+          /*          panaedra.msroot.msutil.interfaces.sc_messageboxtype:oDebug,*/
+          /*          string(iAscii#)                                         */
+          /*          ).                                                      */
           
-/*          define variable oUtf8 as System.Text.Encoding no-undo.*/
-/*          oUtf8 = System.Text.Encoding:UTF8.                    */
+          /*          define variable oUtf8 as System.Text.Encoding no-undo.*/
+          /*          oUtf8 = System.Text.Encoding:UTF8.                    */
 
 
           if iAscii# > 1114111 then iAscii# = 42. /* Character '*' */ 
@@ -704,14 +854,15 @@ class paninui.view.use.sc_coll_eventdata
 
 
   method protected static int64 ItemAddImplement(
-    iPackIDIP#     as int64,
-    iFrmLogicIDIP# as int64,
-    iDelegateIDIP# as int64,
-    oWidgetIP#     as Progress.Lang.Object,   
-    hWidgetIP#     as handle,   
-    cWidgetNameIP# as character,
-    cEventNameIP#  as character,
-    cEventTypeIP#  as character):
+    iPackIDIP#       as int64,
+    iFrmLogicIDIP#   as int64,
+    iDelegateIDIP#   as int64,
+    oWidgetIP#       as Progress.Lang.Object,   
+    hWidgetIP#       as handle,   
+    cWidgetNameIP#   as character,
+    cEventNameIP#    as character,
+    cEventTypeIP#    as character,
+    cEventOptionsIP# as character):
     
     /* This method returns the new iID of the created ttUiEvent. */ 
     
@@ -724,14 +875,16 @@ class paninui.view.use.sc_coll_eventdata
       create ttUiEvent.
       sc_dbtrig:OnWriteOrCreate(buffer ttUiEvent:handle ).
       assign 
-        ttUiEvent.iPackID     = iPackIDIP#
-        ttUiEvent.iFrmLogicID = iFrmLogicIDIP#
-        ttUiEvent.iDelegateID = iDelegateIDIP#
-        ttUiEvent.oWidget     = oWidgetIP#
-        ttUiEvent.hWidget     = hWidgetIP#
-        ttUiEvent.cWidgetName = cWidgetNameIP#
-        ttUiEvent.cEventName  = cEventNameIP#
-        ttUiEvent.cEventType  = cEventTypeIP#.
+        ttUiEvent.iPackID       = iPackIDIP#
+        ttUiEvent.iFrmLogicID   = iFrmLogicIDIP#
+        ttUiEvent.iDelegateID   = iDelegateIDIP#
+        ttUiEvent.oWidget       = oWidgetIP#
+        ttUiEvent.hWidget       = hWidgetIP#
+        ttUiEvent.cWidgetName   = cWidgetNameIP#
+        ttUiEvent.cEventName    = cEventNameIP#
+        ttUiEvent.cEventType    = cEventTypeIP#
+        ttUiEvent.cEventOptions = cEventOptionsIP#
+        .
         
       return ttUiEvent.iIDUiEvent.
       
