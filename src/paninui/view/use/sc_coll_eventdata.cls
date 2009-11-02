@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 16 $ 
+          Version: $Revision: 17 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-02 15:29:38+01:00 $ 
-    Date Modified: $Modtime: 2009-11-02 14:55:24+01:00 $ 
+     Date Checkin: $Date: 2009-11-02 19:27:18+01:00 $ 
+    Date Modified: $Modtime: 2009-11-02 19:13:09+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 16 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 17 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -480,19 +480,23 @@ class paninui.view.use.sc_coll_eventdata
               if oGridSelection_Cells#:Count > 0 then 
               do:
                 
-                /* Find the selected Cells and put them in a flexible extent */
+/*                output to c:\blaa.txt append.                    */
+/*                put unformatted oGridSelection_Cells#:Count skip.*/
+/*                output close.                                    */
+                
+/*                /* Find the selected Cells and put them in a flexible extent */                                                                                                     */
                 extent(iCellsToRows#) = oGridSelection_Cells#:Count.
                 do iCell# = 0 to oGridSelection_Cells#:Count - 1:
-                  /* Get the iID value and put it in the uivalue array, to give to the subscribers 
+                  /* Get the iID value and put it in the uivalue array, to give to the subscribers
                      For now, only "Rows" is supported.
                    */
                   &scop EclipseFixIndex :Index
                   iCellsToRows#[iCell# + 1] = cast(cast(oGridSelection_Cells#:Item[iCell#],Progress.Lang.Object),System.Windows.Forms.DataGridViewCell):OwningRow{&EclipseFixIndex}.
-                end.          
-                
+                end.
+
                   /* Remove duplicate rows */
                 oSelection#:iSelectionID_Rows = sc_array_calculations:ArrayRemoveDuplicates(iCellsToRows#).
-                
+
                 /* Cleanup resources */
                 extent(iCellsToRows#) = ?.
                 
