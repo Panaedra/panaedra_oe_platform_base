@@ -1,10 +1,10 @@
 &if no &then
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/paninui/logic/includes/c_frmlg_eventhandling.i $ 
-        Version: $Revision: 5 $ 
+        Version: $Revision: 6 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-10-17 16:30:35+02:00 $ 
-  Date Modified: $Modtime: 2009-10-17 16:19:06+02:00 $ 
+   Date Checkin: $Date: 2009-11-02 15:29:38+01:00 $ 
+  Date Modified: $Modtime: 2009-11-02 13:02:52+01:00 $ 
 
     Description: JoinUi uilogic class preprocessors.
 
@@ -28,7 +28,7 @@
 
 \**************************** End of Dvcs_ Header ****************************/
 &endif &glob ~
-    sourcecontrolversions {&sourcecontrolversions} | paninui_logic_includes_c_frmlg_eventhandling_i $Revision: 5 $
+    sourcecontrolversions {&sourcecontrolversions} | paninui_logic_includes_c_frmlg_eventhandling_i $Revision: 6 $
 &if no &then 
 /*$NoKeywords:  $*/ 
 &endif &glob JoinUiNull ~
@@ -47,7 +47,7 @@
     paninui.view.use.sc_coll_eventdata:ItemAdd( ~~n~
         paninui.view.interfaces.sc_widgettype:i_~{~&JoinUiWidget}, ~~n~
         this-object:iPackID, this-object:iFrmLogicID, ~~n~
-        iDelegateID#, ~{~&JoinUiLogicObject}, "~{~&JoinUiWidgetName}", "~{~&JoinUiEvent}"). ~~n~
+        iDelegateID#, ~{~&JoinUiLogicObject}, "~{~&JoinUiWidgetName}", "~{~&JoinUiEvent}"  ~{&JoinUiEventOptions}). ~~n~
 &glob JoinUiEventCodeFooter 
 using Progress.Lang.*.
 &if opsys <> "unix" &then using paninui.view.init.delegates.* from assembly. 
