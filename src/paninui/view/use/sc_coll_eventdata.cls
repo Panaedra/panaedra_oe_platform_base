@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 18 $ 
+          Version: $Revision: 19 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-03 08:53:28+01:00 $ 
-    Date Modified: $Modtime: 2009-11-03 01:30:11+01:00 $ 
+     Date Checkin: $Date: 2009-11-03 22:32:49+01:00 $ 
+    Date Modified: $Modtime: 2009-11-03 22:20:43+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 18 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 19 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -429,17 +429,7 @@ class paninui.view.use.sc_coll_eventdata
     define variable bEclipseFix#          as logical                                                 no-undo.
     define variable oUiValue#             as paninui.view.interfaces.i_uivalue                       no-undo.
     define variable oSelection#           as c_uivalue_selection                                     no-undo.
-    define variable oFormsGrid#           as System.Windows.Forms.DataGridView                       no-undo.
     define variable bFirst#               as logical                                                 no-undo init true.
-    define variable iRow#                 as integer                                                 no-undo.
-    define variable iCell#                as integer                                                 no-undo.
-    define variable oGridSelection_Rows#  as System.Windows.Forms.DataGridViewSelectedRowCollection  no-undo.
-    define variable oGridSelection_Cells# as System.Windows.Forms.DataGridViewSelectedCellCollection no-undo.
-    define variable oGridCell#            as System.Windows.Forms.DataGridViewCell                   no-undo.
-    define variable iCellsToRows#         as int64                                                   no-undo extent. 
-    define variable iMaxExtent#           as integer                                                 no-undo.
-    define variable oOwningRow#           as System.Windows.Forms.DataGridViewRow                    no-undo.
-    define variable iGenericID#           as int64                                                   no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -456,68 +446,7 @@ class paninui.view.use.sc_coll_eventdata
         if bFirst# then 
         do:
           bFirst# = false.
-          if type-of(ttUiEvent.oWidget, System.Windows.Forms.DataGridView) then
-          do: 
-
-            oFormsGrid# = cast(ttUiEvent.oWidget, System.Windows.Forms.DataGridView).
-            oSelection# = new c_uivalue_selection(oFormsGrid#:Name, oFormsGrid#:Enabled, oFormsGrid#:Visible).
-            
-            assign
-              oGridSelection_Rows#  = oFormsGrid#:SelectedRows
-              oGridSelection_Cells# = oFormsGrid#:SelectedCells.
-            
-            if oGridSelection_Rows#:Count > 0 then 
-            do: 
-              /* Limit extent ; see comment 20 lines down */
-              iMaxExtent# = min(25, oGridSelection_Cells#:Count).
-              /* Find the selected rows and put them in a flexible extent property */
-              extent(oSelection#:iSelectionID_Rows) = iMaxExtent#.
-              do iRow# = 0 to iMaxExtent# - 1:
-                /* Get the iID value and put it in the uivalue array, to give to the subscribers */
-                oSelection#:iSelectionID_Rows[iRow# + 1] = int64(cast(cast(oGridSelection_Rows#:Item[iRow#],Progress.Lang.Object),System.Windows.Forms.DataGridViewRow):Cells[
-                  entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") +
-                  "__iID" +
-                  entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") 
-                  ]:Value:ToString()).
-              end.          
-            end.
-            else 
-            do:
-              if oGridSelection_Cells#:Count > 0 then 
-              do:
-                
-                /* Find the selected Cells and put them in a flexible extent */
-
-                /* Limit extent ; 
-                   Large arrays don't go well as an event object between .net and progress 10.2A02.
-                   It's limited here to 25 items.
-                   If you need more/all you can always ask sc_coll_widgetdata.
-                 */
-                 
-                assign
-                  iMaxExtent#           = min(25, oGridSelection_Cells#:Count)             
-                  extent(iCellsToRows#) = iMaxExtent#.
-
-                do iCell# = 0 to iMaxExtent# - 1:
-                  /* Get the iID value and put it in the uivalue array, to give to the subscribers
-                     For now, only "Rows" is supported.
-                   */
-                  oOwningRow# = cast(cast(oGridSelection_Cells#:Item[iCell#],Progress.Lang.Object),System.Windows.Forms.DataGridViewCell):OwningRow.
-                  iGenericID# = int64(oOwningRow#:Cells[entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") +
-                    "__iID" +
-                    entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_")]:Value:ToString()).
-                  iCellsToRows#[iCell# + 1] = iGenericID#.
-                end.
-
-                /* Remove duplicate rows */
-                oSelection#:iSelectionID_Rows = sc_array_calculations:ArrayRemoveDuplicates(iCellsToRows#).
-
-                /* Cleanup resources */
-                extent(iCellsToRows#) = ?.
-                
-              end.
-            end.
-          end.
+          oSelection# = paninui.view.use.analyze.sc_getuiframevalues:_sys_GetUiValueSelectionImplement(ttUiEvent.oWidget, "Rows", 25 /* Limit num rows to 25 in UI events */).
         end.  
 
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oSelection#, new paninui.view.use.events.c_uieventdata("","",?,?)).
@@ -854,21 +783,6 @@ class paninui.view.use.sc_coll_eventdata
     end.
     
   end. /* OnEventArgsHandler_KeyUp */
-  
-  
-  method public static int64 ItemAddXXX(
-    oWidgetTypeDataSourceOVID# as i_widgettype_datasource, /* OVID# is not a real parameter, but an interface overload ID */
-    iPackIDIP#                 as int64,
-    iFrmLogicIDIP#             as int64,
-    iDelegateIDIP#             as int64,
-    oWidgetIP#                 as Progress.Lang.Object,   
-    cWidgetNameIP#             as character,
-    cEventNameIP#              as character,
-    cEventTypeIP#              as character):
-    
-  /*    return ItemAdd(iIDUIFrameIP#, cNameIP#, iIDParentIP#, oParentIP#, oWidgetIP#, "grid").*/
-    
-  end method. /* ItemAdd */
 
 
   method protected static int64 ItemAddImplement(
