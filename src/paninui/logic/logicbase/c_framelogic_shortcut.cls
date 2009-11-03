@@ -10,10 +10,10 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/logic/logicbase/c_framelogic_shortcut.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-26 14:56:39+01:00 $ 
-    Date Modified: $Modtime: 2009-10-26 12:23:19+01:00 $ 
+     Date Checkin: $Date: 2009-11-03 22:32:49+01:00 $ 
+    Date Modified: $Modtime: 2009-11-03 21:43:07+01:00 $ 
 
       Description: Provides a shortcut object to be used in frame logic classes.
                    Only links methods to other methods, technically not required,
@@ -25,7 +25,7 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
   /************************  Source control constructor ************************/
   constructor public c_framelogic_shortcut(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -86,6 +86,17 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
     return sc_getuiframevalues:GetUiValueInt(oFrmLogic, oComboBoxOVID#, cWidgetNameIP#, cPropertyIP#).
 
   end method. /* GetUiValue ; ComboBox */
+
+
+  method public paninui.view.use.events.c_uivalue_selection GetUiValueSelection(
+
+    oGridOVID#      as i_widgettype_grid,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character):
+  
+    return sc_getuiframevalues:GetUiValueSelection(oFrmLogic, oGridOVID#, cWidgetNameIP#, cPropertyIP#).
+
+  end method. /* SetUiValue ; Grid + c_uivalue_selection */
 
 
   method public character GetUiValue(
