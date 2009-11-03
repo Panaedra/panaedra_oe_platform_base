@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 17 $ 
+          Version: $Revision: 18 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-02 19:27:18+01:00 $ 
-    Date Modified: $Modtime: 2009-11-02 19:13:09+01:00 $ 
+     Date Checkin: $Date: 2009-11-03 08:53:28+01:00 $ 
+    Date Modified: $Modtime: 2009-11-03 01:30:11+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 17 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 18 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -437,6 +437,9 @@ class paninui.view.use.sc_coll_eventdata
     define variable oGridSelection_Cells# as System.Windows.Forms.DataGridViewSelectedCellCollection no-undo.
     define variable oGridCell#            as System.Windows.Forms.DataGridViewCell                   no-undo.
     define variable iCellsToRows#         as int64                                                   no-undo extent. 
+    define variable iMaxExtent#           as integer                                                 no-undo.
+    define variable oOwningRow#           as System.Windows.Forms.DataGridViewRow                    no-undo.
+    define variable iGenericID#           as int64                                                   no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -453,7 +456,7 @@ class paninui.view.use.sc_coll_eventdata
         if bFirst# then 
         do:
           bFirst# = false.
-          if type-of(ttUiEvent.oWidget, System.Windows.Forms.DataGridView) then 
+          if type-of(ttUiEvent.oWidget, System.Windows.Forms.DataGridView) then
           do: 
 
             oFormsGrid# = cast(ttUiEvent.oWidget, System.Windows.Forms.DataGridView).
@@ -465,14 +468,17 @@ class paninui.view.use.sc_coll_eventdata
             
             if oGridSelection_Rows#:Count > 0 then 
             do: 
+              /* Limit extent ; see comment 20 lines down */
+              iMaxExtent# = min(25, oGridSelection_Cells#:Count).
               /* Find the selected rows and put them in a flexible extent property */
-              extent(oSelection#:iSelectionID_Rows) = oGridSelection_Rows#:Count.
-              do iRow# = 0 to oGridSelection_Rows#:Count - 1:
+              extent(oSelection#:iSelectionID_Rows) = iMaxExtent#.
+              do iRow# = 0 to iMaxExtent# - 1:
                 /* Get the iID value and put it in the uivalue array, to give to the subscribers */
                 oSelection#:iSelectionID_Rows[iRow# + 1] = int64(cast(cast(oGridSelection_Rows#:Item[iRow#],Progress.Lang.Object),System.Windows.Forms.DataGridViewRow):Cells[
-                  "iID"
-                  + entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") 
-                  ]).
+                  entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") +
+                  "__iID" +
+                  entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") 
+                  ]:Value:ToString()).
               end.          
             end.
             else 
@@ -480,27 +486,35 @@ class paninui.view.use.sc_coll_eventdata
               if oGridSelection_Cells#:Count > 0 then 
               do:
                 
-/*                output to c:\blaa.txt append.                    */
-/*                put unformatted oGridSelection_Cells#:Count skip.*/
-/*                output close.                                    */
-                
-/*                /* Find the selected Cells and put them in a flexible extent */                                                                                                     */
-                extent(iCellsToRows#) = oGridSelection_Cells#:Count.
-                do iCell# = 0 to oGridSelection_Cells#:Count - 1:
+                /* Find the selected Cells and put them in a flexible extent */
+
+                /* Limit extent ; 
+                   Large arrays don't go well as an event object between .net and progress 10.2A02.
+                   It's limited here to 25 items.
+                   If you need more/all you can always ask sc_coll_widgetdata.
+                 */
+                 
+                assign
+                  iMaxExtent#           = min(25, oGridSelection_Cells#:Count)             
+                  extent(iCellsToRows#) = iMaxExtent#.
+
+                do iCell# = 0 to iMaxExtent# - 1:
                   /* Get the iID value and put it in the uivalue array, to give to the subscribers
                      For now, only "Rows" is supported.
                    */
-                  &scop EclipseFixIndex :Index
-                  iCellsToRows#[iCell# + 1] = cast(cast(oGridSelection_Cells#:Item[iCell#],Progress.Lang.Object),System.Windows.Forms.DataGridViewCell):OwningRow{&EclipseFixIndex}.
+                  oOwningRow# = cast(cast(oGridSelection_Cells#:Item[iCell#],Progress.Lang.Object),System.Windows.Forms.DataGridViewCell):OwningRow.
+                  iGenericID# = int64(oOwningRow#:Cells[entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") +
+                    "__iID" +
+                    entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_")]:Value:ToString()).
+                  iCellsToRows#[iCell# + 1] = iGenericID#.
                 end.
 
-                  /* Remove duplicate rows */
+                /* Remove duplicate rows */
                 oSelection#:iSelectionID_Rows = sc_array_calculations:ArrayRemoveDuplicates(iCellsToRows#).
 
                 /* Cleanup resources */
                 extent(iCellsToRows#) = ?.
                 
-                /* Note: Example cell value: oRow#:Cells["DesplegadoEnPantalla"].Value = false. */
               end.
             end.
           end.
