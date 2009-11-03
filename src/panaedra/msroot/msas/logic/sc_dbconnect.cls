@@ -6,10 +6,10 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_dbconnect.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-26 09:26:36+01:00 $ 
-    Date Modified: $Modtime: 2009-10-26 09:21:06+01:00 $ 
+     Date Checkin: $Date: 2009-11-03 12:28:27+01:00 $ 
+    Date Modified: $Modtime: 2009-11-03 12:19:27+01:00 $ 
 
       Description: Connect to database(s) (for appserver)
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
   /************************  Source control constructor ************************/
   constructor public sc_dbconnect(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -35,7 +35,7 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
     define variable cHostName# as character no-undo.
     
     if not can-find(first ttDbConnect)
-      then temp-table ttDbConnect:read-xml("file", panaedra.msf.logic.sc_path:cIniDir + "sc-dbconnect.config", "empty", ?, false).
+      then temp-table ttDbConnect:read-xml("file", panaedra.msf.logic.sc_path:cIniDir + "sc_dbconnect.config", "empty", ?, false).
     
     /* Als er nog geen database verbinding is ... */
     if not connected("ma") and not connected("lo") then 
