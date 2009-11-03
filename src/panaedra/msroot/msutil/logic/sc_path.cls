@@ -7,10 +7,10 @@ class panaedra.msf.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msf/logic/sc_path.cls $ 
-          Version: $Revision: 11 $ 
+          Version: $Revision: 12 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-26 13:17:05+01:00 $ 
-    Date Modified: $Modtime: 2009-10-26 13:15:02+01:00 $ 
+     Date Checkin: $Date: 2009-11-03 12:28:27+01:00 $ 
+    Date Modified: $Modtime: 2009-11-03 12:18:26+01:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -22,7 +22,7 @@ class panaedra.msf.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 11 $", "{&sourcecontrolversions}").
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 12 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -176,7 +176,7 @@ class panaedra.msf.logic.sc_path:
     if not bTtPathInitialized then 
     do:
       bTtPathInitialized = yes.
-      temp-table ttPath:read-xml("file", cIniDir + "sc-path.config", "empty", ?, false). /* Note: the getter of cIniDir initializes cIniDir automatically */
+      temp-table ttPath:read-xml("file", cIniDir + "sc_path.config", "empty", ?, false). /* Note: the getter of cIniDir initializes cIniDir automatically */
       cSysteemDir = FillPathProperty("cSysteemDir").
       cLogDir     = FillPathProperty("cLogDir").
       cNoSweatDir = FillPathProperty("cNoSweatDir").
