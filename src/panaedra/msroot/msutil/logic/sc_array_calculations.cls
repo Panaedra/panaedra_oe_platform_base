@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_array_calculations   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_array_calculations.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-02 15:29:38+01:00 $ 
-    Date Modified: $Modtime: 2009-11-02 15:26:26+01:00 $ 
+     Date Checkin: $Date: 2009-11-03 08:53:28+01:00 $ 
+    Date Modified: $Modtime: 2009-11-03 01:28:45+01:00 $ 
 
       Description: Calculations for abl arrays with flexible extent.
 
@@ -16,7 +16,7 @@ class panaedra.msroot.msutil.logic.sc_array_calculations   :
   /************************  Source control constructor ************************/
   constructor public sc_array_calculations(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -118,7 +118,7 @@ class panaedra.msroot.msutil.logic.sc_array_calculations   :
     
     do iTell# = 1 to iTellCalc#:
       /* Copy each value to the return parameter with the correct extent */
-      iCleanOP#[iTell#] = iCalc#[iTell#] + 1 /* "+ 1" : Convert 0-based to 1-based ; progress standard */.
+      iCleanOP#[iTell#] = iCalc#[iTell#].
     end. 
     
     /* Cleanup resources */
