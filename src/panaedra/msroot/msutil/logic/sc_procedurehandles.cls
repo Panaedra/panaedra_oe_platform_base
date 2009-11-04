@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_procedurehandles.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-26 09:25:52+01:00 $ 
-    Date Modified: $Modtime: 2009-10-26 09:23:50+01:00 $ 
+     Date Checkin: $Date: 2009-11-04 14:51:22+01:00 $ 
+    Date Modified: $Modtime: 2009-11-04 11:47:41+01:00 $ 
 
       Description: Support for procedure handles.
                    In Panaedra we use procedure handles only when technically necessary.
@@ -19,7 +19,7 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
   /************************  Source control constructor ************************/
   constructor public sc_procedurehandles(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -33,6 +33,13 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
     .
 
 
+  method public static void DeleteProcedure(input hSourceProcIP# as handle):
+    
+    DeleteProcedure(hSourceProcIP#, ?).
+    
+  end method.
+  
+  
   method public static void DeleteProcedure(input hSourceProcIP# as handle,input hProcIP# as handle):
 
     /* Procedure voor het netjes afsluiten van
