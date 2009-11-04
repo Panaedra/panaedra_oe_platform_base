@@ -11,10 +11,10 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/view/sc_trayicon_win32.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-02 11:47:19+02:00 $ 
-    Date Modified: $Modtime: 2009-10-02 11:46:49+02:00 $ 
+     Date Checkin: $Date: 2009-11-04 11:33:16+01:00 $ 
+    Date Modified: $Modtime: 2009-11-04 11:31:51+01:00 $ 
 
       Description: Display a message by a _CMPNY_ tray icon 
                    (static, so one per progress session)
@@ -24,7 +24,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
   /************************  Source control constructor ************************/
   constructor public sc_trayicon_win32(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 		
@@ -77,7 +77,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
       
       components = new System.ComponentModel.Container().
       define variable resources as System.Resources.ResXResourceSet no-undo.
-      resources = Progress.Util.ResourceHelper:Load("tool/sc-trayicon-win32.resx", propath).
+      resources = Progress.Util.ResourceHelper:Load("panaedra/msroot/msutil/view/sc_trayicon_win32.resx", propath).
       notifyIcon1 = new System.Windows.Forms.NotifyIcon(components).
       notifyIcon1:Icon = cast(resources:GetObject("notifyIcon1.Icon"), System.Drawing.Icon).
       notifyIcon1:Text = "_CMPNY_ Info".
