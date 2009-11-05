@@ -8,10 +8,10 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_eventbroadcaster.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-22 20:26:35+02:00 $ 
-    Date Modified: $Modtime: 2009-10-22 20:22:10+02:00 $ 
+     Date Checkin: $Date: 2009-11-05 18:07:59+01:00 $ 
+    Date Modified: $Modtime: 2009-11-05 18:03:02+01:00 $ 
 
       Description: Broadcasts events; 
                    loose-coupled event mechanism for session-wide events.
@@ -48,7 +48,7 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
   /************************  Source control constructor ************************/
   constructor public sc_eventbroadcaster(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -138,6 +138,13 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
     FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#)).
 
   end method. /* FireEvent ; char + Object */  
+  
+
+  method public static void FireEvent(cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object, cEventDataIP# as char):
+    
+    FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#, cEventDataIP#)).
+
+  end method. /* FireEvent ; char + Object + char*/  
   
 
   method public static logical FireCustomEvent(cEventNameIP# as char, oDataIP# as i_eventbroadcastdata):
