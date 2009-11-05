@@ -2,15 +2,16 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 using panaedra.msroot.msdr.logic.*.
+using paninui.view.init.display.*.
 
-class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interfaces.i_qry: 
+class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interfaces.i_qry:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-30 15:51:27+01:00 $ 
-    Date Modified: $Modtime: 2009-10-30 14:39:17+01:00 $ 
+     Date Checkin: $Date: 2009-11-05 18:07:59+01:00 $ 
+    Date Modified: $Modtime: 2009-11-05 17:36:12+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -22,12 +23,15 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected variable hQueryPrivate       as handle no-undo.
   define protected variable hQueryOnHoldPrivate as handle no-undo.
+  
+  define public property sys__oParentQry     as panaedra.msroot.msdr.interfaces.i_qry no-undo get. set.
+  define public property sys__oBindingSource as c_bindingsource no-undo get. set.
 
   define public property sys__hQuery as handle no-undo
     get:
@@ -124,9 +128,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
           hField# =  hBuffSub#:buffer-field(cIDfield#) no-error.
           if hField# <> ? then 
           do:
-            assign
-/*              iOfBuffer# = iBuffSub#*/
-              cFiach#    = "first".
+            cFiach# = "first".
             leave b_BuffSub.
           end.
         end.
@@ -149,8 +151,8 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     do on error undo, throw:
       
       if cPrep# matches "*AddressCompany*" then
-      sc_messagebox:Show(sc_messageboxtype:oDebug,
-        cPrep#).
+        sc_messagebox:Show(sc_messageboxtype:oDebug,
+          cPrep#).
       
       
       hQueryIP#:query-prepare(cPrep#).
@@ -313,7 +315,8 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     sc_eventbroadcaster:FireEvent("evt@c_qry@queryopen", this-object).
     
     cName# = cName.
-    if cName# > "" then do:
+    if cName# > "" then 
+    do:
       /* Fire an event with a smaller scope, for custom logic procedures.
          The query name should include a pack id or other scope identifier,
          i.e.: qXyZoner@000001.
@@ -433,8 +436,53 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     return oReturn#.
 
   end method. /* CreateClone */
+
   
+  method public void UiRefreshRecord():
+    
+    if valid-object(sys__oBindingSource) then 
+      sys__oBindingSource:Refresh().
+    else 
+    do:
+      if    valid-object(sys__oParentQry) 
+        and valid-object(sys__oParentQry:sys__oBindingSource)
+        then 
+        sys__oParentQry:sys__oBindingSource:Refresh().
+    end.
+
+  end method. /* UiRefreshRecord ; no parameters */
+
   
+  method public void UiRefreshRecord(iRowIP# as integer):
+    
+    if valid-object(sys__oBindingSource) then 
+      sys__oBindingSource:Refresh().
+    else 
+    do:
+      if    valid-object(sys__oParentQry) 
+        and valid-object(sys__oParentQry:sys__oBindingSource)
+        then 
+        sys__oParentQry:sys__oBindingSource:Refresh(iRowIP#).
+    end.
+
+  end method. /* UiRefreshRecord ; + row entry in the query */
+
+  
+  method public void UiRefreshAll():
+    
+    if valid-object(sys__oBindingSource) then 
+      sys__oBindingSource:RefreshAll().
+    else 
+    do:
+      if    valid-object(sys__oParentQry) 
+        and valid-object(sys__oParentQry:sys__oBindingSource)
+        then 
+        sys__oParentQry:sys__oBindingSource:RefreshAll().
+    end.
+
+  end method. /* UiRefreshAll */
+
+
   destructor c_qry():
     
     if valid-handle(sys__hQuery) and sys__hQuery:dynamic then delete object sys__hQuery.
