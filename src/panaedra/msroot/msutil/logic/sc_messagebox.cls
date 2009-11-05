@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-28 11:49:00+01:00 $ 
-    Date Modified: $Modtime: 2009-10-28 11:09:06+01:00 $ 
+     Date Checkin: $Date: 2009-11-05 23:28:07+01:00 $ 
+    Date Modified: $Modtime: 2009-11-05 23:22:03+01:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -26,7 +26,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -53,8 +53,13 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
     if panaedra.msb.logic.sc_environment:IsIdeRunning() then
     do:
-      panaedra.msroot.msutil.logic.sc_win32:MessageBox(subst("&1",cMsgIP#),
-        subst("Panaedra &1", substring(iso-date(now),1,23))).
+      /* First this was the sc_win32 api, but it crashed sometimes. 
+         The .net messagebox is safe. */
+      System.Windows.Forms.MessageBox:Show(subst("&1", cMsgIP#),
+        subst("Panaedra &1", substring(iso-date(now),1,23)),
+        System.Windows.Forms.MessageBoxButtons:OK, 
+        System.Windows.Forms.MessageBoxIcon:Information
+        ).    
     end.
     else
     do:
