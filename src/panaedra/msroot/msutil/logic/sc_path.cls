@@ -2,15 +2,14 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 using panaedra.msb.logic.*.
-
 class panaedra.msf.logic.sc_path: 
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msf/logic/sc_path.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-03 12:28:27+01:00 $ 
-    Date Modified: $Modtime: 2009-11-03 12:18:26+01:00 $ 
+     Date Checkin: $Date: 2009-11-06 14:50:49+01:00 $ 
+    Date Modified: $Modtime: 2009-11-06 12:12:14+01:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -22,7 +21,7 @@ class panaedra.msf.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 12 $", "{&sourcecontrolversions}").
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 13 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -89,7 +88,8 @@ class panaedra.msf.logic.sc_path:
     get():
       if not bIniInitialized then 
         IniInitialize().
-      if not bLocalInitialized then do:
+      if not bLocalInitialized then 
+      do:
         bLocalInitialized = true.
         cLocalIniDir = cWorkDir + "ini_local/".
         file-info:file-name = cLocalIniDir. 
@@ -160,13 +160,22 @@ class panaedra.msf.logic.sc_path:
     if not bIniInitialized then 
     do:
       bIniInitialized = yes.
+      if sc_boot:SessionParameter("SharedIniDir") > "" then 
+      do:
+        cIniDir = sc_boot:SessionParameter("SharedIniDir").
+        cIniDir = replace(cIniDir,"~\","/").
+        if substring(cIniDir,length(cIniDir)) <> "/" then cIniDir = cIniDir + "/".
+      end.
+      else 
+      do:
       &if opsys = "win32" &then
-      if panaedra.msb.logic.sc_boot:SessionParameter("Env") <> "live" then cIniDir = "Q:/test/ini/".
-      else cIniDir = "P:/live/ini/".
+        if sc_boot:SessionParameter("Env") <> "live" then cIniDir = "Q:/test/ini/".
+        else cIniDir = "P:/live/ini/".
       &else
-      if panaedra.msb.logic.sc_boot:SessionParameter("Env") <> "live" then cIniDir = "/ota/_PRODUCT_/_FCMPNY_/ini/".
-      else cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".
+        if panaedra.msb.logic.sc_boot:SessionParameter("Env") <> "live" then cIniDir = "/ota/_PRODUCT_/_FCMPNY_/ini/".
+        else cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".
       &endif
+      end.
     end.
     
   end method. /* IniInitialize */
