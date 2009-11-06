@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 20 $ 
+          Version: $Revision: 21 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-06 08:56:15+01:00 $ 
-    Date Modified: $Modtime: 2009-11-06 07:20:55+01:00 $ 
+     Date Checkin: $Date: 2009-11-06 14:50:49+01:00 $ 
+    Date Modified: $Modtime: 2009-11-06 14:49:39+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 20 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 21 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -796,15 +796,6 @@ class paninui.view.use.sc_coll_eventdata
         do:
           iAscii# = asc(oUiEventData#:cKeyChar).
           
-          /*          panaedra.msroot.msutil.logic.sc_messagebox:Show(           */
-          /*          panaedra.msroot.msutil.interfaces.sc_messageboxtype:oDebug,*/
-          /*          string(iAscii#)                                         */
-          /*          ).                                                      */
-          
-          /*          define variable oUtf8 as System.Text.Encoding no-undo.*/
-          /*          oUtf8 = System.Text.Encoding:UTF8.                    */
-
-
           if iAscii# > 1114111 then iAscii# = 42. /* Character '*' */ 
           
           oFormsKeyPressArgs#:KeyChar = System.Char:ConvertFromUtf32(iAscii#). 
