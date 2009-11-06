@@ -6,10 +6,10 @@ class panaedra.msdr.logic.sc_dbtrig   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msdr/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-05 23:28:07+01:00 $ 
-    Date Modified: $Modtime: 2009-11-05 21:48:54+01:00 $ 
+     Date Checkin: $Date: 2009-11-06 14:50:49+01:00 $ 
+    Date Modified: $Modtime: 2009-11-06 14:25:23+01:00 $ 
 
       Description: Deze class wordt aangeroepen door db delete en write triggers,
                    voor dynamische afhandeling.
@@ -28,7 +28,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -46,7 +46,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
     field cTable as char
     field cType  as char init "wri"
     field cLogic as char init "<none>"
-    index cTable_cType_cLogic is primary unique cTable cType cLogic.
+    index cTable_cType_cLogic is primary /*unique*/ cTable cType cLogic.
   
 
   method public static logical OnWriteOrCreate (hBuffIP# as handle):
