@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 19 $ 
+          Version: $Revision: 20 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-03 22:32:49+01:00 $ 
-    Date Modified: $Modtime: 2009-11-03 22:20:43+01:00 $ 
+     Date Checkin: $Date: 2009-11-06 08:56:15+01:00 $ 
+    Date Modified: $Modtime: 2009-11-06 07:20:55+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 19 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 20 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -63,7 +63,7 @@ class paninui.view.use.sc_coll_eventdata
     iPackIDIP#             as int64,
     iFrmLogicIDIP#         as int64,
     iDelegateIDIP#         as int64,
-    oFrmLogicObjectIP#     as panaedra.msroot.msdr.interfaces.i_qry,
+    oFrmLogicQryIP#        as panaedra.msroot.msdr.interfaces.i_qry,
     cWidgetNameIP#         as character,
     cEventTypeIP#          as character):
     
@@ -76,12 +76,11 @@ class paninui.view.use.sc_coll_eventdata
     if lookup(cEventTypeIP#,"QueryOpen,QueryClose,DeleteObject") > 0 then 
     do:
       
-      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oFrmLogicObjectIP#, oFrmLogicObjectIP#:sys__hQuery, cWidgetNameIP#, "query", cEventTypeIP#, "").
+      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oFrmLogicQryIP#, oFrmLogicQryIP#:sys__hQuery, cWidgetNameIP#, "query", cEventTypeIP#, "").
     
     end.    
     else
     do for ttUiEvent:
-          
       oBindingSource# = sc_coll_widgetdata:GetBindingSource(iPackIDIP#,"grid",?,cWidgetNameIP#).
     
       if oBindingSource# <> ? and type-of(oBindingSource#,c_bindingsource) then 
@@ -90,13 +89,25 @@ class paninui.view.use.sc_coll_eventdata
         case cEventTypeIP#:
           when "PositionChanged" then 
             do:
-              if not can-find(first ttUiEvent where ttUiEvent.oWidget = oBindingSource# and ttUiEvent.cEventType = cEventTypeIP#) then
+              if not can-find(first ttUiEvent where ttUiEvent.oWidget = oBindingSource# and ttUiEvent.cEventType = cEventTypeIP#) then 
+              do:
                 oBindingSourceStrong#:PositionChanged:Subscribe(oSingleton:OnEventArgsHandler_PositionChanged).
+              end.
+            end.
+          when "SortRequest" then 
+            do:
+              if not can-find(first ttUiEvent where ttUiEvent.oWidget = oBindingSource# and ttUiEvent.cEventType = cEventTypeIP#) then 
+              do:
+                /* With AutoSort, a Sort doesn't fire PositionChanged, since the Position (row) number doesn't have to change (but the record does) */
+                /* Sadly, SortRequest also doesn't fire with the DataGridView... */
+                /* TODO: los probleem met SortRequest op */
+                oBindingSourceStrong#:SortRequest:Subscribe(oSingleton:OnEventArgsHandler_SortRequest).
+              end.
             end.
         end case.
       end.
       
-      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oBindingSource#, oFrmLogicObjectIP#:sys__hQuery, cWidgetNameIP#, "query", cEventTypeIP#, "").
+      return ItemAddImplement(iPackIDIP#, iFrmLogicIDIP#, iDelegateIDIP#, oBindingSource#, oFrmLogicQryIP#:sys__hQuery, cWidgetNameIP#, "query", cEventTypeIP#, "").
     
     end.
     
@@ -150,7 +161,74 @@ class paninui.view.use.sc_coll_eventdata
     
     end.
     
-  end method. /* ItemAdd ; Grid */
+  end method. /* ItemAdd ; Grid + query */
+
+
+  method public static int64 ItemAdd(
+  
+    oWidgetType_GridOVID# as i_widgettype_grid, 
+    iPackIDIP#              as int64,
+    iFrmLogicIDIP#          as int64,
+    iDelegateIDIP#          as int64,
+    bDummyIP#               as logical,
+    cWidgetNameIP#          as character,
+    cEventTypeIP#           as character):
+      
+    define variable oWidget#              as Progress.Lang.Object              no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object              no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource                   no-undo.
+    define variable bDummy#               as logical                           no-undo.
+    define variable oFormsGrid#           as System.Windows.Forms.DataGridView no-undo.
+
+    define buffer ttUiEvent for ttUiEvent.
+
+    if oSingleton = ? then oSingleton = new sc_coll_eventdata().
+    
+    do for ttUiEvent:
+          
+      assign
+        cWidgetNameIP# = replace(cWidgetNameIP#,"_",".")
+        oWidget#       = sc_coll_widgetdata:GetWidget(iPackIDIP#,"grid",?,cWidgetNameIP#, output bDummy#).
+        
+      if oWidget# <> ? then 
+      do:
+        
+        if type-of(oWidget#,System.Windows.Forms.DataGridView) then 
+        do:
+          
+          oFormsGrid# = cast(oWidget#,System.Windows.Forms.DataGridView).
+          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+            case cEventTypeIP#:
+              when "ColumnSortModeChanged" then 
+                do:
+                  oFormsGrid#:ColumnSortModeChanged:Subscribe(oSingleton:OnEventArgsHandler_ColumnSortModeChanged).
+                end.
+              when "CurrentCellChanged" then 
+                do:
+                  oFormsGrid#:CurrentCellChanged:Subscribe(oSingleton:OnEventArgsHandler_CurrentCellChanged).
+                end.
+            end case.
+            
+        end.
+        
+        return ItemAddImplement(
+          iPackIDIP#, 
+          iFrmLogicIDIP#, 
+          iDelegateIDIP#, 
+          oWidget#, 
+          ?, 
+          cWidgetNameIP#, 
+          "grid", 
+          cEventTypeIP#,
+          "").
+      
+      end.
+      
+    end. /* oWidget# is found */
+
+    return 0.
+          
+  end method.   /* ItemAdd ; Grid zonder query */
   
 
   method public static int64 ItemAdd(
@@ -411,7 +489,7 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "PositionChanged"
         on error undo,throw:
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -424,12 +502,96 @@ class paninui.view.use.sc_coll_eventdata
   end. /* OnEventArgsHandler_PositionChanged */
   
   
+  method private void OnEventArgsHandler_SortRequest(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable bEclipseFix# as logical                           no-undo.
+    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "SortRequest"
+        on error undo,throw:
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end. /* OnEventArgsHandler_SortRequest */
+  
+  
+  method private void OnEventArgsHandler_ColumnSortModeChanged(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable bEclipseFix# as logical                           no-undo.
+    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "ColumnSortModeChanged"
+        on error undo,throw:
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end. /* OnEventArgsHandler_ColumnSortModeChanged */ 
+   
+  
+  method private void OnEventArgsHandler_CurrentCellChanged(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable bEclipseFix#  as logical                               no-undo.
+    define variable oUiValue#     as paninui.view.interfaces.i_uivalue     no-undo.
+    define variable oUiEventData# as paninui.view.use.events.c_uieventdata no-undo.
+    define variable oBindingSource# as Progress.Lang.Object no-undo.
+    define variable oBindingSourceSystem# as System.Object no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "CurrentCellChanged"
+        on error undo,throw:
+        oUiEventData# = new paninui.view.use.events.c_uieventdata("Allowed:Request_PositionChanged","",?,?).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, oUiEventData#).
+        if oUiEventData#:cData = "Request_PositionChanged" then do:
+          define variable oFrmLogic# as paninui.logic.logicbase.c_framelogicbase no-undo.
+          oFrmLogic# = cast(oUiEventData#:oObject, paninui.logic.logicbase.c_framelogicbase).
+          oBindingSource# = sc_coll_widgetdata:GetBindingSource(oFrmLogic#:iPackID,"grid",?,ttUiEvent.cWidgetName).
+          oBindingSourceSystem# = cast(oBindingSource#, System.Object).
+          OnEventArgsHandler_PositionChanged(oBindingSourceSystem#, oArgs#).
+        end.
+        delete object oUiEventData#.
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end. /* OnEventArgsHandler_CurrentCellChanged */ 
+   
+  
   method private void OnEventArgsHandler_SelectionChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix#          as logical                                                 no-undo.
-    define variable oUiValue#             as paninui.view.interfaces.i_uivalue                       no-undo.
-    define variable oSelection#           as c_uivalue_selection                                     no-undo.
-    define variable bFirst#               as logical                                                 no-undo init true.
+    define variable bEclipseFix# as logical                           no-undo.
+    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    define variable oSelection#  as c_uivalue_selection               no-undo.
+    define variable bFirst#      as logical                           no-undo init true.
     
     define buffer ttUiEvent for ttUiEvent.
     
