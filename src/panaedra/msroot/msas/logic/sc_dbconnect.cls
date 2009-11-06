@@ -6,10 +6,10 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_dbconnect.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-03 12:28:27+01:00 $ 
-    Date Modified: $Modtime: 2009-11-03 12:19:27+01:00 $ 
+     Date Checkin: $Date: 2009-11-06 14:50:49+01:00 $ 
+    Date Modified: $Modtime: 2009-11-06 13:57:16+01:00 $ 
 
       Description: Connect to database(s) (for appserver)
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
   /************************  Source control constructor ************************/
   constructor public sc_dbconnect(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -33,6 +33,7 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
     
     define variable cEnv#      as character no-undo.
     define variable cHostName# as character no-undo.
+    define variable cExtraDbs# as character no-undo.
     
     if not can-find(first ttDbConnect)
       then temp-table ttDbConnect:read-xml("file", panaedra.msf.logic.sc_path:cIniDir + "sc_dbconnect.config", "empty", ?, false).
@@ -43,6 +44,8 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
       
       cEnv#      = panaedra.msb.logic.sc_boot:SessionParameter("Env").      
       cHostName# = panaedra.msb.logic.sc_environment:GetHostName().
+      cExtraDbs# = panaedra.msb.logic.sc_boot:SessionParameter("ExtraDbs").
+      
       
       /* Zoek voor record met hostname _SRVR_ of _PRODUCT_ */
       find ttDbConnect 
@@ -64,6 +67,11 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
       do:
         connect value(ttDbConnect.cConnect). /* In principe: adm en log (en zonodig andere db's) */
       end.  
+      
+      if cExtraDbs# > "" then 
+        connect value(cExtraDbs#).
+        
+      SetAliases().  
      
     end. /* Connected */
     
