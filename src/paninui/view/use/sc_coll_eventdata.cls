@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 21 $ 
+          Version: $Revision: 22 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-06 14:50:49+01:00 $ 
-    Date Modified: $Modtime: 2009-11-06 14:49:39+01:00 $ 
+     Date Checkin: $Date: 2009-11-17 17:35:15+01:00 $ 
+    Date Modified: $Modtime: 2009-11-17 11:39:24+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 21 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 22 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -241,13 +241,14 @@ class paninui.view.use.sc_coll_eventdata
     cWidgetNameIP#          as character,
     cEventTypeIP#           as character):
 
-    define variable oWidget#              as Progress.Lang.Object           no-undo.
-    define variable oBindingSource#       as Progress.Lang.Object           no-undo.
-    define variable oBindingSourceStrong# as c_bindingsource                no-undo.
-    define variable bDummy#               as logical                        no-undo.
-    define variable oFormsButton#         as System.Windows.Forms.Button    no-undo.
-    define variable oFormsCheckBox#       as System.Windows.Forms.CheckBox  no-undo.
-    define variable oWpfButton#           as System.Windows.Controls.Button no-undo.
+    define variable oWidget#              as Progress.Lang.Object             no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object             no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource                  no-undo.
+    define variable bDummy#               as logical                          no-undo.
+    define variable oFormsButton#         as System.Windows.Forms.Button      no-undo.
+    define variable oFormsCheckBox#       as System.Windows.Forms.CheckBox    no-undo.
+    define variable oWpfButton#           as System.Windows.Controls.Button   no-undo.
+    define variable oFormsMenuItem#       as System.Windows.Controls.MenuItem no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
 
@@ -308,6 +309,17 @@ class paninui.view.use.sc_coll_eventdata
           if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
             case cEventTypeIP#:
               when "Press" then oWpfButton#:Click:Subscribe(oSingleton:OnEventArgsHandler_Press).
+            end case.
+            
+        end.
+        
+        if type-of(oWidget#,System.Windows.Controls.MenuItem) then 
+        do:
+          
+          oFormsMenuItem# = cast(oWidget#,System.Windows.Controls.MenuItem).
+          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+            case cEventTypeIP#:
+              when "Press" then oFormsMenuItem#:Click:Subscribe(oSingleton:OnEventArgsHandler_Press).
             end case.
             
         end.
