@@ -15,10 +15,10 @@ class paninui.view.use.sc_coll_widgetdata
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 19 $ 
+          Version: $Revision: 20 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-03 22:32:49+01:00 $ 
-    Date Modified: $Modtime: 2009-11-03 20:29:32+01:00 $ 
+     Date Checkin: $Date: 2009-11-17 17:35:15+01:00 $ 
+    Date Modified: $Modtime: 2009-11-17 11:46:00+01:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -30,7 +30,7 @@ class paninui.view.use.sc_coll_widgetdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 19 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 20 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -183,7 +183,7 @@ class paninui.view.use.sc_coll_widgetdata
   method public static int64 ItemAdd (
     input  oWidgettypeButtonOVID# as i_widgettype_button, /* *OVID# is not a real parameter, but an interface overload ID */
     input  iIDUIFrameIP#          as int64,
-    input  cFullNameIP#         as character,
+    input  cFullNameIP#           as character,
     input  cNameIP#               as character,
     input  iIDParentIP#           as int64,
     input  oParentIP#             as Progress.Lang.Object,
