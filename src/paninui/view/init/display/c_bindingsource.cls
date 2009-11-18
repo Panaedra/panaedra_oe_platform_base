@@ -1,14 +1,20 @@
 {panaedra/msi/logic/ctop_class.i}        
-using Progress.Data.BindingSource.
 
-class paninui.view.init.display.c_bindingsource inherits BindingSource : 
+class paninui.view.init.display.c_bindingsource
+  inherits
+  &if opsys = "unix" &then
+  Progress.Lang.Object
+  &else 
+  Progress.Data.BindingSource
+  &endif
+    : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/display/c_bindingsource.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-30 09:28:34+01:00 $ 
-    Date Modified: $Modtime: 2009-10-30 04:35:33+01:00 $ 
+     Date Checkin: $Date: 2009-11-18 11:46:07+01:00 $ 
+    Date Modified: $Modtime: 2009-11-18 11:24:37+01:00 $ 
 
       Description:  _CMPNY_ inheritance van de progress DataSource. 
                     Bedoeld om onvolkomenheden van de progress DataSource
@@ -19,7 +25,7 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
   /************************  Source control constructor ************************/
   constructor public c_bindingsource(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -30,12 +36,15 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
   
   constructor protected c_bindingsource():
     
-    super ().
+    super().
     
+    &if opsys = "unix" &then
+    &else
     /* TODO: Don't know the exact effects of the following three settings. */
     this-object:AutoSort = true.
     this-object:AutoSync = true.
     this-object:Batching = true.
+    &endif
     
     cLocalName = "[blank]".
 
@@ -44,11 +53,19 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
 
   constructor protected c_bindingsource(hQueryIP# as handle):
     
-    super (hQueryIP#).
+    &if opsys = "unix" &then
+    super().
+    &else
+    super(hQueryIP#).
+    &endif
 
+    &if opsys = "unix" &then
+    &else
+    /* TODO: Don't know the exact effects of the following three settings. */
     this-object:AutoSort = true.
     this-object:AutoSync = true.
     this-object:Batching = true.
+    &endif
 
     cLocalName = hQueryIP#:name.
     if (cLocalName = "" or cLocalName = ?)   and hQueryIP#:type = "query" then cLocalName = hQueryIP#:get-buffer-handle(1):name no-error.
@@ -70,9 +87,13 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
 
     do on error undo, throw:
 
+      &if opsys = "unix" &then
+      &else
+      /* TODO: Don't know the exact effects of the following three settings. */
       this-object:AutoSort = true.
       this-object:AutoSync = true.
       this-object:Batching = true.
+      &endif
 
       cLocalName = hBufferIP#:name.
       if (cLocalName = "" or cLocalName = ?)  then cLocalName = hBufferIP#:type.
@@ -86,7 +107,10 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
         rWorkaroundCreate# = hBufferIP#:rowid.
       end.
 
+      &if opsys = "unix" &then
+      &else
       this-object:Handle = hBufferIP#.
+      &endif
 
       if rWorkaroundCreate# <> ? then
       do:
@@ -125,11 +149,14 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
     else
       hQuery# = hBufferOrQueryIP#.
 
+    &if opsys = "unix" &then
+    &else
+    /* TODO: Don't know the exact effects of the following three settings. */
     this-object:AutoSort = true.
     this-object:AutoSync = true.
     this-object:Batching = true.
-
     this-object:Handle = hQuery#.
+    &endif
 
     cLocalName = hBufferOrQueryIP#:name.
     if (cLocalName = "" or cLocalName = ?) and hBufferOrQueryIP#:type = "query" then cLocalName = hBufferOrQueryIP#:get-buffer-handle(1):name no-error.
@@ -155,7 +182,10 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
 
   destructor public c_bindingsource ( ):
     
+    &if opsys = "unix" &then
+    &else
     this-object:Handle = ?.
+    &endif
     
     if hCustomQuery <> ? then delete object hCustomQuery  no-error.
     if hCustomBuffer <> ? then delete object hCustomBuffer no-error.
@@ -169,7 +199,23 @@ class paninui.view.init.display.c_bindingsource inherits BindingSource :
     
   end destructor.
 
+  &if opsys = "unix" &then
 
+  method public void Refresh():
+
+  end method. /* Refresh */  
+  
+  method public void Refresh(iRefreshRowIP# as integer):
+
+  end method. /* Refresh */  
+  
+  method public void RefreshAll():
+
+  end method. /* RefreshAll */  
+  
+  &endif
+
+  
 end class. /* c_bindingsource */
 
 /* EOF  */
