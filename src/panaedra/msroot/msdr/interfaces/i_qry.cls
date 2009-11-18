@@ -5,10 +5,10 @@ interface panaedra.msroot.msdr.interfaces.i_qry:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/interfaces/i_qry.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-05 18:07:59+01:00 $ 
-    Date Modified: $Modtime: 2009-11-05 15:18:56+01:00 $ 
+     Date Checkin: $Date: 2009-11-18 11:46:07+01:00 $ 
+    Date Modified: $Modtime: 2009-11-18 11:00:48+01:00 $ 
 
       Description: Interface for a class that wraps an ABL query handle
 
@@ -16,14 +16,14 @@ interface panaedra.msroot.msdr.interfaces.i_qry:
 
   /******************************* $NoKeywords:  $ *****************************/
   
-  define public property iNumBuffers       as integer   no-undo get.
-  define public property cPrepareString    as character no-undo get.
-  define public property cName             as character no-undo get. set.
+  define public property iNumBuffers         as integer   no-undo get.
+  define public property cPrepareString      as character no-undo get.
+  define public property cName               as character no-undo get. set.
 
-  define public property sys__hQuery       as handle    no-undo get. set.
-  define public property sys__hQueryOnHold as handle    no-undo get. set.
-  define public property sys__oParentQry   as panaedra.msroot.msdr.interfaces.i_qry no-undo get. set.
-  define public property sys__oBindingSource   as c_bindingsource no-undo get. set.
+  define public property sys__hQuery         as handle    no-undo get. set.
+  define public property sys__hQueryOnHold   as handle    no-undo get. set.
+  define public property sys__oParentQry     as panaedra.msroot.msdr.interfaces.i_qry no-undo get. set.
+  define public property sys__oBindingSource as c_bindingsource no-undo get. set.
   
   method public widget-handle GetBuffer(iBufferIP# as integer).
   method public void PrepareStringGenSimple().
