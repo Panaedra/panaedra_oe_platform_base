@@ -4,10 +4,10 @@ class panaedra.msdr.logic.c_triggerlogicdata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msdr/logic/c_triggerlogicdata.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-17 13:40:12+02:00 $ 
-    Date Modified: $Modtime: 2009-08-17 13:31:10+02:00 $ 
+     Date Checkin: $Date: 2009-11-18 11:36:26+01:00 $ 
+    Date Modified: $Modtime: 2009-11-18 09:49:33+01:00 $ 
 
       Description: Bevat data en methods voor de communicatie van trigger logic en sc_dbtrig.
 
@@ -18,7 +18,7 @@ class panaedra.msdr.logic.c_triggerlogicdata   :
   /************************  Source control constructor ************************/
   constructor public c_triggerlogicdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -86,7 +86,7 @@ class panaedra.msdr.logic.c_triggerlogicdata   :
   end method. /* FieldConfirmation */
 
 
-  method public void ZyzSetBuffers (hBuffIP# as handle, hBuffOldIP# as handle):
+  method public void _sys_SetBuffers (hBuffIP# as handle, hBuffOldIP# as handle):
     
     define variable bEclipseFix# as logical no-undo.
     
@@ -99,10 +99,10 @@ class panaedra.msdr.logic.c_triggerlogicdata   :
         b-ttTriggerLogicData.hBuffOld       = hBuffOldIP#.
     end.
     
-  end method. /* ZyzSetBuffers */
+  end method. /* _sys_SetBuffers */
   
 
-  method public logical ZyzHasErrorText ():
+  method public logical _sys_HasErrorText ():
     
     define variable bEclipseFix# as logical no-undo.
     
@@ -110,10 +110,10 @@ class panaedra.msdr.logic.c_triggerlogicdata   :
     
     return can-find(first b-ttTriggerLogicData where b-ttTriggerLogicData.cError > ""). 
     
-  end method. /* ZyzHasErrorText */
+  end method. /* _sys_HasErrorText */
   
   
-  method public character ZyzFirstErrorText ():
+  method public character _sys_FirstErrorText ():
     
     define variable bEclipseFix# as logical no-undo.
     
@@ -123,7 +123,7 @@ class panaedra.msdr.logic.c_triggerlogicdata   :
     
     return b-ttTriggerLogicData.cError. 
     
-  end method. /* ZyzFirstErrorText */
+  end method. /* _sys_FirstErrorText */
   
 
 end class. /* panaedra.msdr.logic.c_triggerlogicdata */
