@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 22 $ 
+          Version: $Revision: 23 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-17 17:35:15+01:00 $ 
-    Date Modified: $Modtime: 2009-11-17 11:39:24+01:00 $ 
+     Date Checkin: $Date: 2009-11-18 09:06:30+01:00 $ 
+    Date Modified: $Modtime: 2009-11-18 09:03:54+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 22 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 23 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -241,14 +241,16 @@ class paninui.view.use.sc_coll_eventdata
     cWidgetNameIP#          as character,
     cEventTypeIP#           as character):
 
-    define variable oWidget#              as Progress.Lang.Object             no-undo.
-    define variable oBindingSource#       as Progress.Lang.Object             no-undo.
-    define variable oBindingSourceStrong# as c_bindingsource                  no-undo.
-    define variable bDummy#               as logical                          no-undo.
-    define variable oFormsButton#         as System.Windows.Forms.Button      no-undo.
-    define variable oFormsCheckBox#       as System.Windows.Forms.CheckBox    no-undo.
-    define variable oWpfButton#           as System.Windows.Controls.Button   no-undo.
-    define variable oFormsMenuItem#       as System.Windows.Controls.MenuItem no-undo.
+    define variable oWidget#              as Progress.Lang.Object               no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object               no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource                    no-undo.
+    define variable bDummy#               as logical                            no-undo.
+    define variable oFormsButton#         as System.Windows.Forms.Button        no-undo.
+    define variable oFormsCheckBox#       as System.Windows.Forms.CheckBox      no-undo.
+    define variable oWpfButton#           as System.Windows.Controls.Button     no-undo.
+    define variable oFormsMenuItem#       as System.Windows.Controls.MenuItem   no-undo.
+    define variable oFormsToolStripItem#  as System.Windows.Forms.ToolStripItem no-undo.
+    
     
     define buffer ttUiEvent for ttUiEvent.
 
@@ -322,6 +324,15 @@ class paninui.view.use.sc_coll_eventdata
               when "Press" then oFormsMenuItem#:Click:Subscribe(oSingleton:OnEventArgsHandler_Press).
             end case.
             
+        end.
+        
+        if type-of(oWidget#,System.Windows.Forms.ToolStripItem) then 
+        do:
+          oFormsToolStripItem# = cast(oWidget#,System.Windows.Forms.ToolStripItem).
+          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+            case cEventTypeIP#:
+              when "Press" then oFormsToolStripItem#:Click:Subscribe(oSingleton:OnEventArgsHandler_Press).
+            end case.
         end.
         
         return ItemAddImplement(
@@ -564,11 +575,11 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_CurrentCellChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix#  as logical                               no-undo.
-    define variable oUiValue#     as paninui.view.interfaces.i_uivalue     no-undo.
-    define variable oUiEventData# as paninui.view.use.events.c_uieventdata no-undo.
-    define variable oBindingSource# as Progress.Lang.Object no-undo.
-    define variable oBindingSourceSystem# as System.Object no-undo.
+    define variable bEclipseFix#          as logical                               no-undo.
+    define variable oUiValue#             as paninui.view.interfaces.i_uivalue     no-undo.
+    define variable oUiEventData#         as paninui.view.use.events.c_uieventdata no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object                  no-undo.
+    define variable oBindingSourceSystem# as System.Object                         no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -578,7 +589,8 @@ class paninui.view.use.sc_coll_eventdata
         on error undo,throw:
         oUiEventData# = new paninui.view.use.events.c_uieventdata("Allowed:Request_PositionChanged","",?,?).
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, oUiEventData#).
-        if oUiEventData#:cData = "Request_PositionChanged" then do:
+        if oUiEventData#:cData = "Request_PositionChanged" then 
+        do:
           define variable oFrmLogic# as paninui.logic.logicbase.c_framelogicbase no-undo.
           oFrmLogic# = cast(oUiEventData#:oObject, paninui.logic.logicbase.c_framelogicbase).
           oBindingSource# = sc_coll_widgetdata:GetBindingSource(oFrmLogic#:iPackID,"grid",?,ttUiEvent.cWidgetName).
@@ -639,12 +651,15 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_Press(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix#     as logical                           no-undo.
-    define variable oCheckBox#       as System.Windows.Forms.CheckBox     no-undo.
-    define variable oFormsButton#    as System.Windows.Forms.Button       no-undo.
-    define variable oWpfButton#      as System.Windows.Controls.Button    no-undo.
-    define variable oUiValue#        as paninui.view.interfaces.i_uivalue no-undo.
-    define variable bInvokePrepared# as logical                           no-undo.
+    define variable bEclipseFix#             as logical                                no-undo.
+    define variable oCheckBox#               as System.Windows.Forms.CheckBox          no-undo.
+    define variable oFormsButton#            as System.Windows.Forms.Button            no-undo.
+    define variable oFormsToolStripItem#     as System.Windows.Forms.ToolStripItem     no-undo.
+    define variable oFormsToolStripMenuItem# as System.Windows.Forms.ToolStripMenuItem no-undo.
+    define variable oWpfButton#              as System.Windows.Controls.Button         no-undo.
+    define variable oUiValue#                as paninui.view.interfaces.i_uivalue      no-undo.
+    define variable bInvokePrepared#         as logical                                no-undo.
+        
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -677,6 +692,22 @@ class paninui.view.use.sc_coll_eventdata
             bInvokePrepared# = true
             oWpfButton#      = cast(oSender#, System.Windows.Controls.Button)
             oUiValue#        = new c_uivalue_button(oWpfButton#:Name, oWpfButton#:IsEnabled, oWpfButton#:IsVisible, false).
+        end.
+        
+        if not bInvokePrepared# and type-of(oSender#, System.Windows.Forms.ToolStripMenuItem) then 
+        do:
+          assign
+            bInvokePrepared#         = true
+            oFormsToolStripMenuItem# = cast(oSender#, System.Windows.Forms.ToolStripMenuItem)
+            oUiValue#                = new c_uivalue_button(oFormsToolStripMenuItem#:Name, oFormsToolStripMenuItem#:Enabled, oFormsToolStripMenuItem#:Visible, oFormsToolStripMenuItem#:Checked).
+        end.
+        
+        if not bInvokePrepared# and type-of(oSender#, System.Windows.Forms.ToolStripItem) then 
+        do:
+          assign
+            bInvokePrepared#     = true
+            oFormsToolStripItem# = cast(oSender#, System.Windows.Forms.ToolStripItem)
+            oUiValue#            = new c_uivalue_button(oFormsToolStripItem#:Name, oFormsToolStripItem#:Enabled, oFormsToolStripItem#:Visible, false).
         end.
         
         if not bInvokePrepared# then 
