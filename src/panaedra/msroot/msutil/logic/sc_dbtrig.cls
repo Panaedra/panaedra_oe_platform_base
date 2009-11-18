@@ -6,10 +6,10 @@ class panaedra.msdr.logic.sc_dbtrig   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msdr/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-06 14:50:49+01:00 $ 
-    Date Modified: $Modtime: 2009-11-06 14:25:23+01:00 $ 
+     Date Checkin: $Date: 2009-11-18 11:36:51+01:00 $ 
+    Date Modified: $Modtime: 2009-11-18 09:49:48+01:00 $ 
 
       Description: Deze class wordt aangeroepen door db delete en write triggers,
                    voor dynamische afhandeling.
@@ -28,7 +28,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -46,7 +46,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
     field cTable as char
     field cType  as char init "wri"
     field cLogic as char init "<none>"
-    index cTable_cType_cLogic is primary /*unique*/ cTable cType cLogic.
+    index cTable_cType_cLogic is primary unique cTable cType cLogic.
   
 
   method public static logical OnWriteOrCreate (hBuffIP# as handle):
@@ -256,7 +256,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
       bInitialized = true.
       if panaedra.msb.logic.sc_boot:cBootSessionParameter > "" then.
       else panaedra.msb.logic.sc_boot:cBootSessionParameter = session:parameter.
-      bDbLayer = (panaedra.msb.logic.sc_boot:SessionParameter("Layer") = "db").
+      bDbLayer = lookup(panaedra.msb.logic.sc_boot:SessionParameter("Layer"),"all,db,db_r,db_u") > 0.
       if bDbLayer = ? then bDbLayer = false.
       iNewID = -1 * time. /* Tbv developing / reload static class */
     end.
@@ -422,7 +422,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
         oTriggerLogic# = dynamic-new b-ttCacheLogicLocations.cLogic (hBuffIP#, oTriggerLogicData#, output bValidateOkay#).
       end.
 
-      oTriggerLogicData#:ZyzSetBuffers(hBuffIP#, hBuffOldIP#).
+      oTriggerLogicData#:_sys_SetBuffers(hBuffIP#, hBuffOldIP#).
       delete object oTriggerLogic# no-error. /* Data blijft bewaard. */
       oTriggerLogic# = ?.
       
@@ -430,7 +430,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
       else 
       do:
         /* ToDo: Later kunnen we de data verzamelen, maar voorlopig (proof of concept fase) toon ik only de eerste error want dat is makkelijker. */
-        if oTriggerLogicData#:ZyzHasErrorText() then DisplayTriggerLogicError(hBuffIP#, hBuffOldIP#, oTriggerLogicData#:ZyzFirstErrorText()).
+        if oTriggerLogicData#:_sys_HasErrorText() then DisplayTriggerLogicError(hBuffIP#, hBuffOldIP#, oTriggerLogicData#:_sys_FirstErrorText()).
         else DisplayTriggerLogicError(hBuffIP#, hBuffOldIP#, subst("A data logic error has occurred for '&1'.", hBuffIP#:name)).
         return false.
       end.
