@@ -4,15 +4,17 @@ using paninui.view.use.*.
 using paninui.view.init.display.*.
 using panaedra.msroot.msdr.interfaces.*.
 using paninui.view.use.events.*.
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 
 class paninui.view.use.analyze.sc_getuiframevalues   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/analyze/sc_getuiframevalues.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-03 22:32:49+01:00 $ 
-    Date Modified: $Modtime: 2009-11-03 21:59:29+01:00 $ 
+     Date Checkin: $Date: 2009-11-22 23:40:21+01:00 $ 
+    Date Modified: $Modtime: 2009-11-22 22:20:45+01:00 $ 
 
       Description: add_your_comments_here
 
@@ -21,7 +23,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
   /************************  Source control constructor ************************/
   constructor public sc_getuiframevalues(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -100,6 +102,31 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     if valid-object(oWidget#) then 
       GetUiValueImplement(oWidget#, cPropertyIP#, output iReturn#).
       
+    return iReturn#.
+
+  end method. /* GetUiValue ; ComboBox */
+
+
+  method public static integer GetUiValueInt(
+    
+    /* Directly set any property of a grid widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oFrmLogicIP#    as i_frmlogic,
+    oGridOVID#      as i_widgettype_grid,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character):
+      
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+    define variable iReturn#            as integer              no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+      GetUiValueImplement(oWidget#, cPropertyIP#, output iReturn#).
+    
     return iReturn#.
 
   end method. /* GetUiValue ; ComboBox */
@@ -249,7 +276,10 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     do:
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oControl#, cPropertyIP#, output oValue#).
-      iValueOP# = int(oValue#).
+      /* Cast to string is necessary, for example with property "FirstDisplayedScrollingRowIndex" .
+         Otherwise, we get a meaningless handle in the iValueOP#.
+      */
+      iValueOP# = int(string(oValue#)).
     end.
 
   end method. /* GetUiValueImplement */
@@ -300,7 +330,9 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
 
       if oGridSelection_Rows#:Count > 0 then 
       do: 
-        iMaxExtent# = oGridSelection_Cells#:Count.
+
+        iMaxExtent# = oGridSelection_Rows#:Count.
+        
         if iLimitExtentIP# > 0 then iMaxExtent# = min(iLimitExtentIP#, iMaxExtent#).
         /* Find the selected rows and put them in a flexible extent property */
         extent(oSelectionOP#:iSelectionID_Rows) = iMaxExtent#.
@@ -311,7 +343,8 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
             "__iID" +
             entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") 
             ]:Value:ToString()).
-        end.          
+        end.
+        
       end.
       else 
       do:
