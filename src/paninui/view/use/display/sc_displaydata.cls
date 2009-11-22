@@ -1,7 +1,9 @@
 {panaedra/msi/logic/ctop_class.i}
 using paninui.view.interfaces.*.
-using paninui.view.use.*.
 using paninui.view.init.display.*.
+using paninui.view.use.*.
+using paninui.view.use.analyze.*.
+using paninui.view.use.display.*.
 using panaedra.msroot.msdr.interfaces.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
@@ -10,10 +12,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 17 $ 
+          Version: $Revision: 18 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-05 18:07:59+01:00 $ 
-    Date Modified: $Modtime: 2009-11-05 14:52:24+01:00 $ 
+     Date Checkin: $Date: 2009-11-22 23:40:21+01:00 $ 
+    Date Modified: $Modtime: 2009-11-22 23:29:46+01:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -22,7 +24,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 17 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 18 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -104,7 +106,7 @@ class paninui.view.use.display.sc_displaydata   :
   end method. /* DisplayData: GroupFrame child widgets Text property */
   
   
-  method public static void DisplayData (
+  method public static void DisplayData(
   
     oFrmLogicIP#   as i_frmlogic,
     iGridOVIP#     as i_widgettype_grid,
@@ -304,6 +306,75 @@ class paninui.view.use.display.sc_displaydata   :
   end method. /* DisplayData : Any + Enabled/Disabled */
 
 
+  method public static void RefreshData(
+  
+    oFrmLogicIP#   as i_frmlogic,
+    iGridOVIP#     as i_widgettype_grid,
+    cWidgetNameIP# as character,
+    oQryIP#        as i_qry):
+
+    define variable bIsDisplayLinkedOP#   as logical                               no-undo.
+    define variable oWidget#              as Progress.Lang.Object                  no-undo.
+    define variable oControl#             as System.Object                         no-undo.
+    define variable oFormsGrid#           as System.Windows.Forms.DataGridView     no-undo.
+    define variable oFormsCell#           as System.Windows.Forms.DataGridViewCell no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object                  no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource                       no-undo.
+    define variable iFirstDispRow#        as integer                               no-undo.
+    define variable iCurrentColumn#       as integer                               no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+    do:
+      
+      oBindingSource# = paninui.view.use.sc_coll_widgetdata:_sys_GetBindingSource(oWidget#).
+      
+      if oBindingSource# <> ? then 
+      do:
+        
+        oBindingSourceStrong# = cast(oBindingSource#, c_bindingsource).
+        
+        if type-of(oWidget#, System.Windows.Forms.DataGridView) then 
+        do:
+          oFormsGrid# = cast(oWidget#, System.Windows.Forms.DataGridView).
+          iFirstDispRow# = sc_getuiframevalues:GetUiValueInt(oFrmLogicIP#, sc_widgettype:i_Grid, cWidgetNameIP#, "FirstDisplayedScrollingRowIndex").
+          if iFirstDispRow# >= 0 then 
+          do:
+            paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oFormsGrid#, "CurrentCell", output oControl#).
+            if valid-object(oControl#) and type-of(oControl#, System.Windows.Forms.DataGridViewCell) then 
+            do:
+              oFormsCell# = cast(oControl#, System.Windows.Forms.DataGridViewCell).
+              iCurrentColumn# = oFormsCell#:OwningColumn:DisplayIndex.
+            end.
+          end.
+          oFormsGrid#:SuspendLayout().
+        end.
+        
+        /* N.B. If we need to scroll to the column as well, we can use FirstDisplayedScrollingColumnIndex. */
+        
+        oQryIP#:QueryOpenAndReposition().
+        
+        if oFormsGrid# <> ? then 
+        do:
+          if iFirstDispRow# > 0 then 
+          do:
+            sc_displaydata:SetUiValue(oFrmLogicIP#, sc_widgettype:i_Grid, "_DATA_", "FirstDisplayedScrollingRowIndex", iFirstDispRow#).
+          end.
+          if iCurrentColumn# > 0 then 
+          do:
+            oFormsGrid#:CurrentCell = oFormsGrid#:CurrentCell:OwningRow:Cells[iCurrentColumn#].
+          end.
+          oFormsGrid#:ResumeLayout().
+        end.
+        
+      end.
+      
+    end.
+    
+  end method. /* RefreshData ; Grid + i_qry */
+  
+  
   method public static void SetUiValue(
     
     /* Directly set any property of any widget to a new value, without databinding.
@@ -378,7 +449,8 @@ class paninui.view.use.display.sc_displaydata   :
       if valid-object(oWidget#) then 
       do:
         
-        if type-of(oWidget#, System.Windows.Forms.Control) then do:
+        if type-of(oWidget#, System.Windows.Forms.Control) then 
+        do:
           oFormsControl# = cast(oWidget#, System.Windows.Forms.Control).
         end.
         
@@ -417,6 +489,29 @@ class paninui.view.use.display.sc_displaydata   :
       SetUiValueImplement(oWidget#, cPropertyIP#, iValueIP#).
 
   end method. /* SetUiValue ; ComboBox */
+
+
+  method public static void SetUiValue(
+    
+    /* Directly set any property of a grid widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oFrmLogicIP#    as i_frmlogic,
+    oGridOVID#      as i_widgettype_grid,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    iValueIP#       as integer):
+      
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, iValueIP#).
+
+  end method. /* SetUiValue ; Grid */
 
 
   method public static void SetUiValue(
