@@ -3,15 +3,16 @@ using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 using panaedra.msroot.msdr.logic.*.
 using paninui.view.init.display.*.
+using panaedra.msex.logic.*.
 
 class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interfaces.i_qry:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-06 14:50:49+01:00 $ 
-    Date Modified: $Modtime: 2009-11-06 14:49:00+01:00 $ 
+     Date Checkin: $Date: 2009-11-22 23:40:21+01:00 $ 
+    Date Modified: $Modtime: 2009-11-22 18:04:34+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -23,7 +24,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -94,20 +95,28 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
     /* Generate a simple prepare string using "of" and "first" or "each" statements */
     
-    define variable cPrep#     as character no-undo.
-    define variable iBuff#     as integer   no-undo.
-    define variable iBuffSub#  as integer   no-undo.
-    define variable cBuff#     as character no-undo.
-    define variable hBuff#     as handle    no-undo.
-    define variable hBuffSub#  as handle    no-undo.
-    define variable cIDfield#  as character no-undo.
-    define variable cFiach#    as character no-undo. /* "first" or "each" */
-    define variable hField#    as handle    no-undo.
-    define variable iOfBuffer# as integer   no-undo.
+    define variable cPrep#           as character no-undo.
+    define variable iBuff#           as integer   no-undo.
+    define variable iBuffSub#        as integer   no-undo.
+    define variable cBuff#           as character no-undo.
+    define variable hBuff#           as handle    no-undo.
+    define variable hBuffSub#        as handle    no-undo.
+    define variable cIDfield#        as character no-undo.
+    define variable cFiach#          as character no-undo. /* "first" or "each" */
+    define variable hField#          as handle    no-undo.
+    define variable iOfBuffer#       as integer   no-undo.
+    define variable bOuterJoin#      as logical   no-undo.
+    define variable cOfPhraseBuffer# as character no-undo.
     
     do iBuff# = 1 to hQueryIP#:num-buffers:
       
       hBuff# = hQueryIP#:get-buffer-handle(iBuff#).
+    
+      bOuterJoin#  =   sc_prop:GetProp(hBuff#,"bOuterJoin") = "true".
+      if bOuterJoin# = ? then bOuterJoin# = false.
+    
+      cOfPhraseBuffer# = sc_prop:GetProp(hBuff#,"cOfPhraseBuffer").
+      if cOfPhraseBuffer# = ? then cOfPhraseBuffer# = "".
       
       assign
         cBuff# = hBuff#:name.
@@ -138,13 +147,13 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
       /* Generate the prepare string */
       cPrep# = 
         cPrep# + (if iBuff# = 1 then "for " else ", ") + cFiach# + " " +
-        cBuff# + " /*[qWhere_" + trim(string(iBuff#,"999")) + "]*/"  + 
+        cBuff# + " no-lock /*[qWhere_" + trim(string(iBuff#,"999")) + "]*/"  + 
         (if iBuff# = 1 then "" else " of " 
         + 
-        (if cBuff# begins "ttCalc" or cBuff# matches("*-ttCalc*") then replace(cBuff#,"ttCalc","tt") else hQueryIP#:get-buffer-handle(iOfBuffer#):name))
-        + 
-        " no-lock " +
-        (if cBuff# begins "ttCalc" or cBuff# matches("*-ttCalc*") then "outer-join " else ""). 
+        (if cOfPhraseBuffer# > "" then cOfPhraseBuffer# else
+        (if cBuff# begins "ttCalc" or cBuff# matches("*-ttCalc*") then replace(cBuff#,"ttCalc","tt") else hQueryIP#:get-buffer-handle(iOfBuffer#):name)))
+        + " " +
+        (if bOuterJoin# or cBuff# begins "ttCalc" or cBuff# matches("*-ttCalc*") then "outer-join " else " "). 
       
     end.
     
@@ -293,6 +302,30 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     return QueryOpen(false).
     
   end method. /* QueryOpen ; parameterless */
+  
+
+  method public logical QueryOpenAndReposition():
+    
+    define variable rReposition# as rowid   no-undo extent 18.
+    define variable iTell#       as integer no-undo.
+    define variable bReturn#     as logical no-undo.
+    
+    rReposition# = ?.
+    
+    do iTell# = 1 to min(sys__hQuery:num-buffers, 18):
+      rReposition#[iTell#] = sys__hQuery:get-buffer-handle(iTell#):rowid.
+    end.
+    
+    bReturn# = QueryOpen(false).
+    
+    if bReturn# and rReposition#[1] <> ? then 
+    do:
+      sys__hQuery:reposition-to-rowid(rReposition#).
+    end.
+    
+    return bReturn#.
+    
+  end method. /* QueryOpenAndReposition */
   
 
   method public logical QueryOpen(bPointerBeforeFirstIP# as logical):
@@ -474,6 +507,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
         then 
         sys__oParentQry:sys__oBindingSource:RefreshAll().
     end.
+
+    catch ex as Progress.Lang.Error:
+      sc_showexception:ShowException(ex).
+    end catch.
 
   end method. /* UiRefreshAll */
 
