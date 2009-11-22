@@ -15,10 +15,10 @@ class paninui.view.use.sc_coll_widgetdata
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 20 $ 
+          Version: $Revision: 21 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-17 17:35:15+01:00 $ 
-    Date Modified: $Modtime: 2009-11-17 11:46:00+01:00 $ 
+     Date Checkin: $Date: 2009-11-22 23:40:21+01:00 $ 
+    Date Modified: $Modtime: 2009-11-22 21:26:23+01:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -30,7 +30,7 @@ class paninui.view.use.sc_coll_widgetdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 20 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 21 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -331,28 +331,25 @@ class paninui.view.use.sc_coll_widgetdata
         
     end.
           
-  end method. /* GetBindingSource */
+  end method. /* GetBindingSource + BufferOrQuery*/
   
   
-  /*  method public static Progress.Lang.Object GetBindingSource(                  */
-  /*    input  oWidgetIP#      as Progress.Lang.Object):                           */
-  /*                                                                               */
-  /*    define variable cLinkName#    as character no-undo.                        */
-  /*    define variable cLinkNameAlt# as character no-undo.                        */
-  /*                                                                               */
-  /*    define buffer ttUIFrame    for ttUIFrame.                                  */
-  /*    define buffer ttWidgetData for ttWidgetData.                               */
-  /*                                                                               */
-  /*    do for ttUIFrame, ttWidgetData:                                            */
-  /*                                                                               */
-  /*      find first ttWidgetData where ttWidgetData.oWidget = oWidgetIP# no-error.*/
-  /*                                                                               */
-  /*      return if avail ttWidgetData then ttWidgetData.oBindingSource else ?.    */
-  /*                                                                               */
-  /*    end.                                                                       */
-  /*                                                                               */
-  /*  end method. /* GetBindingSource */                                           */
-  /*                                                                               */
+  method public static Progress.Lang.Object _sys_GetBindingSource(
+    input  oWidgetIP#      as Progress.Lang.Object):
+
+    define buffer ttUIFrame    for ttUIFrame.
+    define buffer ttWidgetData for ttWidgetData.
+
+    do for ttUIFrame, ttWidgetData:
+
+      find first ttWidgetData where ttWidgetData.oWidget = oWidgetIP# no-error.
+
+      return if avail ttWidgetData then ttWidgetData.oBindingSource else ?.
+
+    end.
+
+  end method. /* _sys_GetBindingSource , directly by Object */
+
   
   method public static void GetLinkNameLinkNameAlt(
     cDataRefIP#       as character, 
