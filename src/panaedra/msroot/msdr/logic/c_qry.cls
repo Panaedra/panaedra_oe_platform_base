@@ -9,10 +9,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 13 $ 
+          Version: $Revision: 14 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-22 23:40:21+01:00 $ 
-    Date Modified: $Modtime: 2009-11-22 18:04:34+01:00 $ 
+     Date Checkin: $Date: 2009-11-23 14:51:23+01:00 $ 
+    Date Modified: $Modtime: 2009-11-23 14:50:20+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -24,7 +24,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -54,6 +54,12 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   define public property cPrepareString as character no-undo 
     get:
       return if valid-handle(sys__hQuery) then sys__hQuery:prepare-string else "[no_valid_query]".
+    end get. /* cPrepareString */
+
+
+  define public property bIsOpen as logical no-undo 
+    get:
+      return if valid-handle(sys__hQuery) then sys__hQuery:is-open else ?.
     end get. /* cPrepareString */
 
 
