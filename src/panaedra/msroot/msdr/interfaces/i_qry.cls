@@ -5,10 +5,10 @@ interface panaedra.msroot.msdr.interfaces.i_qry:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/interfaces/i_qry.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-22 23:40:21+01:00 $ 
-    Date Modified: $Modtime: 2009-11-22 21:38:19+01:00 $ 
+     Date Checkin: $Date: 2009-11-23 14:51:23+01:00 $ 
+    Date Modified: $Modtime: 2009-11-23 14:51:02+01:00 $ 
 
       Description: Interface for a class that wraps an ABL query handle
 
@@ -18,6 +18,7 @@ interface panaedra.msroot.msdr.interfaces.i_qry:
   
   define public property iNumBuffers         as integer   no-undo get.
   define public property cPrepareString      as character no-undo get.
+  define public property bIsOpen             as logical   no-undo get.
   define public property cName               as character no-undo get. set.
 
   define public property sys__hQuery         as handle    no-undo get. set.
