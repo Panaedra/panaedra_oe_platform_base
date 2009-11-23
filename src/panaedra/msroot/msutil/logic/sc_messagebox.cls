@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 11 $ 
+          Version: $Revision: 12 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-05 23:28:07+01:00 $ 
-    Date Modified: $Modtime: 2009-11-05 23:22:03+01:00 $ 
+     Date Checkin: $Date: 2009-11-23 13:25:06+01:00 $ 
+    Date Modified: $Modtime: 2009-11-23 13:23:46+01:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -26,7 +26,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -197,14 +197,14 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
     message 
       cProgramName# skip
       cMsgIP#[1]    skip
-      if extent(cMsgIP#) < 2 then "" else cMsgIP#[2] skip
-      if extent(cMsgIP#) < 3 then "" else cMsgIP#[3] skip
-      if extent(cMsgIP#) < 4 then "" else cMsgIP#[4] skip
-      if extent(cMsgIP#) < 5 then "" else cMsgIP#[5] skip
-      if extent(cMsgIP#) < 6 then "" else cMsgIP#[6] skip
-      if extent(cMsgIP#) < 7 then "" else cMsgIP#[7] skip
-      if extent(cMsgIP#) < 8 then "" else cMsgIP#[8] skip
-      if extent(cMsgIP#) < 9 then "" else cMsgIP#[9]
+      if extent(cMsgIP#) < 2 or cMsgIP#[2] = "" then "" else cMsgIP#[2] + "~n"
+      if extent(cMsgIP#) < 3 or cMsgIP#[3] = "" then "" else cMsgIP#[3] + "~n"
+      if extent(cMsgIP#) < 4 or cMsgIP#[4] = "" then "" else cMsgIP#[4] + "~n"
+      if extent(cMsgIP#) < 5 or cMsgIP#[5] = "" then "" else cMsgIP#[5] + "~n"
+      if extent(cMsgIP#) < 6 or cMsgIP#[6] = "" then "" else cMsgIP#[6] + "~n"
+      if extent(cMsgIP#) < 7 or cMsgIP#[7] = "" then "" else cMsgIP#[7] + "~n"
+      if extent(cMsgIP#) < 8 or cMsgIP#[8] = "" then "" else cMsgIP#[8] + "~n"
+      if extent(cMsgIP#) < 9 or cMsgIP#[9] = "" then "" else cMsgIP#[9]
       view-as alert-box title
       subst("Panaedra Debug &1", substring(iso-date(now),1,23)
       ).    
