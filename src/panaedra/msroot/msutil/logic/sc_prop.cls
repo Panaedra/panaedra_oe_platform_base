@@ -1,13 +1,15 @@
 {panaedra/msi/logic/ctop_class.i}
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_prop: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_prop.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-26 09:26:36+01:00 $ 
-    Date Modified: $Modtime: 2009-10-26 09:09:03+01:00 $ 
+     Date Checkin: $Date: 2009-11-24 14:15:50+01:00 $ 
+    Date Modified: $Modtime: 2009-11-24 13:33:09+01:00 $ 
 
       Description: Class implementation of generic loose coupled properties.
                    
@@ -19,7 +21,7 @@ class panaedra.msroot.msutil.logic.sc_prop:
   /************************  Source control constructor ************************/
   constructor public sc_prop(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -227,7 +229,7 @@ class panaedra.msroot.msutil.logic.sc_prop:
     
   method public static character GetSharedVar
     (cVarDestIdIP# as character, 
-     cVarLabelIP#  as character):
+    cVarLabelIP#  as character):
       
     find ttSharedVars where ttSharedVars.VarDestId = cVarDestIdIP#
       and ttSharedVars.varLabel = cVarLabelIP#
@@ -243,8 +245,8 @@ class panaedra.msroot.msutil.logic.sc_prop:
 
   method public static logical PutSharedVar
     (cVarDestIdIP#    as char  ,
-     cVarLabelIP#     as char  ,
-     cVarValueIP#     as char  ):
+    cVarLabelIP#     as char  ,
+    cVarValueIP#     as char  ):
 
     find ttSharedVars where ttSharedVars.VarDestId = cVarDestIdIP#
       and ttSharedVars.VarLabel     = cVarLabelIP#
@@ -282,6 +284,63 @@ class panaedra.msroot.msutil.logic.sc_prop:
     return.
   
   end method. /* DispSharedVar */
+
+
+  method public static void SetBufferPropsFromHelpString (input hBuffIP# as handle):
+    
+    /* This method converts a help string that's in the following format : 
+       " [private-data] Prop01=Value01 | Prop02=Value02 " into a  
+       property string which you can use with GetProp (and SetProp).
+       
+       N.B.   Settings like " [label] SomeLabel " are ignored in this method.
+              Only the [private-data] setting is used.
+              
+       N.B. 2 You must use the rcode-information setting on the temp-table.
+       
+    */
+    
+    define variable iTell#  as integer   no-undo.
+    define variable hField# as handle    no-undo.
+    define variable cHelp#  as character no-undo.
+    
+    do iTell# = 1 to hBuffIP#:num-fields:
+      hField# = hBuffIP#:buffer-field(iTell#).
+      cHelp# = hField#:help.
+      if cHelp# matches "*[private-data]*" then
+        PropsFromString(hField#, sc_string_csv:GetParam(cHelp#,"private-data")).
+    end.
+
+  end method. /* SetBufferPropsFromHelpString */
+
+  method public static void SetDataObjectPropsFromHelpString(hDataObjectIP# as handle):
+    
+    /* See comment in SetBufferPropsFromHelpString */
+    
+    define variable iTell# as integer no-undo.
+    
+    case hDataObjectIP#:type:
+      
+      when "buffer" then 
+        do:
+          SetBufferPropsFromHelpString(hDataObjectIP#).
+        end.
+      when "query" then 
+        do:
+          do iTell# = 1 to hDataObjectIP#:num-buffers:
+            SetBufferPropsFromHelpString(hDataObjectIP#:get-buffer-handle(iTell#)).
+          end.
+        end.
+      when "dataset" then 
+        do:
+          /* TODO: Check of num-buffers hier op een dataset ook werkt, of dat je top-buffers en data-relations moet gebruiken */
+          do iTell# = 1 to hDataObjectIP#:num-buffers:
+            SetBufferPropsFromHelpString(hDataObjectIP#:get-buffer-handle(iTell#)).
+          end.
+        end.
+        
+    end case. 
+
+  end method. /* SetDataObjectPropsFromHelpString */
 
 end class.
 
