@@ -1,4 +1,6 @@
 {panaedra/msi/logic/ctop_class.i}        
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 
 class paninui.view.init.display.c_bindingsource
   inherits
@@ -11,10 +13,10 @@ class paninui.view.init.display.c_bindingsource
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/display/c_bindingsource.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-23 20:47:41+01:00 $ 
-    Date Modified: $Modtime: 2009-11-23 20:31:00+01:00 $ 
+     Date Checkin: $Date: 2009-11-24 14:15:36+01:00 $ 
+    Date Modified: $Modtime: 2009-11-24 14:08:31+01:00 $ 
 
       Description:  _CMPNY_ inheritance van de progress DataSource. 
                     Bedoeld om onvolkomenheden van de progress DataSource
@@ -27,7 +29,7 @@ class paninui.view.init.display.c_bindingsource
   /************************  Source control constructor ************************/
   constructor public c_bindingsource(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -89,14 +91,6 @@ class paninui.view.init.display.c_bindingsource
 
     do on error undo, throw:
 
-      &if opsys = "unix" &then
-      &else
-      /* TODO: Don't know the exact effects of the following three settings. */
-      this-object:AutoSort = true.
-      this-object:AutoSync = true.
-      this-object:Batching = true.
-      &endif
-
       cLocalName = hBufferIP#:name.
       if (cLocalName = "" or cLocalName = ?)  then cLocalName = hBufferIP#:type.
 
@@ -109,10 +103,7 @@ class paninui.view.init.display.c_bindingsource
         rWorkaroundCreate# = hBufferIP#:rowid.
       end.
 
-      &if opsys = "unix" &then
-      &else
-      this-object:Handle = hBufferIP#.
-      &endif
+      SetHandle(hBufferIP#).
 
       if rWorkaroundCreate# <> ? then
       do:
@@ -151,14 +142,7 @@ class paninui.view.init.display.c_bindingsource
     else
       hQuery# = hBufferOrQueryIP#.
 
-    &if opsys = "unix" &then
-    &else
-    /* TODO: Don't know the exact effects of the following three settings. */
-    this-object:AutoSort = true.
-    this-object:AutoSync = true.
-    this-object:Batching = true.
-    this-object:Handle = hQuery#.
-    &endif
+    SetHandle(hQuery#).
 
     cLocalName = hBufferOrQueryIP#:name.
     if (cLocalName = "" or cLocalName = ?) and hBufferOrQueryIP#:type = "query" then cLocalName = hBufferOrQueryIP#:get-buffer-handle(1):name no-error.
@@ -169,6 +153,78 @@ class paninui.view.init.display.c_bindingsource
       then run panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.p("evt@c_bindingsource@queryopen", "", this-object).
 
   end constructor.
+
+
+  method protected void SetHandle(hDataObjectIP# as handle):
+    
+    define variable iTell# as integer   no-undo.
+    define variable cTemp# as character no-undo.
+    define variable cSkip# as character no-undo.
+    
+    &if opsys = "unix" &then
+    &else
+    /* TODO: Don't know the exact effects of the following three settings. */
+    this-object:AutoSort = true.
+    this-object:AutoSync = true.
+    this-object:Batching = true.
+    
+    sc_prop:SetDataObjectPropsFromHelpString(hDataObjectIP#).
+
+    case hDataObjectIP#:type:
+      
+      when "buffer" then 
+        do:
+          cSkip# = GetFieldsNoDataBindingString(hDataObjectIP#).
+        end.
+        
+      when "query" or 
+      when "dataset" then 
+        /* TODO: Check of num-buffers hier op een dataset ook werkt, of dat je top-buffers en data-relations moet gebruiken */
+        do:
+          do iTell# = 1 to hDataObjectIP#:num-buffers:
+            cTemp# = GetFieldsNoDataBindingString(hDataObjectIP#:get-buffer-handle(iTell#)).
+            if cTemp# > "" then cSkip# = cSkip# + "," + cTemp#.
+          end.
+          cSkip# = substring(cSkip#, 2).
+        end.
+
+    end case.
+    
+    if cSkip# > "" then 
+    do:
+      this-object:SetFields("*",cSkip#,"").
+    end. 
+
+    this-object:Handle = hDataObjectIP#.
+    &endif
+
+  end method. /* SetHandle */
+
+
+  method protected static character GetFieldsNoDataBindingString(hBuffIP# as handle):
+    
+    define variable cReturn# as character no-undo.
+    define variable iTell#   as integer   no-undo.
+    define variable hField#  as handle    no-undo.
+    define variable cSkip#   as character no-undo.
+    
+    do iTell# = 1 to hBuffIP#:num-fields:
+      hField# = hBuffIP#:buffer-field(iTell#).
+      cSkip# = sc_prop:GetProp(hField#, "NoDataBinding").
+      if logical(cSkip#) then 
+      do:
+        /* 10.2A02: Strangely, for a skip phrase you must use the table name and not the buffer 
+                    name... this might be a 10.2A02 bug, seems odd to me, since several 
+                    buffers of the same table can be in one query. */
+        cReturn# = cReturn# + "," + subst("&1.&2", hBuffIP#:table-handle:name, hField#:name).
+      end.
+    end.
+    
+    cReturn# = substring(cReturn#, 2).
+    
+    return cReturn#.
+
+  end method. /* GetSkipFieldsString */  
   
   
   method public override character ToString():
