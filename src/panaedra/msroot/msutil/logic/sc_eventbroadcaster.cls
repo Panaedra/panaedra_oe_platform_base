@@ -8,10 +8,10 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_eventbroadcaster.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-05 18:07:59+01:00 $ 
-    Date Modified: $Modtime: 2009-11-05 18:03:02+01:00 $ 
+     Date Checkin: $Date: 2009-11-26 16:46:38+01:00 $ 
+    Date Modified: $Modtime: 2009-11-26 16:44:33+01:00 $ 
 
       Description: Broadcasts events; 
                    loose-coupled event mechanism for session-wide events.
@@ -48,7 +48,7 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
   /************************  Source control constructor ************************/
   constructor public sc_eventbroadcaster(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -119,37 +119,37 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
   end method. /* UnSubscribeAllEvents */  
   
   
-  method public static void FireEvent(cEventNameIP# as char):
+  method public static logical FireEvent(cEventNameIP# as char):
     
-    FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#)).
+    return FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#)).
 
   end method. /* FireEvent ; char */  
   
   
-  method public static void FireEvent(cEventNameIP# as char, cEventDataIP# as char):
+  method public static logical FireEvent(cEventNameIP# as char, cEventDataIP# as char):
     
-    FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, cEventDataIP#)).
+    return FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, cEventDataIP#)).
 
   end method. /* FireEvent ; char + char */  
   
   
-  method public static void FireEvent(cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object):
+  method public static logical FireEvent(cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object):
     
-    FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#)).
+    return FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#)).
 
   end method. /* FireEvent ; char + Object */  
   
 
-  method public static void FireEvent(cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object, cEventDataIP# as char):
+  method public static logical FireEvent(cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object, cEventDataIP# as char):
     
-    FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#, cEventDataIP#)).
+    return FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#, cEventDataIP#)).
 
-  end method. /* FireEvent ; char + Object + char*/  
+  end method. /* FireEvent ; char + Object + char */  
   
 
   method public static logical FireCustomEvent(cEventNameIP# as char, oDataIP# as i_eventbroadcastdata):
     
-    FireEventImplement(cEventNameIP#, oDataIP#).
+    return FireEventImplement(cEventNameIP#, oDataIP#).
 
   end method. /* FireCustomEvent */  
 
