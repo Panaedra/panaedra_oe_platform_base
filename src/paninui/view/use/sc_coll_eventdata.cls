@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 24 $ 
+          Version: $Revision: 25 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-22 23:40:21+01:00 $ 
-    Date Modified: $Modtime: 2009-11-22 22:43:02+01:00 $ 
+     Date Checkin: $Date: 2009-11-27 15:13:03+01:00 $ 
+    Date Modified: $Modtime: 2009-11-27 14:56:13+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,13 +31,13 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 24 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 25 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  define protected static variable oSingleton as sc_coll_eventdata no-undo.
+  define protected static variable oSingleton                           as sc_coll_eventdata no-undo.
   
-  define protected        variable bSuspendCurrentCellDirtyStateChanged as logical no-undo.
+  define protected        variable bSuspendCurrentCellDirtyStateChanged as logical           no-undo.
 
   constructor protected sc_coll_eventdata():
     
@@ -429,11 +429,19 @@ class paninui.view.use.sc_coll_eventdata
           
           oFormsCombobox# = cast(oWidget#,System.Windows.Forms.ComboBox).
           if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+          do: 
             case cEventTypeIP#:
-              when "TextChanged" then oFormsCombobox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+              
+              when "TextChanged" 
+              then oFormsCombobox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+              
+              when "SelectionChangeCommitted" 
+              then oFormsCombobox#:SelectionChangeCommitted:Subscribe(oSingleton:OnEventArgsHandler_SelectionChangeCommitted).
+              
             end case.
+          end.
             
-        end.
+        end. /* ComboBox */
         
         return ItemAddImplement(
           iPackIDIP#, 
@@ -789,6 +797,37 @@ class paninui.view.use.sc_coll_eventdata
   end. /* OnEventArgsHandler_TextChanged */
   
   
+  method private void OnEventArgsHandler_SelectionChangeCommitted(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable bEclipseFix# as logical                           no-undo.
+    define variable oComboBox#   as System.Windows.Forms.ComboBox     no-undo.
+    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "SelectionChangeCommitted"
+        on error undo,throw:
+        if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+        do:
+          assign
+            oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
+            oUiValue#  = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
+        end.
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end. /* OnEventArgsHandler_SelectionChangeCommitted */  
+
+  
   method private void OnEventArgsHandler_KeyPress(oSender# as System.Object, oArgs# as System.EventArgs):
     
     define variable bEclipseFix#        as logical                                        no-undo.
@@ -1122,23 +1161,23 @@ class paninui.view.use.sc_coll_eventdata
     do for ttUiEvent on error undo, throw:
       
       if not bSuspendCurrentCellDirtyStateChanged then
-      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "CellValueChanged"
-        on error undo,throw:
-        if type-of(oSender#, System.Windows.Forms.DataGridView) then 
-        do:
-          assign
-            oFormsGrid# = cast(oSender#, System.Windows.Forms.DataGridView)
-            oUiValue#   = new c_uivalue_griditem(oFormsGrid#:Name, oFormsGrid#:Enabled, oFormsGrid#:Visible).
-        end.
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,?,1234)).
-        if type-of(oSender#, System.Windows.Forms.DataGridView) then 
-        do:
-          bSuspendCurrentCellDirtyStateChanged = true.
-          oFormsGrid#:CommitEdit(System.Windows.Forms.DataGridViewDataErrorContexts:Commit).
-          bSuspendCurrentCellDirtyStateChanged = false.
-        end.
+        for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "CellValueChanged"
+          on error undo,throw:
+          if type-of(oSender#, System.Windows.Forms.DataGridView) then 
+          do:
+            assign
+              oFormsGrid# = cast(oSender#, System.Windows.Forms.DataGridView)
+              oUiValue#   = new c_uivalue_griditem(oFormsGrid#:Name, oFormsGrid#:Enabled, oFormsGrid#:Visible).
+          end.
+          sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,?,1234)).
+          if type-of(oSender#, System.Windows.Forms.DataGridView) then 
+          do:
+            bSuspendCurrentCellDirtyStateChanged = true.
+            oFormsGrid#:CommitEdit(System.Windows.Forms.DataGridViewDataErrorContexts:Commit).
+            bSuspendCurrentCellDirtyStateChanged = false.
+          end.
         
-      end.
+        end.
       
       catch ex as Progress.Lang.Error:
         /* Catch needed in all .NET events */
