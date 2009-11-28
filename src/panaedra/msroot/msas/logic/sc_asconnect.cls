@@ -1,13 +1,15 @@
 {panaedra/msi/logic/ctop_class.i}
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 
-class panaedra.msb.logic.sc_asconnect : 
+class panaedra.msb.logic.sc_asconnect implements i_eventbroadcastclient: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msb/logic/sc_asconnect.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-03 12:28:27+01:00 $ 
-    Date Modified: $Modtime: 2009-11-03 12:18:16+01:00 $ 
+     Date Checkin: $Date: 2009-11-28 17:30:58+01:00 $ 
+    Date Modified: $Modtime: 2009-11-28 15:53:21+01:00 $ 
 
       Description: Methods aan te roepen vanaf de client om een 
                    appserver connectie te maken.
@@ -17,11 +19,16 @@ class panaedra.msb.logic.sc_asconnect :
   /************************  Source control constructor ************************/
   constructor public sc_asconnect(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
+
+  define protected static variable bInitialized as logical                      no-undo.
+  define protected static variable oSingleton   as panaedra.msb.logic.sc_asconnect no-undo.
   
-  define protected static variable bInitialized as logical no-undo.
+  define static property bOffLine as logical no-undo 
+    public    get.
+    protected set.
   
   define protected static temp-table ttAsConnect no-undo rcode-info
     field cEnv       as char xml-node-type "attribute"
@@ -33,7 +40,16 @@ class panaedra.msb.logic.sc_asconnect :
     .
   
   
+  constructor protected sc_asconnect():
+    
+    panaedra.msroot.msutil.logic.sc_eventbroadcaster:SubscribeEvent(this-object, "evt@OfflineStatusChange").
+
+  end constructor.
+
+  
   method public static void Initialize():
+    
+    if oSingleton = ? then oSingleton = new panaedra.msb.logic.sc_asconnect().
     
     temp-table ttAsConnect:read-xml("file", panaedra.msf.logic.sc_path:cIniDir + "sc_asconnect.config", "empty", ?, false).
     
@@ -159,7 +175,7 @@ class panaedra.msb.logic.sc_asconnect :
          10.2A02 TW
       */
       else if not ttAsConnect.hAppserver:connected() 
-        then ConnectToServer(cMirrorIP#).
+          then ConnectToServer(cMirrorIP#).
     end.
       
     hReturn# = ttAsConnect.hAppserver.
@@ -209,6 +225,23 @@ class panaedra.msb.logic.sc_asconnect :
       return (if session:batch-mode then "BatchSession" else "InLine").
 
   end method. /* GetAppserverID */  
+
+
+  method void OnEventBroadcast(oBroadcastDataIP# as i_eventbroadcastdata):
+    
+    case oBroadcastDataIP#:cEventName:
+      
+      when "evt@OfflineStatusChange" then 
+        case oBroadcastDataIP#:cData:
+          when "OnLine" then 
+            bOffLine = false.
+          when "OffLine" then 
+            bOffLine = true.
+        end case.
+     
+    end case.
+    
+  end method. /* OnEventBroadcast */
 
 end class.
 
