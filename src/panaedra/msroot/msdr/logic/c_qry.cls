@@ -9,10 +9,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 14 $ 
+          Version: $Revision: 15 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-23 14:51:23+01:00 $ 
-    Date Modified: $Modtime: 2009-11-23 14:50:20+01:00 $ 
+     Date Checkin: $Date: 2009-12-03 11:45:27+01:00 $ 
+    Date Modified: $Modtime: 2009-12-02 15:44:19+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -24,15 +24,25 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected variable hQueryPrivate       as handle no-undo.
   define protected variable hQueryOnHoldPrivate as handle no-undo.
   
-  define public property sys__oParentQry     as panaedra.msroot.msdr.interfaces.i_qry no-undo get. set.
-  define public property sys__oBindingSource as c_bindingsource no-undo get. set.
+  define property sys__oParentQry     as panaedra.msroot.msdr.interfaces.i_qry no-undo 
+    public get. 
+    public set.
+    
+  define property sys__oBindingSource as c_bindingsource no-undo 
+    public get. 
+    public set.
+    
+  define property iNumResults         as integer no-undo 
+    public get:
+      return (if valid-handle(hQueryPrivate) then hQueryPrivate:num-results else 0).
+    end get. 
 
   define public property sys__hQuery as handle no-undo
     get:
