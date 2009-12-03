@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 26 $ 
+          Version: $Revision: 27 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-03 11:45:27+01:00 $ 
-    Date Modified: $Modtime: 2009-12-02 16:26:01+01:00 $ 
+     Date Checkin: $Date: 2009-12-03 14:53:26+01:00 $ 
+    Date Modified: $Modtime: 2009-12-03 14:48:16+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 26 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 27 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -833,7 +833,7 @@ class paninui.view.use.sc_coll_eventdata
         
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, oUiEventData#).
         
-        if valid-object(oUiValueCombobox#) and oUiValueCombobox#:cText <> cPreviousText# then 
+        if valid-object(oUiValueCombobox#) and (oUiValueCombobox#:cText <> cPreviousText# or oUiValueCombobox#:cText = "") then 
         do:
           /* Do a delayed display, via BeginInvoke. */
           paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValueByFormsInvoke(oComboBox#, "Text", oUiValueCombobox#:cText).
@@ -842,8 +842,6 @@ class paninui.view.use.sc_coll_eventdata
         delete object oUiEventData#.
           
       end.
-      
-      
       
       catch ex as Progress.Lang.Error:
         /* Catch needed in all .NET events */
