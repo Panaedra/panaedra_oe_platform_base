@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 27 $ 
+          Version: $Revision: 28 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-03 14:53:26+01:00 $ 
-    Date Modified: $Modtime: 2009-12-03 14:48:16+01:00 $ 
+     Date Checkin: $Date: 2009-12-04 16:09:35+01:00 $ 
+    Date Modified: $Modtime: 2009-12-04 14:27:12+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 27 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 28 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -438,6 +438,18 @@ class paninui.view.use.sc_coll_eventdata
               when "SelectionChangeCommitted" 
               then oFormsCombobox#:SelectionChangeCommitted:Subscribe(oSingleton:OnEventArgsHandler_SelectionChangeCommitted).
               
+              when "SelectedValueChanged" 
+              then oFormsCombobox#:SelectedValueChanged:Subscribe(oSingleton:OnEventArgsHandler_SelectedValueChanged).
+              
+              when "SelectedIndexChanged" 
+              then oFormsCombobox#:SelectedIndexChanged:Subscribe(oSingleton:OnEventArgsHandler_SelectedIndexChanged).
+              
+              when "DropDown" 
+              then oFormsCombobox#:DropDown:Subscribe(oSingleton:OnEventArgsHandler_DropDown).
+              
+              when "DropDownClosed" 
+              then oFormsCombobox#:DropDownClosed:Subscribe(oSingleton:OnEventArgsHandler_DropDownClosed).
+              
             end case.
           end.
             
@@ -799,13 +811,13 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_SelectionChangeCommitted(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix#      as logical                                    no-undo.
-    define variable oComboBox#        as System.Windows.Forms.ComboBox              no-undo.
-    define variable oUiValue#         as paninui.view.interfaces.i_uivalue          no-undo.
-    define variable oUiValueCombobox# as paninui.view.use.events.c_uivalue_combobox no-undo.
-    define variable oUiEventData#     as paninui.view.use.events.c_uieventdata      no-undo.
-    define variable bHandled#         as logical                                    no-undo.
-    define variable cPreviousText#    as character                                  no-undo.
+    define variable bEclipseFix#      as logical                                        no-undo.
+    define variable oComboBox#        as System.Windows.Forms.ComboBox                  no-undo.
+    define variable oUiValue#         as paninui.view.interfaces.i_uivalue              no-undo.
+    define variable oUiValueCombobox# as paninui.view.use.events.c_uivalue_combobox     no-undo.
+    define variable oUiEventData#     as paninui.view.use.events.c_uieventdata_combobox no-undo.
+    define variable bHandled#         as logical                                        no-undo.
+    define variable cPreviousText#    as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -821,19 +833,21 @@ class paninui.view.use.sc_coll_eventdata
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "SelectionChangeCommitted"
         on error undo,throw:
           
-        oUiEventData# = new paninui.view.use.events.c_uieventdata("","",?,?).
+        oUiEventData# = new paninui.view.use.events.c_uieventdata_combobox("","",?,?).
         
         if type-of(oSender#, System.Windows.Forms.ComboBox) then 
         do:
           assign
             oUiValueCombobox# = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue)))
-            oUiValue#       = oUiValueCombobox#
-            cPreviousText#  = oComboBox#:Text.
+            oUiValue#         = oUiValueCombobox#
+            cPreviousText#    = oComboBox#:Text.
         end.
         
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, oUiEventData#).
         
-        if valid-object(oUiValueCombobox#) and (oUiValueCombobox#:cText <> cPreviousText# or oUiValueCombobox#:cText = "") then 
+        if valid-object(oUiValueCombobox#) and 
+          (oUiValueCombobox#:cText <> cPreviousText# or 
+          oUiEventData#:bForceTextUpdate) then
         do:
           /* Do a delayed display, via BeginInvoke. */
           paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValueByFormsInvoke(oComboBox#, "Text", oUiValueCombobox#:cText).
@@ -853,6 +867,126 @@ class paninui.view.use.sc_coll_eventdata
   end. /* OnEventArgsHandler_SelectionChangeCommitted */  
 
   
+  method private void OnEventArgsHandler_SelectedValueChanged(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable oComboBox# as System.Windows.Forms.ComboBox     no-undo.
+    define variable oUiValue#  as paninui.view.interfaces.i_uivalue no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "SelectedValueChanged"
+        on error undo,throw:
+        if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+        do:
+          assign
+            oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
+            oUiValue#  = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+        end.
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end method. /* OnEventArgsHandler_SelectedValueChanged */ 
+    
+    
+  method private void OnEventArgsHandler_SelectedIndexChanged(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable oComboBox# as System.Windows.Forms.ComboBox     no-undo.
+    define variable oUiValue#  as paninui.view.interfaces.i_uivalue no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "SelectedIndexChanged"
+        on error undo,throw:
+        if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+        do:
+          assign
+            oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
+            oUiValue#  = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+        end.
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end method. /* OnEventArgsHandler_SelectedIndexChanged */ 
+    
+    
+  method private void OnEventArgsHandler_DropDown(oSender# as System.Object, oArgs# as System.EventArgs):
+                                                     
+    define variable oComboBox# as System.Windows.Forms.ComboBox     no-undo.
+    define variable oUiValue#  as paninui.view.interfaces.i_uivalue no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "DropDown"
+        on error undo,throw:
+        if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+        do:
+          assign
+            oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
+            oUiValue#  = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+        end.
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end method. /* OnEventArgsHandler_SelectedIndexChanged */ 
+    
+    
+  method private void OnEventArgsHandler_DropDownClosed(oSender# as System.Object, oArgs# as System.EventArgs):
+                                                     
+    define variable oComboBox# as System.Windows.Forms.ComboBox     no-undo.
+    define variable oUiValue#  as paninui.view.interfaces.i_uivalue no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "DropDownClosed"
+        on error undo,throw:
+        if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+        do:
+          assign
+            oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
+            oUiValue#  = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+        end.
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end method. /* OnEventArgsHandler_SelectedIndexChanged */ 
+    
+    
   method private void OnEventArgsHandler_KeyPress(oSender# as System.Object, oArgs# as System.EventArgs):
     
     define variable bEclipseFix#        as logical                                        no-undo.
@@ -1026,7 +1160,7 @@ class paninui.view.use.sc_coll_eventdata
         if bHandled# then leave b_EachUiEvent.
         
       end. /* b_EachUiEvent */
-      
+
       catch ex as Progress.Lang.Error:
         /* Catch needed in all .NET events */
         sc_showexception:ShowException(ex).
