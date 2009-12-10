@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_data_analysis.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-21 19:18:37+02:00 $ 
-    Date Modified: $Modtime: 2009-10-21 19:17:52+02:00 $ 
+     Date Checkin: $Date: 2009-12-10 11:25:26+01:00 $ 
+    Date Modified: $Modtime: 2009-12-09 16:27:19+01:00 $ 
 
       Description: Class met static methods voor het analyseren van de 
                    inhoud van een (temp-)table of (temp-)table buffer.
@@ -17,7 +17,7 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
   /************************  Source control constructor ************************/
   constructor public sc_data_analysis(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -173,6 +173,36 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
       return ?.
     
   end method. /* IsRecordEmpty ; buffer handle + cSvExcludeFieldsIP# + bTrimIP# */
+
+
+  method public static logical IsDataSetEmpty(input hDataSetIP# as handle):
+    
+    /* Determine if every temp-table in this dataset is empty */
+    define variable iTempTable# as integer no-undo.
+    define variable hTempTable# as handle  no-undo.
+    define variable bIsEmpty#   as logical no-undo initial true.
+    
+    /* Check for every temp-table is there is data available */
+    b_eachtt:
+    do iTempTable# = 1 to hDataSetIP#:num-buffers:
+      
+      /* Get temp-table handle */
+      hTempTable# = hDataSetIP#:get-buffer-handle(iTempTable#).
+      
+      hTempTable#:find-first("") no-error.
+      
+      /* If there is data avail then dataset is not empty */
+      if hTempTable#:available then
+      do:
+        bIsEmpty# = false.  
+        leave b_eachtt.        
+      end.    
+      
+    end. /* b_eachtt */
+    
+    return bIsEmpty#.
+    
+  end method. /* IsDataSetEmpty */
 
 end class.
 
