@@ -5,10 +5,10 @@ interface paninui.pack.interfaces.i_pack:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/pack/interfaces/i_pack.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-26 14:56:39+01:00 $ 
-    Date Modified: $Modtime: 2009-10-26 14:03:58+01:00 $ 
+     Date Checkin: $Date: 2009-12-11 01:17:59+01:00 $ 
+    Date Modified: $Modtime: 2009-12-10 22:46:58+01:00 $ 
 
       Description: add_your_comments_here
 
@@ -16,10 +16,11 @@ interface paninui.pack.interfaces.i_pack:
 
   /******************************* $NoKeywords:  $ *****************************/
 
-  method logical LoadPack (oMdiWindowIP# as i_masterwindow).
-  method logical ShowPack (oMdiWindowIP# as i_masterwindow).
+  method logical    LoadPack (oMdiWindowIP# as i_masterwindow).
+  method logical    ShowPack (oMdiWindowIP# as i_masterwindow).
+  method i_frmlogic ShowSubFrame(cSubframeIP# as character).
   
-  define property UniqueInstanceID as int64 get.
+  define property UniqueInstanceID as int64 no-undo get.
   
 end interface.
 
