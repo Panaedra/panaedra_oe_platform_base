@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-23 13:25:06+01:00 $ 
-    Date Modified: $Modtime: 2009-11-23 13:23:46+01:00 $ 
+     Date Checkin: $Date: 2009-12-11 21:27:24+01:00 $ 
+    Date Modified: $Modtime: 2009-12-11 20:54:05+01:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -26,7 +26,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -191,7 +191,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
     
     &if opsys = "unix" or "{&window-system}" = "tty" &then
     
-    if length(cProgramName#) > 40
+    if (not session:batch-mode) and length(cProgramName#) > 40
       then cProgramName# = substring(cProgramName#, length(cProgramName#) - 39).
 
     message 
