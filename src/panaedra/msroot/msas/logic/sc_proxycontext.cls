@@ -4,10 +4,10 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_proxycontext.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-12 09:11:30+02:00 $ 
-    Date Modified: $Modtime: 2009-10-12 08:50:18+02:00 $ 
+     Date Checkin: $Date: 2009-12-11 21:28:52+01:00 $ 
+    Date Modified: $Modtime: 2009-12-11 18:42:11+01:00 $ 
 
       Description: Api-proxy functionaliteit: generieke methods die client-side (proxy)
                    worden aangeroepen.
@@ -20,7 +20,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   /************************  Source control constructor ************************/
   constructor public sc_proxycontext(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -86,20 +86,28 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   end method. /* FinallyProxyCall */
 
 
-  method public static handle GetDefaultDsContext ():
+  method public static handle GetDefaultDsContext():
     
-    if hDsContext = ? then 
-    do:
-      create dataset hDsContext.
-    
-      hDsContext:create-like(dataset dsContext:handle).
-      
-    end.
+
+    if hDsContext = ? or not valid-handle(hDsContext) then 
+      hDsContext = GetNewDsContext().
     
     return hDsContext.
-    
-  end method. /* BeginProxyCall */
 
+  end method. /* GetDefaultDsContext */
+  
+
+  method public static handle GetNewDsContext():
+    
+    define variable hDsContextLocal# as handle no-undo.
+    
+    create dataset hDsContextLocal#.
+    
+    hDsContextLocal#:create-like(dataset dsContext:handle).
+    
+    return hDsContextLocal#.
+    
+  end method. /* GetNewDsContext */
 
 end class.
 
