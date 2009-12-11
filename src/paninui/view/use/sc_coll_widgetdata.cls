@@ -15,10 +15,10 @@ class paninui.view.use.sc_coll_widgetdata
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 21 $ 
+          Version: $Revision: 22 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-22 23:40:21+01:00 $ 
-    Date Modified: $Modtime: 2009-11-22 21:26:23+01:00 $ 
+     Date Checkin: $Date: 2009-12-11 03:31:30+01:00 $ 
+    Date Modified: $Modtime: 2009-12-11 02:28:20+01:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -30,7 +30,7 @@ class paninui.view.use.sc_coll_widgetdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 21 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 22 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -464,7 +464,23 @@ class paninui.view.use.sc_coll_widgetdata
     end.
     
   end method. /* GetWidget : with dataset */
-  
+
+
+  method public static Progress.Lang.Object GetWidget(
+    input  iPackIdIP#      as int64, 
+    input  cWidgetTypeIP#  as character, 
+    input  cDataRefIP#     as character):
+    
+    define variable bDummy# as logical no-undo.
+    
+    return GetWidget(
+      input  iPackIdIP#    , 
+      input  cWidgetTypeIP#, 
+      input  cDataRefIP#   ,
+      output bDummy#).
+      
+  end method.  
+
 
   method public static Progress.Lang.Object GetWidget(
     input  iPackIdIP#      as int64, 
