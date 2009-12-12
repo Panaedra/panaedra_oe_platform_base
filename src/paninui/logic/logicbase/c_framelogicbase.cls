@@ -12,10 +12,10 @@ class paninui.logic.logicbase.c_framelogicbase
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/logic/logicbase/c_framelogicbase.cls $ 
-          Version: $Revision: 11 $ 
+          Version: $Revision: 12 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-11 01:17:59+01:00 $ 
-    Date Modified: $Modtime: 2009-12-10 22:42:06+01:00 $ 
+     Date Checkin: $Date: 2009-12-12 14:30:55+01:00 $ 
+    Date Modified: $Modtime: 2009-12-12 13:57:02+01:00 $ 
 
       Description: Baseclass for frame logic classes.
 
@@ -24,7 +24,7 @@ class paninui.logic.logicbase.c_framelogicbase
   /************************  Source control constructor ************************/
   constructor public c_framelogicbase(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -89,9 +89,9 @@ class paninui.logic.logicbase.c_framelogicbase
   end method. /* InitializeFrameView */
 
 
-  method public logical InitializeFrameViewShown():
+  method public void InitializeFrameViewShown():
     
-    return true.
+    return.
     
   end method. /* InitializeFrameViewShown */
 
