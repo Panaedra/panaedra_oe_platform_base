@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_data_analysis.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-11 15:56:58+01:00 $ 
-    Date Modified: $Modtime: 2009-12-11 09:31:44+01:00 $ 
+     Date Checkin: $Date: 2009-12-12 14:30:55+01:00 $ 
+    Date Modified: $Modtime: 2009-12-12 10:30:49+01:00 $ 
 
       Description: Class met static methods voor het analyseren van de 
                    inhoud van een (temp-)table of (temp-)table buffer.
@@ -17,7 +17,7 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
   /************************  Source control constructor ************************/
   constructor public sc_data_analysis(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -199,39 +199,68 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
     input hDataSetIP#      as handle,
     input bUseDsBuffersIP# as logical):
     
-    define variable iBuff#    as integer no-undo.
-    define variable hBuff#    as handle  no-undo.
-    define variable hBuffNew# as handle no-undo.
-    define variable bIsEmpty# as logical no-undo initial true.
+    define variable iBuff#            as integer no-undo.
+    define variable hBuff#            as handle  no-undo.
+    define variable hBuffNew#         as handle  no-undo.
+    define variable hBuffBefore#      as handle  no-undo.
+    define variable hTtBefore#        as handle  no-undo.
+    define variable bBuffFound#       as logical no-undo.
+    define variable bBuffBeforeFound# as logical no-undo.
+    define variable bIsEmpty#         as logical no-undo initial true.
     
     /* Check for every (temp-)table is there is data available */
     b_each_buff:
     do iBuff# = 1 to hDataSetIP#:num-buffers on error undo, throw:
       
+      assign
+        bBuffFound#       = true
+        bBuffBeforeFound# = true.
+      
       /* Get (temp-)table buffer handle */
       hBuff# = hDataSetIP#:get-buffer-handle(iBuff#).
       
+      /* First the normal buffer */
       if not bUseDsBuffersIP# then create buffer hBuffNew# for table hBuff# buffer-name hBuff#:name.
       else hBuffNew# = hBuff#.
       
       hBuffNew#:find-first("", no-lock) no-error.
-      
       if error-status:get-number(1) = 565 /* Normal error "find first/last failed for table x." */
-        then next b_each_buff.      
+        then bBuffFound# = false.      
+      else 
+      do:
+        if error-status:num-messages > 0 then
+          undo, throw new AppError(
+            substitute("&1~n&2", 
+            error-status:get-message(1), 
+            "Unexpected find-first error in IsDataSetEmpty"),
+            error-status:get-number(1)).  
+      end.      
+      
+      /* Then the before-table buffer */
+      hTtBefore# = hBuff#:table-handle:before-table.
+      if hTtBefore# = ? then bBuffBeforeFound# = false.
+      else 
+      do:
+        hBuffBefore# = hTtBefore#:default-buffer-handle.
+        hBuffBefore#:find-first("", no-lock) no-error.
+        if error-status:get-number(1) = 565 /* Normal error "find first/last failed for table x." */
+          then bBuffBeforeFound# = false.      
+        else 
+        do:
+          if error-status:num-messages > 0 then
+            undo, throw new AppError(
+              substitute("&1~n&2", 
+              error-status:get-message(1), 
+              "Unexpected find-first before-table error in IsDataSetEmpty"),
+              error-status:get-number(1)).  
+        end.      
+      end.
       
       /* If there is a record available then dataset is not empty */
-      if hBuffNew#:available then
+      if bBuffFound# or bBuffBeforeFound# then
       do:
         bIsEmpty# = false.  
         leave b_each_buff.        
-      end.
-      else 
-      do:
-        undo, throw new AppError(
-          substitute("&1~n&2", 
-          error-status:get-message(1), 
-          "Unexpected find-first error in IsDataSetEmpty"),
-          error-status:get-number(1)).  
       end.
       
       finally:
