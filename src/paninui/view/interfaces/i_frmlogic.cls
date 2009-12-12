@@ -3,10 +3,10 @@ interface paninui.view.interfaces.i_frmlogic:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/interfaces/i_frmlogic.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-11 01:17:59+01:00 $ 
-    Date Modified: $Modtime: 2009-12-10 22:40:44+01:00 $ 
+     Date Checkin: $Date: 2009-12-12 14:30:55+01:00 $ 
+    Date Modified: $Modtime: 2009-12-12 13:56:32+01:00 $ 
 
       Description: Interface voor PaninUi Frame Logic Classes (*_frmlg_*.cls).
 
@@ -23,7 +23,7 @@ interface paninui.view.interfaces.i_frmlogic:
   method logical  InitializeFrameLogic().
   method logical  InitializeFrameEvents().
   method logical  InitializeFrameView().
-  method logical  InitializeFrameViewShown().
+  method void     InitializeFrameViewShown().
   
 end interface.
 
