@@ -5,10 +5,10 @@ interface paninui.pack.interfaces.i_pack:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/pack/interfaces/i_pack.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-11 03:31:30+01:00 $ 
-    Date Modified: $Modtime: 2009-12-11 01:43:05+01:00 $ 
+     Date Checkin: $Date: 2009-12-12 14:30:55+01:00 $ 
+    Date Modified: $Modtime: 2009-12-12 14:13:05+01:00 $ 
 
       Description: Interface for pack objects
 
@@ -17,7 +17,7 @@ interface paninui.pack.interfaces.i_pack:
   /******************************* $NoKeywords:  $ *****************************/
 
   method logical    LoadPack (oMdiWindowIP# as i_masterwindow).
-  method logical    ShowPack (oMdiWindowIP# as i_masterwindow).
+  method void       ShowPack (oMdiWindowIP# as i_masterwindow).
   
   method logical LoadSubFrame(
     oGroupframeOverlayOVID# as i_showlocationtype_groupframeoverlay,
