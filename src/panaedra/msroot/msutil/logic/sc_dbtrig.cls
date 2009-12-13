@@ -1,15 +1,16 @@
 {panaedra/msi/logic/ctop_class.i}
-
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 using panaedra.msdr.logic.*.
 
 class panaedra.msdr.logic.sc_dbtrig   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msdr/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-18 11:36:51+01:00 $ 
-    Date Modified: $Modtime: 2009-11-18 09:49:48+01:00 $ 
+     Date Checkin: $Date: 2009-12-13 17:09:30+01:00 $ 
+    Date Modified: $Modtime: 2009-12-13 17:06:58+01:00 $ 
 
       Description: Deze class wordt aangeroepen door db delete en write triggers,
                    voor dynamische afhandeling.
@@ -28,7 +29,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -276,62 +277,113 @@ class panaedra.msdr.logic.sc_dbtrig   :
   
   method public static char GetCased(hBuffIP# as handle):
 
-    define variable cCased# as character no-undo.
+    define variable cCased#      as character no-undo.
+    define variable hFirstField# as handle    no-undo.
+    define variable cHelpString# as character no-undo.
     
-    if hBuffIP#:table-handle <> ? then 
+    /* N.B. buffer or temp-table handle has no help attribute. 
+       We use the help string (or GetProp/SetProp) of the first field of the (temp-)table buffer. 
+    */
+    
+    hFirstField# = hBuffIP#:buffer-field(1).
+    cHelpString# = hFirstField#:help.
+    
+    if cHelpString# matches "*[private-data]*" and hFirstField#:private-data = ? then
+      sc_prop:PropsFromString(hFirstField#, sc_string_csv:GetParam(cHelpString#,"private-data")).
+    
+    /* CasedTableName is optional. If set (on the first buffer field), 
+       it overrules the default flow. 
+       It can be used with "like" temp-tables, or "&ttPrefix/&ttSuffix" 
+       temp-tables as used in changesets. 
+    */
+    cCased# = sc_prop:GetProp(hFirstField#,"CasedTableName").
+    
+    if cCased# > "" then.
+    else 
     do:
-      /* N.B. namespace-uri mag bij de definitie geen spaties bevatten. */
-      cCased# = panaedra.msroot.msutil.logic.sc_string_csv:getParam(hBuffIP#:table-handle:namespace-uri,"Label").
-      if cCased# > "" then.
-      else if hBuffIP#:table-handle:name begins "tt" then cCased# = substring(hBuffIP#:table-handle:name,3).
+    
+      if hBuffIP#:table-handle <> ? then 
+      do:
+        if hBuffIP#:table-handle:name begins "tt" then cCased# = substring(hBuffIP#:table-handle:name,3).
         else cCased# = hBuffIP#:table-handle:name.
-    end.
-    else  
-      cCased# = GetDbLabel(hBuffIP#).
+      end.
+      else  
+        cCased# = GetDbLabel(hBuffIP#).
     
-    if cCased# = "" or cCased# = ? or 
-      index(cCased#, " ") > 0 then
-    do:
-      if (hBuffIP#:table <> ?) then
-        cCased# = hBuffIP#:table.
-      else if (hBuffIP#:table-handle <> ?) then
-          cCased# = hBuffIP#:table-handle:name.
-    end.
+      if cCased# = "" or cCased# = ? or 
+        index(cCased#, " ") > 0 then
+      do:
+        if (hBuffIP#:table <> ?) then
+          cCased# = hBuffIP#:table.
+        else if (hBuffIP#:table-handle <> ?) then
+            cCased# = hBuffIP#:table-handle:name.
+      end.
+      
+    end. /* CasedTableName found by GetProp */
     
-    cCased# = entry(1,cCased#,"/"). /* Voor tabellen die in een overgangsfase zitten; _DATA_ heeft bv "_DATA_/_DATA_" als label. */
+    /* For tables with an abstraction from table to temp-table; 
+       I.E. table "_CCMPNY_" could have "Pr_CCMPNY_/_CCMPNY_" as label. 
+    */
+    cCased# = entry(1,cCased#,"/"). 
     
     return cCased#.
     
   end method. /* GetCased */
 
   
-  method public static char GetNonCased(hBuffIP# as handle):
+  method public static character GetNonCased(hBuffIP# as handle):
 
-    define variable cNonCased# as character no-undo.
+    define variable cNonCased#   as character no-undo.
+    define variable hFirstField# as handle    no-undo.
+    define variable cHelpString# as character no-undo.
     
-    if hBuffIP#:table-handle <> ? then 
+    /* N.B. buffer or temp-table handle has no help attribute. 
+       We use the help string (or GetProp/SetProp) of the first field of the (temp-)table buffer. 
+    */
+    
+    hFirstField# = hBuffIP#:buffer-field(1).
+    cHelpString# = hFirstField#:help.
+    
+    if cHelpString# matches "*[private-data]*" and hFirstField#:private-data = ? then
+      sc_prop:PropsFromString(hFirstField#, sc_string_csv:GetParam(cHelpString#,"private-data")).
+    
+    /* NonCasedTableName is optional. If set (on the first buffer field), 
+       it overrules the default flow. 
+       It can be used with "like" temp-tables, or "&ttPrefix/&ttSuffix" 
+       temp-tables as used in changesets. 
+    */
+    cNonCased# = sc_prop:GetProp(hFirstField#,"NonCasedTableName").
+
+    if cNonCased# > "" then.
+    else 
     do:
-      /* N.B. namespace-uri mag bij de definitie geen spaties bevatten. */
-      cNonCased# = panaedra.msroot.msutil.logic.sc_string_csv:getParam(hBuffIP#:table-handle:namespace-uri,"Label").
-      if cNonCased# > "" then.
-      else if hBuffIP#:table-handle:name begins "tt" then cNonCased# = substring(hBuffIP#:table-handle:name,3).
+      if hBuffIP#:table-handle <> ? then 
+      do:
+        if hBuffIP#:table-handle:name begins "tt" 
+          then cNonCased# = substring(hBuffIP#:table-handle:name,3).
         else cNonCased# = hBuffIP#:table-handle:name.
-    end.
-    else  
-      cNonCased# = hBuffIP#:name.
-    
-    if cNonCased# = "" or cNonCased# = ? or 
-      index(cNonCased#, " ") > 0 then
-    do:
-      if (hBuffIP#:table <> ?) then
-        cNonCased# = hBuffIP#:table.
-      else if (hBuffIP#:table-handle <> ?) then do:
-        cNonCased# = hBuffIP#:table-handle:name.
-        if cNonCased# begins "tt" then cNonCased# = substring(cNonCased#,3).
       end.
-    end.
+      else  
+        cNonCased# = hBuffIP#:name.
     
-    cNonCased# = entry(num-entries(cNonCased#,"/"),cNonCased#,"/"). /* Voor tabellen die in een overgangsfase zitten; _DATA_ heeft bv "_DATA_/_DATA_" als label. */
+      if cNonCased# = "" or cNonCased# = ? or 
+        index(cNonCased#, " ") > 0 then
+      do:
+        if (hBuffIP#:table <> ?) then
+          cNonCased# = hBuffIP#:table.
+        else if (hBuffIP#:table-handle <> ?) then 
+          do:
+            cNonCased# = hBuffIP#:table-handle:name.
+            if cNonCased# begins "tt" then cNonCased# = substring(cNonCased#,3).
+          end.
+      end.
+      
+    end. /* Property "NonCasedTableName" was not used */
+    
+    /* For tables with an abstraction from table to temp-table; 
+       I.E. table "_CCMPNY_" could have "Pr_CCMPNY_/_CCMPNY_" as label. 
+    */
+    cNonCased# = entry(num-entries(cNonCased#,"/"),cNonCased#,"/").
     
     cNonCased# = lc(cNonCased#).
     
