@@ -4,10 +4,10 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_proxycontext.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-11 21:28:52+01:00 $ 
-    Date Modified: $Modtime: 2009-12-11 18:42:11+01:00 $ 
+     Date Checkin: $Date: 2009-12-14 12:27:38+01:00 $ 
+    Date Modified: $Modtime: 2009-12-14 11:33:14+01:00 $ 
 
       Description: Api-proxy functionaliteit: generieke methods die client-side (proxy)
                    worden aangeroepen.
@@ -20,7 +20,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   /************************  Source control constructor ************************/
   constructor public sc_proxycontext(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -105,9 +105,27 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     
     hDsContextLocal#:create-like(dataset dsContext:handle).
     
+    FillDefaultDsContext(dataset-handle hDsContextLocal# by-reference).
+    
     return hDsContextLocal#.
     
   end method. /* GetNewDsContext */
+
+
+  method public static void FillDefaultDsContext(dataset dsContext /* by-reference */):
+
+    define variable bEclipseFix# as logical no-undo.
+    define buffer b-ttSession for ttSession.
+    
+    if not can-find(b-ttSession) then
+      create b-ttSession. /* Single record. */
+    else 
+      find b-ttSession.
+    
+    assign
+      b-ttSession.cSessionGuid = panaedra.msb.logic.sc_environment:cSessionGuid.
+
+  end method. /* FillDefaultDsContext */
 
 end class.
 
