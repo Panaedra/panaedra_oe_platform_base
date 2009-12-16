@@ -1,4 +1,5 @@
 {panaedra/msi/logic/ctop_class.i} 
+using paninui.pack.interfaces.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
@@ -6,10 +7,10 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_datasetcontroller.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-15 00:05:09+01:00 $ 
-    Date Modified: $Modtime: 2009-12-15 00:03:42+01:00 $ 
+     Date Checkin: $Date: 2009-12-16 15:34:14+01:00 $ 
+    Date Modified: $Modtime: 2009-12-16 13:50:09+01:00 $ 
 
       Description: A dataset controller provides extra functionality for a dataset.
       
@@ -43,7 +44,7 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
   /************************  Source control constructor ************************/
   constructor public c_datasetcontroller(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -60,10 +61,29 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
     public get.
     public set.
 
+  define public property cName as character no-undo
+    public get:
+      if valid-handle(hDataset) then return hDataset:name.
+      else return "".
+    end get.
+
+  define public property oPack as i_pack no-undo
+    public get.
+    protected set.
+
 
   constructor public c_datasetcontroller(dataset-handle hDatasetIP# bind):
     
     hDataset = hDatasetIP#.
+    
+  end constructor.
+
+
+  constructor public c_datasetcontroller(dataset-handle hDatasetIP# bind, oPackIP# as i_pack):
+    
+    assign
+      hDataset = hDatasetIP#
+      oPack    = oPackIP#.
     
   end constructor.
 
@@ -88,11 +108,11 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
   end method. /* TrackingChangesDisable */
   
   
-  method public void WaitForAsyncCompletion():
+  method public void WaitForAsyncCompletion(oModalityResponse as i_modality_response):
 
-    /* The default is to do nothing and return immediately.
-       Override for different behaviour. 
-    */
+  /* The default is to do nothing and return immediately.
+     Override for different behaviour. 
+  */
 
   end method. /* TrackingChangesDisable */
   
