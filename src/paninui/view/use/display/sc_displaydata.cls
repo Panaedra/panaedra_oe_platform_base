@@ -7,15 +7,16 @@ using paninui.view.use.display.*.
 using panaedra.msroot.msdr.interfaces.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
+using panaedra.msdr.logic.*.
 
 class paninui.view.use.display.sc_displaydata   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 19 $ 
+          Version: $Revision: 20 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-27 15:13:03+01:00 $ 
-    Date Modified: $Modtime: 2009-11-27 14:43:11+01:00 $ 
+     Date Checkin: $Date: 2009-12-18 11:29:30+01:00 $ 
+    Date Modified: $Modtime: 2009-12-18 00:55:45+01:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -24,7 +25,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 19 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 20 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -299,6 +300,7 @@ class paninui.view.use.display.sc_displaydata   :
     define variable cBase#              as character                     no-undo.
     define variable cDataRef#           as character                     no-undo.
     define variable cRemainder#         as character                     no-undo.
+    define variable cCased#             as character                     no-undo.
   
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", ?, cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
@@ -309,412 +311,420 @@ class paninui.view.use.display.sc_displaydata   :
     
     if not bIsDisplayLinkedOP# then
     do:
-    if type-of(oWidget#, System.Windows.Forms.ComboBox) then
-    do:
-      oComboBox# = cast(oWidget#, System.Windows.Forms.ComboBox).
-      oBindingSource# = new c_bindingsource(sc_bindingsourcetype:i_Query /* Als het een buffer is, moet het een query worden; alle items. */, hBuffOrQueryOrRelationIP#).
-      oComboBox#:DataSource = oBindingSource#. /* Dit vult automatisch de listitems van de combobox. */
-      oComboBox#:DisplayMember = entry(2,cDataRef#,".").
-      oComboBox#:ValueMember   = subst("iID&1", entry(1,cDataRef#,".")).
-    end.
-    sc_coll_widgetdata:SetDisplayLinked(oWidget#).
-  end.
-
-end method. /* DisplayData : ComboBox + ListItems */
-  
-
-method public static void DisplayData(
-
-  oFrmLogicIP#    as i_frmlogic,
-  iAnyWidgetOVIP# as i_widgettype_any,
-  iListItemsOVIP# as i_widgetproperty_enabled,
-  cDataRefIP#     as character,
-  bEnabledIP#     as logical):
-
-  define variable bIsDisplayLinkedOP# as logical                      no-undo.
-  define variable oWidget#            as Progress.Lang.Object         no-undo.
-  define variable oControl#           as System.Windows.Forms.Control no-undo.
-
-  oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "any", cDataRefIP#, output bIsDisplayLinkedOP#).
-    
-  if type-of(oWidget#, System.Windows.Forms.Control) then
-  do:
-    oControl# = cast(oWidget#, System.Windows.Forms.Control).
-    oControl#:Enabled = bEnabledIP#.
-  end.
-
-end method. /* DisplayData : Any + Enabled/Disabled */
-
-
-method public static void RefreshData(
-  
-  oFrmLogicIP#   as i_frmlogic,
-  iGridOVIP#     as i_widgettype_grid,
-  cWidgetNameIP# as character,
-  oQryIP#        as i_qry):
-
-  define variable bIsDisplayLinkedOP#   as logical                               no-undo.
-  define variable oWidget#              as Progress.Lang.Object                  no-undo.
-  define variable oControl#             as System.Object                         no-undo.
-  define variable oFormsGrid#           as System.Windows.Forms.DataGridView     no-undo.
-  define variable oFormsCell#           as System.Windows.Forms.DataGridViewCell no-undo.
-  define variable oBindingSource#       as Progress.Lang.Object                  no-undo.
-  define variable oBindingSourceStrong# as c_bindingsource                       no-undo.
-  define variable iFirstDispRow#        as integer                               no-undo.
-  define variable iCurrentColumn#       as integer                               no-undo.
-
-  oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
-    
-  if valid-object(oWidget#) then 
-  do:
-      
-    oBindingSource# = paninui.view.use.sc_coll_widgetdata:_sys_GetBindingSource(oWidget#).
-      
-    if oBindingSource# <> ? then 
-    do:
-        
-      oBindingSourceStrong# = cast(oBindingSource#, c_bindingsource).
-        
-      if type-of(oWidget#, System.Windows.Forms.DataGridView) then 
+      if type-of(oWidget#, System.Windows.Forms.ComboBox) then
       do:
-        oFormsGrid# = cast(oWidget#, System.Windows.Forms.DataGridView).
-        iFirstDispRow# = sc_getuiframevalues:GetUiValueInt(oFrmLogicIP#, sc_widgettype:i_Grid, cWidgetNameIP#, "FirstDisplayedScrollingRowIndex").
-        if iFirstDispRow# >= 0 then 
+        oComboBox# = cast(oWidget#, System.Windows.Forms.ComboBox).
+        oBindingSource# = new c_bindingsource(sc_bindingsourcetype:i_Query /* Als het een buffer is, moet het een query worden; alle items. */, hBuffOrQueryOrRelationIP#).
+        oComboBox#:DataSource = oBindingSource#. /* Dit vult automatisch de listitems van de combobox. */
+        oComboBox#:DisplayMember = entry(num-entries(cDataRef#,"."),cDataRef#,".").
+        if num-entries(cDataRef#,".") >= 2 then
+          oComboBox#:ValueMember   = subst("iID&1", entry(1,cDataRef#,".")).
+        else 
         do:
-          paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oFormsGrid#, "CurrentCell", output oControl#).
-          if valid-object(oControl#) and type-of(oControl#, System.Windows.Forms.DataGridViewCell) then 
-          do:
-            oFormsCell# = cast(oControl#, System.Windows.Forms.DataGridViewCell).
-            iCurrentColumn# = oFormsCell#:OwningColumn:DisplayIndex.
+          if hBuffOrQueryOrRelationIP#:type = "buffer" then do:
+            cCased# = sc_dbtrig:GetCased(hBuffOrQueryOrRelationIP#).
+            oComboBox#:ValueMember   = subst("iID&1", cCased#).
           end.
         end.
-        oFormsGrid#:SuspendLayout().
       end.
-        
-      /* N.B. If we need to scroll to the column as well, we can use FirstDisplayedScrollingColumnIndex. */
-        
-      oQryIP#:QueryOpenAndReposition().
-        
-      if oFormsGrid# <> ? then 
-      do:
-        if iFirstDispRow# > 0 then 
-        do:
-          sc_displaydata:SetUiValue(oFrmLogicIP#, sc_widgettype:i_Grid, "_DATA_", "FirstDisplayedScrollingRowIndex", iFirstDispRow#).
-        end.
-        if iCurrentColumn# > 0 then 
-        do:
-          oFormsGrid#:CurrentCell = oFormsGrid#:CurrentCell:OwningRow:Cells[iCurrentColumn#].
-        end.
-        oFormsGrid#:ResumeLayout().
-      end.
-        
+      sc_coll_widgetdata:SetDisplayLinked(oWidget#).
     end.
-      
-  end.
-    
-end method. /* RefreshData ; Grid + i_qry */
+
+  end method. /* DisplayData : ComboBox + ListItems */
   
+
+  method public static void DisplayData(
+
+    oFrmLogicIP#    as i_frmlogic,
+    iAnyWidgetOVIP# as i_widgettype_any,
+    iListItemsOVIP# as i_widgetproperty_enabled,
+    cDataRefIP#     as character,
+    bEnabledIP#     as logical):
+
+    define variable bIsDisplayLinkedOP# as logical                      no-undo.
+    define variable oWidget#            as Progress.Lang.Object         no-undo.
+    define variable oControl#           as System.Windows.Forms.Control no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "any", cDataRefIP#, output bIsDisplayLinkedOP#).
+    
+    if type-of(oWidget#, System.Windows.Forms.Control) then
+    do:
+      oControl# = cast(oWidget#, System.Windows.Forms.Control).
+      oControl#:Enabled = bEnabledIP#.
+    end.
+
+  end method. /* DisplayData : Any + Enabled/Disabled */
+
+
+  method public static void RefreshData(
   
-method public static void SetUiValue(
-    
-  /* Directly set any property of any widget to a new value, without databinding.
-     For example: 
-     Visible property to "false", 
-     Text property to "Mr Johnson", 
-     or BackColor property to "MediumUrgency". (*) Naming real colors is dependant on locale 
-                                                   and *not* suitable for the database logic layer.
-                                                   Color indicators should be (per-user-or-environment-)
-                                                   mapped in the view layer.
-   */
-    
-  oFrmLogicIP#    as i_frmlogic,
-  cWidgetNameIP#  as character,
-  cPropertyIP#    as character,
-  cValueIP#       as character):
+    oFrmLogicIP#   as i_frmlogic,
+    iGridOVIP#     as i_widgettype_grid,
+    cWidgetNameIP# as character,
+    oQryIP#        as i_qry):
 
-  define variable bIsDisplayLinkedOP# as logical              no-undo.
-  define variable oWidget#            as Progress.Lang.Object no-undo.
+    define variable bIsDisplayLinkedOP#   as logical                               no-undo.
+    define variable oWidget#              as Progress.Lang.Object                  no-undo.
+    define variable oControl#             as System.Object                         no-undo.
+    define variable oFormsGrid#           as System.Windows.Forms.DataGridView     no-undo.
+    define variable oFormsCell#           as System.Windows.Forms.DataGridViewCell no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object                  no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource                       no-undo.
+    define variable iFirstDispRow#        as integer                               no-undo.
+    define variable iCurrentColumn#       as integer                               no-undo.
 
-  oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "any", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
-  if valid-object(oWidget#) then 
-    SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
-
-end method. /* SetUiValue ; direct version with no OVID# for widgettype. Can cause (predictable) name clashes; btnTryout and cbTryout for example. */
-
-
-method public static void SetUiValue(
-    
-  /* Directly set any property of a combobox widget to a new value, without databinding.
-     See the overload without OVID# parameter for more information.
-   */
-    
-  oFrmLogicIP#    as i_frmlogic,
-  oComboBoxOVID#  as i_widgettype_combobox,
-  cWidgetNameIP#  as character,
-  cPropertyIP#    as character,
-  cValueIP#       as character):
-      
-  define variable bIsDisplayLinkedOP# as logical              no-undo.
-  define variable oWidget#            as Progress.Lang.Object no-undo.
-
-  oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
-    
-  if valid-object(oWidget#) then 
-    SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
-
-end method. /* SetUiValue ; ComboBox */
-
-
-method public static void SetUiValue(
-    
-  /* Directly set a special semi-property like "Focus" of a combobox widget, without databinding.
-   */
-    
-  oFrmLogicIP#    as i_frmlogic,
-  oComboBoxOVID#  as i_widgettype_combobox,
-  cWidgetNameIP#  as character,
-  cPropertyIP#    as character):
-      
-  define variable bIsDisplayLinkedOP# as logical                      no-undo.
-  define variable oWidget#            as Progress.Lang.Object         no-undo.
-  define variable cSvAllowed#         as character                    no-undo init "Focus".
-  define variable oFormsControl#      as System.Windows.Forms.Control no-undo.
-    
-  if lookup(cPropertyIP#, cSvAllowed#) > 0 then 
-  do:
-    
-    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
-      
     if valid-object(oWidget#) then 
     do:
-        
-      if type-of(oWidget#, System.Windows.Forms.Control) then 
+      
+      oBindingSource# = paninui.view.use.sc_coll_widgetdata:_sys_GetBindingSource(oWidget#).
+      
+      if oBindingSource# <> ? then 
       do:
-        oFormsControl# = cast(oWidget#, System.Windows.Forms.Control).
-      end.
         
-      case cPropertyIP#: 
-        when "Focus" then 
+        oBindingSourceStrong# = cast(oBindingSource#, c_bindingsource).
+        
+        if type-of(oWidget#, System.Windows.Forms.DataGridView) then 
+        do:
+          oFormsGrid# = cast(oWidget#, System.Windows.Forms.DataGridView).
+          iFirstDispRow# = sc_getuiframevalues:GetUiValueInt(oFrmLogicIP#, sc_widgettype:i_Grid, cWidgetNameIP#, "FirstDisplayedScrollingRowIndex").
+          if iFirstDispRow# >= 0 then 
           do:
-            if oFormsControl# <> ? then oFormsControl#:Focus().
+            paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oFormsGrid#, "CurrentCell", output oControl#).
+            if valid-object(oControl#) and type-of(oControl#, System.Windows.Forms.DataGridViewCell) then 
+            do:
+              oFormsCell# = cast(oControl#, System.Windows.Forms.DataGridViewCell).
+              iCurrentColumn# = oFormsCell#:OwningColumn:DisplayIndex.
+            end.
           end.
-      end case.
+          oFormsGrid#:SuspendLayout().
+        end.
+        
+        /* N.B. If we need to scroll to the column as well, we can use FirstDisplayedScrollingColumnIndex. */
+        
+        oQryIP#:QueryOpenAndReposition().
+        
+        if oFormsGrid# <> ? then 
+        do:
+          if iFirstDispRow# > 0 then 
+          do:
+            sc_displaydata:SetUiValue(oFrmLogicIP#, sc_widgettype:i_Grid, "_DATA_", "FirstDisplayedScrollingRowIndex", iFirstDispRow#).
+          end.
+          if iCurrentColumn# > 0 then 
+          do:
+            oFormsGrid#:CurrentCell = oFormsGrid#:CurrentCell:OwningRow:Cells[iCurrentColumn#].
+          end.
+          oFormsGrid#:ResumeLayout().
+        end.
+        
+      end.
+      
     end.
-  end.
-  else 
-    undo, throw new Progress.Lang.AppError(subst("Invalid property without value: '&1'", cPropertyIP#),99950017).
     
-end method. /* SetUiValue ; ComboBox - only property name (like Focus) */
+  end method. /* RefreshData ; Grid + i_qry */
+  
+  
+  method public static void SetUiValue(
+    
+    /* Directly set any property of any widget to a new value, without databinding.
+       For example: 
+       Visible property to "false", 
+       Text property to "Mr Johnson", 
+       or BackColor property to "MediumUrgency". (*) Naming real colors is dependant on locale 
+                                                     and *not* suitable for the database logic layer.
+                                                     Color indicators should be (per-user-or-environment-)
+                                                     mapped in the view layer.
+     */
+    
+    oFrmLogicIP#    as i_frmlogic,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    cValueIP#       as character):
+
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "any", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
+
+  end method. /* SetUiValue ; direct version with no OVID# for widgettype. Can cause (predictable) name clashes; btnTryout and cbTryout for example. */
 
 
-method public static void SetUiValue(
+  method public static void SetUiValue(
     
-  /* Directly set any property of a combobox widget to a new value, without databinding.
-     See the overload without OVID# parameter for more information.
-   */
+    /* Directly set any property of a combobox widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
     
-  oFrmLogicIP#    as i_frmlogic,
-  oComboBoxOVID#  as i_widgettype_combobox,
-  cWidgetNameIP#  as character,
-  cPropertyIP#    as character,
-  iValueIP#       as integer):
+    oFrmLogicIP#    as i_frmlogic,
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    cValueIP#       as character):
       
-  define variable bIsDisplayLinkedOP# as logical              no-undo.
-  define variable oWidget#            as Progress.Lang.Object no-undo.
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
 
-  oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
-  if valid-object(oWidget#) then 
-    SetUiValueImplement(oWidget#, cPropertyIP#, iValueIP#).
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
 
-end method. /* SetUiValue ; ComboBox */
+  end method. /* SetUiValue ; ComboBox */
 
 
-method public static void SetUiValue(
+  method public static void SetUiValue(
     
-  /* Directly set any property of a grid widget to a new value, without databinding.
-     See the overload without OVID# parameter for more information.
-   */
+    /* Directly set a special semi-property like "Focus" of a combobox widget, without databinding.
+     */
     
-  oFrmLogicIP#    as i_frmlogic,
-  oGridOVID#      as i_widgettype_grid,
-  cWidgetNameIP#  as character,
-  cPropertyIP#    as character,
-  iValueIP#       as integer):
+    oFrmLogicIP#    as i_frmlogic,
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character):
       
-  define variable bIsDisplayLinkedOP# as logical              no-undo.
-  define variable oWidget#            as Progress.Lang.Object no-undo.
-
-  oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    define variable bIsDisplayLinkedOP# as logical                      no-undo.
+    define variable oWidget#            as Progress.Lang.Object         no-undo.
+    define variable cSvAllowed#         as character                    no-undo init "Focus".
+    define variable oFormsControl#      as System.Windows.Forms.Control no-undo.
     
-  if valid-object(oWidget#) then 
-    SetUiValueImplement(oWidget#, cPropertyIP#, iValueIP#).
-
-end method. /* SetUiValue ; Grid */
-
-
-method public static void SetUiValue(
+    if lookup(cPropertyIP#, cSvAllowed#) > 0 then 
+    do:
     
-  /* Directly set any property of a button widget to a new value, without databinding.
-     See the overload without OVID# parameter for more information.
-   */
-    
-  oFrmLogicIP#    as i_frmlogic,
-  oButtonOVID#    as i_widgettype_button,
-  cWidgetNameIP#  as character,
-  cPropertyIP#    as character,
-  cValueIP#       as character):
+      oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
       
-  define variable bIsDisplayLinkedOP# as logical              no-undo.
-  define variable oWidget#            as Progress.Lang.Object no-undo.
-
-  oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "button", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+      if valid-object(oWidget#) then 
+      do:
+        
+        if type-of(oWidget#, System.Windows.Forms.Control) then 
+        do:
+          oFormsControl# = cast(oWidget#, System.Windows.Forms.Control).
+        end.
+        
+        case cPropertyIP#: 
+          when "Focus" then 
+            do:
+              if oFormsControl# <> ? then oFormsControl#:Focus().
+            end.
+        end case.
+      end.
+    end.
+    else 
+      undo, throw new Progress.Lang.AppError(subst("Invalid property without value: '&1'", cPropertyIP#),99950017).
     
-  if valid-object(oWidget#) then 
-    SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
+  end method. /* SetUiValue ; ComboBox - only property name (like Focus) */
 
-end method. /* SetUiValue ; Button */
 
-method public static void SetUiValue(
+  method public static void SetUiValue(
     
-  /* Directly set any property of a button widget to a new value, without databinding.
-     See the overload without OVID# parameter for more information.
-   */
+    /* Directly set any property of a combobox widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
     
-  oFrmLogicIP#    as i_frmlogic,
-  oButtonOVID#    as i_widgettype_button,
-  cWidgetNameIP#  as character,
-  cPropertyIP#    as character,
-  bValueIP#       as logical):
+    oFrmLogicIP#    as i_frmlogic,
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    iValueIP#       as integer):
       
-  define variable bIsDisplayLinkedOP# as logical              no-undo.
-  define variable oWidget#            as Progress.Lang.Object no-undo.
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
 
-  oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "button", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
-  if valid-object(oWidget#) then 
-    SetUiValueImplement(oWidget#, cPropertyIP#, bValueIP#).
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, iValueIP#).
 
-end method. /* SetUiValue ; Button + logical */
+  end method. /* SetUiValue ; ComboBox */
 
 
-method public static void SetUiValue(
+  method public static void SetUiValue(
     
-  /* Directly set any property of a groupframe widget to a new value, without databinding.
-     See the overload without OVID# parameter for more information.
-   */
+    /* Directly set any property of a grid widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
     
-  oFrmLogicIP#     as i_frmlogic,
-  oGroupFrameOVID# as i_widgettype_groupframe,
-  cWidgetNameIP#   as character,
-  cPropertyIP#     as character,
-  cValueIP#        as character):
+    oFrmLogicIP#    as i_frmlogic,
+    oGridOVID#      as i_widgettype_grid,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    iValueIP#       as integer):
       
-  define variable bIsDisplayLinkedOP# as logical              no-undo.
-  define variable oWidget#            as Progress.Lang.Object no-undo.
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
 
-  oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "groupframe", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
-  if valid-object(oWidget#) then 
-    SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, iValueIP#).
 
-end method. /* SetUiValue ; Groupframe */
+  end method. /* SetUiValue ; Grid */
 
 
-method public static void SetUiValue(
+  method public static void SetUiValue(
     
-  /* Directly set any property of a grid widget to a new value, without databinding.
-     See the overload without OVID# parameter for more information.
-   */
+    /* Directly set any property of a button widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
     
-  oFrmLogicIP#    as i_frmlogic,
-  oButtonOVID#    as i_widgettype_grid,
-  cWidgetNameIP#  as character,
-  cPropertyIP#    as character,
-  cValueIP#       as character):
+    oFrmLogicIP#    as i_frmlogic,
+    oButtonOVID#    as i_widgettype_button,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    cValueIP#       as character):
       
-  define variable bIsDisplayLinkedOP# as logical              no-undo.
-  define variable oWidget#            as Progress.Lang.Object no-undo.
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
 
-  oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "button", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
-  if valid-object(oWidget#) then 
-    SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
 
-end method. /* SetUiValue ; Grid */
+  end method. /* SetUiValue ; Button */
 
-
-method protected static void SetUiValueImplement(
+  method public static void SetUiValue(
     
-  /* Directly set any property of any widget to a new value, without databinding.
-   */
+    /* Directly set any property of a button widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
     
-  oWidgetIP#    as Progress.Lang.Object,
-  cPropertyIP#    as character,
-  cValueIP#       as character):
+    oFrmLogicIP#    as i_frmlogic,
+    oButtonOVID#    as i_widgettype_button,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    bValueIP#       as logical):
+      
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
 
-  define variable oControl# as System.Object no-undo.
-
-  /* We only support Text objects for cValueIP#, and we can convert this to other objects
-     later in time 
-     (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
-  */
-  if valid-object(oWidgetIP#) then 
-  do:
-    oControl# = cast(oWidgetIP#, System.Object).
-    paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cValueIP#).
-  end.
-
-end method. /* SetUiValueImplement ; character */
-
-
-method protected static void SetUiValueImplement(
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "button", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
-  /* Directly set any property of any widget to a new value, without databinding.
-   */
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, bValueIP#).
+
+  end method. /* SetUiValue ; Button + logical */
+
+
+  method public static void SetUiValue(
     
-  oWidgetIP#    as Progress.Lang.Object,
-  cPropertyIP#    as character,
-  iValueIP#       as integer):
-
-  define variable oControl# as System.Object no-undo.
-
-  /* We only support Text objects for cValueIP#, and we can convert this to other objects
-     later in time 
-     (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
-  */
-  if valid-object(oWidgetIP#) then 
-  do:
-    oControl# = cast(oWidgetIP#, System.Object).
-    paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, iValueIP#).
-  end.
-
-end method. /* SetUiValueImplement ; integer */
-
-
-method protected static void SetUiValueImplement(
+    /* Directly set any property of a groupframe widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
     
-  /* Directly set any property of any widget to a new value, without databinding.
-   */
+    oFrmLogicIP#     as i_frmlogic,
+    oGroupFrameOVID# as i_widgettype_groupframe,
+    cWidgetNameIP#   as character,
+    cPropertyIP#     as character,
+    cValueIP#        as character):
+      
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "groupframe", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
-  oWidgetIP#    as Progress.Lang.Object,
-  cPropertyIP#    as character,
-  bValueIP#       as logical):
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
 
-  define variable oControl# as System.Object no-undo.
+  end method. /* SetUiValue ; Groupframe */
 
-  /* We only support Text objects for cValueIP#, and we can convert this to other objects
-     later in time 
-     (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
-  */
-  if valid-object(oWidgetIP#) then 
-  do:
-    oControl# = cast(oWidgetIP#, System.Object).
-    paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, bValueIP#).
-  end.
 
-end method. /* SetUiValueImplement ; logical */
+  method public static void SetUiValue(
+    
+    /* Directly set any property of a grid widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oFrmLogicIP#    as i_frmlogic,
+    oButtonOVID#    as i_widgettype_grid,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    cValueIP#       as character):
+      
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
+
+  end method. /* SetUiValue ; Grid */
+
+
+  method protected static void SetUiValueImplement(
+    
+    /* Directly set any property of any widget to a new value, without databinding.
+     */
+    
+    oWidgetIP#    as Progress.Lang.Object,
+    cPropertyIP#    as character,
+    cValueIP#       as character):
+
+    define variable oControl# as System.Object no-undo.
+
+    /* We only support Text objects for cValueIP#, and we can convert this to other objects
+       later in time 
+       (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
+    */
+    if valid-object(oWidgetIP#) then 
+    do:
+      oControl# = cast(oWidgetIP#, System.Object).
+      paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cValueIP#).
+    end.
+
+  end method. /* SetUiValueImplement ; character */
+
+
+  method protected static void SetUiValueImplement(
+    
+    /* Directly set any property of any widget to a new value, without databinding.
+     */
+    
+    oWidgetIP#    as Progress.Lang.Object,
+    cPropertyIP#    as character,
+    iValueIP#       as integer):
+
+    define variable oControl# as System.Object no-undo.
+
+    /* We only support Text objects for cValueIP#, and we can convert this to other objects
+       later in time 
+       (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
+    */
+    if valid-object(oWidgetIP#) then 
+    do:
+      oControl# = cast(oWidgetIP#, System.Object).
+      paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, iValueIP#).
+    end.
+
+  end method. /* SetUiValueImplement ; integer */
+
+
+  method protected static void SetUiValueImplement(
+    
+    /* Directly set any property of any widget to a new value, without databinding.
+     */
+    
+    oWidgetIP#    as Progress.Lang.Object,
+    cPropertyIP#    as character,
+    bValueIP#       as logical):
+
+    define variable oControl# as System.Object no-undo.
+
+    /* We only support Text objects for cValueIP#, and we can convert this to other objects
+       later in time 
+       (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
+    */
+    if valid-object(oWidgetIP#) then 
+    do:
+      oControl# = cast(oWidgetIP#, System.Object).
+      paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, bValueIP#).
+    end.
+
+  end method. /* SetUiValueImplement ; logical */
 
 
 end class.
