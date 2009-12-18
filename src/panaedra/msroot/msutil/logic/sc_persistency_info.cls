@@ -7,10 +7,10 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_persistency_info.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-26 14:34:58+01:00 $ 
-    Date Modified: $Modtime: 2009-10-26 14:31:02+01:00 $ 
+     Date Checkin: $Date: 2009-12-18 11:29:30+01:00 $ 
+    Date Modified: $Modtime: 2009-12-18 01:21:19+01:00 $ 
 
       Description: Uses the session handle to find persistent buffers, procedures, or objects.
                    Very useful for checking if you didn't forget to clean something up.
@@ -20,7 +20,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
   /************************  Source control constructor ************************/
   constructor public sc_persistency_info(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -29,7 +29,6 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     field cName              as char
     field cInstantiatingProc as char
     field hHandle            as handle
-    /*    field oObject            as Progress.Lang.Object*/
     index cType_cName cType cName.
   
 
@@ -38,19 +37,9 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     empty temp-table ttPersistentThings.
     
     do on error undo, throw:
-    
       FillPersistentObjects().
-    /*    catch ex as Progress.Lang.Error :                                                                                                */
-    /*      do on error undo, throw:                                                                                                       */
-    /*        System.Windows.Forms.MessageBox:SHow(subst("nog maar een catch &1 &2", program-name(1) , ex:getMessage(1))).                 */
-    /*        process events.                                                                                                              */
-    /*        catch exIn as Progress.Lang.Error :                                                                                          */
-    /*          System.Windows.Forms.MessageBox:SHow(subst("nog maar een catch in een catch &1 &2", program-name(1) , exIn:getMessage(1))).*/
-    /*        end catch.                                                                                                                   */
-    /*      end.                                                                                                                           */
-    /*    end catch.                                                                                                                       */
-    
     end.
+
     FillPersistentProcedures().
     FillBuffers().
     FillDatasets().
@@ -102,7 +91,6 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
         assign 
           ttPersistentThings.cType = "Object"
           ttPersistentThings.cName = oObj#:ToString()
-          /*          ttPersistentThings.oObject = oObj#*/
           .
         oObj# = oObjNext#.
       end.
