@@ -8,10 +8,10 @@ interface paninui.pack.interfaces.i_pack:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/pack/interfaces/i_pack.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-20 19:15:08+01:00 $ 
-    Date Modified: $Modtime: 2009-12-20 19:02:08+01:00 $ 
+     Date Checkin: $Date: 2009-12-20 20:01:05+01:00 $ 
+    Date Modified: $Modtime: 2009-12-20 19:23:43+01:00 $ 
 
       Description: Interface for pack objects
 
@@ -20,7 +20,8 @@ interface paninui.pack.interfaces.i_pack:
 
   /******************************* $NoKeywords:  $ *****************************/
   
-  define property iPackID as int64 no-undo get.
+  define property iPackID    as int64          no-undo get.
+  define property oMdiWindow as i_masterwindow no-undo get.
 
   define property sys__oUiFrame as {&System.Object} no-undo get. set.
   
