@@ -7,10 +7,10 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_datasetcontroller.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-17 10:41:16+01:00 $ 
-    Date Modified: $Modtime: 2009-12-17 09:27:37+01:00 $ 
+     Date Checkin: $Date: 2009-12-20 16:26:01+01:00 $ 
+    Date Modified: $Modtime: 2009-12-18 23:57:13+01:00 $ 
 
       Description: A dataset controller provides extra functionality for a dataset.
       
@@ -44,7 +44,7 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
   /************************  Source control constructor ************************/
   constructor public c_datasetcontroller(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -69,7 +69,15 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
 
   define public property oPack as i_pack no-undo
     public get.
-    protected set.
+    public set(oValueIP# as i_pack):
+      /* Note: 
+         Only set oPack if the datasetcontroller is scoped to the pack.
+         If the dataset has global scope (in the dataset pool), leave oPack 
+         at the unknown value.  
+       */
+      if oPack = ? then oPack = oValueIP#.
+      else undo, throw new panaedra.msex.logic.c__FCMPNY_exception(99950481, "oPack can only be set once.").
+    end set.
     
   define public property bTrackingChangesEnableOnAsync as logical no-undo
     public get.
@@ -82,16 +90,13 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
 
   constructor public c_datasetcontroller(dataset-handle hDatasetIP# bind):
     
+    /* Note: don't add overloads to this constructor.
+       As of 10.2A02, there seems to be an abl bug that causes the bind
+       to fail with extra constructor parameters.
+       Use properties as a workaround.
+     */
+    
     hDataset = hDatasetIP#.
-    
-  end constructor.
-
-
-  constructor public c_datasetcontroller(dataset-handle hDatasetIP# bind, oPackIP# as i_pack):
-    
-    assign
-      hDataset = hDatasetIP#
-      oPack    = oPackIP#.
     
   end constructor.
 
@@ -129,7 +134,7 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
   end method. /* TrackingChangesEnable */   
   
   
-  method public void WaitForAsyncCompletion(oModalityResponse as i_modality_response):
+  method public void WaitForAsyncCompletion(oModalityClient as i_modalityclient):
 
   /* The default is to do nothing and return immediately.
      Override for different behaviour. 
