@@ -12,10 +12,10 @@ class paninui.logic.logicbase.c_framelogicbase
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/logic/logicbase/c_framelogicbase.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-12 14:30:55+01:00 $ 
-    Date Modified: $Modtime: 2009-12-12 13:57:02+01:00 $ 
+     Date Checkin: $Date: 2009-12-20 19:15:08+01:00 $ 
+    Date Modified: $Modtime: 2009-12-20 19:04:28+01:00 $ 
 
       Description: Baseclass for frame logic classes.
 
@@ -24,7 +24,7 @@ class paninui.logic.logicbase.c_framelogicbase
   /************************  Source control constructor ************************/
   constructor public c_framelogicbase(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -63,7 +63,7 @@ class paninui.logic.logicbase.c_framelogicbase
   method public void SetPack (oPackIP# as paninui.pack.interfaces.i_pack):
     assign 
       oPack      = oPackIP#
-      i_p_PackID = oPackIP#:UniqueInstanceID.
+      i_p_PackID = oPackIP#:iPackID.
 
   end method. /* SetPack */ 
 
