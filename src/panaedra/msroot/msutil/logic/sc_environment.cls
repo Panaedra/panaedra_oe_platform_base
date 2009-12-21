@@ -4,10 +4,10 @@ class panaedra.msb.logic.sc_environment:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msb/logic/sc_environment.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-14 12:27:38+01:00 $ 
-    Date Modified: $Modtime: 2009-12-14 12:01:07+01:00 $ 
+     Date Checkin: $Date: 2009-12-21 14:02:59+01:00 $ 
+    Date Modified: $Modtime: 2009-12-21 13:21:58+01:00 $ 
 
       Description: Haal informatie uit de omgeving op zoals het pid (process id).
 
@@ -16,7 +16,7 @@ class panaedra.msb.logic.sc_environment:
   /************************  Source control constructor ************************/
   constructor public sc_environment(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -36,6 +36,10 @@ class panaedra.msb.logic.sc_environment:
     protected set.
 
   define static property cSessionGuidRemote as character no-undo 
+    public get.
+    public set.
+  
+  define static property cUserID as character no-undo 
     public get.
     public set.
   
