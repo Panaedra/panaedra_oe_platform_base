@@ -4,10 +4,10 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_proxycontext.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-14 12:27:38+01:00 $ 
-    Date Modified: $Modtime: 2009-12-14 11:33:14+01:00 $ 
+     Date Checkin: $Date: 2009-12-21 14:02:59+01:00 $ 
+    Date Modified: $Modtime: 2009-12-21 13:27:36+01:00 $ 
 
       Description: Api-proxy functionaliteit: generieke methods die client-side (proxy)
                    worden aangeroepen.
@@ -20,7 +20,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   /************************  Source control constructor ************************/
   constructor public sc_proxycontext(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -75,7 +75,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
         
       find first b-ttExceptions no-error.
       
-      undo, throw (new panaedra.msex.logic.c__FCMPNY_exception(99909002, 
+      undo, throw (new panaedra.msex.logic.c__FCMPNY_exception(99909002,
         subst("Api/proxy exception&1 for: '&2' -> '&3'",
         if not avail b-ttExceptions then "" else " '" + b-ttExceptions.cError + "'",
         program-name(4), program-name(3)), 
@@ -123,6 +123,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       find b-ttSession.
     
     assign
+      b-ttSession.cUserID      = panaedra.msb.logic.sc_environment:cUserID
       b-ttSession.cSessionGuid = panaedra.msb.logic.sc_environment:cSessionGuid.
 
   end method. /* FillDefaultDsContext */
