@@ -1,14 +1,16 @@
 {panaedra/msi/logic/ctop_class.i}
 using paninui.view.init.events.*.
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 
 class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/events/sc_sgt_masterwindow_eventhandler.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-06 14:50:49+01:00 $ 
-    Date Modified: $Modtime: 2009-11-06 14:46:26+01:00 $ 
+     Date Checkin: $Date: 2009-12-21 23:10:56+01:00 $ 
+    Date Modified: $Modtime: 2009-12-21 23:06:21+01:00 $ 
 
       Description: Static Class Singleton implementation for Masterwindow / MDI Window
 
@@ -17,7 +19,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
   /************************  Source control constructor ************************/
   constructor public sc_sgt_masterwindow_eventhandler(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -55,7 +57,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
 		
     oInitialPack = dynamic-new cInitialPack().
 
-    oInitialPack:LoadPack(oMdiWindow).
+    if valid-object(oInitialPack) then oInitialPack:LoadPack(oMdiWindow).
     
     cast(sender,System.Windows.Forms.Form):Load:unsubscribe(this-object:MdiOnLoad).
 
@@ -89,13 +91,12 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
       */
       if oInitialPack = ? then do:
         oInitialPack = dynamic-new cInitialPack ().
-        oInitialPack:LoadPack(oMdiWindow).
+        if valid-object(oInitialPack) then oInitialPack:LoadPack(oMdiWindow).
       end.
     end.
-    
     cast(sender,System.Windows.Forms.Form):Shown:unsubscribe(this-object:MdiOnShown).
 
-    oInitialPack:ShowPack(oMdiWindow).
+    if valid-object(oInitialPack) then oInitialPack:ShowPack(oMdiWindow).
 
     catch ex as Progress.Lang.Error :
       panaedra.msex.logic.sc_showexception:ShowException(ex).
