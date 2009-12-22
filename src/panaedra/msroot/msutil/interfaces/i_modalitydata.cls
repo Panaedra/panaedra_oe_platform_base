@@ -1,13 +1,14 @@
+using panaedra.msex.logic.*.
 {panaedra/msi/logic/ctop_interface.i} 
 
 interface panaedra.msroot.msutil.interfaces.i_modalitydata:  
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/interfaces/i_modalitydata.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-20 16:25:30+01:00 $ 
-    Date Modified: $Modtime: 2009-12-20 14:51:17+01:00 $ 
+     Date Checkin: $Date: 2009-12-22 14:37:48+01:00 $ 
+    Date Modified: $Modtime: 2009-12-22 13:09:11+01:00 $ 
 
       Description: Data for the ModalityResponse call.
 
@@ -16,6 +17,7 @@ interface panaedra.msroot.msutil.interfaces.i_modalitydata:
   /******************************* $NoKeywords:  $ *****************************/
 
   define property cName as character no-undo get.
+  define property o_CMPNY_Exception as c__FCMPNY_exception no-undo get.
 
 end interface.
 
