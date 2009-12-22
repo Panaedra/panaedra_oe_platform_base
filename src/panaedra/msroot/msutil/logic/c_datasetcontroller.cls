@@ -7,10 +7,10 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_datasetcontroller.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-20 16:26:01+01:00 $ 
-    Date Modified: $Modtime: 2009-12-18 23:57:13+01:00 $ 
+     Date Checkin: $Date: 2009-12-22 14:37:48+01:00 $ 
+    Date Modified: $Modtime: 2009-12-21 15:37:14+01:00 $ 
 
       Description: A dataset controller provides extra functionality for a dataset.
       
@@ -44,7 +44,7 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
   /************************  Source control constructor ************************/
   constructor public c_datasetcontroller(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -123,15 +123,6 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
       bTrackingChangesDisable       = true.
     
   end method. /* TrackingChangesDisable */
-
-
-  method public void TrackingChangesEnableOnAsync():
-    
-  /* The default is to do nothing and return immediately.
-     Override for different behaviour. 
-  */
-
-  end method. /* TrackingChangesEnable */   
   
   
   method public void WaitForAsyncCompletion(oModalityClient as i_modalityclient):
