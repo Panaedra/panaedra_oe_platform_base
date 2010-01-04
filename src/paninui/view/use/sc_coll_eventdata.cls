@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 29 $ 
+          Version: $Revision: 30 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-07 15:39:54+01:00 $ 
-    Date Modified: $Modtime: 2009-12-07 13:31:24+01:00 $ 
+     Date Checkin: $Date: 2010-01-04 15:34:26+01:00 $ 
+    Date Modified: $Modtime: 2010-01-04 14:59:23+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 29 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 30 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -42,6 +42,7 @@ class paninui.view.use.sc_coll_eventdata
   constructor protected sc_coll_eventdata():
     
     sc_eventbroadcaster:SubscribeEvent(this-object,"evt@c_qry@queryopen").
+    sc_eventbroadcaster:SubscribeEvent(this-object,"evt@c_qry@queryclose").
     sc_eventbroadcaster:SubscribeEvent(this-object,"evt@c_bindingsource@queryopen").
 
   end constructor.
@@ -1457,6 +1458,11 @@ class paninui.view.use.sc_coll_eventdata
           OnQueryOpen(cast(oBroadcastDataIP#:oData, panaedra.msroot.msdr.logic.c_qry)).
         end.
         
+      when "evt@c_qry@queryclose" then 
+        do:
+          OnQueryClose(cast(oBroadcastDataIP#:oData, panaedra.msroot.msdr.logic.c_qry)).
+        end.
+        
       when "evt@c_bindingsource@queryopen" then 
         do:
           OnBindingSourceQueryOpen(cast(oBroadcastDataIP#:oData, paninui.view.init.display.c_bindingsource)).
@@ -1494,6 +1500,35 @@ class paninui.view.use.sc_coll_eventdata
     
 
   end method. /* OnQueryOpen */
+  
+
+  method protected static void OnQueryClose(oQryIP# as panaedra.msroot.msdr.interfaces.i_qry):
+    
+    define variable bEclipseFix# as logical no-undo.
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      /* For queries (a normal ABL query, packed in a c_qry object) we 
+         use hWidget (the ABL query handle) and not oWidget. 
+      */      
+      for each ttUiEvent where ttUiEvent.hWidget = oQryIP#:sys__hQuery and ttUiEvent.cEventType = "QueryClose"
+        on error undo,throw:
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, ?,new paninui.view.use.events.c_uieventdata("","",?,?)).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events 
+           Note: QueryClose in fact isn't a real .NET event, but a broadcasted event.
+                 For consistancy, we handle it the same way.
+         */
+        panaedra.msex.logic.sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+
+  end method. /* OnQueryClose */
   
 
   method protected static void OnBindingSourceQueryOpen(oBindIP# as paninui.view.init.display.c_bindingsource):
