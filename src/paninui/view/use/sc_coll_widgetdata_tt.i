@@ -1,34 +1,35 @@
 
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata_tt.i $ 
-        Version: $Revision: 5 $ 
+        Version: $Revision: 6 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-10-19 10:55:43+02:00 $ 
-  Date Modified: $Modtime: 2009-10-19 09:59:03+02:00 $ 
+   Date Checkin: $Date: 2010-01-08 15:19:24+01:00 $ 
+  Date Modified: $Modtime: 2010-01-08 11:33:32+01:00 $ 
 
     Description: Widgetdata collection temp-tables
 
 \**************************** End of Dvcs_ Header ****************************/
 &if '{&dvcs__paninui_view_use_sc_coll_widgetdata_tt_i}' = '' &then
 &glob dvcs__paninui_view_use_sc_coll_widgetdata_tt_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_widgetdata_tt_i $Revision: 5 $
+&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_widgetdata_tt_i $Revision: 6 $
 &if '{&class}' = '' &then
-procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 5 $". end.
+procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 6 $". end.
 &endif
 /******************************* $NoKeywords:  $ *****************************/
 
   define {&protected} {&static} temp-table ttUIFrame no-undo rcode-information
-    field cGUIDUIFrame     as character            format "x(50)"               initial ? xml-node-type "attribute" 
-    field dtmCreUIFrame    as datetime-tz          format "99-99-9999 hh:mm:ss" initial ? xml-node-type "attribute" 
-    field dtmModUIFrame    as datetime-tz          format "99-99-9999 hh:mm:ss" initial ? xml-node-type "attribute"
-    field iPackID          as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" 
-    field iIDUIFrame       as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" 
-    field cFrameName       as char                 format "x(50)"               xml-node-type "attribute"
-    field oFrame           as Progress.Lang.Object
-    index iPackID          is primary unique iPackID iIDUIFrame ascending 
-    index iIDUIFrame       is unique iIDUIFrame ascending 
-    index dtmCreUIFrame    dtmCreUIFrame ascending 
-    index dtmModUIFrame    dtmModUIFrame ascending 
+    field cGUIDUIFrame   as character            format "x(50)"               initial ? xml-node-type "attribute" 
+    field dtmCreUIFrame  as datetime-tz          format "99-99-9999 hh:mm:ss" initial ? xml-node-type "attribute" 
+    field dtmModUIFrame  as datetime-tz          format "99-99-9999 hh:mm:ss" initial ? xml-node-type "attribute"
+    field iPackID        as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" 
+    field iIDUIFrame     as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" 
+    field cFrameName     as char                 format "x(50)"               xml-node-type "attribute"
+    field cLinkFrameName as char                 format "x(50)"               xml-node-type "attribute"
+    field oFrame         as Progress.Lang.Object
+    index iPackID        is primary unique iPackID iIDUIFrame ascending 
+    index iIDUIFrame     is unique iIDUIFrame ascending 
+    index dtmCreUIFrame  dtmCreUIFrame ascending 
+    index dtmModUIFrame  dtmModUIFrame ascending 
     .
   
   /* This temp-table stores the logical tree of widget data. The visual tree is irrelevant. */
