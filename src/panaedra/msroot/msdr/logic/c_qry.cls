@@ -9,10 +9,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 15 $ 
+          Version: $Revision: 16 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-03 11:45:27+01:00 $ 
-    Date Modified: $Modtime: 2009-12-02 15:44:19+01:00 $ 
+     Date Checkin: $Date: 2010-01-08 12:25:20+01:00 $ 
+    Date Modified: $Modtime: 2010-01-08 12:22:25+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -24,7 +24,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 16 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -433,12 +433,13 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     return sys__hQuery:query-off-end.
     
   end method. /* QueryOffEnd */
-  
+
 
   method public static panaedra.msroot.msdr.interfaces.i_qry CreateClone(
     
     /* Use this method to create a clone of a i_qry object.
-       The same buffers are used, so the original i_qry object
+    
+       The *same* buffers are used, so the original i_qry object
        should be closed (using CloseQuery()).
        
        The difference is, that no databinding is attached,
@@ -449,10 +450,36 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
        
        Since the same buffers are used, the clone doesn't have
        to be registered at the datasetpool.
-       
+
     */
     
     oQryIP# as panaedra.msroot.msdr.interfaces.i_qry):
+    
+    return CreateClone(oQryIP#, "").
+    
+  end method.
+  
+
+  method public static panaedra.msroot.msdr.interfaces.i_qry CreateClone(
+    
+    /* Use this method to create a clone of a i_qry object.
+
+       == [Start] in SlaveMode ==
+
+       The original buffers of the oQryForBuffersIP# are used, 
+       so the original i_qry object doesn't have to be closed if 
+       you're not the initiator of this query (meaning: you are just 
+       some extra framelogic that acts as a slave to an already 
+       initiated query).
+       
+       == [End] in SlaveMode ==
+       
+       See simple overload above for more comment (when "" is used, the default mode.).
+       
+    */
+    
+    oQryIP#  as panaedra.msroot.msdr.interfaces.i_qry,
+    cModeIP# as character): /* Allowed: "" or "SlaveMode" */
     
     define variable oReturn# as panaedra.msroot.msdr.interfaces.i_qry no-undo.
     define variable hQuery#  as handle                             no-undo.
@@ -460,9 +487,23 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     
     create query hQuery#.
     
-    do iTell# = 1 to oQryIP#:iNumBuffers:
-      hQuery#:add-buffer(oQryIP#:GetBuffer(iTell#)).
-    end.
+    case cModeIP#:
+      
+      when "" then 
+        do iTell# = 1 to oQryIP#:iNumBuffers:
+          hQuery#:add-buffer(oQryIP#:GetBuffer(iTell#)).
+        end.
+        
+      when "SlaveMode" then 
+        /* Use the "on hold" buffers for the query; it's requested. */
+        do iTell# = 1 to oQryIP#:iNumBuffers:
+          hQuery#:add-buffer(oQryIP#:sys__hQueryOnHold:get-buffer-handle(iTell#)).
+        end.
+
+      otherwise 
+      undo, throw new panaedra.msex.logic.c__FCMPNY_exception(99950248,subst("Invalid value of cModeIP#: '&1'", cModeIP#)).
+      
+    end case. /* cModeIP# */
     
     hQuery#:query-prepare(oQryIP#:cPrepareString).
     
