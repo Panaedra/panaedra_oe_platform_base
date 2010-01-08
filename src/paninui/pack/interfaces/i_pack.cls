@@ -8,10 +8,10 @@ interface paninui.pack.interfaces.i_pack:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/pack/interfaces/i_pack.cls $ 
-          Version: $Revision: 11 $ 
+          Version: $Revision: 12 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-05 18:40:57+01:00 $ 
-    Date Modified: $Modtime: 2010-01-05 18:26:44+01:00 $ 
+     Date Checkin: $Date: 2010-01-08 15:19:24+01:00 $ 
+    Date Modified: $Modtime: 2010-01-08 14:42:17+01:00 $ 
 
       Description: Interface for pack objects
 
@@ -23,8 +23,8 @@ interface paninui.pack.interfaces.i_pack:
   define property iPackID    as int64             no-undo get.
   define property oMdiWindow as {&i_masterwindow} no-undo get.
 
-  define property sys__oUiFrame as {&System.Object} no-undo 
-  get. 
+  define property sys__oUiFrame as {&System.Object} no-undo
+  get.
   set.
   
   method logical    LoadPack (
@@ -38,6 +38,11 @@ interface paninui.pack.interfaces.i_pack:
     cWidgetTypeIP#          as character,
     cWidgetNameIP#          as character,
     cSubframeIP#            as character).
+
+  method void HideSubframe(
+    cWidgetTypeIP#          as character,
+    cWidgetNameIP#          as character,
+    cSubframeLinkNameIP#    as character).
 
   method void LoadSubframepack(
     oGroupframeOverlayOVID# as i_showlocationtype_groupframeoverlay,
