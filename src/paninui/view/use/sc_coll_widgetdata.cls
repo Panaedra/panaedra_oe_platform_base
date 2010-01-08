@@ -15,10 +15,10 @@ class paninui.view.use.sc_coll_widgetdata
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 23 $ 
+          Version: $Revision: 24 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-20 19:15:07+01:00 $ 
-    Date Modified: $Modtime: 2009-12-20 19:06:09+01:00 $ 
+     Date Checkin: $Date: 2010-01-08 15:19:24+01:00 $ 
+    Date Modified: $Modtime: 2010-01-08 14:37:03+01:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -30,7 +30,7 @@ class paninui.view.use.sc_coll_widgetdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 23 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 24 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -54,6 +54,14 @@ class paninui.view.use.sc_coll_widgetdata
   
     
   method public static int64 FrameAdd (oPackIP# as i_pack, oUiFrameIP# as i_uiframe):
+    
+    /* TODO: perhaps use the overload with LinkFrameName (which was implemented when subframes were implemented) */
+    FrameAdd (oPackIP#, oUiFrameIP#, "Initial").
+    
+  end method.
+  
+
+  method public static int64 FrameAdd (oPackIP# as i_pack, oUiFrameIP# as i_uiframe, cLinkFrameNameIP# as character):
 
     define variable bEclipseFix# as logical no-undo.  
     def buffer ttUIFrame for ttUIFrame.
@@ -71,9 +79,10 @@ class paninui.view.use.sc_coll_widgetdata
       end.
       
       assign
-        ttUIFrame.iPackID    = oPackIP#:iPackID 
-        ttUIFrame.cFrameName = oUiFrameIP#:cUiFrameName
-        ttUIFrame.oFrame     = oUiFrameIP#.
+        ttUIFrame.iPackID        = oPackIP#:iPackID 
+        ttUIFrame.cFrameName     = oUiFrameIP#:cUiFrameName
+        ttUIFrame.cLinkFrameName = cLinkFrameNameIP#
+        ttUIFrame.oFrame         = oUiFrameIP#.
       
       return ttUIFrame.iIDUIFrame.
       
@@ -552,6 +561,26 @@ class paninui.view.use.sc_coll_widgetdata
     end.
     
   end method. /* GetWidgetByHandle */
+
+  
+  method public static i_uiframe GetFrameByLinkName(cLinkNameIP# as character):
+    
+    /* Return frame object found by the linkname */
+    
+    define variable oUiFrame# as i_uiframe no-undo.
+    define buffer b-ttUIFrame for ttUIFrame.
+    
+    find first b-ttUIFrame where b-ttUIFrame.cLinkFrameName = cLinkNameIP# no-error.
+    
+    if not available b-ttUIFrame then
+      return ?.
+    else
+    do:
+      oUiFrame# = cast(b-ttUIFrame.oFrame, i_uiframe).
+      return oUiFrame#.   
+    end.
+      
+  end method. /* GetFrameByLinkName */  
 
   
   method public static Progress.Lang.Object extent GetChildWidgets(
