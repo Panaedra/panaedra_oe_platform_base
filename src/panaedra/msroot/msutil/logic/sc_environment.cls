@@ -4,10 +4,10 @@ class panaedra.msb.logic.sc_environment:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msb/logic/sc_environment.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-21 14:02:59+01:00 $ 
-    Date Modified: $Modtime: 2009-12-21 13:21:58+01:00 $ 
+     Date Checkin: $Date: 2010-01-09 17:08:26+01:00 $ 
+    Date Modified: $Modtime: 2010-01-09 16:31:51+01:00 $ 
 
       Description: Haal informatie uit de omgeving op zoals het pid (process id).
 
@@ -16,7 +16,7 @@ class panaedra.msb.logic.sc_environment:
   /************************  Source control constructor ************************/
   constructor public sc_environment(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -24,8 +24,8 @@ class panaedra.msb.logic.sc_environment:
   
   define protected static variable bSessionGuidSet as logical   no-undo.
   define public static    variable bDebugLogAsync  as logical   no-undo.
-  
   define protected static variable cBootProcedure  as character no-undo.
+  
   define static property cSessionGuid as character no-undo 
     public get:
       if not bSessionGuidSet then assign
@@ -42,6 +42,81 @@ class panaedra.msb.logic.sc_environment:
   define static property cUserID as character no-undo 
     public get.
     public set.
+  
+
+  method public static void SetImmediateDisplay(
+    
+    /* This method is for controlling session:immediate-display.
+    
+       Is now only an entry point.
+       Can be made FIFO with a protected static temp-table, or ignored alltogether.
+
+       session:immediate-display shouldn't be set directly.
+       
+     */
+  
+    oObjectIP# as Progress.Lang.Object, 
+    bValueIP#  as logical):
+      
+    session:immediate-display = bValueIP#.
+
+  end method. /* SetImmediateDisplay */
+  
+  
+  method public static logical GetImmediateDisplay(
+    
+    /* This method is for getting session:immediate-display.
+    
+       Is now only an entry point.
+       Can be made FIFO with a protected static temp-table, or ignored alltogether.
+
+       session:immediate-display shouldn't be called directly.
+       
+     */
+  
+    oObjectIP# as Progress.Lang.Object):
+      
+    return session:immediate-display.
+
+  end method. /* GetImmediateDisplay */
+  
+  
+  method public static void SetWaitState(
+    
+    /* This method is for controlling session:wait-state.
+    
+       Is now only an entry point.
+       Can be made FIFO with a protected static temp-table, or ignored alltogether.
+
+       session:set-wait-state shouldn't be set directly.
+       
+     */
+  
+    oObjectIP# as Progress.Lang.Object, 
+    bValueIP#  as logical):
+    
+    session:set-wait-state(if bValueIP# then "general" else "").
+
+  end method. /* SetWaitState */
+  
+  
+  method public static logical GetWaitState(
+    
+    /* This method is for getting session:wait-state.
+    
+       Is now only an entry point.
+       Can be made FIFO with a protected static temp-table, or ignored alltogether.
+
+       session:get-wait-state shouldn't be called directly.
+       
+     */
+  
+    oObjectIP# as Progress.Lang.Object):
+      
+    return session:get-wait-state() = "general".
+
+  end method. /* GetWaitState */
+  
   
   method public static integer GetProcessID():
     
