@@ -1,14 +1,16 @@
 {panaedra/msi/logic/ctop_class.i} 
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
+using panaedra.msb.logic.*.
+
 class panaedra.msroot.msutil.logic.sc_messagebox   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
-          Version: $Revision: 13 $ 
+          Version: $Revision: 14 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-11 21:27:24+01:00 $ 
-    Date Modified: $Modtime: 2009-12-11 20:54:05+01:00 $ 
+     Date Checkin: $Date: 2010-01-09 17:08:26+01:00 $ 
+    Date Modified: $Modtime: 2010-01-09 16:53:11+01:00 $ 
 
       Description: Replacement for the ABL "message" statement.
       
@@ -26,7 +28,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   /************************  Source control constructor ************************/
   constructor public sc_messagebox(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -40,6 +42,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   method public static void Show(oTypeOVID# as i_messageboxtype_simple, cMsgIP# as character):
     
+    sc_environment:SetWaitState(?, false).
 
     &if opsys = "unix" or "{&window-system}" = "tty" &then
 
@@ -76,6 +79,8 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
 
   method public static void Show(oTypeOVID# as i_messageboxtype_simple_ontop, cMsgIP# as character):
+
+    sc_environment:SetWaitState(?, false).
     
     &if opsys = "unix" or "{&window-system}" = "tty" &then
 
@@ -102,6 +107,8 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
 
   method public static logical Show(oTypeOVID# as i_messageboxtype_yesno, cMsgIP# as character, bDefaultOkayIP# as logical):
+
+    sc_environment:SetWaitState(?, false).
 
     message cMsgIP#
       view-as alert-box buttons yes-no update bDefaultOkayIP#.
@@ -189,6 +196,8 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
     
     cProgramName# = if program-name(2) matches "*sc_messagebox*" then program-name(3) else program-name(2).
     
+    sc_environment:SetWaitState(?, false).
+
     &if opsys = "unix" or "{&window-system}" = "tty" &then
     
     if (not session:batch-mode) and length(cProgramName#) > 40
