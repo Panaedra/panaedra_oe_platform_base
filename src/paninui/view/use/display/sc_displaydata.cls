@@ -13,10 +13,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 21 $ 
+          Version: $Revision: 22 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-18 14:49:38+01:00 $ 
-    Date Modified: $Modtime: 2009-12-18 14:44:51+01:00 $ 
+     Date Checkin: $Date: 2010-01-09 14:41:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-09 14:19:37+01:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -25,7 +25,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 21 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 22 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -321,7 +321,8 @@ class paninui.view.use.display.sc_displaydata   :
           oComboBox#:ValueMember   = subst("iID&1", entry(1,cDataRef#,".")).
         else 
         do:
-          if hBuffOrQueryOrRelationIP#:type = "buffer" then do:
+          if hBuffOrQueryOrRelationIP#:type = "buffer" then 
+          do:
             cCased# = sc_dbtrig:GetCased(hBuffOrQueryOrRelationIP#).
             oComboBox#:ValueMember   = subst("iID&1", cCased#).
           end.
@@ -695,6 +696,7 @@ class paninui.view.use.display.sc_displaydata   :
     */
     if valid-object(oWidgetIP#) then 
     do:
+      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#).
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cValueIP#).
     end.
@@ -719,6 +721,7 @@ class paninui.view.use.display.sc_displaydata   :
     */
     if valid-object(oWidgetIP#) then 
     do:
+      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#).
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, iValueIP#).
     end.
@@ -743,12 +746,33 @@ class paninui.view.use.display.sc_displaydata   :
     */
     if valid-object(oWidgetIP#) then 
     do:
+      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#).
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, bValueIP#).
     end.
 
   end method. /* SetUiValueImplement ; logical */
 
+
+  method public static void RenameWidgetPropertyByUiTechnology(
+  
+    /* For example: "Enabled" must be renamed to "IsEnabled" for WPF widgets */
+    
+    input        oWidgetIP#    as Progress.Lang.Object, 
+    input-output cPropertyIOP# as character):
+
+    /* Abstraction of widget properties (Note: syntax Ctrl-I formatting is a bit hayward here, can't be helped.) */
+    case sc_analyzewidget:IsOfUiTechnology(oWidgetIP#):
+        
+      when "windows_wpf" then 
+        case cPropertyIOP#:
+          when "Enabled" then 
+            cPropertyIOP# = "IsEnabled".
+        end case.
+
+    end case. /* IsOfUiTechnology ; Abstraction of widget properties  */
+
+  end method. /* RenameWidgetPropertyByUiTechnology */
 
 end class.
 
