@@ -4,10 +4,10 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_proxycontext.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-21 14:02:59+01:00 $ 
-    Date Modified: $Modtime: 2009-12-21 13:27:36+01:00 $ 
+     Date Checkin: $Date: 2010-01-09 18:24:20+01:00 $ 
+    Date Modified: $Modtime: 2010-01-09 17:18:00+01:00 $ 
 
       Description: Api-proxy functionaliteit: generieke methods die client-side (proxy)
                    worden aangeroepen.
@@ -20,7 +20,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   /************************  Source control constructor ************************/
   constructor public sc_proxycontext(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -88,7 +88,6 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   method public static handle GetDefaultDsContext():
     
-
     if hDsContext = ? or not valid-handle(hDsContext) then 
       hDsContext = GetNewDsContext().
     
@@ -124,7 +123,8 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     
     assign
       b-ttSession.cUserID      = panaedra.msb.logic.sc_environment:cUserID
-      b-ttSession.cSessionGuid = panaedra.msb.logic.sc_environment:cSessionGuid.
+      b-ttSession.cSessionGuid = panaedra.msb.logic.sc_environment:cSessionGuid
+      b-ttSession.cEnv         = panaedra.msb.logic.sc_boot:SessionParameter("Env").
 
   end method. /* FillDefaultDsContext */
 
