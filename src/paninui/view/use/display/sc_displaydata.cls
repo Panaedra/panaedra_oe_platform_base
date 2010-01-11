@@ -8,15 +8,16 @@ using panaedra.msroot.msdr.interfaces.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 using panaedra.msdr.logic.*.
+using panaedra.msroot.msdr.logic.*.
 
 class paninui.view.use.display.sc_displaydata   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 22 $ 
+          Version: $Revision: 23 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-09 14:41:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-09 14:19:37+01:00 $ 
+     Date Checkin: $Date: 2010-01-11 10:21:07+01:00 $ 
+    Date Modified: $Modtime: 2010-01-10 23:48:43+01:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -25,7 +26,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 22 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 23 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -332,6 +333,52 @@ class paninui.view.use.display.sc_displaydata   :
     end.
 
   end method. /* DisplayData : ComboBox + ListItems */
+  
+
+  method public static void DisplayData(
+
+    oFrmLogicIP#     as i_frmlogic,
+    iComboboxOVIP#   as i_widgettype_combobox,
+    iListItemsOVIP#  as i_widgetproperty_listitems,
+    cWidgetNameIP#   as character,
+    oQryIP#          as c_qry):
+
+    define variable bIsDisplayLinkedOP# as logical                       no-undo.
+    define variable oBindingSource#     as c_bindingsource               no-undo.
+    define variable oWidget#            as Progress.Lang.Object          no-undo.
+    define variable oComboBox#          as System.Windows.Forms.ComboBox no-undo.
+    define variable cBase#              as character                     no-undo.
+    define variable cDataRef#           as character                     no-undo.
+    define variable cRemainder#         as character                     no-undo.
+    define variable cCased#             as character                     no-undo.
+  
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", ?, cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    cDataRef# = panaedra.msroot.msutil.logic.sc_string_prefixsuffix:GetPrefix(oQryIP#:sys__hQuery:get-buffer-handle(1):name, output cRemainder#).
+    
+    cDataRef# = cRemainder#.
+    
+    if not bIsDisplayLinkedOP# then
+    do:
+      if type-of(oWidget#, System.Windows.Forms.ComboBox) then
+      do:
+        oComboBox# = cast(oWidget#, System.Windows.Forms.ComboBox).
+        oBindingSource# = new c_bindingsource(sc_bindingsourcetype:i_Query /* Als het een buffer is, moet het een query worden; alle items. */, oQryIP#:sys__hQuery).
+        oQryIP#:sys__oBindingSource = oBindingSource#.
+        oComboBox#:DataSource = oBindingSource#. /* Dit vult automatisch de listitems van de combobox. */
+        oComboBox#:DisplayMember = oQryIP#:hDisplayField[1]:name.
+        if num-entries(cDataRef#,".") >= 2 then
+          oComboBox#:ValueMember   = subst("iID&1", entry(1,cDataRef#,".")).
+        else 
+        do:
+          cCased# = sc_dbtrig:GetCased(oQryIP#:sys__hQuery:get-buffer-handle(1)).
+          oComboBox#:ValueMember   = subst("iID&1", cCased#).
+        end.
+      end.
+      sc_coll_widgetdata:SetDisplayLinked(oWidget#).
+    end.
+
+  end method. /* DisplayData : ComboBox + ListItems + c_qry */
   
 
   method public static void DisplayData(
