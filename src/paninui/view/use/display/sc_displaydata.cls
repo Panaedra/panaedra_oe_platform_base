@@ -14,10 +14,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 23 $ 
+          Version: $Revision: 24 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-11 10:21:07+01:00 $ 
-    Date Modified: $Modtime: 2010-01-10 23:48:43+01:00 $ 
+     Date Checkin: $Date: 2010-01-11 13:43:26+01:00 $ 
+    Date Modified: $Modtime: 2010-01-11 13:12:04+01:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -26,7 +26,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 23 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 24 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -341,7 +341,7 @@ class paninui.view.use.display.sc_displaydata   :
     iComboboxOVIP#   as i_widgettype_combobox,
     iListItemsOVIP#  as i_widgetproperty_listitems,
     cWidgetNameIP#   as character,
-    oQryIP#          as c_qry):
+    oQryIP#          as i_qry):
 
     define variable bIsDisplayLinkedOP# as logical                       no-undo.
     define variable oBindingSource#     as c_bindingsource               no-undo.
@@ -363,8 +363,12 @@ class paninui.view.use.display.sc_displaydata   :
       if type-of(oWidget#, System.Windows.Forms.ComboBox) then
       do:
         oComboBox# = cast(oWidget#, System.Windows.Forms.ComboBox).
-        oBindingSource# = new c_bindingsource(sc_bindingsourcetype:i_Query /* Als het een buffer is, moet het een query worden; alle items. */, oQryIP#:sys__hQuery).
-        oQryIP#:sys__oBindingSource = oBindingSource#.
+        oBindingSource# = oQryIP#:sys__oBindingSource.
+        if not valid-object(oBindingSource#) then 
+        do:
+          oBindingSource# = new c_bindingsource(sc_bindingsourcetype:i_Query /* Als het een buffer is, moet het een query worden; alle items. */, oQryIP#:sys__hQuery).
+          oQryIP#:sys__oBindingSource = oBindingSource#.
+        end.
         oComboBox#:DataSource = oBindingSource#. /* Dit vult automatisch de listitems van de combobox. */
         oComboBox#:DisplayMember = oQryIP#:hDisplayField[1]:name.
         if num-entries(cDataRef#,".") >= 2 then
