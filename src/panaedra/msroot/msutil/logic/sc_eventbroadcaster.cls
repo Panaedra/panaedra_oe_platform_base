@@ -8,10 +8,10 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_eventbroadcaster.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-26 16:46:38+01:00 $ 
-    Date Modified: $Modtime: 2009-11-26 16:44:33+01:00 $ 
+     Date Checkin: $Date: 2010-01-11 10:21:07+01:00 $ 
+    Date Modified: $Modtime: 2010-01-10 22:38:32+01:00 $ 
 
       Description: Broadcasts events; 
                    loose-coupled event mechanism for session-wide events.
@@ -48,7 +48,7 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
   /************************  Source control constructor ************************/
   constructor public sc_eventbroadcaster(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -147,9 +147,9 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
   end method. /* FireEvent ; char + Object + char */  
   
 
-  method public static logical FireCustomEvent(cEventNameIP# as char, oDataIP# as i_eventbroadcastdata):
+  method public static logical FireCustomEvent(oDataIP# as i_eventbroadcastdata):
     
-    return FireEventImplement(cEventNameIP#, oDataIP#).
+    return FireEventImplement(oDataIP#:cEventName, oDataIP#).
 
   end method. /* FireCustomEvent */  
 
