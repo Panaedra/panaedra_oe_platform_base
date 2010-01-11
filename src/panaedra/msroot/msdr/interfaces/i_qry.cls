@@ -5,10 +5,10 @@ interface panaedra.msroot.msdr.interfaces.i_qry:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/interfaces/i_qry.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-23 14:51:23+01:00 $ 
-    Date Modified: $Modtime: 2009-11-23 14:51:02+01:00 $ 
+     Date Checkin: $Date: 2010-01-11 13:43:26+01:00 $ 
+    Date Modified: $Modtime: 2010-01-11 13:10:46+01:00 $ 
 
       Description: Interface for a class that wraps an ABL query handle
 
@@ -26,6 +26,10 @@ interface panaedra.msroot.msdr.interfaces.i_qry:
   define public property sys__oParentQry     as panaedra.msroot.msdr.interfaces.i_qry no-undo get. set.
   define public property sys__oBindingSource as c_bindingsource no-undo get. set.
   
+  define public property hDisplayField       as handle extent no-undo get. set.
+  define public property hKeyField           as handle extent no-undo get. set. 
+  define public property iUiRowPosition      as integer no-undo get. set.
+  
   method public widget-handle GetBuffer(iBufferIP# as integer).
   method public void PrepareStringGenSimple().
   method public void QueryClose().
@@ -41,6 +45,11 @@ interface panaedra.msroot.msdr.interfaces.i_qry:
   method public logical SetWhere(iBufferIP# as integer, cWhereIP# as character).
   method public logical SetWhere(iBufferIP# as integer, cWhereIP# as character, bQueryOpenIP# as logical).
   method public void SyncLocal().
+
+  method public void UiRefreshRecord().
+  method public void UiRefreshRecord(iRowIP# as integer).
+  method public void UiRefreshAll().
+  method public void UiRefreshAll(cOptionIP# as character).
     
 end interface.
 
