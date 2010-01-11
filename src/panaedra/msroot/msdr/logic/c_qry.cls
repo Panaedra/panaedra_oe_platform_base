@@ -9,10 +9,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 16 $ 
+          Version: $Revision: 17 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-08 12:25:20+01:00 $ 
-    Date Modified: $Modtime: 2010-01-08 12:22:25+01:00 $ 
+     Date Checkin: $Date: 2010-01-11 10:21:07+01:00 $ 
+    Date Modified: $Modtime: 2010-01-11 00:47:10+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -24,7 +24,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 16 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 17 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -42,6 +42,18 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   define property iNumResults         as integer no-undo 
     public get:
       return (if valid-handle(hQueryPrivate) then hQueryPrivate:num-results else 0).
+    end get. 
+
+  define property iUiRowPosition      as integer no-undo 
+    public get:
+      define variable oBindingSource# as c_bindingsource no-undo.
+      oBindingSource# = GetActiveBindingsource().      
+      return (if valid-object(oBindingSource#) then oBindingSource#:Position else 0).
+    end get. 
+    public set (iValueIP# as integer):
+      define variable oBindingSource# as c_bindingsource no-undo.
+      oBindingSource# = GetActiveBindingsource().      
+      oBindingSource#:Position = iValueIP#.
     end get. 
 
   define public property sys__hQuery as handle no-undo
@@ -84,12 +96,14 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
       cName = cValueIP#.
     end set.
 
+  define public property hDisplayField as handle extent no-undo get. set.
+   
+  define public property hKeyField     as handle extent no-undo get. set. 
 
-  define public property iNumBuffers as integer no-undo 
+  define public property iNumBuffers   as integer no-undo 
     get:
       return if valid-handle(sys__hQuery) then sys__hQuery:num-buffers else 0.
     end get. /* cPrepareString */
-
 
 
   constructor public c_qry(hQueryIP# as handle):
@@ -525,44 +539,55 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   
   method public void UiRefreshRecord():
     
-    if valid-object(sys__oBindingSource) then 
-      sys__oBindingSource:Refresh().
-    else 
-    do:
-      if    valid-object(sys__oParentQry) 
-        and valid-object(sys__oParentQry:sys__oBindingSource)
-        then 
-        sys__oParentQry:sys__oBindingSource:Refresh().
-    end.
+    define variable oBindingSource# as c_bindingsource no-undo.
+    
+    oBindingSource# = GetActiveBindingsource().
+    
+    if valid-object(oBindingSource#) then 
+      oBindingSource#:Refresh().
 
   end method. /* UiRefreshRecord ; no parameters */
 
   
   method public void UiRefreshRecord(iRowIP# as integer):
     
-    if valid-object(sys__oBindingSource) then 
-      sys__oBindingSource:Refresh().
-    else 
-    do:
-      if    valid-object(sys__oParentQry) 
-        and valid-object(sys__oParentQry:sys__oBindingSource)
-        then 
-        sys__oParentQry:sys__oBindingSource:Refresh(iRowIP#).
-    end.
+    define variable oBindingSource# as c_bindingsource no-undo.
+    
+    oBindingSource# = GetActiveBindingsource().
+    
+    if valid-object(oBindingSource#) then 
+      oBindingSource#:Refresh(iRowIP#).
 
   end method. /* UiRefreshRecord ; + row entry in the query */
 
-  
+
   method public void UiRefreshAll():
     
-    if valid-object(sys__oBindingSource) then 
-      sys__oBindingSource:RefreshAll().
-    else 
+    UiRefreshAllImplement("").
+    
+  end method. /* UiRefreshAll */
+
+  
+  method public void UiRefreshAll(cOptionIP# as character):
+
+    UiRefreshAllImplement(cOptionIP#).
+    
+  end method. /* UiRefreshAll */
+  
+
+  method protected void UiRefreshAllImplement(cOptionIP# as character):
+    
+    
+    define variable oBindingSource# as c_bindingsource no-undo.
+    define variable iUiRowPosition# as integer         no-undo.
+    
+    oBindingSource# = GetActiveBindingsource().
+    
+    if oBindingSource# <> ? then 
     do:
-      if    valid-object(sys__oParentQry) 
-        and valid-object(sys__oParentQry:sys__oBindingSource)
-        then 
-        sys__oParentQry:sys__oBindingSource:RefreshAll().
+      if cOptionIP# = "keep_uirowposition" then iUiRowPosition# = iUiRowPosition.
+      oBindingSource#:RefreshAll().
+      if cOptionIP# = "keep_uirowposition" then iUiRowPosition = iUiRowPosition#.
     end.
 
     catch ex as Progress.Lang.Error:
@@ -572,8 +597,30 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   end method. /* UiRefreshAll */
 
 
+  method protected c_bindingsource GetActiveBindingsource():
+    
+    define variable oBindingSource# as c_bindingsource no-undo.
+    
+    if valid-object(sys__oBindingSource) then 
+      oBindingSource# = sys__oBindingSource.
+    else 
+    do:
+      if    valid-object(sys__oParentQry) 
+        and valid-object(sys__oParentQry:sys__oBindingSource)
+        then 
+        oBindingSource# = sys__oParentQry:sys__oBindingSource.
+    end.
+    return oBindingSource#.
+  
+  end method. /* GetActiveBindingsource */
+
+
   destructor c_qry():
     
+    assign
+      extent(hDisplayField) = ?
+      extent(hKeyField)     = ?. 
+
     if valid-handle(sys__hQuery) and sys__hQuery:dynamic then delete object sys__hQuery.
 
   end destructor.
