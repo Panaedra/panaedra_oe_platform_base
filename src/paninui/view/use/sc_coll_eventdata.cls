@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 30 $ 
+          Version: $Revision: 31 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-04 15:34:26+01:00 $ 
-    Date Modified: $Modtime: 2010-01-04 14:59:23+01:00 $ 
+     Date Checkin: $Date: 2010-01-11 12:16:52+01:00 $ 
+    Date Modified: $Modtime: 2010-01-11 12:15:16+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 30 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 31 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -394,8 +394,14 @@ class paninui.view.use.sc_coll_eventdata
     define variable oBindingSourceStrong# as c_bindingsource               no-undo.
     define variable bDummy#               as logical                       no-undo.
     define variable oFormsCombobox#       as System.Windows.Forms.ComboBox no-undo.
+    define variable oFormsTextbox#        as System.Windows.Forms.TextBox  no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
+    
+    /*    if cWidgetNameIP# matches "*clob*" then                      */
+    /*    sc_messagebox:Show(sc_messageboxtype:oDebug,                 */
+    /*      cWidgetNameIP#, cEventTypeIP#, string(oFrmLogicBufferIP#)).*/
+    /*                                                                 */
 
     if oSingleton = ? then oSingleton = new sc_coll_eventdata().
     
@@ -404,7 +410,7 @@ class paninui.view.use.sc_coll_eventdata
       assign
         cWidgetNameIP# = replace(cWidgetNameIP#,"_",".")
         oWidget#       = sc_coll_widgetdata:GetWidget(iPackIDIP#,"combobox",?,cWidgetNameIP#, output bDummy#).
-        
+
       if oWidget# <> ? then 
       do:
         
@@ -434,7 +440,10 @@ class paninui.view.use.sc_coll_eventdata
             case cEventTypeIP#:
               
               when "TextChanged" 
-              then oFormsCombobox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+              then 
+                do:
+                  oFormsCombobox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+                end.
               
               when "SelectionChangeCommitted" 
               then oFormsCombobox#:SelectionChangeCommitted:Subscribe(oSingleton:OnEventArgsHandler_SelectionChangeCommitted).
@@ -452,9 +461,35 @@ class paninui.view.use.sc_coll_eventdata
               then oFormsCombobox#:DropDownClosed:Subscribe(oSingleton:OnEventArgsHandler_DropDownClosed).
               
             end case.
-          end.
+            
+          end. /* First ttUiEvent */
             
         end. /* ComboBox */
+        else 
+        do:
+          
+          if type-of(oWidget#,System.Windows.Forms.TextBox) then 
+          do:
+            
+            oFormsTextbox# = cast(oWidget#,System.Windows.Forms.TextBox).
+            if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+            do:
+               
+              case cEventTypeIP#:
+              
+                when "TextChanged" 
+                then 
+                  do:
+                    oFormsTextBox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+                  end.
+              
+              end case.
+              
+            end. /* First ttUiEvent */
+            
+          end. /* TextBox */
+          
+        end. /* Other type */
         
         return ItemAddImplement(
           iPackIDIP#, 
