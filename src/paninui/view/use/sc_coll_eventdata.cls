@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 31 $ 
+          Version: $Revision: 32 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-11 12:16:52+01:00 $ 
-    Date Modified: $Modtime: 2010-01-11 12:15:16+01:00 $ 
+     Date Checkin: $Date: 2010-01-11 12:47:56+01:00 $ 
+    Date Modified: $Modtime: 2010-01-11 12:47:26+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 31 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 32 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -398,11 +398,6 @@ class paninui.view.use.sc_coll_eventdata
     
     define buffer ttUiEvent for ttUiEvent.
     
-    /*    if cWidgetNameIP# matches "*clob*" then                      */
-    /*    sc_messagebox:Show(sc_messageboxtype:oDebug,                 */
-    /*      cWidgetNameIP#, cEventTypeIP#, string(oFrmLogicBufferIP#)).*/
-    /*                                                                 */
-
     if oSingleton = ? then oSingleton = new sc_coll_eventdata().
     
     do for ttUiEvent:
