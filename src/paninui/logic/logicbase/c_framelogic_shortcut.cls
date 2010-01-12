@@ -1,4 +1,6 @@
 {panaedra/msi/logic/ctop_class.i} 
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 using paninui.view.interfaces.*.
 using paninui.view.use.*.
 using paninui.view.init.display.*.
@@ -10,10 +12,10 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/logic/logicbase/c_framelogic_shortcut.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-18 14:49:38+01:00 $ 
-    Date Modified: $Modtime: 2009-12-18 12:12:25+01:00 $ 
+     Date Checkin: $Date: 2010-01-12 07:28:28+01:00 $ 
+    Date Modified: $Modtime: 2010-01-12 01:50:07+01:00 $ 
 
       Description: Provides a shortcut object to be used in frame logic classes.
                    Only links methods to other methods, technically not required,
@@ -25,18 +27,20 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
   /************************  Source control constructor ************************/
   constructor public c_framelogic_shortcut(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  define variable oFrmLogic as paninui.view.interfaces.i_frmlogic no-undo.
+  define protected variable oFrmLogic   as paninui.view.interfaces.i_frmlogic no-undo.
 
   
   constructor public c_framelogic_shortcut(oFrmLogicIP# as paninui.view.interfaces.i_frmlogic):
     
-    oFrmLogic = oFrmLogicIP#.
+    assign
+      oFrmLogic   = oFrmLogicIP#.
     
   end constructor.
+
 
   method public character GetUiValue(
     
