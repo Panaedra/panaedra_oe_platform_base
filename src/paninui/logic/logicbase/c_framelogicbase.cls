@@ -1,4 +1,7 @@
 {panaedra/msi/logic/ctop_class.i}
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
+using paninui.view.interfaces.*.
 
 class paninui.logic.logicbase.c_framelogicbase 
   inherits
@@ -9,14 +12,15 @@ class paninui.logic.logicbase.c_framelogicbase
   paninui.view.framebase.c_uiframe
   &endif
   implements 
-  paninui.view.interfaces.i_frmlogic: 
+  i_frmlogic,
+  i_scopetableclient: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/logic/logicbase/c_framelogicbase.cls $ 
-          Version: $Revision: 14 $ 
+          Version: $Revision: 15 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-04 12:13:50+01:00 $ 
-    Date Modified: $Modtime: 2010-01-04 12:11:22+01:00 $ 
+     Date Checkin: $Date: 2010-01-12 07:28:28+01:00 $ 
+    Date Modified: $Modtime: 2010-01-12 00:42:38+01:00 $ 
 
       Description: Baseclass for frame logic classes.
 
@@ -25,7 +29,7 @@ class paninui.logic.logicbase.c_framelogicbase
   /************************  Source control constructor ************************/
   constructor public c_framelogicbase(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
