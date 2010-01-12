@@ -14,10 +14,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 24 $ 
+          Version: $Revision: 25 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-11 13:43:26+01:00 $ 
-    Date Modified: $Modtime: 2010-01-11 13:12:04+01:00 $ 
+     Date Checkin: $Date: 2010-01-12 20:18:45+01:00 $ 
+    Date Modified: $Modtime: 2010-01-12 18:45:38+01:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -26,7 +26,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 24 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 25 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -739,7 +739,8 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     cValueIP#       as character):
 
-    define variable oControl# as System.Object no-undo.
+    define variable oControl# as System.Object        no-undo.
+    define variable oValue#   as Progress.Lang.Object no-undo.
 
     /* We only support Text objects for cValueIP#, and we can convert this to other objects
        later in time 
@@ -747,9 +748,12 @@ class paninui.view.use.display.sc_displaydata   :
     */
     if valid-object(oWidgetIP#) then 
     do:
-      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#).
+      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cValueIP#, output oValue#).
       oControl# = cast(oWidgetIP#, System.Object).
-      paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cValueIP#).
+      if oValue# <> ? then
+        paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cast(oValue#,System.Object)).
+      else
+        paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cValueIP#).
     end.
 
   end method. /* SetUiValueImplement ; character */
@@ -764,15 +768,17 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     iValueIP#       as integer):
 
-    define variable oControl# as System.Object no-undo.
-
+    define variable oControl# as System.Object        no-undo.
+    define variable cDummy#   as character            no-undo.
+    define variable oValue#   as Progress.Lang.Object no-undo.
+    
     /* We only support Text objects for cValueIP#, and we can convert this to other objects
        later in time 
        (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
     */
     if valid-object(oWidgetIP#) then 
     do:
-      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#).
+      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oValue#).
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, iValueIP#).
     end.
@@ -789,7 +795,9 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     bValueIP#       as logical):
 
-    define variable oControl# as System.Object no-undo.
+    define variable oControl# as System.Object        no-undo.
+    define variable cDummy#   as character            no-undo.
+    define variable oValue#   as Progress.Lang.Object no-undo.
 
     /* We only support Text objects for cValueIP#, and we can convert this to other objects
        later in time 
@@ -797,7 +805,7 @@ class paninui.view.use.display.sc_displaydata   :
     */
     if valid-object(oWidgetIP#) then 
     do:
-      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#).
+      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oValue#).
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, bValueIP#).
     end.
@@ -810,7 +818,9 @@ class paninui.view.use.display.sc_displaydata   :
     /* For example: "Enabled" must be renamed to "IsEnabled" for WPF widgets */
     
     input        oWidgetIP#    as Progress.Lang.Object, 
-    input-output cPropertyIOP# as character):
+    input-output cPropertyIOP# as character,
+    input-output cValueIOP#    as character,
+    output       oValueOP#     as Progress.Lang.Object):
 
     /* Abstraction of widget properties (Note: syntax Ctrl-I formatting is a bit hayward here, can't be helped.) */
     case sc_analyzewidget:IsOfUiTechnology(oWidgetIP#):
@@ -820,7 +830,26 @@ class paninui.view.use.display.sc_displaydata   :
           when "Enabled" then 
             cPropertyIOP# = "IsEnabled".
         end case.
-
+        
+      when "windows_forms" then
+        case  cPropertyIOP#:
+          when "Dock" then 
+            case cValueIOP#:
+              when "Bottom" then 
+                oValueOP# = System.Windows.Forms.DockStyle:Bottom.
+              when "Top" then 
+                oValueOP# = System.Windows.Forms.DockStyle:Top.
+              when "Left" then 
+                oValueOP# = System.Windows.Forms.DockStyle:Left.
+              when "Right" then 
+                oValueOP# = System.Windows.Forms.DockStyle:Right.
+            end case.
+        end case. 
+        
+      otherwise sc_messagebox:Show(sc_messageboxtype:oDebug,
+        sc_analyzewidget:IsOfUiTechnology(oWidgetIP#),
+        "is not implemented.").
+                
     end case. /* IsOfUiTechnology ; Abstraction of widget properties  */
 
   end method. /* RenameWidgetPropertyByUiTechnology */
