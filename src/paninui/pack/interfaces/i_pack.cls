@@ -4,14 +4,14 @@ using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 using paninui.pack.interfaces.*.
 
-interface paninui.pack.interfaces.i_pack:  
+interface paninui.pack.interfaces.i_pack: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/pack/interfaces/i_pack.cls $ 
-          Version: $Revision: 14 $ 
+          Version: $Revision: 15 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-11 10:21:07+01:00 $ 
-    Date Modified: $Modtime: 2010-01-10 20:49:43+01:00 $ 
+     Date Checkin: $Date: 2010-01-12 07:28:28+01:00 $ 
+    Date Modified: $Modtime: 2010-01-11 23:58:39+01:00 $ 
 
       Description: Interface for pack objects
 
@@ -20,10 +20,11 @@ interface paninui.pack.interfaces.i_pack:
   
   /******************************* $NoKeywords:  $ *****************************/
   
-  define property iPackID    as int64             no-undo get.
-  define property oMdiWindow as {&i_masterwindow} no-undo get.
+  define property iPackID     as int64             no-undo get.
+  define property oMdiWindow  as {&i_masterwindow} no-undo get.
+  define property oScopeTable as i_scopetable      no-undo get.
 
-  define property sys__oUiFrame as {&System.Object} no-undo 
+  define property sys__oUiFrame as {&System.Object}     no-undo 
   get. 
   set.
   
