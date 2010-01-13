@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_date_timestamp.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-13 10:22:19+01:00 $ 
-    Date Modified: $Modtime: 2010-01-13 10:21:43+01:00 $ 
+     Date Checkin: $Date: 2010-01-13 11:10:13+01:00 $ 
+    Date Modified: $Modtime: 2010-01-13 11:09:44+01:00 $ 
 
       Description: Date and time timestamp functionality
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   /************************  Source control constructor ************************/
   constructor public sc_date_timestamp(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -70,7 +70,7 @@ function englishAbvDate returns character (dtWhenIP# as date) in super.
     
     return sc_email_headers:EmailHeaderStrictDate().
     
-  end method. /* GetRfc821Date */
+  end method. /* EmailHeaderStrictDate */
   
 end class.
 
