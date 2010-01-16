@@ -9,10 +9,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 17 $ 
+          Version: $Revision: 18 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-11 10:21:07+01:00 $ 
-    Date Modified: $Modtime: 2010-01-11 00:47:10+01:00 $ 
+     Date Checkin: $Date: 2010-01-16 15:13:02+01:00 $ 
+    Date Modified: $Modtime: 2010-01-16 14:58:00+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -24,7 +24,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 17 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 18 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -184,6 +184,8 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
         (if cBuff# begins "ttCalc" or cBuff# matches("*-ttCalc*") then replace(cBuff#,"ttCalc","tt") else hQueryIP#:get-buffer-handle(iOfBuffer#):name)))
         + " " +
         (if bOuterJoin# or cBuff# begins "ttCalc" or cBuff# matches("*-ttCalc*") then "outer-join " else " "). 
+        
+      cPrep# = right-trim(cPrep#) + " /*[qStartBy]*/".  
       
     end.
     
@@ -209,6 +211,14 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   end method. /* SetWhere */
   
 
+  method public logical SetBy(cByIP# as character):
+    
+    /* Call the static version of this method */
+    panaedra.msroot.msdr.logic.c_qry:SetByImplement(this-object,sys__hQuery, cByIP#).
+    
+  end method. /* SetBy */
+  
+
   method public logical SetWhere(iBufferIP# as integer, cWhereIP# as character, bQueryOpenIP# as logical):
     
     /* Call the static version of this method */
@@ -225,7 +235,6 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     define variable cTag#       as character no-undo.
     define variable iTagLength# as integer   no-undo.
     
-    /*for each b-qryfull-tt_DATA_ /*[qWhere_001]*/ no-lock, first b-qryfull-tt_DATA_ /*[qWhere_002]*/ of b-qryfull-tt_DATA_ no-lock, first b-qryfull-tt_DATA_Type /*[qWhere_003]*/ of b-qryfull-tt_DATA_ no-lock*/
     if valid-handle(hQueryIP#) then 
     do:
 
@@ -271,6 +280,67 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     end.
 
   end method. /* SetWhereImplement */
+
+
+  method protected static logical SetByImplement(oQryIP# as panaedra.msroot.msdr.logic.c_qry, hQueryIP# as handle, cByIP# as character):
+
+    define variable cPrep#      as character no-undo.
+    define variable iStartPos#  as integer   no-undo.
+    define variable iEndPos#    as integer   no-undo.
+    define variable cTag#       as character no-undo.
+    define variable iTagLength# as integer   no-undo.
+    
+    if valid-handle(hQueryIP#) then 
+    do:
+
+      cPrep# = hQueryIP#:prepare-string.
+
+      assign
+        cTag#       = "/*[qStartBy]*/"
+        iTagLength# = length(cTag#)
+        iStartPos#  = index(cPrep#, cTag#).
+      
+      if iStartPos# = 0 then 
+      do:
+        /* Must be a custom query. Add qStartBy tag to the end of it. */
+        assign
+          cPrep#     = cPrep# + " /*[qStartBy]*/"
+          iStartPos# = index(cPrep#, cTag#).
+      end.
+      
+      if iStartPos# > 0 then 
+      do:
+        iEndPos# = 
+          index(cPrep#, ",", iStartPos#).
+        if iEndPos# = 0 then iEndPos# = length(cPrep#).
+        else iEndPos# = iEndPos# - 1.
+        
+        if substring(cPrep#, iEndPos# - 6, 7) = "no-lock" then iEndPos# = iEndPos# - 7.
+        if substring(cPrep#, iEndPos# - 13, 14) = "exclusive-lock" then iEndPos# = iEndPos# - 14.
+        
+        iStartPos# = iStartPos# + iTagLength#.
+        
+        /* Put space before and/or after submitted where phrase if necessary */
+        if (not cByIP# begins " ") and substring(cPrep#, iStartPos# - 1, 1) <> " " then cByIP# = " " + cByIP#.
+        if (not substring(cByIP#, length(cByIP#),1) = " ") and substring(cPrep#, iEndPos# + 1, 1) <> " " then cByIP# = cByIP# + " ".
+
+        substring(cPrep#, iStartPos#, max(1,iEndPos# - iStartPos#)) = cByIP#.
+        
+      end.
+      
+      if cPrep# <> hQueryIP#:prepare-string then 
+      do:
+        do on error undo, throw:
+          hQueryIP#:query-prepare(cPrep#).
+          catch e as Progress.Lang.Error:
+            undo, throw new panaedra.msex.logic.c__FCMPNY_exception(999500008,substitute("Query by '&1' is invalid.~n&2~n&3", cByIP#, cPrep#, e:GetMessage(1))).
+          end catch.
+        end.
+      end.
+      
+    end.
+      
+  end method. /* SetByImplement */
 
 
   method public void SyncLocal():
