@@ -5,10 +5,10 @@ interface panaedra.msroot.msdr.interfaces.i_qry:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/interfaces/i_qry.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-11 13:43:26+01:00 $ 
-    Date Modified: $Modtime: 2010-01-11 13:10:46+01:00 $ 
+     Date Checkin: $Date: 2010-01-16 15:13:02+01:00 $ 
+    Date Modified: $Modtime: 2010-01-16 15:00:14+01:00 $ 
 
       Description: Interface for a class that wraps an ABL query handle
 
@@ -44,6 +44,7 @@ interface panaedra.msroot.msdr.interfaces.i_qry:
   method public logical SetPrepareString(cPrepareStringIP# as character).
   method public logical SetWhere(iBufferIP# as integer, cWhereIP# as character).
   method public logical SetWhere(iBufferIP# as integer, cWhereIP# as character, bQueryOpenIP# as logical).
+  method public logical SetBy(cByIP# as character).
   method public void SyncLocal().
 
   method public void UiRefreshRecord().
