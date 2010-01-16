@@ -1,7 +1,7 @@
 /************* Generated: 2009-08-29T15:06:01.828+02:00 *********************/
 &if defined(panaedra_msroot_msas_logic_tt_Callstack_tt_i) = 0 &then
 &glob panaedra_msroot_msas_logic_tt_Callstack_tt_i true
-&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msas_logic_tt_Callstack_tt_i $Revision: 2 $
+&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msas_logic_tt_Callstack_tt_i $Revision: 3 $
 &endif
 /*************************** $NoKeywords:  $ ********************************/
 
@@ -25,7 +25,6 @@
 define {&protected} {&static} temp-table tt{&ttPrefix}Callstack{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
   field cCallStack as character
   {&ttExtraFields}
-  index cCallStack is primary cCallStack
   {&ttExtraIndices}.
 
 &endif
