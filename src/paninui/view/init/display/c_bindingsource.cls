@@ -13,10 +13,10 @@ class paninui.view.init.display.c_bindingsource
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/display/c_bindingsource.cls $ 
-          Version: $Revision: 13 $ 
+          Version: $Revision: 14 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-24 14:15:36+01:00 $ 
-    Date Modified: $Modtime: 2009-11-24 14:08:31+01:00 $ 
+     Date Checkin: $Date: 2010-01-16 19:27:01+01:00 $ 
+    Date Modified: $Modtime: 2010-01-16 19:14:06+01:00 $ 
 
       Description:  _CMPNY_ inheritance van de progress DataSource. 
                     Bedoeld om onvolkomenheden van de progress DataSource
@@ -29,13 +29,18 @@ class paninui.view.init.display.c_bindingsource
   /************************  Source control constructor ************************/
   constructor public c_bindingsource(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected variable hCustomBuffer as handle    no-undo.
   define protected variable hCustomQuery  as handle    no-undo.
   define protected variable cLocalName    as character no-undo.
+
+  define property sys__hCustomQuery  as handle    no-undo 
+    public get:
+      return hCustomQuery.
+    end get.
   
   
   constructor protected c_bindingsource():
@@ -231,7 +236,7 @@ class paninui.view.init.display.c_bindingsource
     
     define variable cReturn# as character no-undo.
     
-    cReturn# = subst("&1@&2",cLocalName, super:ToString()).
+    cReturn# = subst("&1@&2@&3",cLocalName, if Handle = ? then "NoHandle" else Handle:type, super:ToString()).
     
     return cReturn#.
     
