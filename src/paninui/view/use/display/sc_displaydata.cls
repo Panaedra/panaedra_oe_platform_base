@@ -14,10 +14,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 25 $ 
+          Version: $Revision: 26 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-12 20:18:45+01:00 $ 
-    Date Modified: $Modtime: 2010-01-12 18:45:38+01:00 $ 
+     Date Checkin: $Date: 2010-01-16 19:24:41+01:00 $ 
+    Date Modified: $Modtime: 2010-01-16 19:24:03+01:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -26,7 +26,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 25 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 26 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -282,7 +282,7 @@ class paninui.view.use.display.sc_displaydata   :
       sc_coll_widgetdata:SetDisplayLinked(oWidget#).
     end.
 
-  end method. /* DisplayData : ComboBox + ListItems */
+  end method. /* DisplayData : ComboBox + ListItems + dataset handle */
   
 
   method public static void DisplayData(
@@ -302,7 +302,7 @@ class paninui.view.use.display.sc_displaydata   :
     define variable cDataRef#           as character                     no-undo.
     define variable cRemainder#         as character                     no-undo.
     define variable cCased#             as character                     no-undo.
-  
+    
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", ?, cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
     cDataRef# = panaedra.msroot.msutil.logic.sc_string_prefixsuffix:GetPrefix(cDataRefIP#, output cRemainder#).
@@ -331,8 +331,8 @@ class paninui.view.use.display.sc_displaydata   :
       end.
       sc_coll_widgetdata:SetDisplayLinked(oWidget#).
     end.
-
-  end method. /* DisplayData : ComboBox + ListItems */
+    
+  end method. /* DisplayData : ComboBox + ListItems + buffer or query handle */
   
 
   method public static void DisplayData(
