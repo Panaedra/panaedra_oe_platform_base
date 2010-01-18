@@ -7,10 +7,10 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/events/sc_sgt_masterwindow_eventhandler.cls $ 
-          Version: $Revision: 13 $ 
+          Version: $Revision: 14 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-21 23:10:56+01:00 $ 
-    Date Modified: $Modtime: 2009-12-21 23:06:21+01:00 $ 
+     Date Checkin: $Date: 2010-01-18 08:31:48+01:00 $ 
+    Date Modified: $Modtime: 2010-01-18 00:21:09+01:00 $ 
 
       Description: Static Class Singleton implementation for Masterwindow / MDI Window
 
@@ -19,7 +19,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
   /************************  Source control constructor ************************/
   constructor public sc_sgt_masterwindow_eventhandler(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -47,7 +47,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
        -Load-
        Load is fired before the window is shown. Everything is nice and hidden this way.
        However, the Eclipse debugger (ánd the Visual Studio debugger for that matter) don't
-       like this and crashes often.
+       like this and crash often.
        -Shown-
        Shown is fired just after the window is shown. Because of the work done in the
        initializion of the paninUi screen objects, for about one second an ugly
@@ -55,11 +55,15 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
        However, the Eclipse debugger likes this and doesn't crash (well, far less often anyway).
      */
 		
+
+    /* This method is called if there is no eclipse debugger. 
+       From the eclipse debugger, only MdiOnShown is called. */
+
     oInitialPack = dynamic-new cInitialPack().
 
     if valid-object(oInitialPack) then oInitialPack:LoadPack(oMdiWindow).
     
-    cast(sender,System.Windows.Forms.Form):Load:unsubscribe(this-object:MdiOnLoad).
+    cast(sender,System.Windows.Forms.Form):Load:Unsubscribe(this-object:MdiOnLoad).
 
     catch ex as Progress.Lang.Error :
       panaedra.msex.logic.sc_showexception:ShowException(ex).
@@ -75,7 +79,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
        -Load-
        Load is fired before the window is shown. Everything is nice and hidden this way.
        However, the Eclipse debugger (ánd the Visual Studio debugger for that matter) don't
-       like this and crashes often.
+       like this and crash often.
        -Shown-
        Shown is fired just after the window is shown. Because of the work done in the
        initializion of the paninUi screen objects, for about one second an ugly
@@ -85,6 +89,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
 		
     /* Later via: [RunObject] session parameter */
 
+    
     if os-getenv("ECLIPSE_PROJECT") > "" then do:
       /* This means the eclipse debugger is running; Startup is postponed to the 
          "Shown" event for less crashes (but uglier screen at startup) 
@@ -94,9 +99,16 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
         if valid-object(oInitialPack) then oInitialPack:LoadPack(oMdiWindow).
       end.
     end.
-    cast(sender,System.Windows.Forms.Form):Shown:unsubscribe(this-object:MdiOnShown).
+    
+    /* The rest of this method always fires, eclipse or no eclipse. */
+    
+    cast(sender,System.Windows.Forms.Form):Shown:Unsubscribe(this-object:MdiOnShown).
 
-    if valid-object(oInitialPack) then oInitialPack:ShowPack(oMdiWindow).
+    if valid-object(oInitialPack) then do:
+      oInitialPack:ShowMdi(oMdiWindow).
+      /* And fire the "Shown" logic, always last after LoadPack */
+      oInitialPack:ShowPack().
+    end.
 
     catch ex as Progress.Lang.Error :
       panaedra.msex.logic.sc_showexception:ShowException(ex).
