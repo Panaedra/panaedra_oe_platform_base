@@ -9,10 +9,10 @@ class panaedra.msroot.msdr.logic.c_buf
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_buf.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-05 18:07:59+01:00 $ 
-    Date Modified: $Modtime: 2009-11-05 17:46:52+01:00 $ 
+     Date Checkin: $Date: 2010-01-18 09:50:30+01:00 $ 
+    Date Modified: $Modtime: 2010-01-18 09:28:32+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -24,7 +24,7 @@ class panaedra.msroot.msdr.logic.c_buf
   /************************  Source control constructor ************************/
   constructor public c_buf(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -80,11 +80,11 @@ class panaedra.msroot.msdr.logic.c_buf
   end constructor.
   
 
-  destructor c_buf():
+  method public void UiRefreshRecord():
     
-    DoCleanupBindingSource ().
-      
-  end destructor.
+    if valid-object(oBindingSource) then oBindingSource:Refresh().
+    
+  end method.
 
 
   method public void OnEventBroadcast(oBroadcastDataIP# as i_eventbroadcastdata):
@@ -222,6 +222,12 @@ class panaedra.msroot.msdr.logic.c_buf
       
   end method. /* ToString */
 
+
+  destructor c_buf():
+    
+    DoCleanupBindingSource ().
+      
+  end destructor.
 
 end class.
 
