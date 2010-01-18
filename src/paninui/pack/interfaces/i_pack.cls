@@ -8,10 +8,10 @@ interface paninui.pack.interfaces.i_pack:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/pack/interfaces/i_pack.cls $ 
-          Version: $Revision: 15 $ 
+          Version: $Revision: 16 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-12 07:28:28+01:00 $ 
-    Date Modified: $Modtime: 2010-01-11 23:58:39+01:00 $ 
+     Date Checkin: $Date: 2010-01-18 08:31:48+01:00 $ 
+    Date Modified: $Modtime: 2010-01-18 00:10:34+01:00 $ 
 
       Description: Interface for pack objects
 
@@ -31,7 +31,9 @@ interface paninui.pack.interfaces.i_pack:
   method logical    LoadPack (
     oMdiWindowIP# as {&i_masterwindow}).
 
-  method void  ShowPack (
+  method void       ShowPack ().
+
+  method void  ShowMdi (
     oMdiWindowIP# as {&i_masterwindow}).
   
   method void LoadSubframe(
