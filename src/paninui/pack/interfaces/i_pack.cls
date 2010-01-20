@@ -8,10 +8,10 @@ interface paninui.pack.interfaces.i_pack:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/pack/interfaces/i_pack.cls $ 
-          Version: $Revision: 16 $ 
+          Version: $Revision: 17 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-18 08:31:48+01:00 $ 
-    Date Modified: $Modtime: 2010-01-18 00:10:34+01:00 $ 
+     Date Checkin: $Date: 2010-01-20 15:42:02+01:00 $ 
+    Date Modified: $Modtime: 2010-01-20 12:01:30+01:00 $ 
 
       Description: Interface for pack objects
 
@@ -67,6 +67,10 @@ interface paninui.pack.interfaces.i_pack:
     oModalPackIP#           as i_pack,
     cLocationWidgetTypeIP#  as character,
     cLocationWidgetNameIP#  as character).
+    
+  method public void AddFrameLogicToPack(
+    iFrmlgIndexIP# as integer, 
+    hDatasetArrayIP# as handle extent).
     
   method c_datasetcontroller GetDatasetController(
     dataset-handle hDatasetIP# /* By reference */).
