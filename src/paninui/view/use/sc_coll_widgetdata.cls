@@ -15,10 +15,10 @@ class paninui.view.use.sc_coll_widgetdata
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 24 $ 
+          Version: $Revision: 25 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-08 15:19:24+01:00 $ 
-    Date Modified: $Modtime: 2010-01-08 14:37:03+01:00 $ 
+     Date Checkin: $Date: 2010-01-20 15:42:02+01:00 $ 
+    Date Modified: $Modtime: 2010-01-20 15:18:43+01:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -30,7 +30,7 @@ class paninui.view.use.sc_coll_widgetdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 24 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 25 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -739,7 +739,30 @@ class paninui.view.use.sc_coll_widgetdata
     end.
     
   end method. /* GetGridColumns */
-  
+
+
+  method public static void RenameWidgetLinkNames(
+    iPackIDIP#    as int64, 
+    iIDUIFrameIP# as int64,
+    cFromIP#      as character,
+    cIntoIP#      as character):
+      
+    define buffer b-ttUIFrame    for ttUIFrame.
+    define buffer b-ttWidgetData for ttWidgetData.
+
+    for each b-ttUIFrame no-lock
+      where  b-ttUIFrame.iPackID = iPackIDIP#
+      and    b-ttUIFrame.iIDUIFrame = iIDUIFrameIP#,
+      each   b-ttWidgetData no-lock
+      of     b-ttUIFrame:
+        
+      b-ttWidgetData.cLinkName = replace(b-ttWidgetData.cLinkName, cFromIP#, cIntoIP#).
+      
+    end.
+
+  end method. /* RenameWidgetLinkNames */  
+
+
   
   method public static void DebugShowData():
 
