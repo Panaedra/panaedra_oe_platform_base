@@ -1,16 +1,17 @@
 {panaedra/msi/logic/ctop_class.i} 
+{paninui/logic/includes/preproc_dotnetclasses.i &class=class}
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 using panaedra.msf.logic.*.
-
+using panaedra.msb.logic.*.
 class panaedra.msroot.msutil.logic.sc_persistency_info   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_persistency_info.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-18 11:29:30+01:00 $ 
-    Date Modified: $Modtime: 2009-12-18 01:21:19+01:00 $ 
+     Date Checkin: $Date: 2010-01-25 11:18:52+01:00 $ 
+    Date Modified: $Modtime: 2010-01-22 12:01:52+01:00 $ 
 
       Description: Uses the session handle to find persistent buffers, procedures, or objects.
                    Very useful for checking if you didn't forget to clean something up.
@@ -20,7 +21,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
   /************************  Source control constructor ************************/
   constructor public sc_persistency_info(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -29,6 +30,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     field cName              as char
     field cInstantiatingProc as char
     field hHandle            as handle
+    field cPrivateData       as char
     index cType_cName cType cName.
   
 
@@ -39,7 +41,8 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     do on error undo, throw:
       FillPersistentObjects().
     end.
-
+    
+    FillGenericInfo().
     FillPersistentProcedures().
     FillBuffers().
     FillDatasets().
@@ -63,16 +66,60 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
 
   method protected static void ShowTempTable():
     
-    if sc_html:TempTableToHTML(buffer ttPersistentThings:handle, sc_path:cTempDir + "PersistentThings.html") then 
-      &if opsys <> "unix" &then
-      sc_win32:ShellExecute(sc_path:cTempDir + "PersistentThings.html")
+    define variable cHtmlFile# as character no-undo.
+    
+    cHtmlFile# = sc_path:cTempDir + subst("&1_persistent_things_&2.html", sc_date_timestamp:cTimeStamp_Short_DateAndTime, sc_environment:cSessionGuid).
+    
+    if sc_html:TempTableToHTML(buffer ttPersistentThings:handle, cHtmlFile#) then 
+      &if not {&paninui_tty} &then
+      sc_win32:ShellExecute(cHtmlFile#)
       &else
-    message "Open the following file yourself: " sc_path:cTempDir + "PersistentThings.html"
+    message "Open the following file yourself: " cHtmlFile#
       view-as alert-box.
       &endif
     . /* Show HTML file */
 
   end method. /* ShowPersistentObjects */
+
+
+  method protected static void FillGenericInfo():
+
+    define variable bEclipseFix# as logical no-undo.
+    define buffer ttPersistentThings for ttPersistentThings.
+    
+    do for ttPersistentThings on error undo, throw:
+      
+      create ttPersistentThings.
+      assign 
+        ttPersistentThings.cType        = "_session"
+        ttPersistentThings.cName        = "now"
+        ttPersistentThings.cPrivateData = string(now)
+        .
+        
+      create ttPersistentThings.
+      assign 
+        ttPersistentThings.cType        = "_session"
+        ttPersistentThings.cName        = "[Env]"
+        ttPersistentThings.cPrivateData = sc_boot:SessionParameter("Env")
+        .
+        
+      create ttPersistentThings.
+      assign 
+        ttPersistentThings.cType        = "_session"
+        ttPersistentThings.cName        = "session:startup-parameters"
+        ttPersistentThings.cPrivateData = session:startup-parameters
+        .
+        
+      create ttPersistentThings.
+      assign 
+        ttPersistentThings.cType        = "_session"
+        ttPersistentThings.cName        = "propath"
+        ttPersistentThings.cPrivateData = propath
+        .
+        
+    end.
+
+  end method. /*     FillGenericInfo */
 
 
   method protected static void FillPersistentObjects():
@@ -111,9 +158,11 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
       do while valid-handle(hProc#):
         create ttPersistentThings.
         assign 
-          ttPersistentThings.cType   = "Procedure"
-          ttPersistentThings.cName   = hProc#:file-name
-          ttPersistentThings.hHandle = hProc#.
+          ttPersistentThings.cType        = "Procedure"
+          ttPersistentThings.cName        = hProc#:file-name
+          ttPersistentThings.hHandle      = hProc#
+          ttPersistentThings.cPrivateData = hProc#:private-data
+          .
         hProc# = hProc#:next-sibling.
       end.
        
@@ -137,6 +186,9 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
           ttPersistentThings.cType   = "Buffer"
           ttPersistentThings.cName   = hBuff#:name
           ttPersistentThings.hHandle = hBuff#.
+        assign  
+          ttPersistentThings.cPrivateData = hBuff#:private-data
+          no-error.
         assign
           ttPersistentThings.cInstantiatingProc = hBuff#:instantiating-procedure:file-name no-error.
         hBuff# = hBuff#:next-sibling.
@@ -162,6 +214,9 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
           ttPersistentThings.cType   = "Dataset"
           ttPersistentThings.cName   = hDs#:name
           ttPersistentThings.hHandle = hDs#.
+        assign  
+          ttPersistentThings.cPrivateData = hDs#:private-data
+          no-error.
         assign
           ttPersistentThings.cInstantiatingProc = hDs#:instantiating-procedure:file-name no-error.
         hDs# = hDs#:next-sibling.
@@ -199,13 +254,18 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
           ttPersistentThings.cName = hQuery#:get-buffer-handle(1):table-handle:name no-error.
         if ttPersistentThings.cName = ? or ttPersistentThings.cName = "" then
           ttPersistentThings.cName = subst("Unknown query &1",(if hQuery#:is-open then ", is open" else ", is not open")).
+
+        assign  
+          ttPersistentThings.cPrivateData = hQuery#:private-data
+          no-error.
+
         hQuery# = hQuery#:next-sibling.
+        
       end.
        
     end.
     
   end method. /* FillQueries */
-
 
 end class.
 
