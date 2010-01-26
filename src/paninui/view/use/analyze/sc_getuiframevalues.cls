@@ -11,10 +11,10 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/analyze/sc_getuiframevalues.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-24 14:16:12+01:00 $ 
-    Date Modified: $Modtime: 2009-11-24 14:04:44+01:00 $ 
+     Date Checkin: $Date: 2010-01-26 12:16:49+01:00 $ 
+    Date Modified: $Modtime: 2010-01-26 12:13:45+01:00 $ 
 
       Description: add_your_comments_here
 
@@ -23,7 +23,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
   /************************  Source control constructor ************************/
   constructor public sc_getuiframevalues(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -309,6 +309,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     define variable iMaxExtent#           as integer                                                 no-undo.
     define variable oOwningRow#           as System.Windows.Forms.DataGridViewRow                    no-undo.
     define variable iGenericID#           as int64                                                   no-undo.
+    define variable cIDFieldName#         as character                                               no-undo.
  
     if cPropertyIP# <> "Rows" then 
     do:
@@ -331,7 +332,11 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
       if oGridSelection_Rows#:Count > 0 then 
       do: 
 
-        iMaxExtent# = oGridSelection_Rows#:Count.
+        assign
+          iMaxExtent#   = oGridSelection_Rows#:Count
+          cIDFieldName# = entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") +
+            "__iID" +
+            entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_").
         
         if iLimitExtentIP# > 0 then iMaxExtent# = min(iLimitExtentIP#, iMaxExtent#).
         /* Find the selected rows and put them in a flexible extent property */
@@ -339,9 +344,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
         do iRow# = 0 to iMaxExtent# - 1:
           /* Get the iID value and put it in the uivalue array, to give to the subscribers */
           oSelectionOP#:iSelectionID_Rows[iRow# + 1] = int64(cast(cast(oGridSelection_Rows#:Item[iRow#],Progress.Lang.Object),System.Windows.Forms.DataGridViewRow):Cells[
-            entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") +
-            "__iID" +
-            entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") 
+            cIDFieldName# 
             ]:Value:ToString()).
         end.
         
@@ -358,18 +361,21 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
              If you need more/all you can always ask GetUiValueSelection.
            */
                  
-          iMaxExtent#           = oGridSelection_Cells#:Count.        
+          assign
+            iMaxExtent#   = oGridSelection_Cells#:Count
+            cIDFieldName# = entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") +
+              "__iID" +
+              entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_").
+                  
           if iLimitExtentIP# > 0 then iMaxExtent# = min(iLimitExtentIP#, iMaxExtent#).
           extent(iCellsToRows#) = iMaxExtent#.
-
+          
           do iCell# = 0 to iMaxExtent# - 1:
             /* Get the iID value and put it in the uivalue array, to give to the subscribers
                For now, only "Rows" is supported.
              */
             oOwningRow# = cast(cast(oGridSelection_Cells#:Item[iCell#],Progress.Lang.Object),System.Windows.Forms.DataGridViewCell):OwningRow.
-            iGenericID# = int64(oOwningRow#:Cells[entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") +
-              "__iID" +
-              entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_")]:Value:ToString()).
+            iGenericID# = int64(oOwningRow#:Cells[cIDFieldName#]:Value:ToString()).
             iCellsToRows#[iCell# + 1] = iGenericID#.
           end.
           
