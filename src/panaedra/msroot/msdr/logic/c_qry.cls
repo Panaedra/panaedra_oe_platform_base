@@ -1,18 +1,18 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 using panaedra.msroot.msdr.logic.*.
 using paninui.view.init.display.*.
-using panaedra.msex.logic.*.
+
 
 class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interfaces.i_qry:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 18 $ 
+          Version: $Revision: 19 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-16 15:13:02+01:00 $ 
-    Date Modified: $Modtime: 2010-01-16 14:58:00+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 20:31:31+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -22,9 +22,9 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public c_qry(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public c_qry(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 18 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 19 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -158,7 +158,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
         /* If parent iID is present in previous buffer(s), use first. Else use each. */
         assign
           cFiach#    = ""
-          cIDfield#  = "iID" + panaedra.msdr.logic.sc_dbtrig:GetCased(hBuff#)
+          cIDfield#  = "iID" + panaedra.msroot.msutil.logic.sc_dbtrig:GetCased(hBuff#)
           iOfBuffer# = iBuff# - 1.
         if cIDfield# > "" then
         b_BuffSub:
@@ -194,7 +194,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
       hQueryIP#:query-prepare(cPrep#).
     
       catch e as Progress.Lang.Error :
-        panaedra.msex.logic.sc_showexception:ShowException(e).
+        panaedra.msroot.msutil.logic.sc_showexception:ShowException(e).
         undo, throw e.
       end catch.
       
@@ -272,7 +272,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
           hQueryIP#:query-prepare(cPrep#).
           if bQueryOpenIP# then oQryIP#:QueryOpen().
           catch e as Progress.Lang.Error:
-            undo, throw new panaedra.msex.logic.c__FCMPNY_exception(999500007,substitute("Query where '&1' is invalid.~n&2~n&3", cWhereIP#, cPrep#, e:GetMessage(1))).
+            undo, throw new panaedra.msroot.msutil.logic.c__FCMPNY_exception(999500007,substitute("Query where '&1' is invalid.~n&2~n&3", cWhereIP#, cPrep#, e:GetMessage(1))).
           end catch.
         end.
       end.
@@ -333,7 +333,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
         do on error undo, throw:
           hQueryIP#:query-prepare(cPrep#).
           catch e as Progress.Lang.Error:
-            undo, throw new panaedra.msex.logic.c__FCMPNY_exception(999500008,substitute("Query by '&1' is invalid.~n&2~n&3", cByIP#, cPrep#, e:GetMessage(1))).
+            undo, throw new panaedra.msroot.msutil.logic.c__FCMPNY_exception(999500008,substitute("Query by '&1' is invalid.~n&2~n&3", cByIP#, cPrep#, e:GetMessage(1))).
           end catch.
         end.
       end.
@@ -585,7 +585,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
         end.
 
       otherwise 
-      undo, throw new panaedra.msex.logic.c__FCMPNY_exception(99950248,subst("Invalid value of cModeIP#: '&1'", cModeIP#)).
+      undo, throw new panaedra.msroot.msutil.logic.c__FCMPNY_exception(99950248,subst("Invalid value of cModeIP#: '&1'", cModeIP#)).
       
     end case. /* cModeIP# */
     
