@@ -1,4 +1,4 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 using paninui.pack.interfaces.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
@@ -7,10 +7,10 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_datasetcontroller.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-06 20:00:33+01:00 $ 
-    Date Modified: $Modtime: 2010-01-06 19:21:44+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:35:56+01:00 $ 
 
       Description: A dataset controller provides extra functionality for a dataset.
       
@@ -42,9 +42,9 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public c_datasetcontroller(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public c_datasetcontroller(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -76,7 +76,7 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
          at the unknown value.  
        */
       if oPack = ? then oPack = oValueIP#.
-      else undo, throw new panaedra.msex.logic.c__FCMPNY_exception(99950481, "oPack can only be set once.").
+      else undo, throw new panaedra.msroot.msutil.logic.c__FCMPNY_exception(99950481, "oPack can only be set once.").
     end set.
     
   define public property bTrackingChangesEnableOnAsync as logical no-undo
