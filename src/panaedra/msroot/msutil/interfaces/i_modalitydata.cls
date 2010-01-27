@@ -1,16 +1,16 @@
-{panaedra/msi/logic/ctop_interface.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_interface.i} 
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
-using panaedra.msex.logic.*.
+
 
 interface panaedra.msroot.msutil.interfaces.i_modalitydata:  
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/interfaces/i_modalitydata.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-06 20:00:33+01:00 $ 
-    Date Modified: $Modtime: 2010-01-06 18:27:37+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 20:31:31+01:00 $ 
 
       Description: Data for the ModalityResponse call.
 
