@@ -1,13 +1,13 @@
-{panaedra/msi/logic/ctop_interface.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_interface.i} 
 
 interface panaedra.msroot.msutil.interfaces.i_messageboxtype_debug:  
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/interfaces/i_messageboxtype_debug.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-22 20:14:40+02:00 $ 
-    Date Modified: $Modtime: 2009-10-22 20:12:55+02:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:30:12+01:00 $ 
 
       Description: Overload ID interface
 
