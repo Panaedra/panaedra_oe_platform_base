@@ -1,18 +1,18 @@
-{panaedra/msi/logic/ctop_class.i}
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
 &if opsys = "win32" &then
 using System.Windows.Forms.*.
 using Progress.Windows.Form.
 &endif
 
-class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inherits Form implements panaedra.msex.logic.i__FCMPNY_exception &endif : 
+class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" &then inherits Form implements panaedra.msroot.msutil.interfaces.i__FCMPNY_exception &endif : 
 
   /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msex/logic/dotnetformshowexception.cls $ 
-          Version: $Revision: 11 $ 
+         Filename: $Archive: /ont/src/panaedra/msroot/msutil/view/c_dotnetformshowexception.cls $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-18 11:43:47+01:00 $ 
-    Date Modified: $Modtime: 2010-01-18 11:41:20+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 20:03:43+01:00 $ 
 
       Description: Tonen van een willekeurige progress exception
 
@@ -24,9 +24,9 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   define protected temp-table ttAblCallStack no-undo like ttCallStack.
   
   /************************  Source control constructor ************************/
-  constructor public dotnetformshowexception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public c_dotnetformshowexception(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -42,7 +42,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   define private   variable tbinfo       as System.Windows.Forms.TextBox     no-undo.
   define private   variable btnDetails   as System.Windows.Forms.Button      no-undo.
   		
-  constructor public dotnetformshowexception (  ):
+  constructor public c_dotnetformshowexception (  ):
 		
     super().
     InitializeComponent().
@@ -97,7 +97,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
 
 
   @VisualDesigner.
-  method private void dotnetformshowexception_KeyPress( input sender as System.Object, input e as System.Windows.Forms.KeyPressEventArgs ):
+  method private void c_dotnetformshowexception_KeyPress( input sender as System.Object, input e as System.Windows.Forms.KeyPressEventArgs ):
 		
     if e:KeyChar = chr(3) /* Ctrl+C */ then 
     do:
@@ -118,7 +118,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     Modifying the contents of this method using a code editor will invalidate any support for this file. */
     @VisualDesigner.FormMember (NeedsInitialize="true").
     define variable resources as System.Resources.ResXResourceSet no-undo.
-    resources = Progress.Util.ResourceHelper:Load("panaedra\msex\logic\dotnetformshowexception.resx", propath).
+    resources = Progress.Util.ResourceHelper:Load("panaedra\msroot\msutil\view\c_dotnetformshowexception.resx", propath).
     this-object:tbStack = new System.Windows.Forms.TextBox().
     this-object:btnOK = new System.Windows.Forms.Button().
     this-object:tbinfo = new System.Windows.Forms.TextBox().
@@ -176,7 +176,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     this-object:btnDetails:UseVisualStyleBackColor = true.
     this-object:btnDetails:Click:subscribe(this-object:btnDetails_Click).
     /*  */
-    /* dotnetformshowexception */
+    /* c_dotnetformshowexception */
     /*  */
     this-object:AutoSizeMode = System.Windows.Forms.AutoSizeMode:GrowAndShrink.
     this-object:ClientSize = new System.Drawing.Size(542, 260).
@@ -186,11 +186,11 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     this-object:Controls:Add(this-object:tbStack).
     this-object:Icon = cast(resources:GetObject("$this.Icon"), System.Drawing.Icon).
     this-object:MinimumSize = new System.Drawing.Size(302, 95).
-    this-object:Name = "dotnetformshowexception".
+    this-object:Name = "c_dotnetformshowexception".
     this-object:SizeGripStyle = System.Windows.Forms.SizeGripStyle:Show.
     this-object:StartPosition = System.Windows.Forms.FormStartPosition:CenterScreen.
     this-object:Text = "_CMPNY_ waarschuwing".
-    this-object:KeyPress:subscribe(this-object:dotnetformshowexception_KeyPress).
+    this-object:KeyPress:subscribe(this-object:c_dotnetformshowexception_KeyPress).
     this-object:ResumeLayout(false).
     this-object:PerformLayout().
     catch e as Progress.Lang.Error:
@@ -212,12 +212,12 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
     empty temp-table ttAblCallstack.
     
     /* Als het een _FCMPNY_ exception is */
-    if type-of(ex, panaedra.msex.logic.c__FCMPNY_exception) then 
+    if type-of(ex, panaedra.msroot.msutil.logic.c__FCMPNY_exception) then 
     do:
       
-      def var o_CMPNY_Exception# as panaedra.msex.logic.c__FCMPNY_exception no-undo.
+      def var o_CMPNY_Exception# as panaedra.msroot.msutil.logic.c__FCMPNY_exception no-undo.
       
-      o_CMPNY_Exception# = cast(ex, panaedra.msex.logic.c__FCMPNY_exception).
+      o_CMPNY_Exception# = cast(ex, panaedra.msroot.msutil.logic.c__FCMPNY_exception).
       
       /* Controleer of er gebruik wordt gemaakt van dsContext 
          (of de fout van de appserver/api komt)*/
@@ -248,7 +248,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   method protected void EclipseTopMost():
 
     if    (not this-object:TopMost) 
-      and (panaedra.msb.logic.sc_environment:IsIdeRunning()) 
+      and (panaedra.msroot.msutil.logic.sc_environment:IsIdeRunning()) 
       then 
       this-object:TopMost = true.
     
@@ -280,7 +280,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
       if ex:CallStack > "" then 
         ttAblCallStack.cCallStack = ex:CallStack.
       else 
-        ttAblCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
+        ttAblCallStack.cCallStack = panaedra.msroot.msutil.logic.sc_info:GetCallStack().
         
     end.
     
@@ -353,7 +353,7 @@ class panaedra.msex.logic.dotnetformshowexception &if opsys = "win32" &then inhe
   end method.
 
 
-  destructor public dotnetformshowexception ( ):
+  destructor public c_dotnetformshowexception ( ):
 
     if valid-object(components) then 
     do:
