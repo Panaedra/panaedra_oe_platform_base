@@ -1,13 +1,13 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.sc_overload_conversions_char: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_overload_conversions_char.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-23 00:52:33+02:00 $ 
-    Date Modified: $Modtime: 2009-10-23 00:13:48+02:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:30:12+01:00 $ 
 
       Description: Provides methods to reduce the amount of code in "facilitating"
                    overloads.
@@ -27,9 +27,9 @@ class panaedra.msroot.msutil.logic.sc_overload_conversions_char:
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public sc_overload_conversions_char(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_overload_conversions_char(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
