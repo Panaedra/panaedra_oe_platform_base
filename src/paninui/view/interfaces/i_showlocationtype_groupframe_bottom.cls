@@ -1,13 +1,13 @@
-{panaedra/msi/logic/ctop_interface.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_interface.i} 
 
 interface paninui.view.interfaces.i_showlocationtype_groupframe_bottom:  
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/interfaces/i_showlocationtype_groupframe_bottom.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-11 03:30:58+01:00 $ 
-    Date Modified: $Modtime: 2009-12-11 03:30:00+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:30:13+01:00 $ 
 
       Description: OVID# interface
 
