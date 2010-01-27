@@ -1,18 +1,18 @@
 /******************************  Dvcs_ Header ********************************\
-       Filename: $Archive: /ont/src/panaedra/msdr/logic/c_triggerlogicdata_tt.i $ 
-        Version: $Revision: 1 $ 
+       Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/tt/c_triggerlogicdata_tt.i $ 
+        Version: $Revision: 2 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-08-07 21:22:38+02:00 $ 
-  Date Modified: $Modtime: 2009-08-07 21:22:38+02:00 $ 
+   Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+  Date Modified: $Modtime: 2010-01-27 19:42:48+01:00 $ 
 
     Description: Wordt gebruikt in classes die de i_triggerlogic interface gebruiken.
 
 \**************************** End of Dvcs_ Header ****************************/
 &if '{&dvcs__panaedra_msdr_logic_c_triggerlogicdata_tt_i}' = '' &then
 &glob dvcs__panaedra_msdr_logic_c_triggerlogicdata_tt_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msdr_logic_c_triggerlogicdata_tt_i $Revision: 1 $
+&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msdr_logic_c_triggerlogicdata_tt_i $Revision: 2 $
 &if '{&class}' = '' &then
-&scop dvcs_proc procedure dvcs__panaedra_msdr_logic_c_triggerlogicdata_tt_i: return "$Revision: 1 $". end.
+&scop dvcs_proc procedure dvcs__panaedra_msdr_logic_c_triggerlogicdata_tt_i: return "$Revision: 2 $". end.
 {&dvcs_proc}
 &endif
 /******************************* $NoKeywords:  $ *****************************/
