@@ -1,4 +1,4 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 using paninui.view.interfaces.*.
 &if opsys = "unix" or "{&window-system}" = "tty" &then
   &glob Generic_Object Progress.Lang.Object
@@ -12,10 +12,10 @@ class paninui.view.use.events.c_uivalue inherits {&Generic_Object}
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/events/c_uivalue.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-10-21 16:02:53+02:00 $ 
-    Date Modified: $Modtime: 2009-10-21 16:00:31+02:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:30:12+01:00 $ 
 
       Description: Represents the screen value of any widget. Can be used as a
                    base class for specific widgets.
@@ -24,9 +24,9 @@ class paninui.view.use.events.c_uivalue inherits {&Generic_Object}
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public c_uivalue(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public c_uivalue(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
