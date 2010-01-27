@@ -1,4 +1,4 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
@@ -9,10 +9,10 @@ class panaedra.msroot.msdr.logic.c_buf
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_buf.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-18 09:50:30+01:00 $ 
-    Date Modified: $Modtime: 2010-01-18 09:28:32+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:30:12+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -22,9 +22,9 @@ class panaedra.msroot.msdr.logic.c_buf
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public c_buf(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public c_buf(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
