@@ -1,4 +1,4 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
@@ -11,10 +11,10 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/view/sc_trayicon_win32.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-04 11:33:16+01:00 $ 
-    Date Modified: $Modtime: 2009-11-04 11:31:51+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:39:42+01:00 $ 
 
       Description: Display a message by a _CMPNY_ tray icon 
                    (static, so one per progress session)
@@ -22,9 +22,9 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public sc_trayicon_win32(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_trayicon_win32(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 		
@@ -60,7 +60,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
     
     define buffer b-ttLog for ttLog.
     
-    if panaedra.msb.logic.sc_boot:SessionParameter("EclipseOptions") matches "*TrayIconMessage=no*" then 
+    if panaedra.msroot.msutil.logic.sc_boot:SessionParameter("EclipseOptions") matches "*TrayIconMessage=no*" then 
       return.
     
     if oSingleton = ? then 
@@ -172,8 +172,8 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
   method protected static void ShowLogToolStripMenuItem_Click( input sender as System.Object, input e as System.EventArgs ):
     
     /* Maak html bestandje aan */
-    if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(temp-table ttLog:default-buffer-handle, panaedra.msf.logic.sc_path:cTempDir + "trayiconlog.html") then 
-      panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msf.logic.sc_path:cTempDir + "trayiconlog.html"). /* Open bestandje */
+    if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(temp-table ttLog:default-buffer-handle, panaedra.msroot.msutil.logic.sc_path:cTempDir + "trayiconlog.html") then 
+      panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msroot.msutil.logic.sc_path:cTempDir + "trayiconlog.html"). /* Open bestandje */
     else
       notifyIcon1:ShowBalloonTip(500, "_CMPNY_ Info", "Error occured, no log file made.", ToolTipIcon:None).
       
