@@ -1,4 +1,4 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 using paninui.view.interfaces.*.
@@ -12,10 +12,10 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/logic/logicbase/c_framelogic_shortcut.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-12 07:28:28+01:00 $ 
-    Date Modified: $Modtime: 2010-01-12 01:50:07+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
 
       Description: Provides a shortcut object to be used in frame logic classes.
                    Only links methods to other methods, technically not required,
@@ -25,9 +25,9 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public c_framelogic_shortcut(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public c_framelogic_shortcut(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
