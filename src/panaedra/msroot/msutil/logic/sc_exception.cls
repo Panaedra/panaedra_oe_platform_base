@@ -1,13 +1,13 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
-class panaedra.msex.logic.sc_exception: 
+class panaedra.msroot.msutil.logic.sc_exception: 
 
   /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msex/logic/sc_exception.cls $ 
-          Version: $Revision: 14 $ 
+         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_exception.cls $ 
+          Version: $Revision: 15 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-18 11:43:47+01:00 $ 
-    Date Modified: $Modtime: 2010-01-18 11:43:06+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:53:29+01:00 $ 
 
       Description: defineer speciale gebeurtenissen bij gekozen exceptions.
 
@@ -16,9 +16,9 @@ class panaedra.msex.logic.sc_exception:
   {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &reference-only=reference-only &class=class}
   
   /************************  Source control constructor ************************/
-  constructor public sc_exception(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_exception(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -83,10 +83,10 @@ class panaedra.msex.logic.sc_exception:
       otherwise 
       do:
         /* Log de foutmelding _PPL_UNDISCLOSED_ en process id zodat we eventueel dit bestand kunnen uitbreiden. */
-        cHostname# = panaedra.msb.logic.sc_environment:GetHostName().   
+        cHostname# = panaedra.msroot.msutil.logic.sc_environment:GetHostName().   
            
-        output stream str-log to value(panaedra.msf.logic.sc_path:cLogDir + "sc_exception_rating.log") unbuffered append.
-        put stream str-log unformatted substitute("User: &1, PID: &2, Errornum: &3", cHostname#, panaedra.msb.logic.sc_environment:GetProcessID(), iErrorIP#) skip.
+        output stream str-log to value(panaedra.msroot.msutil.logic.sc_path:cLogDir + "sc_exception_rating.log") unbuffered append.
+        put stream str-log unformatted substitute("User: &1, PID: &2, Errornum: &3", cHostname#, panaedra.msroot.msutil.logic.sc_environment:GetProcessID(), iErrorIP#) skip.
         put stream str-log unformatted substitute("Calling procedure: &1, &2", program-name(2), iso-date(now)) skip.
         output stream str-log close.
            
@@ -120,14 +120,14 @@ class panaedra.msex.logic.sc_exception:
           "win32" +
           &endif 
           "~" ~"" + 
-          panaedra.msb.logic.sc_asconnect:GetAppserverID() + "~")").
+          panaedra.msroot.msas.logic.sc_asconnect:GetAppserverID() + "~")").
         release b-ttCallStack.
       end.
       else 
       do:
         /* We hebben dan niet de callstack van waar de fout is opgetreden, maar wel via welke api de appserver is benaderd. */
         create b-ttCallstack.
-        b-ttCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
+        b-ttCallStack.cCallStack = panaedra.msroot.msutil.logic.sc_info:GetCallStack().
         release b-ttCallStack.
       end.
       
@@ -152,16 +152,16 @@ class panaedra.msex.logic.sc_exception:
     do:
       /* We hebben dan niet de callstack van waar de fout is opgetreden, maar wel via welke api de appserver is benaderd. */
       create b-ttCallstack.
-      b-ttCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
+      b-ttCallStack.cCallStack = panaedra.msroot.msutil.logic.sc_info:GetCallStack().
       release b-ttCallStack.
     end.
         
-    if panaedra.msb.logic.sc_boot:SessionParameter("UiMode") <> "AppServer"
-      and panaedra.msb.logic.sc_asconnect:GetAppserver(cMirrorIP#) <> session:handle then
+    if panaedra.msroot.msutil.logic.sc_boot:SessionParameter("UiMode") <> "AppServer"
+      and panaedra.msroot.msas.logic.sc_asconnect:GetAppserver(cMirrorIP#) <> session:handle then
     do:
       /* Dit regelt het laatste ontbrekende stukje callstack */
       create b-ttCallstack.
-      b-ttCallStack.cCallStack = panaedra.msses.logic.sc_info:GetCallStack().
+      b-ttCallStack.cCallStack = panaedra.msroot.msutil.logic.sc_info:GetCallStack().
       release b-ttCallStack.
     end.        
         
