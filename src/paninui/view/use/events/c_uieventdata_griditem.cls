@@ -1,4 +1,4 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class paninui.view.use.events.c_uieventdata_griditem 
   inherits 
@@ -9,10 +9,10 @@ class paninui.view.use.events.c_uieventdata_griditem
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/events/c_uieventdata_griditem.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-22 23:39:07+01:00 $ 
-    Date Modified: $Modtime: 2009-11-22 23:35:57+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:30:13+01:00 $ 
 
       Description: Data to be transmitted to custom UI paninUi event handlers in 
                    the UI logic objects (the "trigger logic methods").
@@ -20,9 +20,9 @@ class paninui.view.use.events.c_uieventdata_griditem
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public c_uieventdata_griditem(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public c_uieventdata_griditem(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     super(o-sourcecontrol, this-object).
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
