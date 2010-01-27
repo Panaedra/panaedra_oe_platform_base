@@ -1,12 +1,12 @@
-{panaedra/msi/logic/ctop_interface.i}
+{panaedra/msroot/msutil/logic/top_i/ctop_interface.i}
 interface paninui.view.interfaces.i_widgetproperty_enabled:  
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/interfaces/i_widgetproperty_enabled.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-09-02 16:45:47+02:00 $ 
-    Date Modified: $Modtime: 2009-09-02 16:45:39+02:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:30:12+01:00 $ 
 
       Description: add_your_comments_here
 
