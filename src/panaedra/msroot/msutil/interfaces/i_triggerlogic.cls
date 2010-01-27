@@ -1,13 +1,13 @@
-{panaedra/msi/logic/ctop_interface.i}
+{panaedra/msroot/msutil/logic/top_i/ctop_interface.i}
 
-interface panaedra.msdr.logic.i_triggerlogic:  
+interface panaedra.msroot.msutil.interfaces.i_triggerlogic:  
 
   /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msdr/logic/i_triggerlogic.cls $ 
-          Version: $Revision: 1 $ 
+         Filename: $Archive: /ont/src/panaedra/msroot/msutil/interfaces/i_triggerlogic.cls $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-07 21:22:38+02:00 $ 
-    Date Modified: $Modtime: 2009-08-07 21:22:38+02:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:34:55+01:00 $ 
 
       Description: Interface voor trigger logic.
 
