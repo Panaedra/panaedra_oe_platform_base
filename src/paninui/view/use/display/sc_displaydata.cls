@@ -14,10 +14,10 @@ class paninui.view.use.display.sc_displaydata   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 26 $ 
+          Version: $Revision: 27 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-16 19:24:41+01:00 $ 
-    Date Modified: $Modtime: 2010-01-16 19:24:03+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 16:30:23+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 09:22:41+01:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -26,7 +26,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 26 $', '{&sourcecontrolversions}').
+    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 27 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -351,7 +351,7 @@ class paninui.view.use.display.sc_displaydata   :
     define variable cDataRef#           as character                     no-undo.
     define variable cRemainder#         as character                     no-undo.
     define variable cCased#             as character                     no-undo.
-  
+
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", ?, cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
     cDataRef# = panaedra.msroot.msutil.logic.sc_string_prefixsuffix:GetPrefix(oQryIP#:sys__hQuery:get-buffer-handle(1):name, output cRemainder#).
@@ -369,8 +369,13 @@ class paninui.view.use.display.sc_displaydata   :
           oBindingSource# = new c_bindingsource(sc_bindingsourcetype:i_Query /* Als het een buffer is, moet het een query worden; alle items. */, oQryIP#:sys__hQuery).
           oQryIP#:sys__oBindingSource = oBindingSource#.
         end.
+        
         oComboBox#:DataSource = oBindingSource#. /* Dit vult automatisch de listitems van de combobox. */
+        
+        if extent(oQryIP#:hDisplayField)= ? then undo, throw new panaedra.msex.logic.c__FCMPNY_exception(99950822, "You didn't set the extent of the field to display in the combobox (oQry:hDisplayField)").
+        
         oComboBox#:DisplayMember = oQryIP#:hDisplayField[1]:name.
+        
         if num-entries(cDataRef#,".") >= 2 then
           oComboBox#:ValueMember   = subst("iID&1", entry(1,cDataRef#,".")).
         else 
