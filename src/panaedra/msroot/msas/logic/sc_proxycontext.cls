@@ -1,13 +1,13 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msas.logic.sc_proxycontext : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_proxycontext.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-09 18:24:20+01:00 $ 
-    Date Modified: $Modtime: 2010-01-09 17:18:00+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:53:29+01:00 $ 
 
       Description: Api-proxy functionaliteit: generieke methods die client-side (proxy)
                    worden aangeroepen.
@@ -18,9 +18,9 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   &undefine TtAllDefined
    
   /************************  Source control constructor ************************/
-  constructor public sc_proxycontext(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_proxycontext(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -43,7 +43,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     
     bExceptions = true.
     
-    panaedra.msex.logic.sc_exception:FillTtExceptionTtCallstack(oExceptionIP#, dataset dsContext by-reference, cMirrorIP#).
+    panaedra.msroot.msutil.logic.sc_exception:FillTtExceptionTtCallstack(oExceptionIP#, dataset dsContext by-reference, cMirrorIP#).
     
   end method. /* ExceptionsProxyCall */
 
@@ -62,20 +62,20 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       
       /* Als er een fout in de proxy zelf is ontstaan */
       if not avail b-ttExceptions then
-        panaedra.msex.logic.sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, cMirrorIP#).
+        panaedra.msroot.msutil.logic.sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, cMirrorIP#).
       else
       /* Als er een error van een appserver vandaan komt, moet de callstack nog worden aangevult vanaf de eerste procedure */
       do:
-        if panaedra.msb.logic.sc_boot:SessionParameter("UiMode") <> "AppServer"
-          and panaedra.msb.logic.sc_asconnect:GetAppserver(cMirrorIP#) <> session:handle then
+        if panaedra.msroot.msutil.logic.sc_boot:SessionParameter("UiMode") <> "AppServer"
+          and panaedra.msroot.msas.logic.sc_asconnect:GetAppserver(cMirrorIP#) <> session:handle then
         do:
-          panaedra.msex.logic.sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, cMirrorIP#).
-        end. /* if panaedra.msb.logic.sc_boot:SessionParameter("UiMode") <> "AppServer" */   
+          panaedra.msroot.msutil.logic.sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, cMirrorIP#).
+        end. /* if panaedra.msroot.msutil.logic.sc_boot:SessionParameter("UiMode") <> "AppServer" */   
       end. /* else do */    
         
       find first b-ttExceptions no-error.
       
-      undo, throw (new panaedra.msex.logic.c__FCMPNY_exception(99909002,
+      undo, throw (new panaedra.msroot.msutil.logic.c__FCMPNY_exception(99909002,
         subst("Api/proxy exception&1 for: '&2' -> '&3'",
         if not avail b-ttExceptions then "" else " '" + b-ttExceptions.cError + "'",
         program-name(4), program-name(3)), 
@@ -122,9 +122,9 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       find b-ttSession.
     
     assign
-      b-ttSession.cUserID      = panaedra.msb.logic.sc_environment:cUserID
-      b-ttSession.cSessionGuid = panaedra.msb.logic.sc_environment:cSessionGuid
-      b-ttSession.cEnv         = panaedra.msb.logic.sc_boot:SessionParameter("Env").
+      b-ttSession.cUserID      = panaedra.msroot.msutil.logic.sc_environment:cUserID
+      b-ttSession.cSessionGuid = panaedra.msroot.msutil.logic.sc_environment:cSessionGuid
+      b-ttSession.cEnv         = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").
 
   end method. /* FillDefaultDsContext */
 
