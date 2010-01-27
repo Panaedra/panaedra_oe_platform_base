@@ -1,13 +1,13 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.sc_data_analysis   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_data_analysis.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-09 14:41:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-09 14:22:30+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
 
       Description: Class met static methods voor het analyseren van de 
                    inhoud van een (temp-)table of (temp-)table buffer.
@@ -15,9 +15,9 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public sc_data_analysis(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_data_analysis(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
