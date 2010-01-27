@@ -1,16 +1,16 @@
-{panaedra/msi/logic/ctop_class.i}
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
-using panaedra.msdr.logic.*.
 
-class panaedra.msdr.logic.sc_dbtrig   : 
+
+class panaedra.msroot.msutil.logic.sc_dbtrig   : 
 
   /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msdr/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 10 $ 
+         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrig.cls $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-12-13 17:09:30+01:00 $ 
-    Date Modified: $Modtime: 2009-12-13 17:06:58+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 20:21:25+01:00 $ 
 
       Description: Deze class wordt aangeroepen door db delete en write triggers,
                    voor dynamische afhandeling.
@@ -27,9 +27,9 @@ class panaedra.msdr.logic.sc_dbtrig   :
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public sc_dbtrig(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_dbtrig(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -255,9 +255,9 @@ class panaedra.msdr.logic.sc_dbtrig   :
     if not bInitialized then 
     do:
       bInitialized = true.
-      if panaedra.msb.logic.sc_boot:cBootSessionParameter > "" then.
-      else panaedra.msb.logic.sc_boot:cBootSessionParameter = session:parameter.
-      bDbLayer = lookup(panaedra.msb.logic.sc_boot:SessionParameter("Layer"),"all,db,db_r,db_u") > 0.
+      if panaedra.msroot.msutil.logic.sc_boot:cBootSessionParameter > "" then.
+      else panaedra.msroot.msutil.logic.sc_boot:cBootSessionParameter = session:parameter.
+      bDbLayer = lookup(panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Layer"),"all,db,db_r,db_u") > 0.
       if bDbLayer = ? then bDbLayer = false.
       iNewID = -1 * time. /* Tbv developing / reload static class */
     end.
@@ -464,7 +464,7 @@ class panaedra.msdr.logic.sc_dbtrig   :
     if b-ttCacheLogicLocations.cLogic <> "<none>" then 
     do:
       if not valid-object(oTriggerLogicData#) then
-        oTriggerLogicData# = new panaedra.msdr.logic.c_triggerlogicdata().
+        oTriggerLogicData# = new panaedra.msroot.msutil.logic.c_triggerlogicdata().
       if cTypeIP# = "wri" then 
       do:
         oTriggerLogic# = dynamic-new b-ttCacheLogicLocations.cLogic (hBuffIP#, hBuffOldIP#, oTriggerLogicData#, output bValidateOkay#).
