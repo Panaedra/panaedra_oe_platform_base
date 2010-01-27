@@ -1,12 +1,12 @@
-{panaedra/msi/logic/ctop_interface.i}
+{panaedra/msroot/msutil/logic/top_i/ctop_interface.i}
 interface panaedra.msroot.msutil.interfaces.i_eventbroadcastdata:  
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/interfaces/i_eventbroadcastdata.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-11 10:21:07+01:00 $ 
-    Date Modified: $Modtime: 2010-01-10 22:30:36+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
 
       Description: Interface for custom eventbroadcastdata.
 
