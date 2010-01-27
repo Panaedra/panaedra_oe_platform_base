@@ -1,4 +1,4 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
     
@@ -6,19 +6,19 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_dbconnect.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-06 14:50:49+01:00 $ 
-    Date Modified: $Modtime: 2009-11-06 13:57:16+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:45:54+01:00 $ 
 
       Description: Connect to database(s) (for appserver)
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public sc_dbconnect(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_dbconnect(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -36,15 +36,15 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
     define variable cExtraDbs# as character no-undo.
     
     if not can-find(first ttDbConnect)
-      then temp-table ttDbConnect:read-xml("file", panaedra.msf.logic.sc_path:cIniDir + "sc_dbconnect.config", "empty", ?, false).
+      then temp-table ttDbConnect:read-xml("file", panaedra.msroot.msutil.logic.sc_path:cIniDir + "sc_dbconnect.config", "empty", ?, false).
     
     /* Als er nog geen database verbinding is ... */
     if not connected("ma") and not connected("lo") then 
     do:
       
-      cEnv#      = panaedra.msb.logic.sc_boot:SessionParameter("Env").      
-      cHostName# = panaedra.msb.logic.sc_environment:GetHostName().
-      cExtraDbs# = panaedra.msb.logic.sc_boot:SessionParameter("ExtraDbs").
+      cEnv#      = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").      
+      cHostName# = panaedra.msroot.msutil.logic.sc_environment:GetHostName().
+      cExtraDbs# = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("ExtraDbs").
       
       
       /* Zoek voor record met hostname _SRVR_ of _PRODUCT_ */
