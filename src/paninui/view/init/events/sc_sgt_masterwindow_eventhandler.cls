@@ -1,4 +1,4 @@
-{panaedra/msi/logic/ctop_class.i}
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 using paninui.view.init.events.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
@@ -7,19 +7,19 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/events/sc_sgt_masterwindow_eventhandler.cls $ 
-          Version: $Revision: 14 $ 
+          Version: $Revision: 15 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-18 08:31:48+01:00 $ 
-    Date Modified: $Modtime: 2010-01-18 00:21:09+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:38:06+01:00 $ 
 
       Description: Static Class Singleton implementation for Masterwindow / MDI Window
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public sc_sgt_masterwindow_eventhandler(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_sgt_masterwindow_eventhandler(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -66,7 +66,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
     cast(sender,System.Windows.Forms.Form):Load:Unsubscribe(this-object:MdiOnLoad).
 
     catch ex as Progress.Lang.Error :
-      panaedra.msex.logic.sc_showexception:ShowException(ex).
+      panaedra.msroot.msutil.logic.sc_showexception:ShowException(ex).
     end catch.
     
   end method. /* MdiOnLoad */
@@ -111,7 +111,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
     end.
 
     catch ex as Progress.Lang.Error :
-      panaedra.msex.logic.sc_showexception:ShowException(ex).
+      panaedra.msroot.msutil.logic.sc_showexception:ShowException(ex).
     end catch.
     
   end method.
