@@ -1,28 +1,28 @@
-{panaedra/msi/logic/ctop_class.i}
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
-using panaedra.msb.logic.*.
-using panaedra.msf.logic.*.
 
-class panaedra.msdr.logic.sc_dbtrigrelations   : 
+
+
+class panaedra.msroot.msutil.logic.sc_dbtrigrelations   : 
 
   /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msdr/logic/sc_dbtrigrelations.cls $ 
-          Version: $Revision: 2 $ 
+         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrigrelations.cls $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-08-17 13:40:12+02:00 $ 
-    Date Modified: $Modtime: 2009-08-17 13:35:02+02:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 20:32:58+01:00 $ 
 
       Description: Ophalen van dbtrigrelations temp-table, voor db of temp-table triggers.
                    Wordt altijd gecached tbv performance.
 
   \*****************************  Include Files ********************************/
   
-  {panaedra/msdr/logic/sc_dbtrigrelations_tt.i &class=class &protected=protected &static=static}
+  {panaedra/msroot/msutil/logic/tt/sc_dbtrigrelations_tt.i &class=class &protected=protected &static=static}
   
   /************************  Source control constructor ************************/
-  constructor public sc_dbtrigrelations(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_dbtrigrelations(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -44,7 +44,7 @@ class panaedra.msdr.logic.sc_dbtrigrelations   :
     do:
       /* Voorlopig doen we het enkel en only uit een xml file.
          Kan later ook uit de database (indien op de db layer). */
-      dataset dsDbRelations:read-xml("file", panaedra.msf.logic.sc_path:cIniDir + "sc_dbtrigrelations.config", "empty", ?, false). 
+      dataset dsDbRelations:read-xml("file", panaedra.msroot.msutil.logic.sc_path:cIniDir + "sc_dbtrigrelations.config", "empty", ?, false). 
     end.
     
     cModule# = lc(substring(cTableIP#,1,2)). 
@@ -57,9 +57,9 @@ class panaedra.msdr.logic.sc_dbtrigrelations   :
         create ttCacheLoadedModules.
         assign 
           ttCacheLoadedModules.cModule = cModule#.
-        if search(panaedra.msf.logic.sc_path:cIniDir + subst("sc_dbtrigrelations_&1.config",cModule#)) <> ? then 
+        if search(panaedra.msroot.msutil.logic.sc_path:cIniDir + subst("sc_dbtrigrelations_&1.config",cModule#)) <> ? then 
         do:
-          dataset dsDbRelations:read-xml("file", panaedra.msf.logic.sc_path:cIniDir + subst("sc_dbtrigrelations_&1.config",cModule#), "append", ?, false). 
+          dataset dsDbRelations:read-xml("file", panaedra.msroot.msutil.logic.sc_path:cIniDir + subst("sc_dbtrigrelations_&1.config",cModule#), "append", ?, false). 
         end.
       end.
     end.
