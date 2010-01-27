@@ -1,15 +1,15 @@
-{panaedra/msi/logic/ctop_class.i}
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
-using panaedra.msb.logic.*.
-class panaedra.msf.logic.sc_path: 
+
+class panaedra.msroot.msutil.logic.sc_path: 
   
   /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msf/logic/sc_path.cls $ 
-          Version: $Revision: 13 $ 
+         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_path.cls $ 
+          Version: $Revision: 14 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-06 14:50:49+01:00 $ 
-    Date Modified: $Modtime: 2009-11-06 12:12:14+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 20:27:12+01:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -19,9 +19,9 @@ class panaedra.msf.logic.sc_path:
   \*****************************  Include Files ********************************/
   
   /************************  Source control constructor ************************/
-  constructor public sc_path(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_path(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 13 $", "{&sourcecontrolversions}").
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 14 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -30,7 +30,7 @@ class panaedra.msf.logic.sc_path:
   define protected static variable bTtPathInitialized as logical                       no-undo.
   define protected static variable bPropathDirty      as logical                       no-undo init true.
   define protected static variable cPropathFull       as character                     no-undo.
-  define protected static variable oPathHelper        as panaedra.msf.logic.c_path_helper no-undo.
+  define protected static variable oPathHelper        as panaedra.msroot.msutil.logic.c_path_helper no-undo.
   
   def protected static temp-table ttPath no-undo rcode-info
     field cEnv      as char xml-node-type "attribute"
@@ -172,7 +172,7 @@ class panaedra.msf.logic.sc_path:
         if sc_boot:SessionParameter("Env") <> "live" then cIniDir = "Q:/test/ini/".
         else cIniDir = "P:/live/ini/".
       &else
-        if panaedra.msb.logic.sc_boot:SessionParameter("Env") <> "live" then cIniDir = "/ota/_PRODUCT_/_FCMPNY_/ini/".
+        if panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env") <> "live" then cIniDir = "/ota/_PRODUCT_/_FCMPNY_/ini/".
         else cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".
       &endif
       end.
@@ -220,8 +220,8 @@ class panaedra.msf.logic.sc_path:
     define variable iEclipseFix#   as integer   no-undo.
     define buffer b-ttPath for ttPath.
     
-    cEnv#          = panaedra.msb.logic.sc_boot:SessionParameter("Env").
-    cHostName#     = panaedra.msb.logic.sc_environment:GetHostName().
+    cEnv#          = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").
+    cHostName#     = panaedra.msroot.msutil.logic.sc_environment:GetHostName().
     cDefaultOpsys# = subst("default_&1",opsys).
     
     find first b-ttPath 
@@ -273,7 +273,7 @@ class panaedra.msf.logic.sc_path:
     
     nfullpath# = lc(trim(replace(nfullpath#,"~\","~/"))).
     
-    if oPathHelper = ? then oPathHelper = new panaedra.msf.logic.c_path_helper().
+    if oPathHelper = ? then oPathHelper = new panaedra.msroot.msutil.logic.c_path_helper().
 
     /* Is het wel een full path? */
     if opsys = "win32" then
@@ -401,8 +401,8 @@ class panaedra.msf.logic.sc_path:
     
     /* Pure string calculation.
        Get full class name.
-       A string like "panaedra/msf/logic/sc_path.cls" returns "panaedra.msf.logic.sc_path". 
-       A string like "panaedra/msf/logic/sc_path.r"   returns "panaedra.msf.logic.sc_path". 
+       A string like "panaedra/msf/logic/sc_path.cls" returns "panaedra.msroot.msutil.logic.sc_path". 
+       A string like "panaedra/msf/logic/sc_path.r"   returns "panaedra.msroot.msutil.logic.sc_path". 
      */
     
     cPathIP# = replace(cPathIP#, "/", ".").
