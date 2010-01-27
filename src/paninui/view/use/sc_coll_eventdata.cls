@@ -1,12 +1,12 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 using paninui.view.init.display.*.
 using paninui.view.interfaces.*.
 using paninui.view.use.*.
 using paninui.view.use.delegates.*.
 using paninui.view.use.events.*.
 using paninui.pack.interfaces.*.
-using panaedra.msdr.logic.*.
-using panaedra.msex.logic.*.
+
+
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 32 $ 
+          Version: $Revision: 33 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-11 12:47:56+01:00 $ 
-    Date Modified: $Modtime: 2010-01-11 12:47:26+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 20:31:31+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -29,9 +29,9 @@ class paninui.view.use.sc_coll_eventdata
   {paninui/view/use/sc_coll_eventdata_tt.i &protected=protected &static=static &class=class}
   
   /************************  Source control constructor ************************/
-  constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 32 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 33 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -1523,7 +1523,7 @@ class paninui.view.use.sc_coll_eventdata
            Note: QueryOpen in fact isn't a real .NET event, but a broadcasted event.
                  For consistancy, we handle it the same way.
          */
-        panaedra.msex.logic.sc_showexception:ShowException(ex).
+        panaedra.msroot.msutil.logic.sc_showexception:ShowException(ex).
       end catch.
     
     end.
@@ -1552,7 +1552,7 @@ class paninui.view.use.sc_coll_eventdata
            Note: QueryClose in fact isn't a real .NET event, but a broadcasted event.
                  For consistancy, we handle it the same way.
          */
-        panaedra.msex.logic.sc_showexception:ShowException(ex).
+        panaedra.msroot.msutil.logic.sc_showexception:ShowException(ex).
       end catch.
     
     end.
@@ -1581,7 +1581,7 @@ class paninui.view.use.sc_coll_eventdata
            Note: QueryOpen in fact isn't a real .NET event, but a broadcasted event.
                  For consistancy, we handle it the same way.
          */
-        panaedra.msex.logic.sc_showexception:ShowException(ex).
+        panaedra.msroot.msutil.logic.sc_showexception:ShowException(ex).
       end catch.
     
     end. /* Strong scoping */
@@ -1713,13 +1713,13 @@ class paninui.view.use.sc_coll_eventdata
     
   method public static void DebugShowData():
 
-    if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(buffer ttUiEvent:handle, panaedra.msf.logic.sc_path:cTempDir + "ttUiEventData.html") then 
-      panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msf.logic.sc_path:cTempDir + "ttUiEventData.html"). /* Open file */
+    if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(buffer ttUiEvent:handle, panaedra.msroot.msutil.logic.sc_path:cTempDir + "ttUiEventData.html") then 
+      panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msroot.msutil.logic.sc_path:cTempDir + "ttUiEventData.html"). /* Open file */
     
     if can-find(first ttEventsSuspend) then 
     do:
-      if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(buffer ttEventsSuspend:handle, panaedra.msf.logic.sc_path:cTempDir + "ttSuspendedEvents.html") then 
-        panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msf.logic.sc_path:cTempDir + "ttSuspendedEvents.html"). /* Open file */
+      if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(buffer ttEventsSuspend:handle, panaedra.msroot.msutil.logic.sc_path:cTempDir + "ttSuspendedEvents.html") then 
+        panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msroot.msutil.logic.sc_path:cTempDir + "ttSuspendedEvents.html"). /* Open file */
     end.
 
   end method. /* DebugShowData */    
