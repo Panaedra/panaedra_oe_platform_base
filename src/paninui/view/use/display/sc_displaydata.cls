@@ -1,4 +1,4 @@
-{panaedra/msi/logic/ctop_class.i}
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 using paninui.view.interfaces.*.
 using paninui.view.init.display.*.
 using paninui.view.use.*.
@@ -7,26 +7,26 @@ using paninui.view.use.display.*.
 using panaedra.msroot.msdr.interfaces.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
-using panaedra.msdr.logic.*.
+
 using panaedra.msroot.msdr.logic.*.
 
 class paninui.view.use.display.sc_displaydata   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 27 $ 
+          Version: $Revision: 28 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 16:30:23+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 09:22:41+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 20:21:25+01:00 $ 
 
       Description: Display data on a paninUi frame.
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public sc_displaydata(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_displaydata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 27 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 28 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -372,7 +372,7 @@ class paninui.view.use.display.sc_displaydata   :
         
         oComboBox#:DataSource = oBindingSource#. /* Dit vult automatisch de listitems van de combobox. */
         
-        if extent(oQryIP#:hDisplayField)= ? then undo, throw new panaedra.msex.logic.c__FCMPNY_exception(99950822, "You didn't set the extent of the field to display in the combobox (oQry:hDisplayField)").
+        if extent(oQryIP#:hDisplayField)= ? then undo, throw new panaedra.msroot.msutil.logic.c__FCMPNY_exception(99950822, "You didn't set the extent of the field to display in the combobox (oQry:hDisplayField)").
         
         oComboBox#:DisplayMember = oQryIP#:hDisplayField[1]:name.
         
