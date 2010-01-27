@@ -1,13 +1,13 @@
-{panaedra/msi/logic/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.sc_html_convert   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_html_convert.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2009-11-04 10:00:44+01:00 $ 
-    Date Modified: $Modtime: 2009-11-04 09:54:17+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:37:29+01:00 $ 
 
       Description: Convert characters to their html equivalent.
                    Uses sc_html_convert_[codepage].config, where [codepage] is the
@@ -16,9 +16,9 @@ class panaedra.msroot.msutil.logic.sc_html_convert   :
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public sc_html_convert(o-sourcecontrol as panaedra.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public sc_html_convert(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -85,7 +85,7 @@ class panaedra.msroot.msutil.logic.sc_html_convert   :
     
     define variable cFile# as character no-undo.
     
-    cFile# = panaedra.msf.logic.sc_path:cIniDir + subst("sc_html_convert_&1.config",session:cpinternal).
+    cFile# = panaedra.msroot.msutil.logic.sc_path:cIniDir + subst("sc_html_convert_&1.config",session:cpinternal).
     
     if search(cFile#) = ? then 
     do:
