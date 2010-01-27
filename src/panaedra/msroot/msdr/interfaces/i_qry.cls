@@ -1,14 +1,14 @@
-{panaedra/msi/logic/ctop_interface.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_interface.i} 
 using paninui.view.init.display.*.
 
 interface panaedra.msroot.msdr.interfaces.i_qry:  
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/interfaces/i_qry.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-16 15:13:02+01:00 $ 
-    Date Modified: $Modtime: 2010-01-16 15:00:14+01:00 $ 
+     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
 
       Description: Interface for a class that wraps an ABL query handle
 
