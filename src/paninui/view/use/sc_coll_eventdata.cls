@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 33 $ 
+          Version: $Revision: 34 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 20:31:31+01:00 $ 
+     Date Checkin: $Date: 2010-01-28 23:53:20+01:00 $ 
+    Date Modified: $Modtime: 2010-01-28 23:11:46+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 33 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 34 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -212,6 +212,10 @@ class paninui.view.use.sc_coll_eventdata
               when "CellBeginEdit" then 
                 do:
                   oFormsGrid#:CellBeginEdit:Subscribe(oSingleton:OnEventArgsHandler_CellBeginEdit).
+                end.
+              when "CellContentClick" then 
+                do:
+                  oFormsGrid#:CellContentClick:Subscribe(oSingleton:OnEventArgsHandler_CellContentClick).
                 end.
               when "CellEndEdit" then 
                 do:
@@ -749,7 +753,7 @@ class paninui.view.use.sc_coll_eventdata
           assign
             bInvokePrepared# = true
             oCheckBox#       = cast(oSender#, System.Windows.Forms.CheckBox)
-            oUiValue#        = new c_uivalue_button(oCheckBox#:Name, oCheckBox#:Enabled, oCheckBox#:Visible, oCheckBox#:Checked).
+            oUiValue#        = new c_uivalue_button(sc_coll_widgetdata:WidgetNameToLinkName(oCheckBox#, oCheckBox#:Name, ""), oCheckBox#:Enabled, oCheckBox#:Visible, oCheckBox#:Checked).
         end.
         
         if not bInvokePrepared# and type-of(oSender#, System.Windows.Forms.Button) then 
@@ -757,7 +761,7 @@ class paninui.view.use.sc_coll_eventdata
           assign
             bInvokePrepared# = true
             oFormsButton#    = cast(oSender#, System.Windows.Forms.Button)
-            oUiValue#        = new c_uivalue_button(oFormsButton#:Name, oFormsButton#:Enabled, oFormsButton#:Visible, false).
+            oUiValue#        = new c_uivalue_button(sc_coll_widgetdata:WidgetNameToLinkName(oCheckBox#, oFormsButton#:Name, ""), oFormsButton#:Enabled, oFormsButton#:Visible, false).
         end.
         
         if not bInvokePrepared# and type-of(oSender#, System.Windows.Controls.Button) then 
@@ -765,7 +769,7 @@ class paninui.view.use.sc_coll_eventdata
           assign
             bInvokePrepared# = true
             oWpfButton#      = cast(oSender#, System.Windows.Controls.Button)
-            oUiValue#        = new c_uivalue_button(oWpfButton#:Name, oWpfButton#:IsEnabled, oWpfButton#:IsVisible, false).
+            oUiValue#        = new c_uivalue_button(sc_coll_widgetdata:WidgetNameToLinkName(oCheckBox#, oWpfButton#:Name, ""), oWpfButton#:IsEnabled, oWpfButton#:IsVisible, false).
         end.
         
         if not bInvokePrepared# and type-of(oSender#, System.Windows.Forms.ToolStripMenuItem) then 
@@ -773,7 +777,7 @@ class paninui.view.use.sc_coll_eventdata
           assign
             bInvokePrepared#         = true
             oFormsToolStripMenuItem# = cast(oSender#, System.Windows.Forms.ToolStripMenuItem)
-            oUiValue#                = new c_uivalue_button(oFormsToolStripMenuItem#:Name, oFormsToolStripMenuItem#:Enabled, oFormsToolStripMenuItem#:Visible, oFormsToolStripMenuItem#:Checked).
+            oUiValue#                = new c_uivalue_button(sc_coll_widgetdata:WidgetNameToLinkName(oFormsToolStripMenuItem#, oFormsToolStripMenuItem#:Name, ""), oFormsToolStripMenuItem#:Enabled, oFormsToolStripMenuItem#:Visible, oFormsToolStripMenuItem#:Checked).
         end.
         
         if not bInvokePrepared# and type-of(oSender#, System.Windows.Forms.ToolStripItem) then 
@@ -781,7 +785,7 @@ class paninui.view.use.sc_coll_eventdata
           assign
             bInvokePrepared#     = true
             oFormsToolStripItem# = cast(oSender#, System.Windows.Forms.ToolStripItem)
-            oUiValue#            = new c_uivalue_button(oFormsToolStripItem#:Name, oFormsToolStripItem#:Enabled, oFormsToolStripItem#:Visible, false).
+            oUiValue#            = new c_uivalue_button(sc_coll_widgetdata:WidgetNameToLinkName(oFormsToolStripItem#,oFormsToolStripItem#:Name, ""), oFormsToolStripItem#:Enabled, oFormsToolStripItem#:Visible, false).
         end.
         
         if not bInvokePrepared# then 
@@ -825,7 +829,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
-            oUiValue#  = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
@@ -869,7 +873,7 @@ class paninui.view.use.sc_coll_eventdata
         if type-of(oSender#, System.Windows.Forms.ComboBox) then 
         do:
           assign
-            oUiValueCombobox# = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue)))
+            oUiValueCombobox# = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue)))
             oUiValue#         = oUiValueCombobox#
             cPreviousText#    = oComboBox#:Text.
         end.
@@ -913,7 +917,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
-            oUiValue#  = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
@@ -943,7 +947,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
-            oUiValue#  = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
@@ -973,7 +977,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
-            oUiValue#  = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
@@ -1003,7 +1007,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
-            oUiValue#  = new c_uivalue_combobox(oComboBox#:Name, oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
@@ -1053,7 +1057,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oFormsForm# = cast(oSender#, System.Windows.Forms.Form)
-            oUiValue#   = new c_uivalue_form(oFormsForm#:Name, oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text, cFocusLinkName#).
+            oUiValue#   = new c_uivalue_form(sc_coll_widgetdata:WidgetNameToLinkName(oFormsForm#,oFormsForm#:Name,""), oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text, cFocusLinkName#).
         end.
         if type-of(oArgs#, System.Windows.Forms.KeyPressEventArgs) then 
         do:
@@ -1148,7 +1152,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oFormsForm# = cast(oSender#, System.Windows.Forms.Form)
-            oUiValue#   = new c_uivalue_form(oFormsForm#:Name, oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text, cFocusLinkName#).
+            oUiValue#   = new c_uivalue_form(sc_coll_widgetdata:WidgetNameToLinkName(oFormsForm#,oFormsForm#:Name,""), oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text, cFocusLinkName#).
         end.
         if type-of(oArgs#, System.Windows.Forms.KeyEventArgs) then 
         do:
@@ -1239,7 +1243,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oFormsForm# = cast(oSender#, System.Windows.Forms.Form)
-            oUiValue#   = new c_uivalue_form(oFormsForm#:Name, oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text, cFocusLinkName#).
+            oUiValue#   = new c_uivalue_form(sc_coll_widgetdata:WidgetNameToLinkName(oFormsForm#,oFormsForm#:Name,""), oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text, cFocusLinkName#).
         end.
         if type-of(oArgs#, System.Windows.Forms.KeyEventArgs) then 
         do:
@@ -1312,7 +1316,7 @@ class paninui.view.use.sc_coll_eventdata
           assign
             oFormsGrid#     = cast(oSender#, System.Windows.Forms.DataGridView)
             oFormsGridArgs# = cast(oArgs#, System.Windows.Forms.DataGridViewCellCancelEventArgs)
-            oUiValue#       = new c_uivalue_griditem(oFormsGrid#:Name, oFormsGrid#:Enabled, oFormsGrid#:Visible).
+            oUiValue#       = new c_uivalue_griditem(sc_coll_widgetdata:WidgetNameToLinkName(oFormsGrid#,oFormsGrid#:Name,""), oFormsGrid#:Enabled, oFormsGrid#:Visible).
         end.
         
         iIDCurrentRow# = int64(cast(cast(oFormsGrid#:CurrentRow,Progress.Lang.Object),System.Windows.Forms.DataGridViewRow):Cells[
@@ -1334,6 +1338,52 @@ class paninui.view.use.sc_coll_eventdata
   end. /* OnEventArgsHandler_CellBeginEdit */
 
 
+  method private void OnEventArgsHandler_CellContentClick(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable bEclipseFix#    as logical                                        no-undo.
+    define variable oFormsGrid#     as System.Windows.Forms.DataGridView              no-undo.
+    define variable oFormsGridArgs# as System.Windows.Forms.DataGridViewCellEventArgs no-undo.
+    define variable oUiValue#       as paninui.view.interfaces.i_uivalue              no-undo.
+    define variable iIDCurrentRow#  as int64                                          no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "CellContentClick"
+        on error undo,throw:
+        if type-of(oSender#, System.Windows.Forms.DataGridView) then 
+        do:
+          assign
+            oFormsGrid#     = cast(oSender#, System.Windows.Forms.DataGridView)
+            oFormsGridArgs# = cast(oArgs#, System.Windows.Forms.DataGridViewCellEventArgs)
+            oUiValue#       = new c_uivalue_griditem(
+              /* Since it's *cell*contentsclick, we give the name of the column. */
+              sc_coll_widgetdata:WidgetNameToLinkName(? /* A cell doesn't have an object handle */, oFormsGrid#:Columns[oFormsGridArgs#:ColumnIndex]:Name, ""), 
+              oFormsGrid#:Enabled, 
+              oFormsGrid#:Visible).
+        end.
+        
+        iIDCurrentRow# = int64(cast(cast(oFormsGrid#:CurrentRow,Progress.Lang.Object),System.Windows.Forms.DataGridViewRow):Cells[
+          entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") +
+          "__iID" +
+          entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_")
+          ]:Value:ToString()) no-error.
+            
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,?, iIDCurrentRow#)).
+        
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end. /* OnEventArgsHandler_CellContentClick */
+
+
   method private void OnEventArgsHandler_CellEndEdit(oSender# as System.Object, oArgs# as System.EventArgs):
     
     define variable bEclipseFix#    as logical                                        no-undo.
@@ -1352,7 +1402,7 @@ class paninui.view.use.sc_coll_eventdata
           assign
             oFormsGrid#     = cast(oSender#, System.Windows.Forms.DataGridView)
             oFormsGridArgs# = cast(oArgs#, System.Windows.Forms.DataGridViewCellEventArgs)
-            oUiValue#       = new c_uivalue_griditem(oFormsGrid#:Name, oFormsGrid#:Enabled, oFormsGrid#:Visible).
+            oUiValue#       = new c_uivalue_griditem(sc_coll_widgetdata:WidgetNameToLinkName(oFormsGrid#,oFormsGrid#:Name,""), oFormsGrid#:Enabled, oFormsGrid#:Visible).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,?,1234)).
       end.
@@ -1385,7 +1435,7 @@ class paninui.view.use.sc_coll_eventdata
           assign
             oFormsGrid#     = cast(oSender#, System.Windows.Forms.DataGridView)
             oFormsGridArgs# = cast(oArgs#, System.Windows.Forms.DataGridViewCellEventArgs)
-            oUiValue#       = new c_uivalue_griditem(oFormsGrid#:Name, oFormsGrid#:Enabled, oFormsGrid#:Visible).
+            oUiValue#       = new c_uivalue_griditem(sc_coll_widgetdata:WidgetNameToLinkName(oFormsGrid#,oFormsGrid#:Name,""), oFormsGrid#:Enabled, oFormsGrid#:Visible).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,?,1234)).
       end.
@@ -1417,7 +1467,7 @@ class paninui.view.use.sc_coll_eventdata
           do:
             assign
               oFormsGrid# = cast(oSender#, System.Windows.Forms.DataGridView)
-              oUiValue#   = new c_uivalue_griditem(oFormsGrid#:Name, oFormsGrid#:Enabled, oFormsGrid#:Visible).
+              oUiValue#   = new c_uivalue_griditem(sc_coll_widgetdata:WidgetNameToLinkName(oFormsGrid#,oFormsGrid#:Name,""), oFormsGrid#:Enabled, oFormsGrid#:Visible).
           end.
           sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,?,1234)).
           if type-of(oSender#, System.Windows.Forms.DataGridView) then 
