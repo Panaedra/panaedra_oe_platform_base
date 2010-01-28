@@ -15,10 +15,10 @@ class paninui.view.use.sc_coll_widgetdata
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 26 $ 
+          Version: $Revision: 27 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:15+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 20:21:25+01:00 $ 
+     Date Checkin: $Date: 2010-01-28 23:53:20+01:00 $ 
+    Date Modified: $Modtime: 2010-01-28 23:03:33+01:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -30,7 +30,7 @@ class paninui.view.use.sc_coll_widgetdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 26 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 27 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -228,6 +228,8 @@ class paninui.view.use.sc_coll_widgetdata
     
     /* This method returns the new iID of the created ttWidgetData. */ 
     
+    define variable cLinkPrefix# as character no-undo.
+    
     def buffer ttWidgetData          for ttWidgetData.
     def buffer b-parent-ttWidgetData for ttWidgetData.
     
@@ -260,25 +262,55 @@ class paninui.view.use.sc_coll_widgetdata
           ttWidgetData.cLinkName = cNameIP#.
       end case.
       
-      ttWidgetData.cLinkName = replace(ttWidgetData.cLinkName,"__",".").
-
-      if ttWidgetData.cLinkName begins "." and iIDParentIP# <> 0 then 
+      
+      cLinkPrefix# = "".
+      
+      if ttWidgetData.cLinkName begins "__" and iIDParentIP# <> 0 then 
       do:
         find b-parent-ttWidgetData where b-parent-ttWidgetData.iIDWidgetData = iIDParentIP# no-error.
         if avail b-parent-ttWidgetData and b-parent-ttWidgetData.cWidgetType = "toolbar" then 
         do:
-          ttWidgetData.cLinkName = subst("&1&2", b-parent-ttWidgetData.cLinkName, ttWidgetData.cLinkName).
+          cLinkPrefix# = b-parent-ttWidgetData.cLinkName.
         end.  
       end.
       
-      /* Always trim any start dots off the LinkName (Parent is already prepended here). */
-      ttWidgetData.cLinkName = left-trim(ttWidgetData.cLinkName,".").
+      ttWidgetData.cLinkName = WidgetNameToLinkName(?, ttWidgetData.cLinkName, cLinkPrefix#).
 
       return ttWidgetData.iIDWidgetData.
       
     end.
     
   end method. /* ItemAddImplement */
+
+
+  method public static character WidgetNameToLinkName(
+    
+    /* Simple method that replaces __ to dot, and optionally adds a prefix. */
+    oWidgetIP#     as Progress.Lang.Object, /* Send ? if you want a simple text replace */
+    cWidgetNameIP# as character, 
+    cLinkPrefixIP# as character):
+    
+    define variable cReturn# as character no-undo.
+    
+    /* Make a linkname from the prefix name if necessary */
+    if cLinkPrefixIP# matches "*__*"
+      /* One time recursive call */ 
+      then cLinkPrefixIP# = WidgetNameToLinkName(?, cLinkPrefixIP#, "").
+    
+    /* Make sure there will be a dot between prefix and linkname */  
+    if cLinkPrefixIP# > "" 
+      and substring(cLinkPrefixIP#,length(cLinkPrefixIP#),1) <> "." 
+      and (not cWidgetNameIP# begins "__") 
+      then cWidgetNameIP# = "__" + cWidgetNameIP#.
+    
+    cReturn# = subst("&1&2", cLinkPrefixIP#, replace(cWidgetNameIP#,"__",".")).
+    
+    /* Always trim any start dots off the cLinkName. */
+    cReturn# = left-trim(cReturn#,".").
+    
+    return cReturn#.
+
+  end method. /* WidgetNameToLinkName */    
   
   
   method public static Progress.Lang.Object GetBindingSource(
