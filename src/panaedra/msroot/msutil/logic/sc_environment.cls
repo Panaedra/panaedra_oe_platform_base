@@ -1,13 +1,14 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
+{paninui/logic/includes/preproc_dotnetclasses.i &class=class}
 
 class panaedra.msroot.msutil.logic.sc_environment: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_environment.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:45:53+01:00 $ 
+     Date Checkin: $Date: 2010-01-29 00:45:00+01:00 $ 
+    Date Modified: $Modtime: 2010-01-29 00:43:27+01:00 $ 
 
       Description: Haal informatie uit de omgeving op zoals het pid (process id).
 
@@ -16,7 +17,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   /************************  Source control constructor ************************/
   constructor public sc_environment(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -137,12 +138,14 @@ class panaedra.msroot.msutil.logic.sc_environment:
 
   method public static integer GetProcessID():
     
-    &if opsys = "unix" &then
+    &if {&paninui_tty} &then
  
     define variable cParent# as character no-undo.
     define variable cTempID# as character no-undo.
     define variable cLine#   as character no-undo.
         
+    &if opsys = "unix" &then
+    
     cTempID# = "$A" + string(mtime,"999999999").
  
     input through value("ps -ef | grep $$ " + cTempID#).
@@ -156,10 +159,16 @@ class panaedra.msroot.msutil.logic.sc_environment:
         leave.
       end.
     end.
+    
+    &else
+    
+    /* TODO: processid for win32 tty */
+    
+    &endif /* unix only */
    
     return integer(cParent#).
 
-    &else
+    &else /* win32 gui */
     
     define variable iReturn#  as integer                    no-undo.
     define variable oCurProc# as System.Diagnostics.Process no-undo.
@@ -178,7 +187,8 @@ class panaedra.msroot.msutil.logic.sc_environment:
 
   method public static character GetCommandLine():
     
-    &if opsys = "unix" &then
+    &if {&paninui_tty} &then
+
 /*                                                                     */
 /*    define variable cParent# as character no-undo.                   */
 /*    define variable cTempID# as character no-undo.                   */
@@ -235,8 +245,9 @@ class panaedra.msroot.msutil.logic.sc_environment:
     import cReturn#.
     input close.
     
-    &else
+    &else 
     
+    /* win32, tty + gui/.net */
     cReturn# = os-getenv("COMPUTERNAME").
     
     &endif
