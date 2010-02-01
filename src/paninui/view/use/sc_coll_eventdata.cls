@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 34 $ 
+          Version: $Revision: 35 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-28 23:53:20+01:00 $ 
-    Date Modified: $Modtime: 2010-01-28 23:11:46+01:00 $ 
+     Date Checkin: $Date: 2010-02-01 11:43:00+01:00 $ 
+    Date Modified: $Modtime: 2010-02-01 11:26:36+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 34 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 35 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -829,7 +829,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
-            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
@@ -917,7 +917,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
-            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
@@ -947,7 +947,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
-            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(oComboBox#:SelectedValue:ToString())).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
@@ -977,7 +977,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
-            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
@@ -1007,7 +1007,7 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
-            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text).
+            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
