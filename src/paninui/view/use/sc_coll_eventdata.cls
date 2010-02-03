@@ -16,10 +16,10 @@ class paninui.view.use.sc_coll_eventdata
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 35 $ 
+          Version: $Revision: 36 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-01 11:43:00+01:00 $ 
-    Date Modified: $Modtime: 2010-02-01 11:26:36+01:00 $ 
+     Date Checkin: $Date: 2010-02-03 07:50:42+01:00 $ 
+    Date Modified: $Modtime: 2010-02-03 07:29:08+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -31,7 +31,7 @@ class paninui.view.use.sc_coll_eventdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 35 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 36 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -581,16 +581,24 @@ class paninui.view.use.sc_coll_eventdata
 
   method private void OnEventArgsHandler_PositionChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix# as logical                           no-undo.
-    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    define variable bEclipseFix#      as logical                           no-undo.
+    define variable oUiValue#         as paninui.view.interfaces.i_uivalue no-undo.
     
+    define variable iSuspendedPackID# as int64                             no-undo.
     define buffer ttUiEvent for ttUiEvent.
     
     do for ttUiEvent on error undo, throw:
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "PositionChanged"
         on error undo,throw:
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        iSuspendedPackID# = EvtSuspendedEvent("query", "PositionChanged", oSender#, ttUiEvent.iDelegateID).
+        if iSuspendedPackID# = 0 then 
+          sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        else 
+        do:
+        /* Normally we would have to store data for the suspended event here. 
+           But oUiValue# and c_uieventdata are empty, so it's not necessary here. */
+        end.
       end.
       
       catch ex as Progress.Lang.Error:
@@ -601,6 +609,52 @@ class paninui.view.use.sc_coll_eventdata
     end.
     
   end. /* OnEventArgsHandler_PositionChanged */
+  
+  
+  method private void OnEventArgsHandler_SelectionChanged(oSender# as System.Object, oArgs# as System.EventArgs):
+    
+    define variable bEclipseFix#      as logical                           no-undo.
+    define variable oUiValue#         as paninui.view.interfaces.i_uivalue no-undo.
+    define variable oSelection#       as c_uivalue_selection               no-undo.
+    define variable bFirst#           as logical                           no-undo init true.
+    
+    define variable iSuspendedPackID# as int64                             no-undo.
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "SelectionChanged"
+        on error undo,throw:
+        
+        iSuspendedPackID# = EvtSuspendedEvent("query", "SelectionChanged", oSender#, ttUiEvent.iDelegateID).
+        if iSuspendedPackID# = 0 then 
+        do:
+          
+          if ttUiEvent.cEventOptions <> "Rows" then 
+          do:
+            undo, throw new AppError(subst("For SelectionChanged, EventOptions should be 'Rows' at this moment. '&1'.", ttUiEvent.cEventOptions), 99950122).
+          end.
+          
+          if bFirst# then 
+          do:
+            bFirst# = false.
+            oSelection# = paninui.view.use.analyze.sc_getuiframevalues:_sys_GetUiValueSelectionImplement(ttUiEvent.oWidget, "Rows", 25 /* Limit num rows to 25 in UI events */).
+          end.  
+
+          sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oSelection#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+          
+        end. 
+
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end. /* OnEventArgsHandler_SelectionChanged */
   
   
   method private void OnEventArgsHandler_SortRequest(oSender# as System.Object, oArgs# as System.EventArgs):
@@ -687,45 +741,6 @@ class paninui.view.use.sc_coll_eventdata
     
   end. /* OnEventArgsHandler_CurrentCellChanged */ 
    
-  
-  method private void OnEventArgsHandler_SelectionChanged(oSender# as System.Object, oArgs# as System.EventArgs):
-    
-    define variable bEclipseFix# as logical                           no-undo.
-    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
-    define variable oSelection#  as c_uivalue_selection               no-undo.
-    define variable bFirst#      as logical                           no-undo init true.
-    
-    define buffer ttUiEvent for ttUiEvent.
-    
-    do for ttUiEvent on error undo, throw:
-      
-      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "SelectionChanged"
-        on error undo,throw:
-        
-        if ttUiEvent.cEventOptions <> "Rows" then 
-        do:
-          undo, throw new AppError(subst("For SelectionChanged, EventOptions should be 'Rows' at this moment. '&1'.", ttUiEvent.cEventOptions), 99950122).
-        end.
-          
-        if bFirst# then 
-        do:
-          bFirst# = false.
-          oSelection# = paninui.view.use.analyze.sc_getuiframevalues:_sys_GetUiValueSelectionImplement(ttUiEvent.oWidget, "Rows", 25 /* Limit num rows to 25 in UI events */).
-        end.  
-
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oSelection#, new paninui.view.use.events.c_uieventdata("","",?,?)).
-
-      end.
-      
-      catch ex as Progress.Lang.Error:
-        /* Catch needed in all .NET events */
-        sc_showexception:ShowException(ex).
-      end catch.
-    
-    end.
-    
-  end. /* OnEventArgsHandler_SelectionChanged */
-  
   
   method private void OnEventArgsHandler_Press(oSender# as System.Object, oArgs# as System.EventArgs):
     
@@ -1616,7 +1631,7 @@ class paninui.view.use.sc_coll_eventdata
     define variable iSuspendedPackID# as int64 no-undo.
     define buffer ttUiEvent for ttUiEvent.
     
-    iSuspendedPackID# = SuspendedEvent("query", "QueryOpen", oBindIP#).
+    iSuspendedPackID# = EvtSuspendedEvent("query", "QueryOpen", oBindIP#, 0 /* No delegate id needed for queryopen */).
 
     if iSuspendedPackID# = 0 then 
     do for ttUiEvent on error undo, throw:
@@ -1639,10 +1654,11 @@ class paninui.view.use.sc_coll_eventdata
   end method. /* OnBindingSourceQueryOpen */
 
  
-  method protected static int64 SuspendedEvent(
+  method protected static int64 EvtSuspendedEvent(
     cEventNameIP# as character,
     cEventTypeIP# as character,
-    oWidgetIP# as Progress.Lang.Object):
+    oWidgetIP# as Progress.Lang.Object,
+    iDelegateIDIP# as int64):
 
     define variable iReturn# as int64 no-undo.
     define buffer ttEventsSuspend for ttEventsSuspend.
@@ -1663,15 +1679,19 @@ class paninui.view.use.sc_coll_eventdata
         create ttEventsSuspend.
         sc_dbtrig:OnWriteOrCreate(buffer ttEventsSuspend:handle).
         assign 
-          ttEventsSuspend.cEventName = cEventNameIP#
-          ttEventsSuspend.cEventType = cEventTypeIP#
-          ttEventsSuspend.oWidget    = oWidgetIP#.
+          ttEventsSuspend.cEventName  = cEventNameIP#
+          ttEventsSuspend.cEventType  = cEventTypeIP#
+          ttEventsSuspend.oWidget     = oWidgetIP#
+          ttEventsSuspend.iDelegateID = iDelegateIDIP#
+          .
           
         if type-of(oWidgetIP#,paninui.view.init.display.c_bindingsource) then
           ttEventsSuspend.hWidget     = cast(oWidgetIP#,paninui.view.init.display.c_bindingsource):Handle.
-        else
+        else 
+        do:
           if type-of(oWidgetIP#,panaedra.msroot.msdr.interfaces.i_qry) then
             ttEventsSuspend.hWidget   = cast(oWidgetIP#,panaedra.msroot.msdr.interfaces.i_qry):sys__hQuery.
+        end.
 
         return iReturn#.
         
@@ -1681,41 +1701,87 @@ class paninui.view.use.sc_coll_eventdata
     
     return iReturn#.
 
-  end method. /* SuspendedEvent */ 
- 
+  end method. /* EvtSuspendedEvent */ 
+
+
+  method protected static void EvtSuspendedEventAddData(
+    cEventNameIP#  as character,
+    cEventTypeIP#  as character,
+    oWidgetIP#     as Progress.Lang.Object,
+    iDelegateIDIP# as int64,
+    oUiValueIP#    as i_uivalue):
+  
+    define variable bEclipseFix# as logical no-undo.
+    
+    define buffer ttEventsSuspend for ttEventsSuspend.
+    
+    do for ttEventsSuspend:
+
+      find last ttEventsSuspend
+        where   ttEventsSuspend.cEventName = cEventNameIP#
+        and     ttEventsSuspend.cEventType = cEventTypeIP#
+        and     ttEventsSuspend.bSuspendAll = false
+        and     ttEventsSuspend.oUiValue    = ?
+        no-error.
+      
+      if available ttEventsSuspend then 
+      do:
+        ttEventsSuspend.oUiValue = oUiValueIP#.
+      end.
+      
+    end.
+
+  end method. /* EvtSuspendedEventAddData */ 
+  
 
   method public static void EventsSuspend(
     iPackIDIP#    as int64,
     cEventNameIP# as character,
     cEventTypeIP# as character):
     
-    /* Puts events in a seperate temp-table instead of firing them */
+    /* Set a trigger record to puts events in a seperate temp-table instead of firing them directly */
     
     define variable bEclipseFix# as logical no-undo.
     define buffer ttEventsSuspend for ttEventsSuspend.
     
     do for ttEventsSuspend:
       
-      create ttEventsSuspend.
-      sc_dbtrig:OnWriteOrCreate(buffer ttEventsSuspend:handle).
-      assign 
-        ttEventsSuspend.iPackID     = iPackIDIP#
-        ttEventsSuspend.cEventName  = cEventNameIP#
-        ttEventsSuspend.cEventType  = cEventTypeIP#
-        ttEventsSuspend.bSuspendAll = true
-        .
-        
-    end.
+      if not can-find
+        (first ttEventsSuspend 
+        where  ttEventsSuspend.iPackID     = iPackIDIP#
+        and    ttEventsSuspend.cEventName  = cEventNameIP#
+        and    ttEventsSuspend.cEventType  = cEventTypeIP#
+        and    ttEventsSuspend.bSuspendAll = true)
+        then 
+      do:
+        create ttEventsSuspend.
+        sc_dbtrig:OnWriteOrCreate(buffer ttEventsSuspend:handle).
+        assign 
+          ttEventsSuspend.iPackID     = iPackIDIP#
+          ttEventsSuspend.cEventName  = cEventNameIP#
+          ttEventsSuspend.cEventType  = cEventTypeIP#
+          ttEventsSuspend.bSuspendAll = true
+          .
+      end.
+      
+    end. /* strong scope */
     
   end method. /* EventsSuspend */
 
 
   method public static void EventsResume(iPackIDIP# as int64):
     
-    /* Fires the suspended events and removes them from the temp-table */
+    /* Fires the suspended events and removes them from the temp-table.              */
+    /* To debug this, call DebugShowData just before you call EventsResume.          */
+    /* You will see the suspend "flags" (bSuspendAll) and all suspended real events. */
     
-    define variable bEclipseFix# as logical no-undo.
-    define buffer ttEventsSuspend for ttEventsSuspend.
+    define variable oUiValue#          as i_uivalue     no-undo.
+    define variable oUiEventData#      as i_uieventdata no-undo.
+    define variable bFirst#            as logical       no-undo init true.
+    define variable oUiValueSelection# as i_uivalue     no-undo.
+    
+    define buffer ttEventsSuspend   for ttEventsSuspend.
+    define buffer b-ttEventsSuspend for ttEventsSuspend.
     
     do for ttEventsSuspend:
       
@@ -1739,6 +1805,45 @@ class paninui.view.use.sc_coll_eventdata
               do:
                 OnBindingSourceQueryOpen(cast(ttEventsSuspend.oWidget,paninui.view.init.display.c_bindingsource)).
               end.
+          
+            when "PositionChanged" or 
+            when "SelectionChanged" then 
+              do:
+                
+                /* For position changed and selection changed, we only want the last event to be fired per delegate. */  
+                if not can-find
+                  (first b-ttEventsSuspend 
+                  where b-ttEventsSuspend.cEventType = ttEventsSuspend.cEventType 
+                  and b-ttEventsSuspend.iPackID      = ttEventsSuspend.iPackID
+                  and b-ttEventsSuspend.iDelegateID  = ttEventsSuspend.iDelegateID 
+                  and rowid(b-ttEventsSuspend) <> rowid(ttEventsSuspend)) 
+                  then 
+                do:
+                  
+                  if ttEventsSuspend.cEventType = "SelectionChanged" then 
+                  do:
+                    if bFirst# then 
+                    do:
+                      bFirst# = false.
+                      /* Get the grid selection once for all suspended events */
+                      oUiValueSelection# = paninui.view.use.analyze.sc_getuiframevalues:_sys_GetUiValueSelectionImplement(ttEventsSuspend.oWidget, "Rows", 25 /* Limit num rows to 25 in UI events */).
+                    end.  
+                  end.
+                
+                  if ttEventsSuspend.oUiValue <> ? then oUiValue# = cast(ttEventsSuspend.oUiValue,i_uivalue).
+                  if ttEventsSuspend.oUiEventData <> ? then oUiEventData# = cast(ttEventsSuspend.oUiEventData,i_uieventdata).
+                  
+                  if oUiEventData# = ? then oUiEventData# = new paninui.view.use.events.c_uieventdata("","",?,?).
+                  
+                  sc_coll_delegatedata:InvokeEventHandler(
+                    ttEventsSuspend.iDelegateID, 
+                    if ttEventsSuspend.cEventType = "SelectionChanged" then oUiValueSelection# else oUiValue#, 
+                    oUiEventData#
+                    ).
+                  
+                end. /* The last record of this delegate */
+                
+              end. /* "PositionChanged/SelectionChanged" */
           
             otherwise 
             do: 
