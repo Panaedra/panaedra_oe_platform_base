@@ -1,10 +1,11 @@
-{panaedra/msroot/msutil/logic/top_i/ctop_class.i}        
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
+{paninui/logic/includes/preproc_dotnetclasses.i &class=class}       
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
 class paninui.view.init.display.c_bindingsource
   inherits
-  &if opsys = "unix" &then
+  &if {&paninui_tty} &then
   Progress.Lang.Object
   &else 
   Progress.Data.BindingSource
@@ -13,10 +14,10 @@ class paninui.view.init.display.c_bindingsource
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/display/c_bindingsource.cls $ 
-          Version: $Revision: 15 $ 
+          Version: $Revision: 16 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
+     Date Checkin: $Date: 2010-02-03 07:50:42+01:00 $ 
+    Date Modified: $Modtime: 2010-02-03 02:23:19+01:00 $ 
 
       Description:  _CMPNY_ inheritance van de progress DataSource. 
                     Bedoeld om onvolkomenheden van de progress DataSource
@@ -29,7 +30,7 @@ class paninui.view.init.display.c_bindingsource
   /************************  Source control constructor ************************/
   constructor public c_bindingsource(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 16 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -47,12 +48,12 @@ class paninui.view.init.display.c_bindingsource
     
     super().
     
-    &if opsys = "unix" &then
+    &if {&paninui_tty} &then
     &else
     /* TODO: Don't know the exact effects of the following three settings. */
     this-object:AutoSort = true.
     this-object:AutoSync = true.
-    this-object:Batching = true.
+   /*    this-object:Batching = true.*/
     &endif
     
     cLocalName = "[blank]".
@@ -62,18 +63,18 @@ class paninui.view.init.display.c_bindingsource
 
   constructor protected c_bindingsource(hQueryIP# as handle):
     
-    &if opsys = "unix" &then
+    &if {&paninui_tty} &then
     super().
     &else
     super(hQueryIP#).
     &endif
 
-    &if opsys = "unix" &then
+    &if {&paninui_tty} &then
     &else
     /* TODO: Don't know the exact effects of the following three settings. */
     this-object:AutoSort = true.
     this-object:AutoSync = true.
-    this-object:Batching = true.
+/*    this-object:Batching = true.*/
     &endif
 
     cLocalName = hQueryIP#:name.
@@ -166,12 +167,12 @@ class paninui.view.init.display.c_bindingsource
     define variable cTemp# as character no-undo.
     define variable cSkip# as character no-undo.
     
-    &if opsys = "unix" &then
+    &if {&paninui_tty} &then
     &else
     /* TODO: Don't know the exact effects of the following three settings. */
     this-object:AutoSort = true.
     this-object:AutoSync = true.
-    this-object:Batching = true.
+    /*    this-object:Batching = true.*/
     
     sc_prop:SetDataObjectPropsFromHelpString(hDataObjectIP#).
 
@@ -245,7 +246,7 @@ class paninui.view.init.display.c_bindingsource
 
   destructor public c_bindingsource ( ):
     
-    &if opsys = "unix" &then
+    &if {&paninui_tty} &then
     &else
     this-object:Handle = ?.
     &endif
@@ -253,7 +254,7 @@ class paninui.view.init.display.c_bindingsource
     if hCustomQuery <> ? then delete object hCustomQuery  no-error.
     if hCustomBuffer <> ? then delete object hCustomBuffer no-error.
     
-    &if opsys <> "unix" and "{&window-system}" <> "tty" &then
+    &if not {&paninui_tty} &then
     if valid-object(this-object) and type-of(this-object,System.IDisposable) then 
     do:
       cast(this-object, System.IDisposable):Dispose().
@@ -262,7 +263,7 @@ class paninui.view.init.display.c_bindingsource
     
   end destructor.
 
-  &if opsys = "unix" &then
+  &if {&paninui_tty} &then
 
   method public void Refresh():
 
