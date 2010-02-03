@@ -12,10 +12,10 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/logic/logicbase/c_framelogic_shortcut.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
+     Date Checkin: $Date: 2010-02-03 07:50:42+01:00 $ 
+    Date Modified: $Modtime: 2010-02-03 04:18:17+01:00 $ 
 
       Description: Provides a shortcut object to be used in frame logic classes.
                    Only links methods to other methods, technically not required,
@@ -27,7 +27,7 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
   /************************  Source control constructor ************************/
   constructor public c_framelogic_shortcut(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -220,6 +220,19 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
     paninui.view.use.display.sc_displaydata:SetUiValue(oFrmLogic, oGridOVID#, cWidgetNameIP#, cPropertyIP#, iValueIP#).
 
   end method. /* SetUiValue ; Grid + integer */
+
+
+  method public void SetUiValue(
+    
+    oGridItemOVID#     as i_widgettype_griditem,
+    cWidgetNameIP#     as character,
+    cWidgetItemNameIP# as character,
+    cPropertyIP#       as character,
+    bValueIP#          as logical):
+      
+    paninui.view.use.display.sc_displaydata:SetUiValue(oFrmLogic, oGridItemOVID#, cWidgetNameIP#, cWidgetItemNameIP#, cPropertyIP#, bValueIP#).
+
+  end method.
 
 
   method public void SetUiValue(
