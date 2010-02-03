@@ -4,20 +4,20 @@ using paninui.view.init.display.*.
 using paninui.view.use.*.
 using paninui.view.use.analyze.*.
 using paninui.view.use.display.*.
+
+using panaedra.msroot.msdr.logic.*.
 using panaedra.msroot.msdr.interfaces.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
-
-using panaedra.msroot.msdr.logic.*.
 
 class paninui.view.use.display.sc_displaydata   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 29 $ 
+          Version: $Revision: 30 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-28 23:53:20+01:00 $ 
-    Date Modified: $Modtime: 2010-01-28 22:41:54+01:00 $ 
+     Date Checkin: $Date: 2010-02-03 07:50:42+01:00 $ 
+    Date Modified: $Modtime: 2010-02-03 04:18:57+01:00 $ 
 
       Description: Display data on a paninUi frame.
 
@@ -26,7 +26,7 @@ class paninui.view.use.display.sc_displaydata   :
   /************************  Source control constructor ************************/
   constructor public sc_displaydata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 29 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 30 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -488,7 +488,7 @@ class paninui.view.use.display.sc_displaydata   :
        For example: 
        Visible property to "false", 
        Text property to "Mr Johnson", 
-       or BackColor property to "MediumUrgency". (*) Naming real colors is dependant on locale 
+       or BackColor property to "MediumUrgency". (*) Naming real colors is dependent on locale 
                                                      and *not* suitable for the database logic layer.
                                                      Color indicators should be (per-user-or-environment-)
                                                      mapped in the view layer.
@@ -623,6 +623,51 @@ class paninui.view.use.display.sc_displaydata   :
 
   method public static void SetUiValue(
     
+    /* Directly set a property of a griditem semi-widget (grid column) to a new value, without databinding.
+       Currently only Visible is supported.
+     */
+    
+    oFrmLogicIP#       as i_frmlogic,
+    oGridItemOVID#     as i_widgettype_griditem,
+    cWidgetNameIP#     as character,
+    cWidgetItemNameIP# as character,
+    cPropertyIP#       as character,
+    bValueIP#          as logical):
+      
+    define variable bIsDisplayLinkedOP# as logical                                 no-undo.
+    define variable oWidget#            as Progress.Lang.Object                    no-undo.
+    define variable oFormsGrid#         as System.Windows.Forms.DataGridView       no-undo.
+    define variable oFormsGridColumn#   as System.Windows.Forms.DataGridViewColumn no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+    do:
+      if type-of(oWidget#, System.Windows.Forms.DataGridView) then 
+      do:
+        assign
+          oFormsGrid#       = cast(oWidget#, System.Windows.Forms.DataGridView)
+          oFormsGridColumn# = oFormsGrid#:Columns[cWidgetItemNameIP#] no-error.
+        if oFormsGridColumn# <> ? then 
+          case cPropertyIP#:
+            when "Visible" then 
+              do:
+                oFormsGridColumn#:Visible = bValueIP#.
+              end.
+            otherwise 
+            do:
+              undo, throw new Progress.Lang.AppError(subst("This property is not supported: &1", cPropertyIP#),99950231).
+            end.
+          end case.
+      end.
+      else undo, throw new Progress.Lang.AppError("This widget is not a Forms DataGridView.",99950232).
+    end.
+
+  end method. /* SetUiValue ; Griditem + logical */
+
+
+  method public static void SetUiValue(
+    
     /* Directly set any property of a button widget to a new value, without databinding.
        See the overload without OVID# parameter for more information.
      */
@@ -642,6 +687,7 @@ class paninui.view.use.display.sc_displaydata   :
       SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
 
   end method. /* SetUiValue ; Button */
+  
 
   method public static void SetUiValue(
     
