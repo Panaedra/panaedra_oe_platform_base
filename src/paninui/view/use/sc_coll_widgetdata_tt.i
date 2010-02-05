@@ -1,19 +1,19 @@
 
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata_tt.i $ 
-        Version: $Revision: 6 $ 
+        Version: $Revision: 7 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2010-01-08 15:19:24+01:00 $ 
-  Date Modified: $Modtime: 2010-01-08 11:33:32+01:00 $ 
+   Date Checkin: $Date: 2010-02-05 13:57:09+01:00 $ 
+  Date Modified: $Modtime: 2010-02-04 13:18:28+01:00 $ 
 
     Description: Widgetdata collection temp-tables
 
 \**************************** End of Dvcs_ Header ****************************/
 &if '{&dvcs__paninui_view_use_sc_coll_widgetdata_tt_i}' = '' &then
 &glob dvcs__paninui_view_use_sc_coll_widgetdata_tt_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_widgetdata_tt_i $Revision: 6 $
+&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_widgetdata_tt_i $Revision: 7 $
 &if '{&class}' = '' &then
-procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 6 $". end.
+procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 7 $". end.
 &endif
 /******************************* $NoKeywords:  $ *****************************/
 
@@ -61,6 +61,7 @@ procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 6 $
     index oWidget                  oWidget          
     index oParent                  oParent          
     index hBufferOrQuery_Bind      hBufferOrQuery oBindingSource 
+    index oBindingSource           oBindingSource 
     .
 
 &endif
