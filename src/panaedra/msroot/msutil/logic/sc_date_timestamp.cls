@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_date_timestamp.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-05 11:09:42+01:00 $ 
-    Date Modified: $Modtime: 2010-02-03 15:47:00+01:00 $ 
+     Date Checkin: $Date: 2010-02-05 11:30:28+01:00 $ 
+    Date Modified: $Modtime: 2010-02-05 11:28:54+01:00 $ 
 
       Description: Date and time timestamp functionality
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   /************************  Source control constructor ************************/
   constructor public sc_date_timestamp(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -40,9 +40,9 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
 
   
 /* TODO: function in class moet weg */
-function englishAbvDate returns character (dtWhenIP# as date) in super.
+function englishAbvDate returns character(dtWhenIP# as date) in super.
 
-  method public static character EnglishAbvDate (dtmWhenIP# as datetime-tz):
+  method public static character EnglishAbvDate(dtmWhenIP# as datetime-tz):
     
     /* Overload for easy acces date version below */
     
@@ -51,7 +51,7 @@ function englishAbvDate returns character (dtWhenIP# as date) in super.
   end method. /* EnglishAbvDate; datetime-tz */
 
 
-  method public static character EnglishAbvDate (dtWhenIP# as date):
+  method public static character EnglishAbvDate(dtWhenIP# as date):
     
     /* Returns a string like "6 Oct 2010". 
        Format is protected for i.e. E-mail headers, so don't change the format. 
@@ -62,7 +62,7 @@ function englishAbvDate returns character (dtWhenIP# as date) in super.
   end method. /* EnglishAbvDate; date */
 
 
-  method public static character EmailHeaderStrictDate ():
+  method public static character EmailHeaderStrictDate():
     
     /* Returns a date string suitable for e-mail headers */
     /* Is included in this class only for "easy finding" */
@@ -72,16 +72,26 @@ function englishAbvDate returns character (dtWhenIP# as date) in super.
     
   end method. /* EmailHeaderStrictDate */
   
+
+  method public static integer GetDateAsCCYYMMDD():
+    
+    /* Returns an integer in CCYYMMDD format; century, year, month, day */
+  
+    return GetDateAsCCYYMMDD(today).
+  
+  end method. /* GetDateAsCCYYMMDD: simple overload with 'today' */
   
   
-  method public static integer GetDateAsCCYYMMDD (dtInputIP# as date):
-	/*------------------------------------------------------------------------------
-	  Purpose:  Geef een integer terug met  CCYYMMDD ; eeuw,jaar,maand,dag
-	  ------------------------------------------------------------------------------*/
-    return int((year(dtInputIP#) * 10000) + (month(dtInputIP#) * 100) + day(dtInputIP#) ).
+  method public static integer GetDateAsCCYYMMDD(
+    
+    /* Returns an integer in CCYYMMDD format; century, year, month, day */
   
-  end method. /* GetDateAsCCYYMMDD */
+    dtInputIP# as date):
+
+    return integer((year(dtInputIP#) * 10000) + (month(dtInputIP#) * 100) + day(dtInputIP#)).
   
+  end method. /* GetDateAsCCYYMMDD: date input */
+
 end class.
 
 /* EOF */ 
