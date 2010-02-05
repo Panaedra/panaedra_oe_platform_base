@@ -5,9 +5,10 @@ using paninui.pack.interfaces.*.
 using paninui.view.init.display.*.
 using paninui.view.use.*.
 
+using panaedra.msroot.msdr.logic.*.
+using panaedra.msroot.msdr.interfaces.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
-
 
 class paninui.view.use.sc_coll_widgetdata   
   implements
@@ -15,10 +16,10 @@ class paninui.view.use.sc_coll_widgetdata
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 27 $ 
+          Version: $Revision: 28 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-28 23:53:20+01:00 $ 
-    Date Modified: $Modtime: 2010-01-28 23:03:33+01:00 $ 
+     Date Checkin: $Date: 2010-02-05 13:57:09+01:00 $ 
+    Date Modified: $Modtime: 2010-02-04 14:00:54+01:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -30,7 +31,7 @@ class paninui.view.use.sc_coll_widgetdata
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 27 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 28 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -795,6 +796,36 @@ class paninui.view.use.sc_coll_widgetdata
   end method. /* RenameWidgetLinkNames */  
 
 
+  method public static void GetGridWidgetsByQry(oQryIP# as i_qry, output cSvPackIDOP# as character, output cSvGridnamesOP# as character):
+    
+    define variable oBindingSource# as c_bindingsource no-undo.
+
+    define buffer b-ttUIFrame    for ttUIFrame.
+    define buffer b-ttWidgetData for ttWidgetData.
+
+    oBindingSource# = oQryIP#:GetActiveBindingsource().      
+
+    if oBindingSource# <> ? then do:
+      
+      for each   b-ttWidgetData no-lock
+        where b-ttWidgetData.oBindingSource = oBindingSource# /* This field is indexed */
+        and   b-ttWidgetData.cWidgetType = "grid",
+        first b-ttUIFrame of b-ttWidgetData:
+      
+        assign
+          cSvPackIDOP#    = cSvPackIDOP# + "," + trim(string(b-ttUIFrame.iPackID))
+          cSvGridnamesOP# = cSvGridnamesOP# + "," + b-ttWidgetData.cLinkName.
+        
+      end. /* for each grid */
+      
+    end. /* valid bindingsource */
+    
+    assign
+      cSvPackIDOP#    = substring(cSvPackIDOP#,2)
+      cSvGridnamesOP# = substring(cSvGridnamesOP#,2).  
+
+  end method. /* GetGridWidgetsByQry */
+  
   
   method public static void DebugShowData():
 
