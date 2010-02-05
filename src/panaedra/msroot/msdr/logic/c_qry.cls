@@ -9,10 +9,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 19 $ 
+          Version: $Revision: 20 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 20:31:31+01:00 $ 
+     Date Checkin: $Date: 2010-02-05 13:57:09+01:00 $ 
+    Date Modified: $Modtime: 2010-02-04 14:59:00+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -24,12 +24,13 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 19 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 20 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  define protected variable hQueryPrivate       as handle no-undo.
-  define protected variable hQueryOnHoldPrivate as handle no-undo.
+  define protected variable hQueryPrivate       as handle  no-undo.
+  define protected variable hQueryOnHoldPrivate as handle  no-undo.
+  define protected variable iNewRowLastPosition as integer no-undo.
   
   define property sys__oParentQry     as panaedra.msroot.msdr.interfaces.i_qry no-undo 
     public get. 
@@ -38,7 +39,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   define property sys__oBindingSource as c_bindingsource no-undo 
     public get. 
     public set.
-    
+
   define property iNumResults         as integer no-undo 
     public get:
       return (if valid-handle(hQueryPrivate) then hQueryPrivate:num-results else 0).
@@ -667,7 +668,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   end method. /* UiRefreshAll */
 
 
-  method protected c_bindingsource GetActiveBindingsource():
+  method public c_bindingsource GetActiveBindingsource():
     
     define variable oBindingSource# as c_bindingsource no-undo.
     
@@ -684,6 +685,55 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   
   end method. /* GetActiveBindingsource */
 
+
+  method public void UiAddNewRow():
+    
+    define variable oBindingSource# as c_bindingsource no-undo.
+    
+    oBindingSource# = GetActiveBindingsource().
+
+    if valid-object(oBindingSource#) then 
+    do:
+      if not oBindingSource#:NewRow then iNewRowLastPosition = oBindingSource#:Position.
+      oBindingSource#:AddNew().
+    end.
+
+  end method. /* UiAddNewRow */
+  
+
+  method public void UiDeleteNewRow():
+    
+    define variable oBindingSource# as c_bindingsource no-undo.
+    
+    oBindingSource# = GetActiveBindingsource().
+
+    if valid-object(oBindingSource#) then 
+    do:
+      if oBindingSource#:NewRow then 
+      do:
+        oBindingSource#:CancelEdit(). /* That's enough for i.e. bound DataGridViews */
+        oBindingSource#:Position = iNewRowLastPosition.
+      end.
+    end.
+
+  end method. /* UiDeleteNewRow */
+  
+
+  method public void UiResetCurrentItem():
+    
+    define variable oBindingSource# as c_bindingsource no-undo.
+    
+    oBindingSource# = GetActiveBindingsource().
+
+    if valid-object(oBindingSource#) then 
+    do:
+      oBindingSource#:ResetCurrentItem().
+      /* Fire a broad scope event, for sc_coll_*.cls */
+      sc_eventbroadcaster:FireEvent("evt@c_qry@UiResetCurrentItem", this-object).
+    end.
+
+  end method. /* UiResetCurrentItem */
+  
 
   destructor c_qry():
     
