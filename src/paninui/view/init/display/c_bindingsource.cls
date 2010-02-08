@@ -14,10 +14,10 @@ class paninui.view.init.display.c_bindingsource
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/display/c_bindingsource.cls $ 
-          Version: $Revision: 16 $ 
+          Version: $Revision: 17 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-03 07:50:42+01:00 $ 
-    Date Modified: $Modtime: 2010-02-03 02:23:19+01:00 $ 
+     Date Checkin: $Date: 2010-02-08 08:15:42+01:00 $ 
+    Date Modified: $Modtime: 2010-02-06 17:04:14+01:00 $ 
 
       Description:  _CMPNY_ inheritance van de progress DataSource. 
                     Bedoeld om onvolkomenheden van de progress DataSource
@@ -30,7 +30,7 @@ class paninui.view.init.display.c_bindingsource
   /************************  Source control constructor ************************/
   constructor public c_bindingsource(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 16 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 17 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -42,8 +42,19 @@ class paninui.view.init.display.c_bindingsource
     public get:
       return hCustomQuery.
     end get.
+
+  &if {&paninui_tty} &then
   
-  
+  define public property Position as integer no-undo 
+    get.
+    set.
+    
+  define public property NewRow as logical no-undo 
+    get.
+    set.
+    
+  &endif  
+
   constructor protected c_bindingsource():
     
     super().
@@ -230,7 +241,7 @@ class paninui.view.init.display.c_bindingsource
     
     return cReturn#.
 
-  end method. /* GetSkipFieldsString */  
+  end method. /* GetFieldsNoDataBindingString */  
   
   
   method public override character ToString():
@@ -243,6 +254,42 @@ class paninui.view.init.display.c_bindingsource
     
   end method.
 
+
+  &if {&paninui_tty} &then
+
+
+  method public void AddNew():
+
+  end method. /* AddNew */  
+  
+  
+  method public void CancelEdit():
+
+  end method. /* CancelEdit */
+    
+  
+  method public void Refresh():
+
+  end method. /* Refresh */
+    
+  
+  method public void Refresh(iRefreshRowIP# as integer):
+
+  end method. /* Refresh */
+    
+  
+  method public void RefreshAll():
+
+  end method. /* RefreshAll */  
+  
+
+  method public void ResetCurrentItem():
+  
+  end method. /* ResetCurrentItem */
+    
+    
+  &endif /* unix/tty support */
+  
 
   destructor public c_bindingsource ( ):
     
@@ -263,23 +310,6 @@ class paninui.view.init.display.c_bindingsource
     
   end destructor.
 
-  &if {&paninui_tty} &then
-
-  method public void Refresh():
-
-  end method. /* Refresh */  
-  
-  method public void Refresh(iRefreshRowIP# as integer):
-
-  end method. /* Refresh */  
-  
-  method public void RefreshAll():
-
-  end method. /* RefreshAll */  
-  
-  &endif
-
-  
 end class. /* c_bindingsource */
 
 /* EOF  */
