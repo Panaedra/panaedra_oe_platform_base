@@ -1,18 +1,20 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
+{paninui/logic/includes/preproc_dotnetclasses.i &class=class}
+
+using paninui.view.init.display.*.
+
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 using panaedra.msroot.msdr.logic.*.
-using paninui.view.init.display.*.
-
 
 class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interfaces.i_qry:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 20 $ 
+          Version: $Revision: 21 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-05 13:57:09+01:00 $ 
-    Date Modified: $Modtime: 2010-02-04 14:59:00+01:00 $ 
+     Date Checkin: $Date: 2010-02-08 08:15:42+01:00 $ 
+    Date Modified: $Modtime: 2010-02-06 16:51:15+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -24,7 +26,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   /************************  Source control constructor ************************/
   constructor public c_qry(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 20 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 21 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
