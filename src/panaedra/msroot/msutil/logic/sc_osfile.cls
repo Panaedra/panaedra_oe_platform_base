@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_osfile.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-08 10:51:03+01:00 $ 
-    Date Modified: $Modtime: 2010-02-08 10:50:30+01:00 $ 
+     Date Checkin: $Date: 2010-02-08 11:44:24+01:00 $ 
+    Date Modified: $Modtime: 2010-02-08 11:30:36+01:00 $ 
 
       Description: Os-file functionality, replaces lib/osfilelib.p eventually.
 
@@ -18,13 +18,46 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   /************************  Source control constructor ************************/
   constructor public sc_osfile(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define static temp-table ttFile no-undo rcode-info
     field cFullPath as character.
 
+
+  method public static void DeleteAllFilesInDir(
+    cDirIP#       as character, 
+    cMatchesIP#   as character,
+    bRecursiveIP# as logical):
+    
+    empty temp-table ttFile.
+    
+    define variable oAppError as Progress.Lang.AppError no-undo.
+      
+    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, bRecursiveIP#).
+    
+    for each ttFile:
+      
+      os-delete value(ttFile.cFullPath) no-error.
+      
+      /* Determine if delete succeeded. Note: os-error isn't reliable here, OE10.2A02 */
+      file-info:file-name = ttFile.cFullPath.      
+      if file-info:full-pathname <> ? then 
+      do:
+        if oAppError = ? then oAppError = new Progress.Lang.AppError("Some files couldn't be deleted",99950938).
+        oAppError:AddMessage(subst("&1 os-error &2", ttFile.cFullPath, os-error), 99950939).
+      end.
+      
+    end. /* For each ttFile */  
+    
+    if oAppError <> ? then 
+    do:
+      undo, throw oAppError.
+    end.
+            
+  end method. /* DeleteAllFilesInDir */
+  
 
   method static public void GetFileNamesInDirectory(    
     input  cDirIP#       as character, 
