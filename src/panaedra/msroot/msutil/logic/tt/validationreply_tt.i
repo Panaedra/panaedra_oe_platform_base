@@ -1,9 +1,9 @@
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/tt/validationreply_tt.i $ 
-        Version: $Revision: 1 $ 
+        Version: $Revision: 2 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2010-01-27 16:59:09+01:00 $ 
-  Date Modified: $Modtime: 2010-01-27 16:59:09+01:00 $ 
+   Date Checkin: $Date: 2010-02-09 17:29:44+01:00 $ 
+  Date Modified: $Modtime: 2010-02-09 17:28:11+01:00 $ 
 
     Description: Child of ttValidationQuestion. Replies (by the user) to the question, to be 
                  sent back to the db layer or client validation logic.
@@ -11,7 +11,7 @@
 \**************************** End of Dvcs_ Header ****************************/
 &if "{&dvcs__panaedra_msroot_msutil_logic_tt_validationreply_tt_i}" = "" &then
 &glob dvcs__panaedra_msroot_msutil_logic_tt_validationreply_tt_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_tt_validationreply_tt_i $Revision: 1 $
+&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_tt_validationreply_tt_i $Revision: 2 $
 /******************************* $NoKeywords:  $ *****************************/
 
 &if defined(static) > 0 and defined(reference-only) > 0 &then &undefine reference-only
@@ -32,10 +32,10 @@
 &glob tt{&ttPrefix}ValidationReply{&ttSuffix} true
 
 define {&protected} {&static} temp-table tt{&ttPrefix}ValidationReply{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
+  field iIDValidationReply       as int64       help " [CasedTableName] ValidationReply "
+  field dtmCreValidationReply    as datetime-tz
   field iIDValidationQuestion    as int64
   field iOrderValidationQuestion as int64
-  field iIDValidationReply       as int64
-  field dtmCreValidationReply    as datetime-tz
   field cMessage                 as character
   field cTable                   as character /* Can be used for focussing the UI */
   field cField                   as character /* Can be used for focussing the UI */
