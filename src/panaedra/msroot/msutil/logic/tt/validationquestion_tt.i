@@ -1,9 +1,9 @@
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/tt/validationquestion_tt.i $ 
-        Version: $Revision: 2 $ 
+        Version: $Revision: 3 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2010-02-09 17:29:44+01:00 $ 
-  Date Modified: $Modtime: 2010-02-09 17:27:50+01:00 $ 
+   Date Checkin: $Date: 2010-02-12 16:36:58+01:00 $ 
+  Date Modified: $Modtime: 2010-02-12 16:35:44+01:00 $ 
 
     Description: Child of ttValidation.
                  Validation question temp-table, to feed back validation questions to the 
@@ -12,7 +12,7 @@
 \**************************** End of Dvcs_ Header ****************************/
 &if "{&dvcs__panaedra_msroot_msutil_logic_tt_validationquestion_tt_i}" = "" &then
 &glob dvcs__panaedra_msroot_msutil_logic_tt_validationquestion_tt_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_tt_validationquestion_tt_i $Revision: 2 $
+&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_tt_validationquestion_tt_i $Revision: 3 $
 /******************************* $NoKeywords:  $ *****************************/
 
 &if defined(static) > 0 and defined(reference-only) > 0 &then &undefine reference-only
@@ -33,7 +33,7 @@
 &glob tt{&ttPrefix}ValidationQuestion{&ttSuffix} true
 
 define {&protected} {&static} temp-table tt{&ttPrefix}ValidationQuestion{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
-  field iIDValidationQuestion    as int64       help " [CasedTableName] ValidationQuestion "
+  field iIDValidationQuestion    as int64       help " [private-data] CasedTableName=ValidationQuestion "
   field dtmCreValidationQuestion as datetime-tz
   field iIDValidation            as int64
   field iOrderValidation         as int64
