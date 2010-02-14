@@ -1,24 +1,24 @@
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata_tt.i $ 
-        Version: $Revision: 6 $ 
+        Version: $Revision: 7 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2010-02-03 07:50:42+01:00 $ 
-  Date Modified: $Modtime: 2010-02-03 05:54:32+01:00 $ 
+   Date Checkin: $Date: 2010-02-14 15:59:35+01:00 $ 
+  Date Modified: $Modtime: 2010-02-13 19:36:24+01:00 $ 
 
     Description: Temp-table definitions
 
 \**************************** End of Dvcs_ Header ****************************/
 &if "{&dvcs__paninui_view_use_sc_coll_eventdata_tt_i}" = "" &then
 &glob dvcs__paninui_view_use_sc_coll_eventdata_tt_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_eventdata_tt_i $Revision: 6 $
+&glob sourcecontrolversions {&sourcecontrolversions} | paninui_view_use_sc_coll_eventdata_tt_i $Revision: 7 $
 &if '{&class}' = '' &then
-procedure dvcs__paninui_view_use_sc_coll_eventdata_tt_i: return "$Revision: 6 $". end.
+procedure dvcs__paninui_view_use_sc_coll_eventdata_tt_i: return "$Revision: 7 $". end.
 &endif
 /******************************* $NoKeywords:  $ *****************************/
 
   define {&protected} {&static} temp-table ttUiEvent no-undo /*rcode-information*/
+    field iIDUiEvent       as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=UiEvent " 
     field dtmCreUiEvent    as datetime-tz          format "99-99-9999 hh:mm:ss" initial ? xml-node-type "attribute" 
-    field iIDUiEvent       as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" 
 
     field iPackID          as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute"
     field iFrmLogicID      as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute"
@@ -42,8 +42,8 @@ procedure dvcs__paninui_view_use_sc_coll_eventdata_tt_i: return "$Revision: 6 $"
 
 
   define {&protected} {&static} temp-table ttEventsSuspend no-undo rcode-information
+    field iIDEventsSuspend       as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=EventsSuspend " 
     field dtmCreEventsSuspend    as datetime-tz          format "99-99-9999 hh:mm:ss" initial ? xml-node-type "attribute" 
-    field iIDEventsSuspend       as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" 
 
     field iPackID          as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute"
     field iFrmLogicID      as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute"
