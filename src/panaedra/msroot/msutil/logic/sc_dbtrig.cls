@@ -2,34 +2,34 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
-
 class panaedra.msroot.msutil.logic.sc_dbtrig   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 11 $ 
+          Version: $Revision: 12 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 20:21:25+01:00 $ 
+     Date Checkin: $Date: 2010-02-14 23:32:42+01:00 $ 
+    Date Modified: $Modtime: 2010-02-14 22:53:02+01:00 $ 
 
-      Description: Deze class wordt aangeroepen door db delete en write triggers,
-                   voor dynamische afhandeling.
+      Description: This class is called by db delete and write triggers.
                    
-                   Moet ook geschikt zijn voor temp-tables; kan gebruikt
-                   worden vanaf de UI layer of een db-loze AppServer.
-                   In dat geval worden negatieve ID nummers uitgedeeld.
+                   It's also used for temp-tables and datasets, on a UI client
+                   or a db-less appserver.
+                   Temp-table get negative iID values.
                    
-                   Op de db server wordt in de echte tabel een positief 
-                   ID nummer uitgedeeld.
+                   Table records get positive iID values, determined by a sequence
+                   that is dedicated to the table.
                    
-                   cGUID* wordt bij de aanmaak van de table óf temp-table gevuld.
+                   cGUID* is generated at creation of the temp-table record, or (db-only) at 
+                   creation of the db table record.
+                   If the db table record is based on a temp-table, cGUID* is simply copied.
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -37,11 +37,21 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   define protected static variable bInitialized as log   no-undo.
   define protected static variable bDbLayer     as log   no-undo.
 
-  
-  define protected static temp-table ttCacheLabels no-undo
-    field cTable as char
-    field cLabel as char
-    index cTable is primary unique cTable.
+  define protected static temp-table ttTableInfo no-undo
+    field cTempTableName as character init ? /* either cTempTableName or cDbTableName is filled */
+    field cDbTableName   as character init ? /* either cTempTableName or cDbTableName is filled */
+    field cNonCased      as character
+    field cCased         as character
+    field cLabel         as character 
+    field cDescription   as character
+    field cNsSubroot     as character
+    field cNsGroupdir    as character
+    field cNsKey         as character
+    field cNsPath        as character
+    index cCased is primary        cCased
+    index cTempTableName is unique cTempTableName
+    index cDbTableName is unique   cDbTableName
+    .
   
   define protected static temp-table ttCacheLogicLocations no-undo
     field cTable as char
@@ -52,8 +62,8 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
 
   method public static logical OnWriteOrCreate (hBuffIP# as handle):
     
-    /* Gebruik de overload handle,handle,handle vanaf db triggers.
-       Deze method is only voor temp-tables. 
+    /* Use the overload handle,handle,handle from db triggers.
+       This method overload is strictly for temp-tables. 
      */
 
     define variable hBuffDummy# as handle no-undo.
@@ -63,18 +73,29 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   end method. /* OnWriteOrCreate */
 
 
-  method public static void SetKeyFields (hBuffInputIP# as handle, cCasedIP# as char):
+  method public static void SetKeyFields(hBuffInputIP# as handle):
+    
+    define variable cCased# as character no-undo.
+
+    cCased# = GetCased(hBuffInputIP#).
+    
+    SetKeyFields(hBuffInputIP#, cCased#).
+    
+  end method. /* SetKeyFields : simple overload */
+
+
+  method public static void SetKeyFields(hBuffInputIP# as handle, cCasedIP# as char):
     
     /*
     
-    Vult only de key fields, en de dtmMod* en dtmCre* velden.
-    Roept geen validatie logica aan, only vullen van velden.
-    Wordt ook extern aangeroepen, bv vanaf sc_buffercopy:CopyKey.
+    Only fill the key fields (iID), and dtmMod* + dtmCre* fields.
+    No validation logic is called.
+    Also see sc_buffercopy:CopyKey (which calls SetKeyFields itself).
     
     */
 
     define variable hField# as handle no-undo.
-
+    
     /* Fields */
         
     hField# = hBuffInputIP#:buffer-field("cGUID" + cCasedIP#) no-error.
@@ -85,7 +106,6 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
       else hField#:buffer-value = NewGUID().
     end. 
     
-    
     hField# = hBuffInputIP#:buffer-field("iID" + cCasedIP#) no-error.
     
     if hField# <> ? then 
@@ -93,9 +113,9 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
       if hField#:buffer-value = ? or hField#:buffer-value <= 0 then 
       do:
         if 
-          (/* echte tabellen krijgen altijd een nieuw ID */
+          (/* db tables always get a positive iID */
           if hBuffInputIP#:table-handle = ? then true
-        /* temp-tables mogen negatief ID behouden, maar ? of 0 krijgt nieuw ID. */ 
+        /* temp-tables kan keep their negative iID, but ? or 0 will be filled with a new iID. */ 
         else (hField#:buffer-value = ? or hField#:buffer-value = 0))
           then hField#:buffer-value = NewID(hBuffInputIP#, cCasedIP#).
       end.
@@ -117,19 +137,21 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
       if hField#:buffer-value = ? then hField#:buffer-value = now.
     end.
 
-  end method. /* SetKeyFields */
+  end method. /* SetKeyFields : efficient overload when cCased is already known. */
 
 
   method public static logical OnWriteOrCreate (hBuffIP# as handle, hBuffNewIP# as handle, hBuffOldIP# as handle):
 
-    /* Vul ID indien niet gevuld (negatief bij temp-table). 
-       Vul cGUID* indien niet gevuld. 
-       Vul dtmCre* indien niet gevuld. 
-       Vul dtmMod* altijd. */
+    /* Fill ID if empty (negative for temp-table). 
+       Fill cGUID*  if empty. 
+       Fill dtmCre* if empty. 
+       Fill dtmMod* always. */
     
     define variable hField#     as handle    no-undo.
     define variable cCased#     as character no-undo.
     define variable hBuffInput# as handle    no-undo.
+    
+    define buffer b-ttTableInfo for ttTableInfo.
     
     do transaction
       on error undo, throw
@@ -138,20 +160,27 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
         
       if retry then 
       do:
-        undo, throw new Progress.Lang.AppError(subst("Error on write of '&1'", cCased#), 123001).
+        undo, throw new Progress.Lang.AppError(subst("Error on write of '&1'", cCased#), 99952301).
       end.  
       
       if hBuffNewIP# <> ? and hBuffNewIP#:avail then hBuffInput# = hBuffNewIP#.
       else hBuffInput# = hBuffIP#.
       
-      /* Elke Panaedra tabel heeft ook een cased versie van de tabelnaam.
-         Dat is de "logische" naam van de tabel, die verder in dbtrig wordt gebruikt.
-         Bij bijvoorbeeld de _DATA_, wijkt de logische naam _DATA_ af van
-         de fysieke database tabelnaam.
+      /* Each Panaedra table also has a cased version of the table name.
+         The cased name is the "logical" name, which is used throughout the trigger logic.
+         Cased name and noncased name can be very different,
+         
        */
-      cCased# = GetCased(hBuffInput#).
+
+      if hBuffIP#:table-handle <> ? then 
+        GetTtInfo(buffer b-ttTableInfo, hBuffIP#).
+      else 
+        GetDbInfo(buffer b-ttTableInfo, hBuffIP#).
+
+
+      cCased# = b-ttTableInfo.cCased.
       
-      if ExecuteLogic(hBuffInput#, hBuffOldIP#, "wri") then.
+      if ExecuteLogic(buffer b-ttTableInfo:handle, hBuffInput#, hBuffOldIP#, "wri") then.
       else return false.
       
       SetKeyFields(hBuffInput#, cCased#).
@@ -165,19 +194,26 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
 
   method public static logical OnDelete (hBuffIP# as handle):
 
-    define variable cCased#       as character no-undo.
+    define variable cCased#      as character no-undo.
     
-    define variable hQueryTt#     as handle    no-undo.
-    define variable hBuffTable#   as handle    no-undo.
-    define variable hBuffRel#     as handle    no-undo.
+    define variable hQueryRel#   as handle    no-undo.
+    define variable hBuffTable#  as handle    no-undo.
+    define variable hBuffRel#    as handle    no-undo.
     
-    define variable hQueryDb#     as handle    no-undo.
-    define variable hBuffDbInput# as handle    no-undo.
-    define variable hBuffDb#      as handle    no-undo.
+    define variable hQueryChild# as handle    no-undo.
+    define variable hBuffChild#  as handle    no-undo.
     
-    define variable rRowid#       as rowid     no-undo.
+    define variable cIDParent#   as character no-undo.
+    define variable iIDParent#   as int64     no-undo.
+    
+    define buffer b-ttTableInfo for ttTableInfo.
 
-    cCased# = GetCased(hBuffIP#).
+    if hBuffIP#:table-handle <> ? then 
+      GetTtInfo(buffer b-ttTableInfo, hBuffIP#).
+    else 
+      GetDbInfo(buffer b-ttTableInfo, hBuffIP#).
+
+    cCased# = b-ttTableInfo.cCased.
     
     do transaction
       on error undo, throw
@@ -189,54 +225,66 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
         undo, throw new Progress.Lang.AppError(subst("Error on delete of '&1'", cCased#), 123002).
       end.
       
-      if not ExecuteLogic(hBuffIP#,?,"del") then return false.
+      if not ExecuteLogic(buffer b-ttTableInfo:handle, hBuffIP#,?,"del") then return false.
       
-      sc_dbtrigrelations:GetDbtrigRelations(cCased#, output hBuffTable#, output hBuffRel#). 
-      
+      sc_dbtrigrelations:GetDbtrigRelations(buffer b-ttTableInfo:handle, output hBuffTable#, output hBuffRel#).
+       
       if hBuffTable# <> ?
-        and
-      /* In eerste instantie only voor db relations.
-         Support voor datasets wordt later ingebouwd. 
-      */
-        hBuffIP#:table-handle <> ? 
-        then 
+        then
       do on error undo, throw:
         
-        if hBuffIP#:table-handle <> ? then create buffer hBuffDbInput# for table hBuffIP#:table.
-        else create buffer hBuffDbInput# for table hBuffIP#:table-handle.
+        create query hQueryRel#.
         
-        rRowid# = hBuffIP#:rowid.
+        hQueryRel#:set-buffers(hBuffTable#, hBuffRel#).
+        hQueryRel#:query-prepare(subst("for each &1 where &1.cTable = &2, each &3 of &1", hBuffTable#:name, quoter(b-ttTableInfo.cNonCased), hBuffRel#:name)).
+        hQueryRel#:query-open.
+        hQueryRel#:get-first.
         
-        create query hQueryTt#.
-        hQueryTt#:set-buffers(hBuffTable#, hBuffRel#).
-        hQueryTt#:query-prepare(subst("for each &1 where &1.cTable = &2, each &3 of &1", hBuffTable#:name, quoter(cCased#), hBuffRel#:name)).
-        hQueryTt#:query-open.
-        hQueryTt#:get-first.
-        do while not hQueryTt#:query-off-end:
-          create buffer hBuffDb# for table string(hBuffRel#::cChildTable).
-          create query hQueryDb#.
-          hQueryDb#:set-buffers(hBuffDbInput#, hBuffDb#).
-          hQueryDb#:query-prepare(subst("for each &1 where rowid(&1) = to-rowid(&2) no-lock", hBuffDbInput#:name, quoter(rRowid#)) + 
-            ", each " + hBuffRel#::cChildTable + " of " + hBuffRel#::cTable + " exclusive-lock").
-          hQueryDb#:query-open.
-          hQueryDb#:get-first.
+        do while not hQueryRel#:query-off-end on error undo, throw:
           
-          do while not hQueryDb#:query-off-end:
-            hBuffDb#:buffer-delete.
-            hQueryDb#:get-next.  
-          end.
-          hQueryTt#:get-next.
-        end.
+          if hBuffIP#:table-handle = ? then
+            create buffer hBuffChild# for table string(hBuffRel#::cChildTable).
+          else
+            /* TODO: Datarelation temp-table delete; For dataset support a dataset context is necessary. */
+            hBuffChild# = ?.
+          
+          if hBuffChild# <> ? then 
+          do:  
+            
+            create query hQueryChild#.
+            
+            assign
+              cIDParent# = "iID" + b-ttTableInfo.cCased
+              iIDParent# = hBuffIP#:buffer-field(cIDParent#):buffer-value.
+              
+            hQueryChild#:set-buffers(hBuffChild#).
+            hQueryChild#:query-prepare(subst("for each &1 where &1.&2 = &3 exclusive-lock", hBuffRel#::cChildTable, cIDParent#, iIDParent#)).
+            hQueryChild#:query-open.
+            hQueryChild#:get-first.
+            
+            do while not hQueryChild#:query-off-end:
+              hBuffChild#:buffer-delete.
+              hQueryChild#:get-next.  
+            end. /* Walk childs */
+            
+          end. /* Valid child buffer */
+          
+          hQueryRel#:get-next.
+          
+          finally:
+            if hQueryChild# <> ? then delete object hQueryChild#.
+            if hBuffChild# <> ? then delete object hBuffChild#.
+          end finally.
+          
+        end. /* Walk relations */
         
         finally:
-          delete object hQueryTt# no-error.
-          delete object hQueryDb# no-error.
-          delete object hBuffDb#  no-error.
-          delete object hBuffDbInput# no-error.
+          if hQueryRel# <> ? then delete object hQueryRel#.
         end.
-      end.
         
-    end.
+      end. /* Valid Data Relations */
+       
+    end. /* transaction */
     
     return true.
     
@@ -259,7 +307,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
       else panaedra.msroot.msutil.logic.sc_boot:cBootSessionParameter = session:parameter.
       bDbLayer = lookup(panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Layer"),"all,db,db_r,db_u") > 0.
       if bDbLayer = ? then bDbLayer = false.
-      iNewID = -1 * time. /* Tbv developing / reload static class */
+      iNewID = -1 * time. /* Mainly for developing purposes, where a static class can be reloaded, and we don't want to start each time with the same negative number because of ambiguity.  */
     end.
     
     if not bDbLayer or hBuffIP#:table-handle <> ? then 
@@ -269,7 +317,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     end.
     else 
     do transaction on error undo, throw:
-      return dynamic-next-value("s_ID" + cCasedIP# ,"panaedradb").
+      return dynamic-next-value("s_ID" + cCasedIP#, hBuffIP#:table /* sc_dbconnect:SetAliases() is used; table name is alias db name */).
     end.
 
   end method. /* NewID */ 
@@ -277,55 +325,22 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   
   method public static char GetCased(hBuffIP# as handle):
 
-    define variable cCased#      as character no-undo.
-    define variable hFirstField# as handle    no-undo.
-    define variable cHelpString# as character no-undo.
+    
+    define variable cCased# as character no-undo.
+    
+    define buffer b-ttTableInfo for ttTableInfo.
     
     /* N.B. buffer or temp-table handle has no help attribute. 
        We use the help string (or GetProp/SetProp) of the first field of the (temp-)table buffer. 
     */
-    
-    hFirstField# = hBuffIP#:buffer-field(1).
-    cHelpString# = hFirstField#:help.
-    
-    if cHelpString# matches "*[private-data]*" and hFirstField#:private-data = ? then
-      sc_prop:PropsFromString(hFirstField#, sc_string_csv:GetParam(cHelpString#,"private-data")).
-    
-    /* CasedTableName is optional. If set (on the first buffer field), 
-       it overrules the default flow. 
-       It can be used with "like" temp-tables, or "&ttPrefix/&ttSuffix" 
-       temp-tables as used in changesets. 
-    */
-    cCased# = sc_prop:GetProp(hFirstField#,"CasedTableName").
-    
-    if cCased# > "" then.
+
+    if hBuffIP#:table-handle <> ? then 
+      GetTtInfo(buffer b-ttTableInfo, hBuffIP#).
     else 
-    do:
-    
-      if hBuffIP#:table-handle <> ? then 
-      do:
-        if hBuffIP#:table-handle:name begins "tt" then cCased# = substring(hBuffIP#:table-handle:name,3).
-        else cCased# = hBuffIP#:table-handle:name.
-      end.
-      else  
-        cCased# = GetDbLabel(hBuffIP#).
-    
-      if cCased# = "" or cCased# = ? or 
-        index(cCased#, " ") > 0 then
-      do:
-        if (hBuffIP#:table <> ?) then
-          cCased# = hBuffIP#:table.
-        else if (hBuffIP#:table-handle <> ?) then
-            cCased# = hBuffIP#:table-handle:name.
-      end.
-      
-    end. /* CasedTableName found by GetProp */
-    
-    /* For tables with an abstraction from table to temp-table; 
-       I.E. table "_CCMPNY_" could have "Pr_CCMPNY_/_CCMPNY_" as label. 
-    */
-    cCased# = entry(1,cCased#,"/"). 
-    
+      GetDbInfo(buffer b-ttTableInfo, hBuffIP#).
+
+    cCased# = b-ttTableInfo.cCased.
+
     return cCased#.
     
   end method. /* GetCased */
@@ -347,12 +362,12 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     if cHelpString# matches "*[private-data]*" and hFirstField#:private-data = ? then
       sc_prop:PropsFromString(hFirstField#, sc_string_csv:GetParam(cHelpString#,"private-data")).
     
-    /* NonCasedTableName is optional. If set (on the first buffer field), 
-       it overrules the default flow. 
+    /* TableAlias is optional, but is automatically generated from Panaedra 2010.01+. 
+       If set (on the first buffer field), it overrules the default flow. 
        It can be used with "like" temp-tables, or "&ttPrefix/&ttSuffix" 
        temp-tables as used in changesets. 
     */
-    cNonCased# = sc_prop:GetProp(hFirstField#,"NonCasedTableName").
+    cNonCased# = sc_prop:GetProp(hFirstField#,"TableAlias").
 
     if cNonCased# > "" then.
     else 
@@ -378,7 +393,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
           end.
       end.
       
-    end. /* Property "NonCasedTableName" was not used */
+    end. /* Property "TableAlias" was not used */
     
     /* For tables with an abstraction from table to temp-table; 
        I.E. table "_CCMPNY_" could have "Pr_CCMPNY_/_CCMPNY_" as label. 
@@ -392,32 +407,77 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   end method. /* GetNonCased */
 
   
-  method protected static char GetDbLabel (hBuffIP# as handle):
+  method protected static void GetDbInfo(buffer b-ttTableInfo for ttTableInfo, hBuffIP# as handle):
     
     define variable bEclipseFix# as logical no-undo.
-    define buffer b-ttCacheLabels for ttCacheLabels.
     
-    define variable hQuery# as handle no-undo.
-    define variable hBuff#  as handle no-undo.
+    define variable hQuery#      as handle  no-undo.
+    define variable hBuff#       as handle  no-undo.
       
-    find first b-ttCacheLabels where b-ttCacheLabels.cTable = hBuffIP#:table no-error.
+    find first b-ttTableInfo where b-ttTableInfo.cDbTableName = hBuffIP#:table no-error.
     
-    if not avail b-ttCacheLabels then 
+    if not avail b-ttTableInfo then 
     do:
-      create b-ttCacheLabels.
+      create b-ttTableInfo.
       assign 
-        b-ttCacheLabels.cTable = hBuffIP#:table.
-      create buffer hBuff# for table "panaedradb._File".
-      hBuff#:find-first(subst("where panaedradb._File._File-name = &1 ", quoter(hBuffIP#:table)), no-lock).
-      b-ttCacheLabels.cLabel = hBuff#::_File-Label.
+        b-ttTableInfo.cDbTableName = hBuffIP#:table.
+      create buffer hBuff# for table /* assumes sc_dbconnect:SetAliases() is used; */ hBuffIP#:table + "._File".
+      hBuff#:find-first(subst("where _File._File-name = &1 ", quoter(hBuffIP#:table)), no-lock) no-error.
+      if not hBuff#:available then undo, throw new Progress.Lang.AppError(subst("Table '&1' not found", hBuffIP#:table),99950285).
+      if not num-entries(hBuff#::_Desc,"/") >= 3 then undo, throw new Progress.Lang.AppError(subst("Table '&1' Description invalid: '&2'", hBuffIP#:table, hBuff#::_Desc),99950286).
+      assign
+        b-ttTableInfo.cNonCased    = hBuffIP#:table
+        b-ttTableInfo.cLabel       = hBuff#::_File-Label
+        b-ttTableInfo.cDescription = hBuff#::_Desc
+        b-ttTableInfo.cNsPath      = entry(1,b-ttTableInfo.cDescription,"/")
+        b-ttTableInfo.cCased       = entry(2,b-ttTableInfo.cDescription,"/")
+        b-ttTableInfo.cNsKey       = entry(3,b-ttTableInfo.cDescription,"/")
+        b-ttTableInfo.cNsSubroot   = entry(1,b-ttTableInfo.cNsPath,".")
+        b-ttTableInfo.cNsGroupdir  = entry(2,b-ttTableInfo.cNsPath,".")
+        .
     end.
         
-    return b-ttCacheLabels.cLabel.
-
-  end method. /* GetDbLabel */  
+  end method. /* GetDbInfo */  
   
 
-  method protected static logical ExecuteLogic (hBuffIP# as handle, hBuffOldIP# as handle, cTypeIP# as char):
+  method protected static void GetTtInfo(buffer b-ttTableInfo for ttTableInfo, hBuffIP# as handle):
+    
+    define variable hFirstField# as handle    no-undo.
+    define variable cHelpString# as character no-undo.
+
+    find first b-ttTableInfo where b-ttTableInfo.cTempTableName = hBuffIP#:table-handle:name no-error.
+    
+    if not avail b-ttTableInfo then 
+    do:
+      
+      create b-ttTableInfo.
+      assign 
+        b-ttTableInfo.cTempTableName = hBuffIP#:table-handle:name.
+        
+      hFirstField# = hBuffIP#:buffer-field(1).
+      cHelpString# = hFirstField#:help.
+      
+      /* Properties may be set in the definition (in help string) or at run-time (with SetProp) */
+      if cHelpString# matches "*[private-data]*" and hFirstField#:private-data = ? then
+        sc_prop:PropsFromString(hFirstField#, sc_string_csv:GetParam(cHelpString#,"private-data")).
+      
+      assign
+        b-ttTableInfo.cCased      = sc_prop:GetProp(hFirstField#,"CasedTableName")
+        b-ttTableInfo.cNonCased   = sc_prop:GetProp(hFirstField#,"TableAlias")
+        b-ttTableInfo.cNsKey      = sc_prop:GetProp(hFirstField#,"NsKey")
+        b-ttTableInfo.cNsSubroot  = sc_prop:GetProp(hFirstField#,"NsSubroot")
+        b-ttTableInfo.cNsGroupdir = sc_prop:GetProp(hFirstField#,"NsGroupdir")
+        .
+      
+      if trim(b-ttTableInfo.cCased) = "" or b-ttTableInfo.cCased = ? then 
+        undo, throw new Progress.Lang.AppError(subst("Temp-table buffer '&1' (first field) has an invalid CasedTableName property of: '&2'", hBuffIP#:name, b-ttTableInfo.cCased),99950288).
+      
+    end.
+        
+  end method. /* GetTtInfo */  
+  
+
+  method protected static logical ExecuteLogic (hBuffTableInfoIP# as handle, hBuffIP# as handle, hBuffOldIP# as handle, cTypeIP# as char):
 
     define variable bValidateOkay#     as logical            no-undo.
     define variable iError#            as integer            no-undo.
@@ -428,15 +488,22 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     define variable oTriggerLogicData# as c_triggerlogicdata no-undo.
     
     define buffer b-ttCacheLogicLocations for ttCacheLogicLocations.
+    define buffer b-ttTableInfo           for ttTableInfo.
     
-    if hBuffIP#:table-handle <> ? then 
+    if hBuffTableInfoIP# <> ? and hBuffTableInfoIP#:available 
+      then 
+      find first b-ttTableInfo where rowid(b-ttTableInfo) = hBuffTableInfoIP#:rowid.
+    
+    else 
     do:
-      cTable# = hBuffIP#:table-handle:name.
-      if cTable# begins "tt" then cTable# = substring(cTable#,3).
+     
+      if hBuffIP#:table-handle <> ? then 
+        GetTtInfo(buffer b-ttTableInfo, hBuffIP#).
+      else 
+        GetDbInfo(buffer b-ttTableInfo, hBuffIP#).
     end.
-    else cTable# = hBuffIP#:table.
     
-    cTable# = lc(cTable#).
+    cTable# = b-ttTableInfo.cNonCased.
     
     find first b-ttCacheLogicLocations 
       where b-ttCacheLogicLocations.cTable = cTable#
@@ -445,13 +512,27 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
       
     if not avail b-ttCacheLogicLocations then 
     do:
+      
       create b-ttCacheLogicLocations.
+      
       assign 
         b-ttCacheLogicLocations.cTable = cTable#
-        b-ttCacheLogicLocations.cType  = cTypeIP#.
-      file-info:file-name = "panaedra/dbtrig/logic/" + cTypeIP# + "log_" + subst("&1",cTable#) + ".cls".
-      if file-info:full-pathname = ? then
-        file-info:file-name = "panaedra/dbtrig/logic/" + cTypeIP# + "log_" + subst("&1",cTable#) + ".r".
+        b-ttCacheLogicLocations.cType  = cTypeIP#
+        .
+        
+      file-info:file-name = 
+        "panaedra/" 
+        + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
+        + b-ttTableInfo.cNsGroupdir + "/logic_val/c_"
+        + cTypeIP# + "log_" + subst("&1",cTable#) + ".cls".
+      if file-info:full-pathname = ? then 
+      do:
+        file-info:file-name = 
+          "panaedra/" 
+          + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
+          + b-ttTableInfo.cNsGroupdir + "/logic_val/c_"
+          + cTypeIP# + "log_" + subst("&1",cTable#) + ".r".
+      end.
       if file-info:full-pathname <> ? then 
       do:
         b-ttCacheLogicLocations.cLogic = replace(file-info:file-name,"~\","/").
@@ -469,7 +550,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
       do:
         oTriggerLogic# = dynamic-new b-ttCacheLogicLocations.cLogic (hBuffIP#, hBuffOldIP#, oTriggerLogicData#, output bValidateOkay#).
       end.
-      else /* "del" dus */ 
+      else /* "del" */ 
       do:
         oTriggerLogic# = dynamic-new b-ttCacheLogicLocations.cLogic (hBuffIP#, oTriggerLogicData#, output bValidateOkay#).
       end.
@@ -527,12 +608,11 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
       end.
     end.
     
-    message subst(cErrorIP#, 
+    sc_messagebox:Show(sc_messageboxtype:Simple, subst(cErrorIP#, 
       cFieldValues#[1], cFieldValues#[2], cFieldValues#[3], cFieldValues#[4], 
       cFieldValues#[5], cFieldValues#[6], cFieldValues#[7], cFieldValues#[8], 
-      cFieldValues#[9])
-      view-as alert-box.
-
+      cFieldValues#[9])).
+    
   end method. /* DisplayTriggerLogicError */
   
   
