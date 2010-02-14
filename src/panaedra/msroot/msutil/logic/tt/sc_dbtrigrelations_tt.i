@@ -1,19 +1,19 @@
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/tt/sc_dbtrigrelations_tt.i $ 
-        Version: $Revision: 3 $ 
+        Version: $Revision: 4 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2010-01-31 20:53:50+01:00 $ 
-  Date Modified: $Modtime: 2010-01-31 17:18:22+01:00 $ 
+   Date Checkin: $Date: 2010-02-14 23:32:42+01:00 $ 
+  Date Modified: $Modtime: 2010-02-14 23:15:50+01:00 $ 
 
-    Description: Temp-table definities
+    Description: Temp-table definitions
 
 \**************************** End of Dvcs_ Header ****************************/
 &if '{&dvcs__panaedra_msd_logic_sc_dbtrigrelations_tt_i}' = '' &then
 &glob dvcs__panaedra_msd_logic_sc_dbtrigrelations_tt_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msd_logic_sc_dbtrigrelations_tt_i $Revision: 3 $
+&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msd_logic_sc_dbtrigrelations_tt_i $Revision: 4 $
 &if '{&class}' = '' &then
 procedure dvcs__panaedra_msd_logic_sc_dbtrigrelations_tt_i: 
-  return "$Revision: 3 $". 
+  return "$Revision: 4 $". 
 end.
 &endif
 /******************************* $NoKeywords:  $ *****************************/
@@ -27,25 +27,28 @@ end.
 
 /* Temp-tables */
 define {&protected} {&static} temp-table ttMsdrTriggerLink no-undo {&reference-only} rcode-information
-  field cPath as character xml-node-type "attribute"
-  index cPath is primary unique cPath
+  field cPath    as character xml-node-type "attribute"
+  field bHandled as logical   xml-node-type "hidden"
+  index bHandled_cPath is primary unique bHandled cPath
   .
 
 define {&protected} {&static} temp-table ttMsdrDbtrigTables no-undo {&reference-only} rcode-information
-  field cTable  as char
-  field cCased  as char xml-node-type "attribute"
-  field cModule as char xml-node-type "attribute"
+  field cTable   as character xml-node-type "element" 
+  field cCased   as character xml-node-type "attribute"
+  field cModule  as character xml-node-type "attribute"
+  field bHandled as logical   xml-node-type "hidden"
   index cTable is primary unique cTable
-  index cModule_cTable cModule cTable
+  index bHandled_cModule_cTable bHandled cModule cTable
   .
 
 define {&protected} {&static} temp-table ttMsdrDbtrigRelations no-undo {&reference-only} rcode-information
-  field iOrder             as int  xml-node-type "attribute"
-  field cMultiplicity      as char xml-node-type "attribute"
-  field cChildMultiplicity as char xml-node-type "attribute"
-  field cTable             as char
-  field cChildTable        as char
-  index cTable_iOrder is primary unique cTable iOrder.
+  field iOrder             as integer   xml-node-type "attribute"
+  field cMultiplicity      as character xml-node-type "attribute"
+  field cChildMultiplicity as character xml-node-type "attribute"
+  field cTable             as character xml-node-type "element"
+  field cChildTable        as character xml-node-type "element"
+  field bHandled           as logical   xml-node-type "hidden"
+  index bHandled_cTable_iOrder is primary unique bHandled cTable iOrder.
 
 
 /* Datasets */
