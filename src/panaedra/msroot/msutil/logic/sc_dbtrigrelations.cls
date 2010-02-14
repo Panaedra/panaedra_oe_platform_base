@@ -1,19 +1,21 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
-
-
+using panaedra.msroot.msdr.logic.*.
+using panaedra.msroot.msdr.interfaces.*.
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_dbtrigrelations   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrigrelations.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 20:32:58+01:00 $ 
+     Date Checkin: $Date: 2010-02-14 23:32:42+01:00 $ 
+    Date Modified: $Modtime: 2010-02-14 23:23:34+01:00 $ 
 
-      Description: Ophalen van dbtrigrelations temp-table, voor db of temp-table triggers.
-                   Wordt altijd gecached tbv performance.
+      Description: Read xml file's *.datarel_xml, for db or temp-table triggers.
+                   Data is always cached after first read for fast performance.
 
   \*****************************  Include Files ********************************/
   
@@ -22,45 +24,104 @@ class panaedra.msroot.msutil.logic.sc_dbtrigrelations   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrigrelations(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  def static buffer b-glob-ttMsdrDbtrigTables    for ttMsdrDbtrigTables.
-  def static buffer b-glob-ttMsdrDbtrigRelations for ttMsdrDbtrigRelations.
+  define static buffer b-glob-ttMsdrDbtrigTables    for ttMsdrDbtrigTables.
+  define static buffer b-glob-ttMsdrDbtrigRelations for ttMsdrDbtrigRelations.
   
   define protected static temp-table ttCacheLoadedModules no-undo rcode-information
     field cModule as char
     index cModule is primary unique cModule
     .  
   
-  method public static void GetDbtrigRelations (cTableIP# as character, output hBuffTtMsdrDbtrigTablesOP# as handle, output hBuffTtMsdrDbtrigRelationsOP# as handle):
+  method public static void GetDbtrigRelations(hBuffTableInfoIP# as handle, output hBuffTtMsdrDbtrigTablesOP# as handle, output hBuffTtMsdrDbtrigRelationsOP# as handle):
   
-    /* Wordt gebruikt door delete triggers, maar kan ook client-side voor datasets/temp-tables worden gebruikt */
+    /* Is used by delete triggers, can also be used client-side by datasets/temp-tables. */
     
-    define variable cModule# as character no-undo.
+    define variable cNsGroupdir# as character no-undo.
+    define variable cFileName#   as character no-undo.
     
-    if not can-find(first ttMsdrDbtrigTables) then 
+    define buffer b-ttMsdrDbtrigTables     for ttMsdrDbtrigTables.
+    define buffer b-ttMsdrTriggerLink      for ttMsdrTriggerLink.
+    define buffer b-done-ttMsdrTriggerLink for ttMsdrTriggerLink.
+    
+    if not can-find(first b-ttMsdrDbtrigTables) then 
     do:
-      /* Voorlopig doen we het enkel en only uit een xml file.
-         Kan later ook uit de database (indien op de db layer). */
-      dataset dsDbRelations:read-xml("file", panaedra.msroot.msutil.logic.sc_path:cIniDir + "sc_dbtrigrelations.config", "empty", ?, false). 
+      /* sc_dbtrigrelations.datarel_xml is the central (override-)storage for datarelations. Normally empty. */
+      file-information:file-name = "panaedra/msroot/msutil/logic_val/cfg/sc_dbtrigrelations.datarel_xml".
+      if file-information:full-pathname > "" then 
+      do:
+        dataset dsDbRelations:read-xml("file", file-information:full-pathname, "empty", ?, false).
+      end.
+      else undo, throw new Progress.Lang.AppError("'panaedra/msroot/msutil/logic_val/cfg/sc_dbtrigrelations.datarel_xml' was not found.", 99953969).
     end.
     
-    cModule# = lc(substring(cTableIP#,1,2)). 
+    cNsGroupdir# = hBuffTableInfoIP#::cNsGroupdir. 
 
-    if not can-find(first ttMsdrDbtrigTables where ttMsdrDbtrigTables.cModule = cModule#) then 
+    if not can-find(first b-ttMsdrDbtrigTables where b-ttMsdrDbtrigTables.cModule = cNsGroupdir#) then 
     do:
-      find first ttCacheLoadedModules where ttCacheLoadedModules.cModule = cModule# no-error.
+      find first ttCacheLoadedModules where ttCacheLoadedModules.cModule = cNsGroupdir# no-error.
       if not avail ttCacheLoadedModules then 
       do:
         create ttCacheLoadedModules.
         assign 
-          ttCacheLoadedModules.cModule = cModule#.
-        if search(panaedra.msroot.msutil.logic.sc_path:cIniDir + subst("sc_dbtrigrelations_&1.config",cModule#)) <> ? then 
+          ttCacheLoadedModules.cModule = cNsGroupdir#.
+        
+        cFileName# = "panaedra/" 
+          + (if hBuffTableInfoIP#::cNsSubroot = "(none)" then "" else hBuffTableInfoIP#::cNsSubroot + "/") 
+          + hBuffTableInfoIP#::cNsGroupdir + "/logic_val/cfg/"
+          + substitute("&1.&2.datarel_xml", hBuffTableInfoIP#::cNsKey, cNsGroupdir#)
+          .
+          
+        file-information:file-name = cFileName#.
+        
+        if file-information:full-pathname > "" then 
         do:
-          dataset dsDbRelations:read-xml("file", panaedra.msroot.msutil.logic.sc_path:cIniDir + subst("sc_dbtrigrelations_&1.config",cModule#), "append", ?, false). 
+          dataset dsDbRelations:read-xml("file", file-information:full-pathname, "append", ?, false). 
         end.
+        else 
+          undo, throw new Progress.Lang.AppError(subst("Datarelation file '&1' not found", cFileName#),99958476).
+        
+        /* This do while is needed, because within the preselect, 
+           new records can be created. 
+           Circular recursion *is* allowed in datarel_xml files,
+           this construction prevents infinite loops.
+        */
+        do while can-find(first b-ttMsdrTriggerLink where b-ttMsdrTriggerLink.bHandled = false):
+        
+          repeat preselect each b-ttMsdrTriggerLink where b-ttMsdrTriggerLink.bHandled = false:
+            
+            find next b-ttMsdrTriggerLink.
+          
+            if can-find(
+              first b-done-ttMsdrTriggerLink where b-done-ttMsdrTriggerLink.bHandled = true
+              and b-done-ttMsdrTriggerLink.cPath = b-ttMsdrTriggerLink.cPath)
+              then /* File is already read through a previous triggerlink */ delete b-ttMsdrTriggerLink.
+            else 
+            do:
+          
+              /* A triggerlink means the datarelation file is dependent on another datarelation file.
+                 Read it in. 
+               */
+              assign
+                b-ttMsdrTriggerLink.bHandled = true
+                file-information:file-name   = b-ttMsdrTriggerLink.cPath.
+          
+              if file-information:full-pathname > "" then 
+              do:
+                dataset dsDbRelations:read-xml("file", file-information:full-pathname, "append", ?, false). 
+              end.
+              else 
+                undo, throw new Progress.Lang.AppError(subst("Triggerlink '&1' not found", cFileName#),99958477).
+          
+            end.
+            
+          end. /* repeat preselect */
+          
+        end. /* do while */
+        
       end.
     end.
     
@@ -69,7 +130,22 @@ class panaedra.msroot.msutil.logic.sc_dbtrigrelations   :
 
   end method. /* GetDbtrigRelations */
 
-  
+
+  method public static void DebugShowData():
+    
+    if sc_html:TempTableToHTML(
+      buffer ttMsdrDbtrigTables:handle, 
+      sc_path:cTempDir + "ttMsdrDbtrigTables.html") 
+      then 
+      sc_win32:ShellExecute(sc_path:cTempDir + "ttMsdrDbtrigTables.html").  
+      
+    if sc_html:TempTableToHTML(
+      buffer ttMsdrDbtrigRelations:handle, 
+      sc_path:cTempDir + "ttMsdrDbtrigRelations.html") 
+      then 
+      sc_win32:ShellExecute(sc_path:cTempDir + "ttMsdrDbtrigRelations.html").  
+      
+  end method. /* DebugShowData */
 
 end class.
 
