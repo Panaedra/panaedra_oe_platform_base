@@ -14,10 +14,10 @@ class paninui.view.init.display.c_bindingsource
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/display/c_bindingsource.cls $ 
-          Version: $Revision: 18 $ 
+          Version: $Revision: 19 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-15 11:07:33+01:00 $ 
-    Date Modified: $Modtime: 2010-02-15 11:06:41+01:00 $ 
+     Date Checkin: $Date: 2010-02-15 13:12:48+01:00 $ 
+    Date Modified: $Modtime: 2010-02-15 13:12:22+01:00 $ 
 
       Description:  _CMPNY_ inheritance van de progress DataSource. 
                     Bedoeld om onvolkomenheden van de progress DataSource
@@ -30,7 +30,7 @@ class paninui.view.init.display.c_bindingsource
   /************************  Source control constructor ************************/
   constructor public c_bindingsource(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 18 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 19 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -249,7 +249,19 @@ class paninui.view.init.display.c_bindingsource
     
     define variable cReturn# as character no-undo.
     
-    cReturn# = subst("&1@&2@&3",cLocalName, if Handle = ? then "NoHandle" else Handle:type, super:ToString()).
+    cReturn# = subst("&1@&2@&3",cLocalName, 
+      
+      &if {&paninui_tty} &then
+      
+      "NoHandle",
+      
+      &else
+      
+      if this-object:Handle = ? then "NoHandle" else this-object:Handle:type,
+      
+      &endif
+       
+      super:ToString()).
     
     return cReturn#.
     
