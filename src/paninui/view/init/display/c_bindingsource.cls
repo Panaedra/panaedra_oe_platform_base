@@ -14,10 +14,10 @@ class paninui.view.init.display.c_bindingsource
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/init/display/c_bindingsource.cls $ 
-          Version: $Revision: 17 $ 
+          Version: $Revision: 18 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-08 08:15:42+01:00 $ 
-    Date Modified: $Modtime: 2010-02-06 17:04:14+01:00 $ 
+     Date Checkin: $Date: 2010-02-15 11:07:33+01:00 $ 
+    Date Modified: $Modtime: 2010-02-15 11:06:41+01:00 $ 
 
       Description:  _CMPNY_ inheritance van de progress DataSource. 
                     Bedoeld om onvolkomenheden van de progress DataSource
@@ -30,7 +30,7 @@ class paninui.view.init.display.c_bindingsource
   /************************  Source control constructor ************************/
   constructor public c_bindingsource(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 17 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 18 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -178,8 +178,8 @@ class paninui.view.init.display.c_bindingsource
     define variable cTemp# as character no-undo.
     define variable cSkip# as character no-undo.
     
-    &if {&paninui_tty} &then
-    &else
+    &if not {&paninui_tty} &then
+
     /* TODO: Don't know the exact effects of the following three settings. */
     this-object:AutoSort = true.
     this-object:AutoSync = true.
@@ -213,6 +213,7 @@ class paninui.view.init.display.c_bindingsource
     end. 
 
     this-object:Handle = hDataObjectIP#.
+
     &endif
 
   end method. /* SetHandle */
@@ -293,19 +294,22 @@ class paninui.view.init.display.c_bindingsource
 
   destructor public c_bindingsource ( ):
     
-    &if {&paninui_tty} &then
-    &else
+    &if not {&paninui_tty} &then
+    
     this-object:Handle = ?.
+    
     &endif
     
     if hCustomQuery <> ? then delete object hCustomQuery  no-error.
     if hCustomBuffer <> ? then delete object hCustomBuffer no-error.
     
     &if not {&paninui_tty} &then
+    
     if valid-object(this-object) and type-of(this-object,System.IDisposable) then 
     do:
       cast(this-object, System.IDisposable):Dispose().
-    end.    
+    end.
+        
     &endif
     
   end destructor.
