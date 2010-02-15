@@ -1,4 +1,6 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
+{paninui/logic/includes/preproc_dotnetclasses.i &class=class}
+
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
@@ -9,10 +11,10 @@ class panaedra.msroot.msdr.logic.c_buf
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_buf.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:12+01:00 $ 
+     Date Checkin: $Date: 2010-02-15 11:07:33+01:00 $ 
+    Date Modified: $Modtime: 2010-02-15 11:04:23+01:00 $ 
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -24,7 +26,7 @@ class panaedra.msroot.msdr.logic.c_buf
   /************************  Source control constructor ************************/
   constructor public c_buf(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -45,8 +47,8 @@ class panaedra.msroot.msdr.logic.c_buf
       hBufferPrivate = hBufferIP#.
     end set.
   
-  /* Unix compatibility isn't complete yet, this is a stub. */  
-  &scop BindingSourceType  &if opsys="unix" &then Progress.Lang.Object &else paninui.view.init.display.c_bindingsource &endif 
+  /* Unix/tty compatibility isn't complete yet, this is a stub. */  
+  &scop BindingSourceType  &if {&paninui_tty} &then Progress.Lang.Object &else paninui.view.init.display.c_bindingsource &endif 
   
   define public property oBindingSource as {&BindingSourceType} no-undo 
     get. 
@@ -82,7 +84,11 @@ class panaedra.msroot.msdr.logic.c_buf
 
   method public void UiRefreshRecord():
     
+    &if not {&paninui_tty} &then
+    
     if valid-object(oBindingSource) then oBindingSource:Refresh().
+    
+    &endif
     
   end method.
 
@@ -176,7 +182,7 @@ class panaedra.msroot.msdr.logic.c_buf
     if valid-object(oBindingSource) then 
     do:
 
-      &if opsys <> "unix" &then
+      &if not {&paninui_tty} &then
       if not hBuffer:available then 
       do:
         /* We have to clear the screen values, and we *need* a
@@ -195,7 +201,7 @@ class panaedra.msroot.msdr.logic.c_buf
     finally:
       
       /* Remove the dummy temp-table record */
-      &if opsys <> "unix" &then
+      &if not {&paninui_tty} &then
       if rBuffTempCreate# <> ? then 
       do:
         hBuffer:find-by-rowid(rBuffTempCreate#, no-lock).
