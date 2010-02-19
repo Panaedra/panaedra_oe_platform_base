@@ -8,10 +8,10 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_persistency_info.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 20:32:58+01:00 $ 
+     Date Checkin: $Date: 2010-02-19 15:12:07+01:00 $ 
+    Date Modified: $Modtime: 2010-02-19 15:04:26+01:00 $ 
 
       Description: Uses the session handle to find persistent buffers, procedures, or objects.
                    Very useful for checking if you didn't forget to clean something up.
@@ -21,20 +21,30 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
   /************************  Source control constructor ************************/
   constructor public sc_persistency_info(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected static temp-table ttPersistentThings no-undo rcode-info
     field cType              as char
     field cName              as char
+    field iVersion           as integer
     field cInstantiatingProc as char
     field hHandle            as handle
-    field cPrivateData       as char
+    field cPrivateData       as character
     index cType_cName cType cName.
   
 
   method public static void ShowAllPersistentThings():
+    
+    define variable hProcDummy# as handle no-undo.
+    
+    ShowAllPersistentThings(hProcDummy#).
+    
+  end method.
+  
+  
+  method public static void ShowAllPersistentThings(hProcIP# as handle):
 
     empty temp-table ttPersistentThings.
     
@@ -47,6 +57,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     FillBuffers().
     FillDatasets().
     FillQueries().
+    FillSourcecontrolRuntimeInfo(hProcIP#).
 
     ShowTempTable().
 
@@ -266,6 +277,105 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     end.
     
   end method. /* FillQueries */
+
+  define protected static temp-table ttSourceControl no-undo
+    field iOrder    as int 
+    field cFileName as char format "x(30)"
+    field cIden     as char format "x(30)"
+    field iVersion  as int   format "->>>,>>>,>>9"
+    index iOrder_cIden iOrder cIden.
+
+  method public static void FillSourcecontrolRuntimeInfo():
+    
+    define variable hProcDummy# as handle no-undo.
+    
+    FillSourcecontrolRuntimeInfo(hProcDummy#).
+    
+  end method.  
+  
+  
+  method public static void FillSourcecontrolRuntimeInfo(hProcOndeIP# as handle):
+
+    define query qDvcs_ for ttSourceControl scrolling.
+
+    /*    define browse bDvcs_                                     */
+    /*      query qDvcs_ no-lock                                   */
+    /*      display                                                */
+    /*      ttSourceControl.cFileName column-label "File"          */
+    /*      ttSourceControl.cIden     column-label "Abstract name" */
+    /*      ttSourceControl.iVersion  column-label "Version"       */
+    /*    with no-row-markers no-column-scrolling separators no-box*/
+    /*    size 76 by 19.                                           */
+
+    define variable iTell#       as integer   no-undo.
+    define variable iOrder#      as integer   no-undo.
+    define variable cEntry#      as character no-undo.
+    define variable bDebugAlert# as logical   no-undo view-as fill-in format "Y/N" label "Debug-alert".
+    define variable hProcAll#    as handle    no-undo.
+    
+    empty temp-table ttSourceControl.
+    
+    if hProcOndeIP# <> ? then 
+    do:
+
+      do iTell# = 1 to num-entries(hProcOndeIP#:internal-entries):
+        cEntry# = entry(iTell#,hProcOndeIP#:internal-entries).
+        if cEntry# begins "dvcs__" then 
+        do:
+          run value(cEntry#) in hProcOndeIP# no-error.
+          create ttSourceControl.
+          ttSourceControl.cFileName = hProcOndeIP#:file-name.
+          ttSourceControl.cIden     = cEntry#.
+          ttSourceControl.iVersion  = int(trim(entry(2,return-value,":")," $")) no-error.
+          release ttSourceControl.
+        end.
+      end.
+
+      if not can-find(first ttSourceControl) then 
+      do:
+        create ttSourceControl.
+        assign 
+          ttSourceControl.cFileName = hProcOndeIP#:file-name
+          ttSourceControl.iVersion  = 0.
+        release ttSourceControl.
+      end.
+    
+    end.
+
+    hProcAll# = session:first-procedure.
+
+    do while valid-handle(hProcAll#):
+      do iTell# = 1 to num-entries(hProcAll#:internal-entries):
+        cEntry# = entry(iTell#,hProcAll#:internal-entries).
+        if cEntry# begins "dvcs__" then 
+        do:
+          iOrder# = iOrder# + 1.
+          run value(cEntry#) in hProcAll# no-error.
+          create ttSourceControl.
+          ttSourceControl.cFileName = "(lib) " + hProcAll#:file-name.
+          ttSourceControl.cIden     = cEntry#.
+          ttSourceControl.iOrder    = iOrder#.
+          ttSourceControl.iVersion  = int(trim(entry(2,return-value,":")," $")) no-error.
+          release ttSourceControl.
+        end.
+      end.
+      hProcAll# = hProcAll#:next-sibling.
+    end.
+    
+    for each ttSourceControl:
+
+      create ttPersistentThings.
+      assign 
+        ttPersistentThings.cType        = "SourceControl"
+        ttPersistentThings.cName        = ttSourceControl.cFileName
+        ttPersistentThings.cPrivateData = substitute("&1 depth=&2",ttSourceControl.cIden,ttSourceControl.iOrder)
+        ttPersistentThings.iVersion     = ttSourceControl.iVersion
+        .
+  
+    end.
+    
+
+  end method. /* FillSourcecontrolRuntimeInfo */  
 
 end class.
 
