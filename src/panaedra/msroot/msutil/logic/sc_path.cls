@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_path.cls $ 
-          Version: $Revision: 14 $ 
+          Version: $Revision: 15 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 20:27:12+01:00 $ 
+     Date Checkin: $Date: 2010-02-19 03:27:14+01:00 $ 
+    Date Modified: $Modtime: 2010-02-19 03:22:25+01:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -21,15 +21,15 @@ class panaedra.msroot.msutil.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 14 $", "{&sourcecontrolversions}").
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 15 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
-  define protected static variable bIniInitialized    as logical                       no-undo.
-  define protected static variable bLocalInitialized  as logical                       no-undo.
-  define protected static variable bTtPathInitialized as logical                       no-undo.
-  define protected static variable bPropathDirty      as logical                       no-undo init true.
-  define protected static variable cPropathFull       as character                     no-undo.
+  define protected static variable bIniInitialized    as logical                                 no-undo.
+  define protected static variable bLocalInitialized  as logical                                 no-undo.
+  define protected static variable bTtPathInitialized as logical                                 no-undo.
+  define protected static variable bPropathDirty      as logical                                 no-undo init true.
+  define protected static variable cPropathFull       as character                               no-undo.
   define protected static variable oPathHelper        as panaedra.msroot.msutil.logic.c_path_helper no-undo.
   
   def protected static temp-table ttPath no-undo rcode-info
@@ -246,11 +246,52 @@ class panaedra.msroot.msutil.logic.sc_path:
     
   end method. /* FillPathProperty */
 
+
+  method public static void CreateDirOrSubdir(cPathIP# as character):
+    
+    /* Create a directory or subdirectory, create the whole path if it doesn't exist */
+    
+    define variable iTell#       as integer   no-undo.
+    define variable iTellBreak#  as integer   no-undo.
+    define variable iNumEntries# as integer   no-undo.
+    define variable cPathNow#    as character no-undo.
+    
+    assign
+      cPathIP#     = replace(cPathIP#, "~\", "/")
+      cPathIP#     = (if substring(cPathIP#,length(cPathIP#)) = "/" then substring(cPathIP#, 1, length(cPathIP#) - 1) else cPathIP#)
+      cPathNow#    = cPathIP#
+      iNumEntries# = num-entries(cPathNow#,"/").
+    
+    /* First check which part of the path already exists */
+    b_checkpathexists:
+    do iTell# = iNumEntries# to 1 by -1:
+      file-information:file-name = cPathNow#.
+      if file-information:full-pathname <> ? then 
+      do:
+        iTellBreak# = iTell#.
+        leave b_checkpathexists.
+      end. 
+      assign
+        entry(iTell#,cPathNow#,"/") = ""
+        cPathNow#                   = right-trim(cPathNow#,"/").
+    end.
+    
+    /* Note: if iTellBreak# = iNumEntries#, then the directory 
+             already existed and this do block isn't entered 
+    */
+    do iTell# = iTellBreak# + 1 to iNumEntries#:
+      cPathNow# = cPathNow# + "/" + entry(iTell#, cPathIP#, "/").
+      os-create-dir value(cPathNow#).
+      if os-error > 0 then undo, throw new Progress.Lang.AppError(substitute("Path '&1' could not be created for requested path '&2'", cPathNow#, cPathIP#),99951994).
+    end.
+        
+  end method. /* CreateDirOrSubdir */
+
   
   method public static void SetPropathDirty ():
     /*------------------------------------------------------------------------------
-      Purpose:     Indien het propath is gewijzigd, moet de cache worden herbouwd.
-                   Roep daarvoor deze procedure aan.
+      Purpose:     If the propath is changed, the cache needs to be reset.
+                   Call this method when that happens.
     ------------------------------------------------------------------------------*/
   
     bPropathDirty = true.
@@ -258,49 +299,50 @@ class panaedra.msroot.msutil.logic.sc_path:
   end method. /* SetPropathDirty */
   
 
-  method public static character Full2PartialPath (nfullpath# as character):
+  method public static character Full2PartialPath (cFullPathIP# as character):
     
     /*------------------------------------------------------------------------------
-      Purpose:  Translate a full path to a file to a partial path with subdirectories
-                in the PROPATH
+      Purpose:  Translate a full file path to a partial path with subdirectories
+                relative to (an entry in) the propath.
+                PL libraries are supported.
     ------------------------------------------------------------------------------*/
 
-    define variable nretu#     as character no-undo.
-    define variable nretutemp# as character no-undo.
-    define variable atell#     as integer   no-undo.
-    define variable nentr#     as character no-undo.
-    define variable lfullpath# as logical   no-undo.
+    define variable cReturn#     as character no-undo.
+    define variable cReturnTemp# as character no-undo.
+    define variable iTell#       as integer   no-undo.
+    define variable cEntry#      as character no-undo.
+    define variable cFullPath#   as logical   no-undo.
     
-    nfullpath# = lc(trim(replace(nfullpath#,"~\","~/"))).
+    cFullPathIP# = lc(trim(replace(cFullPathIP#,"~\","~/"))).
     
     if oPathHelper = ? then oPathHelper = new panaedra.msroot.msutil.logic.c_path_helper().
 
-    /* Is het wel een full path? */
+    /* Is it really a full path? */
     if opsys = "win32" then
-      lfullpath# = (nfullpath# begins "~/~/" or index(nfullpath#,":") > 0).
+      cFullPath# = (cFullPathIP# begins "~/~/" or index(cFullPathIP#,":") > 0).
     else
-      lfullpath# = (nfullpath# begins "~/").
+      cFullPath# = (cFullPathIP# begins "~/").
 
-    if not lfullpath# then 
+    if not cFullPath# then 
     do:
-      if nfullpath# begins ".~/" then
-        nfullpath# = substring(nfullpath#,3).
-      return nfullpath#.
+      if cFullPathIP# begins ".~/" then
+        cFullPathIP# = substring(cFullPathIP#,3).
+      return cFullPathIP#.
     end.
 
     if bPropathDirty then 
     do:
       cPropathFull = "".
 
-      do atell# = 1 to num-entries(propath):
+      do iTell# = 1 to num-entries(propath):
 
-        file-info:file-name = entry(atell#,propath).
+        file-info:file-name = entry(iTell#,propath).
 
-        nentr# = lc(replace(file-info:full-pathname,"~\","~/")).
+        cEntry# = lc(replace(file-info:full-pathname,"~\","~/")).
 
-        if nentr# > "" then 
+        if cEntry# > "" then 
         do:
-          cPropathFull = cPropathFull + "," + nentr#.
+          cPropathFull = cPropathFull + "," + cEntry#.
         end.
 
       end.
@@ -311,39 +353,39 @@ class panaedra.msroot.msutil.logic.sc_path:
 
     end.
 
-    do atell# = 1 to num-entries(cPropathFull):
+    do iTell# = 1 to num-entries(cPropathFull):
 
-      nentr#     = entry(atell#,cPropathFull).
-      nretutemp# = "".
+      cEntry#     = entry(iTell#,cPropathFull).
+      cReturnTemp# = "".
 
-      if nfullpath# begins nentr# then 
+      if cFullPathIP# begins cEntry# then 
       do:
 
-        nretutemp# = substring(nfullpath#,length(nentr#) + 2).
+        cReturnTemp# = substring(cFullPathIP#,length(cEntry#) + 2).
 
-        if nentr# matches "*~~.pl":u then
-          nretutemp# = trim(nretutemp#,"<>":u).
+        if cEntry# matches "*~~.pl":u then
+          cReturnTemp# = trim(cReturnTemp#,"<>":u).
 
-        if nretu# = "" or (length(nretu#) > length(nretutemp#)) then
-          nretu# = nretutemp#.
+        if cReturn# = "" or (length(cReturn#) > length(cReturnTemp#)) then
+          cReturn# = cReturnTemp#.
 
       end.
 
     end.
 
-    if nretu# = "" then 
+    if cReturn# = "" then 
     do:
 
-      if library(nfullpath#) <> ? then 
+      if library(cFullPathIP#) <> ? then 
       do:
-        nretu# = member(nretu#).
-        if nretu# = "" or nretu# = ? 
-          then nretu# = nfullpath#.
+        cReturn# = member(cReturn#).
+        if cReturn# = "" or cReturn# = ? 
+          then cReturn# = cFullPathIP#.
       end.
 
     end.
 
-    return nretu#.
+    return cReturn#.
     
   end method. /* Full2PartialPath */
 
