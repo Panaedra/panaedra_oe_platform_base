@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_osfile.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-08 11:44:24+01:00 $ 
-    Date Modified: $Modtime: 2010-02-08 11:30:36+01:00 $ 
+     Date Checkin: $Date: 2010-02-20 11:51:44+01:00 $ 
+    Date Modified: $Modtime: 2010-02-20 11:42:11+01:00 $ 
 
       Description: Os-file functionality, replaces lib/osfilelib.p eventually.
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   /************************  Source control constructor ************************/
   constructor public sc_osfile(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -136,8 +136,11 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     end.
    
     finally:
-      input stream-handle oStream#:hStream close.
-      delete object oStream#.    
+      if valid-object(oStream#) then 
+      do:
+        input stream-handle oStream#:hStream close.
+        delete object oStream#.    
+      end.
     end finally.
 
   end method. /* GetFileNamesInDirectorySub */
