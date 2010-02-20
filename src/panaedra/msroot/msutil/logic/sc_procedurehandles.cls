@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_procedurehandles.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:12+01:00 $ 
+     Date Checkin: $Date: 2010-02-20 11:51:44+01:00 $ 
+    Date Modified: $Modtime: 2010-02-20 11:24:50+01:00 $ 
 
       Description: Support for procedure handles.
                    In Panaedra we use procedure handles only when technically necessary.
@@ -19,28 +19,50 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
   /************************  Source control constructor ************************/
   constructor public sc_procedurehandles(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected static temp-table ttClaimProcedure no-undo
-    field hCallProc as handle
-    field cCallProc as character
-    field hPersProc as handle
-    field cPersProc as character
-    index hPersProc_hCallProc is primary unique hPersProc hCallProc
-    index hCallProc_hPersProc                   hCallProc hPersProc
+    field hCallProc   as handle
+    field cCallProc   as character
+    field oCallObject as Progress.Lang.Object
+    field cCallObject as character
+    field hPersProc   as handle
+    field cPersProc   as character
+    index hPersProc_hCallProc is primary unique hPersProc   hCallProc
+    index hPersProc_oCallObject                 hPersProc   oCallObject
+    index hCallProc_hPersProc                   hCallProc   hPersProc
+    index oCallObject_hPersProc                 oCallObject hPersProc
     .
 
 
-  method public static void DeleteProcedure(input hSourceProcIP# as handle):
+  /* The method overload below is removed. Use the other overload and supply this-procedure (or this-object when it's implemented) */
+  /* -> method protected static void DeleteProcedure(input hSourceProcIP# as handle):*/
+
+
+  method public static void DeleteProcedure(
+    input oSourceObjectIP# as Progress.Lang.Object, /* Normally: this-object.       */ 
+    input hLibProcIP#    as handle):                /* The library procedure handle */
     
-    DeleteProcedure(hSourceProcIP#, ?).
+    DeleteProcedureImplement(oSourceObjectIP#, ?, hLibProcIP#).
     
-  end method.
+  end method. /* DeleteProcedure : called by object */
+
+
+  method public static void DeleteProcedure(
+    input hSourceProcIP# as handle,  /* Normally: this-procedure.    */ 
+    input hLibProcIP#    as handle): /* The library procedure handle */
+    
+    DeleteProcedureImplement(?, hSourceProcIP#, hLibProcIP#).
+    
+  end method. /* DeleteProcedure : called by procedure */
+    
   
-  
-  method public static void DeleteProcedure(input hSourceProcIP# as handle,input hProcIP# as handle):
+  method protected static void DeleteProcedureImplement(
+    input oSourceObjectIP# as Progress.Lang.Object, /* Normally: this-object.       */
+    input hSourceProcIP# as handle,                 /* Normally: this-procedure.    */
+    input hLibProcIP#    as handle):                /* The library procedure handle */
 
     /* Procedure voor het netjes afsluiten van
        persistent procedures (bv. libraries).
@@ -51,27 +73,37 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
     */ 
 
     define buffer b-ttClaimProcedure for ttClaimProcedure.
-  
-    find first b-ttClaimProcedure where
-      b-ttClaimProcedure.hCallProc = hSourceProcIP# and
-      b-ttClaimProcedure.hPersProc = hProcIP#
-      no-error.
-  
+    
+    if oSourceObjectIP# <> ? then 
+    do:
+      find first b-ttClaimProcedure where
+        b-ttClaimProcedure.oCallObject = oSourceObjectIP# and
+        b-ttClaimProcedure.hPersProc   = hLibProcIP#
+        no-error.
+    end.
+    else 
+    do:
+      find first b-ttClaimProcedure where
+        b-ttClaimProcedure.hCallProc = hSourceProcIP# and
+        b-ttClaimProcedure.hPersProc = hLibProcIP#
+        no-error.
+    end.
+    
     if avail b-ttClaimProcedure then
       delete b-ttClaimProcedure.
   
-    if valid-handle(hProcIP#)
-      and hProcIP#:persistent
+    if valid-handle(hLibProcIP#)
+      and hLibProcIP#:persistent
       and not can-find(first b-ttClaimProcedure
-      where b-ttClaimProcedure.hPersProc = hProcIP#)
+      where b-ttClaimProcedure.hPersProc = hLibProcIP#)
       then 
     do:
-      apply "close" to hProcIP#.
+      apply "close" to hLibProcIP#.
     
-      if valid-handle(hProcIP#)
+      if valid-handle(hLibProcIP#)
         /* geen "close" event aanwezig, danwel procedure
            ruimt zichzelf niet op in het close event */
-        then delete procedure hProcIP#.
+        then delete procedure hLibProcIP#.
     end.  
 
   end method. /* DeleteProcedure */
@@ -89,15 +121,16 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
          Meerdere procedures kunnen een claim uitbrengen,
          en pas na het wegvallen van de laatste claim
          zal de procedure daadwerkelijk gekilled worden.
-         
+           
          Indien ooit een geclaimde procedure toch moet worden 
          gekilled, maak dan een ip "deleteClaimedProcedure"
          aan in deze library, en zorg dat de procedure
          toch weer in de lucht wordt gegooid, met herstel
          van een eventuele context.
-         
+           
       */
-    def buffer b-ttClaimProcedure for ttClaimProcedure.
+    define variable bEclipseFix# as logical no-undo.
+    define buffer b-ttClaimProcedure for ttClaimProcedure.
   
     create b-ttClaimProcedure.
     assign
@@ -106,12 +139,46 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
       b-ttClaimProcedure.hPersProc = cLibIP#
       b-ttClaimProcedure.cPersProc = cLibIP#:file-name.
 
-  end method. /* ClaimProcedure */
+  end method. /* ClaimProcedure : called by procedure */
+
+
+  method public static void ClaimProcedure(input oSourceObjectIP# as Progress.Lang.Object, cLibIP# as handle):
+
+    /* 
+         Na het starten van een persistent procedure
+         via persistentProcedure, is het mogelijk
+         deze te "claimen". Wanneer andere procedures
+         een deleteProcedure runnen, wordt een geclaimde
+         procedure toch niet uit de lucht gegooid, totdat
+         de claimende procedure dit zelf doet.
+         Meerdere procedures kunnen een claim uitbrengen,
+         en pas na het wegvallen van de laatste claim
+         zal de procedure daadwerkelijk gekilled worden.
+           
+         Indien ooit een geclaimde procedure toch moet worden 
+         gekilled, maak dan een ip "deleteClaimedProcedure"
+         aan in deze library, en zorg dat de procedure
+         toch weer in de lucht wordt gegooid, met herstel
+         van een eventuele context.
+           
+      */
+    define variable bEclipseFix# as logical no-undo.
+    define buffer b-ttClaimProcedure for ttClaimProcedure.
+  
+    create b-ttClaimProcedure.
+    assign
+      b-ttClaimProcedure.oCallObject = oSourceObjectIP#
+      b-ttClaimProcedure.cCallObject = string(oSourceObjectIP#) /* tbv debug als de proc al weg is */
+      b-ttClaimProcedure.hPersProc = cLibIP#
+      b-ttClaimProcedure.cPersProc = cLibIP#:file-name.
+
+  end method. /* ClaimProcedure : called by object */
 
 
   method public static void PersistentProcedure(
-    input  cProcIP# as character,
-    output hProcOP# as handle):
+    input  hSourceProcIP# as handle,    /* Normally: this-procedure.                 */ 
+    input  cProcIP#       as character, /* The relative path to the library to start */
+    output hProcOP#       as handle):   /* The library procedure handle is returned. */
 
     /* Procedure voor het netjes opstarten van
        persistent procedures (bv. libraries).
@@ -121,7 +188,23 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
     */ 
     _sys_PersistentProcedureSub(cProcIP#, no, output hProcOP#).
 
-  end method. /* PersistentProcedure */
+  end method. /* PersistentProcedure : called by procedure */
+
+
+  method public static void PersistentProcedure(
+    input  oSourceObjectIP# as Progress.Lang.Object, /* Normally: this-object.                    */ 
+    input  cProcIP#         as character,            /* The relative path to the library to start */
+    output hProcOP#         as handle):              /* The library procedure handle is returned. */
+
+    /* Procedure voor het netjes opstarten van
+       persistent procedures (bv. libraries).
+       Als de procedure binnen de sessie reeds is opgestart, 
+       zal de handle van de draaiende procedure worden 
+       teruggegeven.
+    */ 
+    _sys_PersistentProcedureSub(cProcIP#, no, output hProcOP#).
+
+  end method. /* PersistentProcedure : called by object */
 
 
   method public static void DeleteProcedureByName(input cProcIP# as character):
