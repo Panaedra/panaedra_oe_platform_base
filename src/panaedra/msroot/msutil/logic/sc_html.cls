@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_html:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_html.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:38:06+01:00 $ 
+     Date Checkin: $Date: 2010-02-20 11:51:44+01:00 $ 
+    Date Modified: $Modtime: 2010-02-20 00:35:00+01:00 $ 
 
       Description: Genereren van HTML code, bv voor reporting.
 
@@ -16,25 +16,29 @@ class panaedra.msroot.msutil.logic.sc_html:
   /************************  Source control constructor ************************/
   constructor public sc_html(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
+
 
   method public static logical TempTableToHTML (input hBuffIP# as handle, input cFileTargetIP# as character):
     
     return TempTableToHTML(hBuffIP#, ?, cFileTargetIP#).
     
-  end method.
+  end method. /* TempTableToHTML : simple overload */
+  
 
   method public static logical TempTableToHTML (input hBuffIP# as handle, input hQueryIP# as handle, input cFileTargetIP# as character):
     
-    define variable iField# as integer no-undo.
+    define variable iField#    as integer no-undo.
+    define variable bOwnQuery# as logical no-undo.
     
     /* main */
     do on error undo, throw:
       
       if not valid-handle(hQueryIP#) then 
       do:
+        bOwnQuery# = true.
         create query hQueryIP#.
         hQueryIP#:set-buffers(hBuffIP#).
         hQueryIP#:query-prepare(subst("for each &1 no-lock", hBuffIP#:name)).
@@ -57,11 +61,11 @@ class panaedra.msroot.msutil.logic.sc_html:
       /* Loop door de temp-table */  
       do while not hQueryIP#:query-off-end:
         
-                
         /* Zet dit record om in data voor html */        
         RecordToHTMLLine(hBuffIP#).
         
         hQueryIP#:get-next().
+        
       end.         
       
       /* Sluit html file */  
@@ -69,18 +73,20 @@ class panaedra.msroot.msutil.logic.sc_html:
       
     end.
     
+    return true.
+    
     /* Foutfhandeling */
     catch e as Progress.Lang.Error :
       panaedra.msroot.msutil.logic.sc_showexception:ShowException(e).
-      return false.  		
     end catch.
     
     finally:
       output close.
-      return true.   		
+      if bOwnQuery# and valid-handle(hQueryIP#) then delete object hQueryIP#. 		
     end finally.
     
-  end method. /* TempTableToHTML */
+  end method. /* TempTableToHTML : optional query as input for filtering */
+  
   
   method protected static char FormatBufferValue(hFieldIP# as handle):
     /* Neem het goede format aan voor het inkomende veld */
@@ -187,10 +193,7 @@ class panaedra.msroot.msutil.logic.sc_html:
     put unformatted "</tr>~n".
     
   end method. /* RecordToHTMLline */  
-  
-
 
 end class.
-
 
 /* EOF */ 
