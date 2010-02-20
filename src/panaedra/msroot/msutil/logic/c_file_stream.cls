@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.c_file_stream   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_file_stream.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:14+01:00 $ 
+     Date Checkin: $Date: 2010-02-20 11:51:44+01:00 $ 
+    Date Modified: $Modtime: 2010-02-17 16:26:08+01:00 $ 
 
       Description: Use this for passing stream within classes, create a new instance
                    of this object to access the stream-handle hStream
@@ -17,7 +17,7 @@ class panaedra.msroot.msutil.logic.c_file_stream   :
   /************************  Source control constructor ************************/
   constructor public c_file_stream(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -42,7 +42,7 @@ class panaedra.msroot.msutil.logic.c_file_stream   :
   destructor public c_file_stream():
     
     if valid-handle(hPersistentProc) then 
-      panaedra.msroot.msutil.logic.sc_procedurehandles:DeleteProcedure(hPersistentProc).
+      panaedra.msroot.msutil.logic.sc_procedurehandles:DeleteProcedure(this-object, hPersistentProc).
 
   end destructor.
 
