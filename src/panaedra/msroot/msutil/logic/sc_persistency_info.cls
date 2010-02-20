@@ -3,15 +3,14 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
-
 class panaedra.msroot.msutil.logic.sc_persistency_info   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_persistency_info.cls $ 
-          Version: $Revision: 6 $ 
+          Version: $Revision: 7 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-19 15:12:07+01:00 $ 
-    Date Modified: $Modtime: 2010-02-19 15:04:26+01:00 $ 
+     Date Checkin: $Date: 2010-02-20 12:01:10+01:00 $ 
+    Date Modified: $Modtime: 2010-02-20 11:12:21+01:00 $ 
 
       Description: Uses the session handle to find persistent buffers, procedures, or objects.
                    Very useful for checking if you didn't forget to clean something up.
@@ -21,7 +20,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
   /************************  Source control constructor ************************/
   constructor public sc_persistency_info(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -34,6 +33,14 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     field cPrivateData       as character
     index cType_cName cType cName.
   
+  define protected static temp-table ttSourceControl no-undo
+    field iOrder    as int 
+    field cFileName as char format "x(30)"
+    field cIden     as char format "x(30)"
+    field iVersion  as int   format "->>>,>>>,>>9"
+    field hProc     as handle
+    index iOrder_cIden iOrder cIden.
+
 
   method public static void ShowAllPersistentThings():
     
@@ -41,7 +48,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     
     ShowAllPersistentThings(hProcDummy#).
     
-  end method.
+  end method. /* ShowAllPersistentThings */
   
   
   method public static void ShowAllPersistentThings(hProcIP# as handle):
@@ -79,16 +86,22 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     
     define variable cHtmlFile# as character no-undo.
     
+    &if not {&paninui_tty} &then
+
     cHtmlFile# = sc_path:cTempDir + subst("&1_persistent_things_&2.html", sc_date_timestamp:cTimeStamp_Short_DateAndTime, sc_environment:cSessionGuid).
-    
+      
     if sc_html:TempTableToHTML(buffer ttPersistentThings:handle, cHtmlFile#) then 
-      &if not {&paninui_tty} &then
-      sc_win32:ShellExecute(cHtmlFile#)
-      &else
-    message "Open the following file yourself: " cHtmlFile#
-      view-as alert-box.
-      &endif
-    . /* Show HTML file */
+      sc_win32:ShellExecute(cHtmlFile#). /* Show HTML file */
+
+    &else
+    
+    cHtmlFile# = sc_path:cLogDir + subst("&1_persistent_things_&2.html", sc_date_timestamp:cTimeStamp_Short_DateAndTime, sc_environment:cSessionGuid).
+      
+    if sc_html:TempTableToHTML(buffer ttPersistentThings:handle, cHtmlFile#) then 
+      message "Open the following file yourself: " cHtmlFile#
+        view-as alert-box.
+        
+    &endif
 
   end method. /* ShowPersistentObjects */
 
@@ -130,7 +143,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
         
     end.
 
-  end method. /*     FillGenericInfo */
+  end method. /* FillGenericInfo */
 
 
   method protected static void FillPersistentObjects():
@@ -278,12 +291,6 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     
   end method. /* FillQueries */
 
-  define protected static temp-table ttSourceControl no-undo
-    field iOrder    as int 
-    field cFileName as char format "x(30)"
-    field cIden     as char format "x(30)"
-    field iVersion  as int   format "->>>,>>>,>>9"
-    index iOrder_cIden iOrder cIden.
 
   method public static void FillSourcecontrolRuntimeInfo():
     
@@ -291,21 +298,10 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     
     FillSourcecontrolRuntimeInfo(hProcDummy#).
     
-  end method.  
+  end method. /* FillSourcecontrolRuntimeInfo */ 
   
   
   method public static void FillSourcecontrolRuntimeInfo(hProcOndeIP# as handle):
-
-    define query qDvcs_ for ttSourceControl scrolling.
-
-    /*    define browse bDvcs_                                     */
-    /*      query qDvcs_ no-lock                                   */
-    /*      display                                                */
-    /*      ttSourceControl.cFileName column-label "File"          */
-    /*      ttSourceControl.cIden     column-label "Abstract name" */
-    /*      ttSourceControl.iVersion  column-label "Version"       */
-    /*    with no-row-markers no-column-scrolling separators no-box*/
-    /*    size 76 by 19.                                           */
 
     define variable iTell#       as integer   no-undo.
     define variable iOrder#      as integer   no-undo.
@@ -324,6 +320,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
         do:
           run value(cEntry#) in hProcOndeIP# no-error.
           create ttSourceControl.
+          ttSourceControl.hProc     = hProcOndeIP#.
           ttSourceControl.cFileName = hProcOndeIP#:file-name.
           ttSourceControl.cIden     = cEntry#.
           ttSourceControl.iVersion  = int(trim(entry(2,return-value,":")," $")) no-error.
@@ -335,6 +332,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
       do:
         create ttSourceControl.
         assign 
+          ttSourceControl.hProc     = hProcOndeIP#
           ttSourceControl.cFileName = hProcOndeIP#:file-name
           ttSourceControl.iVersion  = 0.
         release ttSourceControl.
@@ -352,7 +350,8 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
           iOrder# = iOrder# + 1.
           run value(cEntry#) in hProcAll# no-error.
           create ttSourceControl.
-          ttSourceControl.cFileName = "(lib) " + hProcAll#:file-name.
+          ttSourceControl.hProc     = hProcAll#.
+          ttSourceControl.cFileName = hProcAll#:file-name.
           ttSourceControl.cIden     = cEntry#.
           ttSourceControl.iOrder    = iOrder#.
           ttSourceControl.iVersion  = int(trim(entry(2,return-value,":")," $")) no-error.
@@ -367,13 +366,13 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
       create ttPersistentThings.
       assign 
         ttPersistentThings.cType        = "SourceControl"
+        ttPersistentThings.hHandle      = ttSourceControl.hProc
         ttPersistentThings.cName        = ttSourceControl.cFileName
-        ttPersistentThings.cPrivateData = substitute("&1 depth=&2",ttSourceControl.cIden,ttSourceControl.iOrder)
+        ttPersistentThings.cPrivateData = ttSourceControl.cIden
         ttPersistentThings.iVersion     = ttSourceControl.iVersion
         .
   
     end.
-    
 
   end method. /* FillSourcecontrolRuntimeInfo */  
 
