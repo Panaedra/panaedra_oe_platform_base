@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_path.cls $ 
-          Version: $Revision: 15 $ 
+          Version: $Revision: 16 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-19 03:27:14+01:00 $ 
-    Date Modified: $Modtime: 2010-02-19 03:22:25+01:00 $ 
+     Date Checkin: $Date: 2010-03-02 11:26:54+01:00 $ 
+    Date Modified: $Modtime: 2010-03-01 15:39:34+01:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -21,7 +21,7 @@ class panaedra.msroot.msutil.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 15 $", "{&sourcecontrolversions}").
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 16 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -420,6 +420,23 @@ class panaedra.msroot.msutil.logic.sc_path:
     else return substring(cPathIP#,1,iIndex# - 1).
 
   end method. /* SplitGetFileName */  
+
+
+  method public static character SplitGetFileDir(cPathIP# as character):
+    
+    /* Pure string calculation.
+       A string like "one/two/three.i" or "one\two\three.i" returns "one/two/". 
+     */
+     
+    define variable iIndex# as integer no-undo.
+   
+    cPathIP# = replace(cPathIP#,"~\","/").
+   
+    iIndex# = r-index(cPathIP#,"/").
+    if iIndex# = 0 then return cPathIP#.
+    else return substring(cPathIP#,1,iIndex#).
+
+  end method. /* SplitGetFileDir */  
 
 
   method public static character SplitGetFileExt (cPathIP# as character):
