@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_path.cls $ 
-          Version: $Revision: 16 $ 
+          Version: $Revision: 17 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-03-02 11:26:54+01:00 $ 
-    Date Modified: $Modtime: 2010-03-01 15:39:34+01:00 $ 
+     Date Checkin: $Date: 2010-03-02 14:01:22+01:00 $ 
+    Date Modified: $Modtime: 2010-03-02 12:28:35+01:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -21,7 +21,7 @@ class panaedra.msroot.msutil.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 16 $", "{&sourcecontrolversions}").
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 17 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -93,8 +93,11 @@ class panaedra.msroot.msutil.logic.sc_path:
         bLocalInitialized = true.
         cLocalIniDir = cWorkDir + "ini_local/".
         file-info:file-name = cLocalIniDir. 
-        if file-info:full-pathname = ? then os-create-dir value(cLocalIniDir).
-        if os-error > 0 then undo, throw new Progress.Lang.AppError(subst("Directory &1 could not be created.", cLocalIniDir),99950019).
+        if file-info:full-pathname = ? then do:
+          os-create-dir value(cLocalIniDir).
+          if os-error > 0 then undo, throw new Progress.Lang.AppError(subst("Directory &1 could not be created.", cLocalIniDir),99950019).
+          CorrectDirRights(cLocalIniDir).
+        end.
       end.
       return cLocalIniDir.
     end get.
@@ -283,9 +286,26 @@ class panaedra.msroot.msutil.logic.sc_path:
       cPathNow# = cPathNow# + "/" + entry(iTell#, cPathIP#, "/").
       os-create-dir value(cPathNow#).
       if os-error > 0 then undo, throw new Progress.Lang.AppError(substitute("Path '&1' could not be created for requested path '&2'", cPathNow#, cPathIP#),99951994).
+      CorrectDirRights(cPathNow#).
     end.
         
   end method. /* CreateDirOrSubdir */
+
+
+  method public static void CorrectDirRights(cDirIP# as character):
+    
+    /* Adjust directory rights on unix.
+       Group and mask is hardcoded for now.
+     */
+    
+    &if opsys = "unix" &then
+      
+    os-command value(subst("chgrp dlc_user '&1'", cDirIP#)).
+    os-command value(subst("chmod ug+rwx '&1'",   cDirIP#)).
+      
+    &endif
+
+  end method. /* CorrectDirRights */
 
   
   method public static void SetPropathDirty ():
