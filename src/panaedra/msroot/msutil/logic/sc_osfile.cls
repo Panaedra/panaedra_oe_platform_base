@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_osfile.cls $ 
-          Version: $Revision: 3 $ 
+          Version: $Revision: 4 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-20 11:51:44+01:00 $ 
-    Date Modified: $Modtime: 2010-02-20 11:42:11+01:00 $ 
+     Date Checkin: $Date: 2010-03-02 11:26:25+01:00 $ 
+    Date Modified: $Modtime: 2010-03-02 11:25:40+01:00 $ 
 
       Description: Os-file functionality, replaces lib/osfilelib.p eventually.
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   /************************  Source control constructor ************************/
   constructor public sc_osfile(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -121,7 +121,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
       if cLine#[1] = ".." then next.
       if cLine#[3] begins "F" then 
       do:
-        if cMatchesIP# = "" or entry(num-entries(cLine#[2],"/"),cLine#[2],"/") matches cMatchesIP# then 
+        if cMatchesIP# = ? or cMatchesIP# = "" or entry(num-entries(cLine#[2],"/"),cLine#[2],"/") matches cMatchesIP# then 
         do:
           create ttFile.
           assign 
