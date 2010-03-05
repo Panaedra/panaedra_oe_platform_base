@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-14 23:32:42+01:00 $ 
-    Date Modified: $Modtime: 2010-02-14 22:53:02+01:00 $ 
+     Date Checkin: $Date: 2010-03-05 11:10:30+01:00 $ 
+    Date Modified: $Modtime: 2010-03-05 11:10:16+01:00 $ 
 
       Description: This class is called by db delete and write triggers.
                    
@@ -29,7 +29,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -57,7 +57,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     field cTable as char
     field cType  as char init "wri"
     field cLogic as char init "<none>"
-    index cTable_cType_cLogic is primary unique cTable cType cLogic.
+    index cTable_cType_cLogic is primary cTable cType cLogic. /* TODO: deze moet unique zijn, maar geeft rare fouten, de find mislukt.... nader onderzoek svp, nu komen er onnodige records in de tt. */
   
 
   method public static logical OnWriteOrCreate (hBuffIP# as handle):
@@ -487,8 +487,9 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     define variable oTriggerLogic#     as i_triggerlogic     no-undo.
     define variable oTriggerLogicData# as c_triggerlogicdata no-undo.
     
-    define buffer b-ttCacheLogicLocations for ttCacheLogicLocations.
-    define buffer b-ttTableInfo           for ttTableInfo.
+    define buffer b-ttCacheLogicLocations     for ttCacheLogicLocations.
+    define buffer b-cre-ttCacheLogicLocations for ttCacheLogicLocations.
+    define buffer b-ttTableInfo               for ttTableInfo.
     
     if hBuffTableInfoIP# <> ? and hBuffTableInfoIP#:available 
       then 
@@ -505,70 +506,79 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     
     cTable# = b-ttTableInfo.cNonCased.
     
-    find first b-ttCacheLogicLocations 
-      where b-ttCacheLogicLocations.cTable = cTable#
-      and   b-ttCacheLogicLocations.cType  = cTypeIP#
-      no-error.
+    do for b-ttCacheLogicLocations:
+    
+      find first b-ttCacheLogicLocations 
+        where b-ttCacheLogicLocations.cTable = cTable#
+        and   b-ttCacheLogicLocations.cType  = cTypeIP#
+        no-error.
       
-    if not avail b-ttCacheLogicLocations then 
-    do:
-      
-      create b-ttCacheLogicLocations.
-      
-      assign 
-        b-ttCacheLogicLocations.cTable = cTable#
-        b-ttCacheLogicLocations.cType  = cTypeIP#
-        .
-        
-      file-info:file-name = 
-        "panaedra/" 
-        + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
-        + b-ttTableInfo.cNsGroupdir + "/logic_val/c_"
-        + cTypeIP# + "log_" + subst("&1",cTable#) + ".cls".
-      if file-info:full-pathname = ? then 
+      if not avail b-ttCacheLogicLocations then 
       do:
+      
+        do for b-cre-ttCacheLogicLocations transaction:
+          put unformatted now cTable# cTypeIP# skip.
+          create b-cre-ttCacheLogicLocations.
+          assign 
+            b-cre-ttCacheLogicLocations.cTable = cTable#
+            b-cre-ttCacheLogicLocations.cType  = cTypeIP#
+            .
+          find b-ttCacheLogicLocations where rowid(b-ttCacheLogicLocations) = rowid(b-cre-ttCacheLogicLocations).
+          release b-cre-ttCacheLogicLocations.
+          put unformatted now "done jaja" skip.
+        end.
+      
         file-info:file-name = 
           "panaedra/" 
           + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
           + b-ttTableInfo.cNsGroupdir + "/logic_val/c_"
-          + cTypeIP# + "log_" + subst("&1",cTable#) + ".r".
-      end.
-      if file-info:full-pathname <> ? then 
-      do:
-        b-ttCacheLogicLocations.cLogic = replace(file-info:file-name,"~\","/").
-        entry(num-entries(b-ttCacheLogicLocations.cLogic,"."),b-ttCacheLogicLocations.cLogic,".") = "".
-        b-ttCacheLogicLocations.cLogic = right-trim(b-ttCacheLogicLocations.cLogic,". ").
-        b-ttCacheLogicLocations.cLogic = replace(b-ttCacheLogicLocations.cLogic,"/",".").
-      end.
-    end.  
+          + cTypeIP# + "log_" + subst("&1",cTable#) + ".cls".
+        if file-info:full-pathname = ? then 
+        do:
+          file-info:file-name = 
+            "panaedra/" 
+            + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
+            + b-ttTableInfo.cNsGroupdir + "/logic_val/c_"
+            + cTypeIP# + "log_" + subst("&1",cTable#) + ".r".
+        end.
+        if file-info:full-pathname <> ? then 
+        do:
+          b-ttCacheLogicLocations.cLogic = replace(file-info:file-name,"~\","/").
+          entry(num-entries(b-ttCacheLogicLocations.cLogic,"."),b-ttCacheLogicLocations.cLogic,".") = "".
+          b-ttCacheLogicLocations.cLogic = right-trim(b-ttCacheLogicLocations.cLogic,". ").
+          b-ttCacheLogicLocations.cLogic = replace(b-ttCacheLogicLocations.cLogic,"/",".").
+        end.
+      end.  
     
-    if b-ttCacheLogicLocations.cLogic <> "<none>" then 
-    do:
-      if not valid-object(oTriggerLogicData#) then
-        oTriggerLogicData# = new panaedra.msroot.msutil.logic.c_triggerlogicdata().
-      if cTypeIP# = "wri" then 
+      if b-ttCacheLogicLocations.cLogic <> "<none>" then 
       do:
-        oTriggerLogic# = dynamic-new b-ttCacheLogicLocations.cLogic (hBuffIP#, hBuffOldIP#, oTriggerLogicData#, output bValidateOkay#).
-      end.
-      else /* "del" */ 
-      do:
-        oTriggerLogic# = dynamic-new b-ttCacheLogicLocations.cLogic (hBuffIP#, oTriggerLogicData#, output bValidateOkay#).
-      end.
+        if not valid-object(oTriggerLogicData#) then
+          oTriggerLogicData# = new panaedra.msroot.msutil.logic.c_triggerlogicdata().
+        if cTypeIP# = "wri" then 
+        do:
+          oTriggerLogic# = dynamic-new b-ttCacheLogicLocations.cLogic (hBuffIP#, hBuffOldIP#, oTriggerLogicData#, output bValidateOkay#).
+        end.
+        else /* "del" */ 
+        do:
+          oTriggerLogic# = dynamic-new b-ttCacheLogicLocations.cLogic (hBuffIP#, oTriggerLogicData#, output bValidateOkay#).
+        end.
 
-      oTriggerLogicData#:_sys_SetBuffers(hBuffIP#, hBuffOldIP#).
-      delete object oTriggerLogic# no-error. /* Data blijft bewaard. */
-      oTriggerLogic# = ?.
+        oTriggerLogicData#:_sys_SetBuffers(hBuffIP#, hBuffOldIP#).
+        delete object oTriggerLogic# no-error. /* Data blijft bewaard. */
+        oTriggerLogic# = ?.
       
-      if bValidateOkay# then.
-      else 
-      do:
-        /* ToDo: Later kunnen we de data verzamelen, maar voorlopig (proof of concept fase) toon ik only de eerste error want dat is makkelijker. */
-        if oTriggerLogicData#:_sys_HasErrorText() then DisplayTriggerLogicError(hBuffIP#, hBuffOldIP#, oTriggerLogicData#:_sys_FirstErrorText()).
-        else DisplayTriggerLogicError(hBuffIP#, hBuffOldIP#, subst("A data logic error has occurred for '&1'.", hBuffIP#:name)).
-        return false.
+        if bValidateOkay# then.
+        else 
+        do:
+          /* ToDo: Later kunnen we de data verzamelen, maar voorlopig (proof of concept fase) toon ik only de eerste error want dat is makkelijker. */
+          if oTriggerLogicData#:_sys_HasErrorText() then DisplayTriggerLogicError(hBuffIP#, hBuffOldIP#, oTriggerLogicData#:_sys_FirstErrorText()).
+          else DisplayTriggerLogicError(hBuffIP#, hBuffOldIP#, subst("A data logic error has occurred for '&1'.", hBuffIP#:name)).
+          return false.
+        end.
       end.
-    end.
     
+    end. /* strong scoping, strange tt index problem */
+        
     return true.
     
   end method. /* ExecuteLogic */
