@@ -4,95 +4,100 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dataset_xml.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-03-11 13:07:55+01:00 $ 
-    Date Modified: $Modtime: 2010-03-11 13:07:26+01:00 $ 
+     Date Checkin: $Date: 2010-03-11 14:48:48+01:00 $ 
+    Date Modified: $Modtime: 2010-03-11 14:47:19+01:00 $ 
 
-      Description: add_your_comments_here
+      Description: Functionality to read and write between datasets and xml
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
   constructor public sc_dataset_xml(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
-
-
+  
   method public static void WriteXmlAndSplit(
     hDatasetIP#    as handle,
-    hQueryIP#      as handle,
     iBatchSizeIP#  as integer,
     cOutputFileIP# as character):
 
-    define variable hSplitDataset#         as handle  no-undo.
-    define variable iNumItterations#       as integer no-undo.
-    define variable iBuffer#               as integer no-undo.
-    define variable hTempTabelBuffer#      as handle  no-undo extent.
-    define variable hSplitTempTableBuffer# as handle  no-undo extent.
-    define variable iField#                as integer no-undo.
+    define variable hSplitDataset#  as handle  no-undo.
+    define variable iIteration#     as integer no-undo.
+    define variable iSplit#         as integer no-undo.
+    
+    define variable hTopQuery#      as handle  no-undo.
+    define variable hChildQuery#    as handle  no-undo.
+    define variable hSplitRelation# as handle  no-undo.
     
     create dataset hSplitDataset#.
     hSplitDataset#:create-like(hDatasetIP#).
-    hSplitDataset#:namespace-uri = hDatasetIP#:namespace-uri.
     
-    /* Get all relevant buffers */
     assign
-      extent(hTempTabelBuffer#)      = hQueryIP#:num-buffers
-      extent(hSplitTempTableBuffer#) = hQueryIP#:num-buffers.
-    
-    do iBuffer# = 1 to hQueryIP#:num-buffers:
-      assign
-        hTempTabelBuffer#[iBuffer#]      = hQueryIP#:get-buffer-handle(iBuffer#)
-        hSplitTempTableBuffer#[iBuffer#] = hSplitDataset#:get-buffer-handle(hTempTabelBuffer#[iBuffer#]:name). 
-    end.   
-    
-    /*    FOR EACH ttBeetje  WHERE ttBeetje.relatieveldje=ttAatje.relatieveldje*/
-
-    hQueryIP#:get-first().
-    
-/*    hDatasetIP#:get-buffer-handle(1):find-first("").                     */
-/*    message hDatasetIP#:get-buffer-handle(1):buffer-field(2):buffer-value*/
-/*      view-as alert-box.                                                 */
-    
-    message hQueryIP#:get-buffer-handle:buffer-field(1):buffer-value
-      view-as alert-box.
-    
-    
-    do while not hQueryIP#:query-off-end:
+      hSplitDataset#:namespace-uri                = hDatasetIP#:namespace-uri
+      hSplitDataset#:xml-node-name                = hDatasetIP#:xml-node-name
+      hSplitRelation#                             = hSplitDataset#:get-relation(1) /* For now, we only support one data-relation       */
+      hTopQuery#                                  = hDatasetIP#:top-nav-query(1)   /* For now, we only support the first top-nav-query */
+      hChildQuery#                                = hSplitRelation#:query  
+      hSplitRelation#:parent-buffer:xml-node-name = hTopQuery#:get-buffer-handle(1):xml-node-name
+      hSplitRelation#:child-buffer:xml-node-name  = hChildQuery#:get-buffer-handle(1):xml-node-name
+      .
       
-      message 1
-        view-as alert-box.
+    iSplit# = 1.
+    
+    hTopQuery#:query-open().
+    
+    do while hTopQuery#:get-next:
       
+      hChildQuery#:query-open().
       
-      do iBuffer# = 1 to hQueryIP#:num-buffers:
-
-      message 1 skip iBuffer# skip "buffer"
-        view-as alert-box.
-
+      do while hChildQuery#:get-next:
         
-        hSplitTempTableBuffer#[iBuffer#]:buffer-create.
+        if not hSplitRelation#:parent-buffer:available then 
+        do:
+          hSplitRelation#:parent-buffer:buffer-create.
+          hSplitRelation#:parent-buffer:buffer-copy(hTopQuery#:get-buffer-handle(1)).
+        end.
         
-        do iField# = 1 to hSplitTempTableBuffer#[iBuffer#]:num-fields:
-          
-        message 1 skip iField# skip "field"
-          view-as alert-box.
-          
-          
-          hSplitTempTableBuffer#[iBuffer#]:buffer-field(iField#) = hTempTabelBuffer#[iBuffer#]:buffer-field(iField#).
-        end.  
-                
-        hSplitTempTableBuffer#[iBuffer#]:buffer-release.
+        hSplitRelation#:child-buffer:buffer-create.
+        hSplitRelation#:child-buffer:buffer-copy(hChildQuery#:get-buffer-handle(1)).
+        
+        iIteration# = iIteration# + 1.
+        
+        if iIteration# mod iBatchSizeIP# = 0 then 
+        do:
+          WriteXmlAndSplit_Sub(hSplitDataset#, cOutputFileIP#, iSplit#).
+          hSplitDataset#:empty-dataset().
+          iSplit# = iSplit# + 1.
+        end.
+        
+      end. /* while hChildQuery#:get-next */
+      
+    end. /* while hTopQuery#:get-next */
+    
+    /* Write remaining records to file */
+    if iIteration# > 0 and (iIteration# mod iBatchSizeIP#) <> 0 
+      then WriteXmlAndSplit_Sub(hSplitDataset#, cOutputFileIP#, iSplit#).
               
-      end.
-      
-      hQueryIP#:get-next().
-      
-    end.      
-     
-    hSplitDataset#:write-xml(
+    finally:
+      if valid-handle(hSplitDataset#) then delete object hSplitDataset#.
+    end finally.
+              
+  end method. /* WriteXmlAndSplit */
+  
+  
+  method protected static void WriteXmlAndSplit_Sub(hDatasetIP# as handle, cOutputFileIP# as character, iSplitIP# as integer):
+    
+    define variable iIndex# as integer no-undo.
+    
+    assign
+      iIndex#                             = r-index(cOutputFileIP#, ".")
+      substring(cOutputFileIP#,iIndex#,1) = subst("_&1.", trim(string(iSplitIP#, ">>>>99999"))).
+    
+    hDatasetIP#:write-xml(
       "File", /* mode */
       cOutputFileIP#, /* file */
       yes,     /* formatted */
@@ -103,8 +108,8 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml   :
       no,      /* write-before-image */
       no       /* omit initial values */
       ).
-              
-  end method. /* WriteXmlAndSplit */
+      
+  end method. /* WriteXmlAndSplit_Sub */  
 
 end class.
 
