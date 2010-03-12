@@ -4,10 +4,10 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dataset_xml.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-03-11 14:48:48+01:00 $ 
-    Date Modified: $Modtime: 2010-03-11 14:47:19+01:00 $ 
+     Date Checkin: $Date: 2010-03-12 10:37:00+01:00 $ 
+    Date Modified: $Modtime: 2010-03-12 10:35:59+01:00 $ 
 
       Description: Functionality to read and write between datasets and xml
 
@@ -16,7 +16,7 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml   :
   /************************  Source control constructor ************************/
   constructor public sc_dataset_xml(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -39,8 +39,8 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml   :
     assign
       hSplitDataset#:namespace-uri                = hDatasetIP#:namespace-uri
       hSplitDataset#:xml-node-name                = hDatasetIP#:xml-node-name
-      hSplitRelation#                             = hSplitDataset#:get-relation(1) /* For now, we only support one data-relation       */
-      hTopQuery#                                  = hDatasetIP#:top-nav-query(1)   /* For now, we only support the first top-nav-query */
+      hSplitRelation#                             = hDatasetIP#:get-relation(1)  /* For now, we only support one data-relation       */
+      hTopQuery#                                  = hDatasetIP#:top-nav-query(1) /* For now, we only support the first top-nav-query */
       hChildQuery#                                = hSplitRelation#:query  
       hSplitRelation#:parent-buffer:xml-node-name = hTopQuery#:get-buffer-handle(1):xml-node-name
       hSplitRelation#:child-buffer:xml-node-name  = hChildQuery#:get-buffer-handle(1):xml-node-name
