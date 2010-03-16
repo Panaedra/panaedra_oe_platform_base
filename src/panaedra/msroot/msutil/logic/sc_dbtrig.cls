@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 13 $ 
+          Version: $Revision: 14 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-03-05 11:10:30+01:00 $ 
-    Date Modified: $Modtime: 2010-03-05 11:10:16+01:00 $ 
+     Date Checkin: $Date: 2010-03-16 12:11:19+01:00 $ 
+    Date Modified: $Modtime: 2010-03-16 12:10:50+01:00 $ 
 
       Description: This class is called by db delete and write triggers.
                    
@@ -29,7 +29,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -517,7 +517,6 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
       do:
       
         do for b-cre-ttCacheLogicLocations transaction:
-          put unformatted now cTable# cTypeIP# skip.
           create b-cre-ttCacheLogicLocations.
           assign 
             b-cre-ttCacheLogicLocations.cTable = cTable#
@@ -525,7 +524,6 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
             .
           find b-ttCacheLogicLocations where rowid(b-ttCacheLogicLocations) = rowid(b-cre-ttCacheLogicLocations).
           release b-cre-ttCacheLogicLocations.
-          put unformatted now "done jaja" skip.
         end.
       
         file-info:file-name = 
