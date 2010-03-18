@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_osfile.cls $ 
-          Version: $Revision: 4 $ 
+          Version: $Revision: 5 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-03-02 11:26:25+01:00 $ 
-    Date Modified: $Modtime: 2010-03-02 11:25:40+01:00 $ 
+     Date Checkin: $Date: 2010-03-18 08:02:57+01:00 $ 
+    Date Modified: $Modtime: 2010-03-17 15:17:14+01:00 $ 
 
       Description: Os-file functionality, replaces lib/osfilelib.p eventually.
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   /************************  Source control constructor ************************/
   constructor public sc_osfile(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -33,11 +33,19 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     
     empty temp-table ttFile.
     
-    define variable oAppError as Progress.Lang.AppError no-undo.
-      
     GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, bRecursiveIP#).
     
-    for each ttFile:
+    DeleteFiles(table ttFile by-reference).
+            
+  end method. /* DeleteAllFilesInDir */
+
+  
+  method public static void DeleteFiles(
+    table for ttFile /* by-ref */ ):
+    
+    define variable oAppError as Progress.Lang.AppError no-undo.
+    
+    for each ttFile on error undo, throw:
       
       os-delete value(ttFile.cFullPath) no-error.
       
@@ -52,12 +60,49 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     end. /* For each ttFile */  
     
     if oAppError <> ? then 
-    do:
       undo, throw oAppError.
-    end.
             
   end method. /* DeleteAllFilesInDir */
   
+  
+  method public static void DeleteFile(
+    cFileIP# as character):
+
+    define variable oAppError as Progress.Lang.AppError no-undo.
+    
+    os-delete value(cFileIP#) no-error.
+      
+    /* Determine if delete succeeded. Note: os-error isn't reliable here, OE10.2A02 */
+    file-info:file-name = cFileIP#.      
+    if file-info:full-pathname <> ? then 
+    do:
+      oAppError = new Progress.Lang.AppError(subst("&1 couldn't be deleted",cFileIP#),99950938).
+    end.
+    
+    if oAppError <> ? then 
+      undo, throw oAppError.
+
+  end method. /* DeleteFile */
+
+
+  method public static void CreateFile(cFileIP# as character):
+    
+    define variable oAppError as Progress.Lang.AppError no-undo.
+    
+    os-create-dir value(cFileIP#) no-error.
+      
+    /* Determine if delete succeeded. Note: os-error isn't reliable here, OE10.2A02 */
+    file-info:file-name = cFileIP#.      
+    if file-info:full-pathname = ? then 
+    do:
+      oAppError = new Progress.Lang.AppError(subst("&1 couldn't be created",cFileIP#),99950938).
+    end.
+    
+    if oAppError <> ? then 
+      undo, throw oAppError.
+      
+  end method. /* CreateFile */
+
 
   method static public void GetFileNamesInDirectory(    
     input  cDirIP#       as character, 
