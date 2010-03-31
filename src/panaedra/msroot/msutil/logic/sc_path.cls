@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_path.cls $ 
-          Version: $Revision: 18 $ 
+          Version: $Revision: 19 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-03-31 13:16:16+02:00 $ 
-    Date Modified: $Modtime: 2010-03-31 11:52:01+02:00 $ 
+     Date Checkin: $Date: 2010-03-31 15:01:50+02:00 $ 
+    Date Modified: $Modtime: 2010-03-31 15:01:28+02:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -21,7 +21,7 @@ class panaedra.msroot.msutil.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 18 $", "{&sourcecontrolversions}").
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 19 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
