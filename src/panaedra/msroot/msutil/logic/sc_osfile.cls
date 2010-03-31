@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_osfile.cls $ 
-          Version: $Revision: 5 $ 
+          Version: $Revision: 6 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-03-18 08:02:57+01:00 $ 
-    Date Modified: $Modtime: 2010-03-17 15:17:14+01:00 $ 
+     Date Checkin: $Date: 2010-03-31 10:21:37+02:00 $ 
+    Date Modified: $Modtime: 2010-03-31 09:34:29+02:00 $ 
 
       Description: Os-file functionality, replaces lib/osfilelib.p eventually.
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   /************************  Source control constructor ************************/
   constructor public sc_osfile(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 6 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -189,6 +189,23 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     end finally.
 
   end method. /* GetFileNamesInDirectorySub */
+
+
+  method public static void CorrectFileRights(input cFileIP# as character):
+  
+    /* Zet de bestandsrechten goed onder unix, indien bestand als root aangemaakt.
+    */
+  
+    file-info:file-name = cFileIP#.
+   
+    if file-info:full-pathname > "" and opsys = "unix" then 
+    do:
+      os-command silent value("chmod 664 "      + file-info:full-pathname + " 1> /dev/null 2> /dev/null") no-error.
+      os-command silent value("chgrp dlc_user " + file-info:full-pathname + " 1> /dev/null 2> /dev/null") no-error.
+    end.
+
+  end method. /* CorrectFileRights */
+
   
 end.
 
