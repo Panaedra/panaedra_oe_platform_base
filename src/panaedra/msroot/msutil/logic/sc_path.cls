@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_path.cls $ 
-          Version: $Revision: 19 $ 
+          Version: $Revision: 20 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-03-31 15:01:50+02:00 $ 
-    Date Modified: $Modtime: 2010-03-31 15:01:28+02:00 $ 
+     Date Checkin: $Date: 2010-04-07 16:19:24+02:00 $ 
+    Date Modified: $Modtime: 2010-04-07 16:03:20+02:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -21,7 +21,7 @@ class panaedra.msroot.msutil.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 19 $", "{&sourcecontrolversions}").
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 20 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -93,7 +93,8 @@ class panaedra.msroot.msutil.logic.sc_path:
         bLocalInitialized = true.
         cLocalIniDir = cWorkDir + "ini_local/".
         file-info:file-name = cLocalIniDir. 
-        if file-info:full-pathname = ? then do:
+        if file-info:full-pathname = ? then 
+        do:
           os-create-dir value(cLocalIniDir).
           if os-error > 0 then undo, throw new Progress.Lang.AppError(subst("Directory &1 could not be created.", cLocalIniDir),99950019).
           CorrectDirRights(cLocalIniDir).
@@ -155,6 +156,43 @@ class panaedra.msroot.msutil.logic.sc_path:
       return c_SRVR_Dir.
     end get.
     protected set.
+  
+  define protected static variable bNaarWebDirInitialized as logical no-undo.
+  
+  /* Systeem naarweb directory */
+  define public static property cNaarWebDir as character no-undo 
+    get():
+      
+      define variable cIniFile#    as character no-undo.
+      define variable cNaarWebDir# as character no-undo.
+      
+      if not bNaarWebDirInitialized then 
+      do:
+        
+        if not bTtPathInitialized then TtPathInitialize(). /* for cSysteemDir */
+        
+        /* First look for [Env]ironment specific ini file, otherwise just use _CLOUD_.ini */
+        cIniFile# = subst("&1_CLOUD__&2.ini", sc_path:cIniDir, sc_boot:SessionParameter("Env")).
+        if search(cIniFile#) = ? then cIniFile# = subst("&1_CLOUD_.ini", sc_path:cIniDir).
+        
+        /* Read value from ini file */
+        cNaarWebDir# = dynamic-function( "GetIniValue", cIniFile#, "Directories" , "NaarWebDir").
+
+        if cNaarWebDir# = ? or cNaarWebDir# = "" then 
+        do:
+          undo, throw new Progress.Lang.AppError("INI parameters incorrect", 99990584).
+        end.
+        
+        assign
+          bNaarWebDirInitialized = true
+          cNaarWebDir            = cSysteemDir + cNaarWebDir# + "/".
+        
+      end.
+      
+      return cNaarWebDir.
+      
+    end get.       /* cNaarWebDir */
+    protected set. /* cNaarWebDir */
   
   
   /* ---Methods--- */
