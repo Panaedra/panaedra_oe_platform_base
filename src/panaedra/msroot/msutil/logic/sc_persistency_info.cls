@@ -7,10 +7,10 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_persistency_info.cls $ 
-          Version: $Revision: 7 $ 
+          Version: $Revision: 8 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-20 12:01:10+01:00 $ 
-    Date Modified: $Modtime: 2010-02-20 11:12:21+01:00 $ 
+     Date Checkin: $Date: 2010-04-16 15:22:54+02:00 $ 
+    Date Modified: $Modtime: 2010-04-16 14:56:22+02:00 $ 
 
       Description: Uses the session handle to find persistent buffers, procedures, or objects.
                    Very useful for checking if you didn't forget to clean something up.
@@ -20,7 +20,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
   /************************  Source control constructor ************************/
   constructor public sc_persistency_info(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -50,7 +50,17 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     
   end method. /* ShowAllPersistentThings */
   
+
   
+  method public static void ShowAllPersistentThingsOverLimit(iFilesizeIP# as integer):
+    
+    define variable hProcDummy# as handle no-undo.
+    
+    ShowAllPersistentThingsOverLimit(hProcDummy#, iFilesizeIP#).
+    
+  end method. /* ShowAllPersistentThingsOverLimit */
+  
+
   method public static void ShowAllPersistentThings(hProcIP# as handle):
 
     empty temp-table ttPersistentThings.
@@ -66,9 +76,29 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     FillQueries().
     FillSourcecontrolRuntimeInfo(hProcIP#).
 
-    ShowTempTable().
+    ShowTempTable(0).
 
   end method. /* ShowAllPersistentThings */
+
+
+  method public static void ShowAllPersistentThingsOverLimit(hProcIP# as handle, iFilesizeIP# as integer):
+
+    empty temp-table ttPersistentThings.
+    
+    do on error undo, throw:
+      FillPersistentObjects().
+    end.
+    
+    FillGenericInfo().
+    FillPersistentProcedures().
+    FillBuffers().
+    FillDatasets().
+    FillQueries().
+    FillSourcecontrolRuntimeInfo(hProcIP#).
+
+    ShowTempTable(iFilesizeIP#).
+
+  end method. /* ShowAllPersistentThingsOverLimit */
 
 
   method public static void ShowPersistentObjects():
@@ -77,33 +107,55 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
 
     FillPersistentObjects().
 
-    ShowTempTable().
+    ShowTempTable(0).
 
   end method. /* ShowPersistentObjects */
 
 
-  method protected static void ShowTempTable():
+  method protected static void ShowTempTable(iMinFilesizeIP# as integer):
     
     define variable cHtmlFile# as character no-undo.
+    define variable bShow#     as logical   no-undo init true.
     
     &if not {&paninui_tty} &then
 
     cHtmlFile# = sc_path:cTempDir + subst("&1_persistent_things_&2.html", sc_date_timestamp:cTimeStamp_Short_DateAndTime, sc_environment:cSessionGuid).
       
     if sc_html:TempTableToHTML(buffer ttPersistentThings:handle, cHtmlFile#) then 
-      sc_win32:ShellExecute(cHtmlFile#). /* Show HTML file */
+    do:
+      if iMinFilesizeIP# > 0 then 
+      do:
+        file-info:file-name = cHtmlFile#.
+        if file-info:file-size < iMinFilesizeIP# then 
+        do:
+          os-delete value(cHtmlFile#).
+          bShow# = false.
+        end. 
+      end.
+      if bShow# then sc_win32:ShellExecute(cHtmlFile#). /* Show HTML file */
+    end.
 
     &else
     
     cHtmlFile# = sc_path:cLogDir + subst("&1_persistent_things_&2.html", sc_date_timestamp:cTimeStamp_Short_DateAndTime, sc_environment:cSessionGuid).
       
-    if sc_html:TempTableToHTML(buffer ttPersistentThings:handle, cHtmlFile#) then 
-      message "Open the following file yourself: " cHtmlFile#
+    if sc_html:TempTableToHTML(buffer ttPersistentThings:handle, cHtmlFile#) then do: 
+      if iMinFilesizeIP# > 0 then 
+      do:
+        file-info:file-name = cHtmlFile#.
+        if file-info:file-size < iMinFilesizeIP# then 
+        do:
+          os-delete value(cHtmlFile#).
+          bShow# = false.
+        end. 
+      end.
+      if bShow# then message "Open the following file yourself: " cHtmlFile#
         view-as alert-box.
+    end.
         
     &endif
 
-  end method. /* ShowPersistentObjects */
+  end method. /* ShowTempTable */
 
 
   method protected static void FillGenericInfo():
