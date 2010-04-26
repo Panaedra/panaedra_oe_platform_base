@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_date_timestamp.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-05 11:30:28+01:00 $ 
-    Date Modified: $Modtime: 2010-02-05 11:28:54+01:00 $ 
+     Date Checkin: $Date: 2010-04-26 12:03:32+02:00 $ 
+    Date Modified: $Modtime: 2010-04-26 12:01:32+02:00 $ 
 
       Description: Date and time timestamp functionality
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   /************************  Source control constructor ************************/
   constructor public sc_date_timestamp(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -91,6 +91,24 @@ function englishAbvDate returns character(dtWhenIP# as date) in super.
     return integer((year(dtInputIP#) * 10000) + (month(dtInputIP#) * 100) + day(dtInputIP#)).
   
   end method. /* GetDateAsCCYYMMDD: date input */
+
+  method public static integer GetTimeAsHH_FCMPNY_S(
+    
+    /* Returns an integer in HH_FCMPNY_S format; hour, minutes, seconds  */
+  
+    iTimeIP# as integer  ):
+      
+    def var cTime# as char no-undo.
+    cTime# = string(iTimeIP#, "HH:MM:SS").  
+
+    return int(entry(1, cTime#, ":")) * 10000
+           + int(entry(2, cTime#, ":")) * 100
+           + int(entry(3, cTime#, ":")) 
+           .
+  
+  end method. /* GetDateAsCCYYMMDD: date input */
+
+
 
 end class.
 
