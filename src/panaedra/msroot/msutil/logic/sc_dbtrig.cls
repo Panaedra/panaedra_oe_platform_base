@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 14 $ 
+          Version: $Revision: 15 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-03-16 12:11:19+01:00 $ 
-    Date Modified: $Modtime: 2010-03-16 12:10:50+01:00 $ 
+     Date Checkin: $Date: 2010-05-10 12:32:16+02:00 $ 
+    Date Modified: $Modtime: 2010-05-10 12:24:32+02:00 $ 
 
       Description: This class is called by db delete and write triggers.
                    
@@ -29,7 +29,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -57,7 +57,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     field cTable as char
     field cType  as char init "wri"
     field cLogic as char init "<none>"
-    index cTable_cType_cLogic is primary cTable cType cLogic. /* TODO: deze moet unique zijn, maar geeft rare fouten, de find mislukt.... nader onderzoek svp, nu komen er onnodige records in de tt. */
+    index cTable_cType is primary unique cTable cType. 
   
 
   method public static logical OnWriteOrCreate (hBuffIP# as handle):
@@ -477,6 +477,19 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   end method. /* GetTtInfo */  
   
 
+  method public static void DebugShowTtCacheLogic():
+  
+    define buffer b-ttCacheLogicLocations for ttCacheLogicLocations.
+
+    if sc_html:TempTableToHTML(
+      buffer b-ttCacheLogicLocations:handle, 
+      sc_path:cTempDir + "ttCacheLogicLocations.html") 
+      then 
+      sc_win32:ShellExecute(sc_path:cTempDir + "ttCacheLogicLocations.html").
+
+  end method. /* DebugShowTtCacheLogic */  
+  
+
   method protected static logical ExecuteLogic (hBuffTableInfoIP# as handle, hBuffIP# as handle, hBuffOldIP# as handle, cTypeIP# as char):
 
     define variable bValidateOkay#     as logical            no-undo.
@@ -546,7 +559,8 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
           b-ttCacheLogicLocations.cLogic = right-trim(b-ttCacheLogicLocations.cLogic,". ").
           b-ttCacheLogicLocations.cLogic = replace(b-ttCacheLogicLocations.cLogic,"/",".").
         end.
-      end.  
+        
+      end. /* If not avail ; initialization, searching propath only once */  
     
       if b-ttCacheLogicLocations.cLogic <> "<none>" then 
       do:
