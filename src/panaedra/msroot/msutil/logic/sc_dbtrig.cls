@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 16 $ 
+          Version: $Revision: 17 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-05-12 14:24:59+02:00 $ 
-    Date Modified: $Modtime: 2010-05-12 14:21:24+02:00 $ 
+     Date Checkin: $Date: 2010-05-12 15:45:23+02:00 $ 
+    Date Modified: $Modtime: 2010-05-12 14:27:14+02:00 $ 
 
       Description: This class is called by db delete and write triggers.
                    
@@ -29,7 +29,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 16 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 17 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -529,15 +529,6 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     
     do for b-ttCacheLogicLocations:
     
-      def frame f.
-      
-      for each b-ttCacheLogicLocations:
-        disp b-ttCacheLogicLocations with frame f down.
-        down with frame f.
-      end.
-      
-      pause.
-      
       find first 
         b-ttCacheLogicLocations where 
         b-ttCacheLogicLocations.cTableAndType = subst("&1 &2", cTable#, cTypeIP#) 
