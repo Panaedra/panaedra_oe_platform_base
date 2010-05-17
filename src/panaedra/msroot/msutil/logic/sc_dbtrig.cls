@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 18 $ 
+          Version: $Revision: 19 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-05-14 15:46:52+02:00 $ 
-    Date Modified: $Modtime: 2010-05-14 15:37:56+02:00 $ 
+     Date Checkin: $Date: 2010-05-17 13:25:34+02:00 $ 
+    Date Modified: $Modtime: 2010-05-17 12:17:07+02:00 $ 
 
       Description: This class is called by db delete and write triggers.
                    
@@ -29,7 +29,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 18 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 19 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -76,14 +76,14 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
 
     define variable hBuffDummy# as handle no-undo.
 
-    OnWriteOrCreate(hBuffIP#, hBuffDummy#, hBuffDummy#).
+    return OnWriteOrCreate(hBuffIP#, hBuffDummy#, hBuffDummy#).
 
   end method. /* OnWriteOrCreate ; single buffer overload */
 
 
   method public static logical OnWriteOrCreate (hBuffIP# as handle, hBuffOldIP# as handle):
     
-    OnWriteOrCreate(hBuffIP#, hBuffIP#, hBuffOldIP#).
+    return OnWriteOrCreate(hBuffIP#, hBuffIP#, hBuffOldIP#).
     
   end method. /* OnWriteOrCreate ; current + old buffer overload */
 
