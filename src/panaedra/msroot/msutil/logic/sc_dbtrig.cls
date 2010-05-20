@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 19 $ 
+          Version: $Revision: 20 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-05-17 13:25:34+02:00 $ 
-    Date Modified: $Modtime: 2010-05-17 12:17:07+02:00 $ 
+     Date Checkin: $Date: 2010-05-20 15:27:00+02:00 $ 
+    Date Modified: $Modtime: 2010-05-20 14:59:25+02:00 $ 
 
       Description: This class is called by db delete and write triggers.
                    
@@ -29,7 +29,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 19 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 20 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -56,7 +56,6 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   define protected static temp-table ttCacheLogicLocations no-undo
     field cTable        as character
     field cType         as character init "wri"
-    field cTableAndType as character init ? format "x(15)"
     field cLogic        as character init "<none>"
     field bDummy        as logical   init ?
     /* The following index is a workaround on a OE10.2A01 bug.
@@ -64,7 +63,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
        Find statement on index doesn't work in tty (unix or win32). 
        Unique or not doesn't matter. 
     */
-    index cTableAndType is primary unique cTableAndType 
+    index cTable_cType is primary unique cTable cType 
     . 
   
 
@@ -340,7 +339,6 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   
   method public static char GetCased(hBuffIP# as handle):
 
-    
     define variable cCased# as character no-undo.
     
     define buffer b-ttTableInfo for ttTableInfo.
@@ -493,8 +491,10 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   
 
   method public static void DebugShowTtCacheLogic():
-  
-  define buffer b-ttCacheLogicLocations for ttCacheLogicLocations.
+    
+    define variable bEclipseFix# as logical no-undo.
+    
+    define buffer b-ttCacheLogicLocations for ttCacheLogicLocations.
 
     if sc_html:TempTableToHTML(
       buffer b-ttCacheLogicLocations:handle, 
@@ -510,13 +510,12 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     define variable bValidateOkay#     as logical            no-undo.
     define variable iError#            as integer            no-undo.
     define variable cError#            as character          no-undo.
-    define variable cTable#            as character          no-undo case-sensitive.
+    define variable cTable#            as character          no-undo.
     
     define variable oTriggerLogic#     as i_triggerlogic     no-undo.
     define variable oTriggerLogicData# as c_triggerlogicdata no-undo.
     
     define buffer b-ttCacheLogicLocations     for ttCacheLogicLocations.
-    define buffer b-cre-ttCacheLogicLocations for ttCacheLogicLocations.
     define buffer b-ttTableInfo               for ttTableInfo.
     
     if hBuffTableInfoIP# <> ? and hBuffTableInfoIP#:available 
@@ -538,22 +537,17 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     
       find first 
         b-ttCacheLogicLocations where 
-        b-ttCacheLogicLocations.cTableAndType = subst("&1 &2", cTable#, cTypeIP#) 
+        b-ttCacheLogicLocations.cTable = cTable# and
+        b-ttCacheLogicLocations.cType = cTypeIP# 
         no-error.
       
       if not avail b-ttCacheLogicLocations then 
       do:
       
-        do for b-cre-ttCacheLogicLocations transaction:
-          create b-cre-ttCacheLogicLocations.
-          assign 
-            b-cre-ttCacheLogicLocations.cTable        = cTable#
-            b-cre-ttCacheLogicLocations.cType         = cTypeIP#
-            b-cre-ttCacheLogicLocations.cTableAndType = subst("&1 &2", cTable#, cTypeIP#).
-          .
-          find b-ttCacheLogicLocations where rowid(b-ttCacheLogicLocations) = rowid(b-cre-ttCacheLogicLocations).
-          release b-cre-ttCacheLogicLocations.
-        end.
+        create b-ttCacheLogicLocations.
+        assign 
+          b-ttCacheLogicLocations.cTable = cTable#
+          b-ttCacheLogicLocations.cType  = cTypeIP#.
       
         file-info:file-name = 
           "panaedra/" 
@@ -652,7 +646,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
       cFieldValues#[9])).
     
   end method. /* DisplayTriggerLogicError */
-  
+
   
 end class.
 
