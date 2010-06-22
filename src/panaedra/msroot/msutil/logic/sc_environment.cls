@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_environment:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_environment.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-29 00:45:00+01:00 $ 
-    Date Modified: $Modtime: 2010-01-29 00:43:27+01:00 $ 
+     Date Checkin: $Date: 2010-06-22 14:41:37+02:00 $ 
+    Date Modified: $Modtime: 2010-06-22 14:31:32+02:00 $ 
 
       Description: Haal informatie uit de omgeving op zoals het pid (process id).
 
@@ -17,7 +17,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   /************************  Source control constructor ************************/
   constructor public sc_environment(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -183,6 +183,45 @@ class panaedra.msroot.msutil.logic.sc_environment:
     &endif
     
   end method. /* GetProcessID */
+
+
+  method public static integer GetProcessMemSize():
+    
+    &if opsys = "unix" &then
+    
+    define variable iPID# as integer no-undo.
+    define variable cLine# as character no-undo.
+    define variable iReturn# as integer no-undo.
+    
+    iPID# = GetProcessID().
+    
+    input through value(subst("ps vx | grep &1", iPID#)).
+    
+    repeat:
+      import unformatted cLine#.
+      if " " + cLine# matches subst("* &1*", iPID#) then do:
+        cLine# = trim(substring(cLine#,28,-1)).
+        cLine# = replace(cLine#,"~t"," ").
+        do while index(cLine#, "  ") > 0:
+          cLine# = replace(cLine#, "  ", " ").
+        end.
+        /* Give back the RSS size */
+        iReturn# = int(entry(3,cLine#," ")) no-error.
+        leave.
+      end.
+    end.
+    
+    return iReturn#.
+    
+    &else
+    
+    /*** Not supported ***/
+      
+    return 0.  
+    
+    &endif /* unix only */
+    
+  end method. /* GetProcessMemSize */
 
 
   method public static character GetCommandLine():
