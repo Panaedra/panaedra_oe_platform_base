@@ -7,10 +7,10 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_persistency_info.cls $ 
-          Version: $Revision: 8 $ 
+          Version: $Revision: 9 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-04-16 15:22:54+02:00 $ 
-    Date Modified: $Modtime: 2010-04-16 14:56:22+02:00 $ 
+     Date Checkin: $Date: 2010-06-22 14:42:04+02:00 $ 
+    Date Modified: $Modtime: 2010-06-22 14:34:31+02:00 $ 
 
       Description: Uses the session handle to find persistent buffers, procedures, or objects.
                    Very useful for checking if you didn't forget to clean something up.
@@ -20,7 +20,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
   /************************  Source control constructor ************************/
   constructor public sc_persistency_info(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -170,6 +170,20 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
         ttPersistentThings.cType        = "_session"
         ttPersistentThings.cName        = "now"
         ttPersistentThings.cPrivateData = string(now)
+        .
+        
+      create ttPersistentThings.
+      assign 
+        ttPersistentThings.cType        = "_session"
+        ttPersistentThings.cName        = "Process ID"
+        ttPersistentThings.cPrivateData = string(panaedra.msroot.msutil.logic.sc_environment:GetProcessID())
+        .
+        
+      create ttPersistentThings.
+      assign 
+        ttPersistentThings.cType        = "_session"
+        ttPersistentThings.cName        = "Memory Size"
+        ttPersistentThings.cPrivateData = string(panaedra.msroot.msutil.logic.sc_environment:GetProcessMemSize())
         .
         
       create ttPersistentThings.
