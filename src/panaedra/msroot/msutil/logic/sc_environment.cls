@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_environment:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_environment.cls $ 
-          Version: $Revision: 11 $ 
+          Version: $Revision: 12 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-06-22 14:41:37+02:00 $ 
-    Date Modified: $Modtime: 2010-06-22 14:31:32+02:00 $ 
+     Date Checkin: $Date: 2010-07-09 21:11:15+02:00 $ 
+    Date Modified: $Modtime: 2010-07-09 20:45:44+02:00 $ 
 
       Description: Haal informatie uit de omgeving op zoals het pid (process id).
 
@@ -17,7 +17,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   /************************  Source control constructor ************************/
   constructor public sc_environment(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -43,6 +43,20 @@ class panaedra.msroot.msutil.logic.sc_environment:
   define static property cUserID as character no-undo 
     public get.
     public set.
+  
+
+  define static property dtmStarted as datetime-tz no-undo 
+    public get.
+    protected set.
+  
+  
+  constructor static sc_environment():
+    
+    /* This is technically not the exact time the session is started, but the first time sc_environment is used. */
+    
+    dtmStarted = now.
+    
+  end constructor. /* static constructor */
   
 
   method public static void SetImmediateDisplay(
