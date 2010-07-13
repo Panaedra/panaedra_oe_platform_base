@@ -5,10 +5,10 @@ class panaedra.msroot.msutil.logic.sc_environment:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_environment.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-07-09 21:11:15+02:00 $ 
-    Date Modified: $Modtime: 2010-07-09 20:45:44+02:00 $ 
+     Date Checkin: $Date: 2010-07-13 10:55:04+02:00 $ 
+    Date Modified: $Modtime: 2010-07-13 10:51:58+02:00 $ 
 
       Description: Haal informatie uit de omgeving op zoals het pid (process id).
 
@@ -17,7 +17,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   /************************  Source control constructor ************************/
   constructor public sc_environment(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -49,6 +49,16 @@ class panaedra.msroot.msutil.logic.sc_environment:
     public get.
     protected set.
   
+  define static property cEnv as character no-undo 
+    public get:
+      if cEnv = "" then 
+      do:
+        cEnv = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").
+      end.
+      return cEnv.
+    end get.
+    protected set.
+
   
   constructor static sc_environment():
     
@@ -203,9 +213,9 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     &if opsys = "unix" &then
     
-    define variable iPID# as integer no-undo.
-    define variable cLine# as character no-undo.
-    define variable iReturn# as integer no-undo.
+    define variable iPID#    as integer   no-undo.
+    define variable cLine#   as character no-undo.
+    define variable iReturn# as integer   no-undo.
     
     iPID# = GetProcessID().
     
@@ -213,10 +223,12 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     repeat:
       import unformatted cLine#.
-      if " " + cLine# matches subst("* &1*", iPID#) then do:
+      if " " + cLine# matches subst("* &1*", iPID#) then 
+      do:
         cLine# = trim(substring(cLine#,28,-1)).
         cLine# = replace(cLine#,"~t"," ").
-        do while index(cLine#, "  ") > 0:
+        do while 
+          index(cLine#, "  ") > 0:
           cLine# = replace(cLine#, "  ", " ").
         end.
         /* Give back the RSS size */
@@ -233,7 +245,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
       
     return 0.  
     
-    &endif /* unix only */
+  &endif /* unix only */
     
   end method. /* GetProcessMemSize */
 
