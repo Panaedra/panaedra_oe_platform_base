@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_date_timestamp.cls $ 
-          Version: $Revision: 11 $ 
+          Version: $Revision: 12 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-07-15 13:22:30+02:00 $ 
-    Date Modified: $Modtime: 2010-07-15 13:22:07+02:00 $ 
+     Date Checkin: $Date: 2010-07-22 09:41:50+02:00 $ 
+    Date Modified: $Modtime: 2010-07-21 14:25:39+02:00 $ 
 
       Description: Date and time timestamp functionality
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   /************************  Source control constructor ************************/
   constructor public sc_date_timestamp(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -38,7 +38,6 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
       return replace(replace(replace(substring(iso-date(now),1,23),":","_"),".","_"),"-","_").
     end get.
 
-  
 /* TODO: function in class moet weg */
 function englishAbvDate returns character(dtWhenIP# as date) in super.
 
@@ -103,11 +102,26 @@ function englishAbvDate returns character(dtWhenIP# as date) in super.
     cTime# = string(iTimeIP#, "HH:MM:SS").  
 
     return int(entry(1, cTime#, ":")) * 10000
-           + int(entry(2, cTime#, ":")) * 100
-           + int(entry(3, cTime#, ":")) 
-           .
+      + int(entry(2, cTime#, ":")) * 100
+      + int(entry(3, cTime#, ":")) 
+      .
   
   end method. /* GetTimeAsHH_FCMPNY_S: time input */
+
+
+  method public static character GetTimeAsStringHHMM(
+    
+    /* Returns an integer in HH:MM format; hour, minutes */
+  
+    dtmDateIP# as datetime-tz):
+    
+    def var cTime# as character no-undo.
+    
+    cTime# = string(substring(string(dtmDateIP#), 12,5), "99999").  
+    
+    return cTime#.
+  
+  end method. /* GetTimeAsStringHHMM: datetime-tz input */
 
 
   method public static integer GetTimeAsHHMM(
@@ -118,13 +132,37 @@ function englishAbvDate returns character(dtWhenIP# as date) in super.
       
     def var cTime# as char no-undo.
     cTime# = string(iTimeIP#, "HH:MM").  
-
+    
     return int(entry(1, cTime#, ":")) * 100
-           + int(entry(2, cTime#, ":")) * 1
-           .
+      + int(entry(2, cTime#, ":")) * 1
+      .
   
   end method. /* GetTimeAsHHMM: time input */
 
+
+  method public static datetime-tz TimezoneInterval(
+    input iSecondsIP# as integer):
+  
+    return TimezoneInterval(0, iSecondsIP#).
+  
+  end method. /* TimezoneInterval */
+
+  
+  method public static datetime-tz TimezoneInterval(
+    input iMinutesIP# as integer, 
+    input iSecondsIP# as integer):
+  
+    return datetime-tz(1,1,1,0,iMinutesIP#,iSecondsIP#).
+  
+  end method. /* TimezoneInterval */
+
+
+  method public static datetime-tz GetEndOfDay(dtmDay# as datetime-tz):
+
+    return add-interval(add-interval(dtmDay#, 1, "days"), -1, "milliseconds").
+
+  end method. /* GetEndOfDay */
+  
 end class.
 
 /* EOF */ 
