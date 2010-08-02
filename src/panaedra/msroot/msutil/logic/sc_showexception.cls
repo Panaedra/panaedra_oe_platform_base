@@ -1,6 +1,6 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
-&if opsys = "win32" &then
+&if opsys <> "unix" and "{&window-system}" <> "tty" &then
 using System.*.
 using System.Windows.Forms.*.
 &endif
@@ -9,10 +9,10 @@ class panaedra.msroot.msutil.logic.sc_showexception:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_showexception.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:48:08+01:00 $ 
+     Date Checkin: $Date: 2010-08-02 08:43:20+02:00 $ 
+    Date Modified: $Modtime: 2010-07-31 19:27:34+02:00 $ 
 
       Description: Stop alle informatie in .net window en toon hem daarna,
                    indien het fout gaat, geef een normale message.
@@ -22,18 +22,18 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   /************************  Source control constructor ************************/
   constructor public sc_showexception(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
 
-  &if opsys <> "unix" and "&window-system" <> "tty" &then
+  &if opsys <> "unix" and "{&window-system}" <> "tty" &then
   define protected static variable oForm as panaedra.msroot.msutil.view.c_dotnetformshowexception no-undo.
   &endif
   
   method public static void ShowException (input ex as Progress.Lang.Error):
     
-    &if opsys <> "unix" and "&window-system" <> "tty" &then
+    &if opsys <> "unix" and "{&window-system}" <> "tty" &then
     
     if not valid-object(oForm) then 
       oForm = new panaedra.msroot.msutil.view.c_dotnetformshowexception().
@@ -84,7 +84,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   end method. /* ShowException */
 
   
-  &if opsys <> "unix" and "&window-system" <> "tty" &then
+  &if opsys <> "unix" and "{&window-system}" <> "tty" &then
   
   method protected static void ShowFormSafe():
 
