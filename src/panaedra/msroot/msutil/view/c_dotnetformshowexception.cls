@@ -1,6 +1,6 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
-&if opsys = "win32" &then
+&if opsys = "win32" and not "{&window-system}" = "tty" &then
 using System.Windows.Forms.*.
 using Progress.Windows.Form.
 &endif
@@ -9,10 +9,10 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/view/c_dotnetformshowexception.cls $ 
-          Version: $Revision: 13 $ 
+          Version: $Revision: 14 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 20:03:43+01:00 $ 
+     Date Checkin: $Date: 2010-08-02 08:44:02+02:00 $ 
+    Date Modified: $Modtime: 2010-07-31 19:26:31+02:00 $ 
 
       Description: Tonen van een willekeurige progress exception
 
@@ -26,12 +26,12 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
   /************************  Source control constructor ************************/
   constructor public c_dotnetformshowexception(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
 	
-  &if opsys = "win32" &then
+  &if opsys = "win32" and not "{&window-system}" = "tty" &then
   
   define private   variable components   as System.ComponentModel.IContainer no-undo.
   
