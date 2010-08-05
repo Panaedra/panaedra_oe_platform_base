@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_date_timestamp.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-07-22 09:41:50+02:00 $ 
-    Date Modified: $Modtime: 2010-07-21 14:25:39+02:00 $ 
+     Date Checkin: $Date: 2010-08-05 16:03:33+02:00 $ 
+    Date Modified: $Modtime: 2010-08-03 11:01:22+02:00 $ 
 
       Description: Date and time timestamp functionality
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   /************************  Source control constructor ************************/
   constructor public sc_date_timestamp(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -141,20 +141,58 @@ function englishAbvDate returns character(dtWhenIP# as date) in super.
 
 
   method public static datetime-tz TimezoneInterval(
-    input iSecondsIP# as integer):
-  
-    return TimezoneInterval(0, iSecondsIP#).
+    input iMillisecondsIP# as int64):
+      
+    return TimezoneInterval(0,0,iMillisecondsIP#).
   
   end method. /* TimezoneInterval */
 
   
   method public static datetime-tz TimezoneInterval(
-    input iMinutesIP# as integer, 
-    input iSecondsIP# as integer):
+    input iSecondsIP# as integer,
+    input iMilliSecondsIP# as int64
+    ):
   
-    return datetime-tz(1,1,1,0,iMinutesIP#,iSecondsIP#).
+    return TimezoneInterval(0, iSecondsIP#, iMilliSecondsIP#).
   
   end method. /* TimezoneInterval */
+  
+  
+  method public static datetime-tz TimezoneInterval(
+    input iMinutesIP# as integer, 
+    input iSecondsIP# as integer,
+    input iMilliSecondsIP# as int64
+    ):
+    
+    /* Returns a time interval starting count on 1/1/0001 */
+    
+    define variable dInterval#     as date    no-undo init 1/1/0001.
+    define variable iMilliSeconds# as int64   no-undo.
+    define variable iDays#         as integer no-undo.
+    define variable iMsPerDay#     as int64   no-undo.
+    
+    assign     
+      iMilliSeconds# = iMilliSecondsIP#
+      iMsPerDay#     = 24 * 3600 * 1000. 
+
+    if iMinutesIP# <> 0 then iMilliSeconds# = iMilliSeconds# + 60000 * iMinutesIP#.
+    if iSecondsIP# <> 0 then iMilliSeconds# = iMilliSeconds# +  1000 * iSecondsIP#.
+
+    assign     
+      iDays#     = truncate(dec(iMilliSeconds#) / iMsPerDay#, 0)
+      dInterval# = dInterval# + iDays#. 
+  
+    return datetime-tz(dInterval#, iMilliSeconds# mod iMsPerDay#).
+  
+  end method. /* TimezoneInterval */
+
+
+  method public static datetime-tz DateTimeNowMinusDelta(
+    dtmDateIP# as datetime-tz):
+
+    return TimezoneInterval(0, 0, datetime-tz(now) - dtmDateIP# ).
+    
+  end method. /* DateTimeNowMinusDelta */
 
 
   method public static datetime-tz GetEndOfDay(dtmDay# as datetime-tz):
