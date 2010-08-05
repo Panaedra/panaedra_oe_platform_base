@@ -6,10 +6,10 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_asconnect.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:53:29+01:00 $ 
+     Date Checkin: $Date: 2010-08-05 16:08:52+02:00 $ 
+    Date Modified: $Modtime: 2010-08-04 15:25:00+02:00 $ 
 
       Description: Methods aan te roepen vanaf de client om een 
                    appserver connectie te maken.
@@ -19,11 +19,11 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
   /************************  Source control constructor ************************/
   constructor public sc_asconnect(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  define protected static variable bInitialized as logical                      no-undo.
+  define protected static variable bInitialized as logical                              no-undo.
   define protected static variable oSingleton   as panaedra.msroot.msas.logic.sc_asconnect no-undo.
   
   define static property bOffLine as logical no-undo 
@@ -38,7 +38,6 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
     field hAppserver as handle    xml-node-type "hidden"
     index cEnv_cMirror is primary unique cEnv cMirror cSuffix
     .
-  
   
   constructor protected sc_asconnect():
     
@@ -56,9 +55,8 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
   end method. /* Initialize */
 
 
-  method protected static logical ConnectToServer(cMirrorIP# as char /* Leeg = default */ ):
+  method protected static logical ConnectToServer(cEnvIP# as char, cMirrorIP# as char /* Leeg = default */ ):
     
-    define variable cEnv#    as character no-undo.
     define variable cSuffix# as character no-undo.
     
     if not bInitialized then 
@@ -67,11 +65,10 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       Initialize().
     end.
     
-    cEnv#    = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").
     cSuffix# = GetSuffix().
     
     find first ttAsConnect 
-      where ttAsConnect.cEnv    = cEnv#
+      where ttAsConnect.cEnv    = cEnvIP#
       and   ttAsConnect.cMirror = cMirrorIP#
       and   ttAsConnect.cSuffix = cSuffix#
       no-error.
@@ -82,7 +79,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       undo, throw new panaedra.msroot.msutil.logic.c__FCMPNY_exception(
         99909002,
         subst("AppServer configuration (sc_asconnect.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
-        cEnv#,
+        cEnvIP#,
         cMirrorIP#,
         cSuffix#)).
         
@@ -136,12 +133,22 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
 
   method public static handle GetAppServer(input cMirrorIP# as char):
     
+    define variable cEnv# as character no-undo.
+    
+    cEnv# = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").    
+    
+    return GetAppServer(input cEnv#, input cMirrorIP#).
+        
+  end method. /* GetAppServer */
+    
+    
+  method public static handle GetAppServer(input cEnvIP# as char, input cMirrorIP# as char):
+    
     /* This method returns an appserverhandle of the default appserver (cMirrorIP# = empty) or 
        a mirror appserver.
     */
     
     define variable hReturn# as handle    no-undo.
-    define variable cEnv#    as character no-undo.
     define variable cSuffix# as character no-undo.
     
     if not bInitialized then 
@@ -150,10 +157,9 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       Initialize().
     end.
     
-    cEnv#    = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").
     cSuffix# = GetSuffix().
 
-    find ttAsConnect where ttAsConnect.cEnv = cEnv#
+    find ttAsConnect where ttAsConnect.cEnv = cEnvIP#
       and ttAsConnect.cMirror = cMirrorIP#
       and ttAsConnect.cSuffix = cSuffix#
       no-error.
@@ -162,20 +168,20 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       undo, throw new panaedra.msroot.msutil.logic.c__FCMPNY_exception(
         99909002,
         subst("AppServer configuration (sc_asconnect.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
-        cEnv#,
+        cEnvIP#,
         cMirrorIP#,
         cSuffix#)).
 
     if ttAsConnect.hAppserver <> session:handle then 
     do:
       if not valid-handle(ttAsConnect.hAppserver) 
-        then ConnectToServer(cMirrorIP#).
+        then ConnectToServer(cEnvIP#, cMirrorIP#).
       /* Note: Take extra care with :connected() method. 
          Exception is hidden for a loooong time and thrown at close of the session.
          10.2A02 TW
       */
       else if not ttAsConnect.hAppserver:connected() 
-          then ConnectToServer(cMirrorIP#).
+          then ConnectToServer(cEnvIP#, cMirrorIP#).
     end.
       
     hReturn# = ttAsConnect.hAppserver.
