@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_path.cls $ 
-          Version: $Revision: 20 $ 
+          Version: $Revision: 21 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-04-07 16:19:24+02:00 $ 
-    Date Modified: $Modtime: 2010-04-07 16:03:20+02:00 $ 
+     Date Checkin: $Date: 2010-08-09 11:56:10+02:00 $ 
+    Date Modified: $Modtime: 2010-08-08 21:22:21+02:00 $ 
   
       Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
       
@@ -21,7 +21,7 @@ class panaedra.msroot.msutil.logic.sc_path:
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 20 $", "{&sourcecontrolversions}").
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 21 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -491,7 +491,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     cPathIP# = replace(cPathIP#,"~\","/").
    
     iIndex# = r-index(cPathIP#,"/").
-    if iIndex# = 0 then return cPathIP#.
+    if iIndex# = 0 then return "".
     else return substring(cPathIP#,1,iIndex#).
 
   end method. /* SplitGetFileDir */  
