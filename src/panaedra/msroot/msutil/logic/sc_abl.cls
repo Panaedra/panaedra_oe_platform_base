@@ -1,27 +1,75 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
-
 class panaedra.msroot.msutil.logic.sc_abl   : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_abl.cls $ 
-          Version: $Revision: 1 $ 
+          Version: $Revision: 2 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-17 11:04:10+01:00 $ 
-    Date Modified: $Modtime: 2010-02-17 11:01:29+01:00 $ 
+     Date Checkin: $Date: 2010-08-09 12:16:03+02:00 $ 
+    Date Modified: $Modtime: 2010-08-09 12:14:29+02:00 $ 
 
       Description: Very generic functions for ABL behaviour
 
   \*****************************  Include Files ********************************/
+  
+  {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
 
   /************************  Source control constructor ************************/
   constructor public sc_abl(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 1 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define public static variable iMinInt as integer no-undo init -2147483648.
   define public static variable iMaxInt as integer no-undo init 2147483647.
+
+
+  method public static void MicroSleep(input iMillisecondsIP# as integer):
+    
+    &if opsys = "unix" &then
+    
+    /*
+       CPU friendly sleep in milliseconds for inside a do while true loopwith a process events.
+	   
+       In AIX 5.2, reduced CPU load from 47.8% to around 2.7% with a sleep 
+       of 10 ms, to around 0.8% with a sleep of 100 ms.
+       So the perl script gives a bit of overhead (say 2% CPU), but we don't 
+       have an external (shared object or HLC) at the moment.
+       For now - as good as it gets.
+	   
+       TW 20070807
+	    
+    */
+  
+    os-command silent 
+      value("/progress/scripts/usleep.pl "
+      +
+      trim(string(trunc(iMillisecondsIP# / 1000.0, 0),">>9"))
+      + "." + string(iMillisecondsIP# mod 1000,"999")
+      + " 1> /dev/null 2> /dev/null").
+    
+    &else
+
+    /*
+	  
+	   CPU friendly sleep in milliseconds for inside a do while true loop with a process events.
+	   
+	   In WinXPSP2 Intel E6600/4GB, reduced CPU load from 50.0% (dual core!) to 0.00% with a sleep 
+	   of 10 ms, and also 0.00% with a sleep of 1 ms.
+	   
+	   TW 20070807
+	    
+    */
+    
+    sc_win32:MicroSleep(iMillisecondsIP#). /* Also valid in win32 tty, no dotnet is used */
+    
+    &endif
+    
+  end method. /* MicroSleep */  
+
 
 end class.
 
