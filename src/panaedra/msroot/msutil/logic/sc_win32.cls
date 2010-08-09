@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_win32:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_win32.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-05-10 11:20:09+02:00 $ 
-    Date Modified: $Modtime: 2010-05-10 11:15:56+02:00 $ 
+     Date Checkin: $Date: 2010-08-09 12:16:03+02:00 $ 
+    Date Modified: $Modtime: 2010-08-08 21:42:23+02:00 $ 
 
       Description: Algemene Windows API calls
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_win32:
   /************************  Source control constructor ************************/
   constructor public sc_win32(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -55,7 +55,8 @@ class panaedra.msroot.msutil.logic.sc_win32:
       run ShellExecuteA in hExternalProcs# (0, cActionIP#, if cFileFull# > "" then cFileFull# else cFileIP#, "", ".", 0).
     
     end.
-    else do:
+    else 
+    do:
       
       if session:batch-mode then put unformatted now " ShellExecute: " cActionIP# " " cFileIP# skip. 
       
@@ -113,6 +114,17 @@ class panaedra.msroot.msutil.logic.sc_win32:
     return bReturn#.
     
   end method. /* GetCapsLockOn */
+  
+  method public static void MicroSleep(input iMillisecondsIP# as integer):
+
+    define variable oDummy# as Progress.Lang.Object no-undo.
+
+    if not valid-handle(hExternalProcs#) then
+      sc_procedurehandles:PersistentProcedure(oDummy#, "panaedra/msroot/msutil/logic/sc_win32_sub.p", output hExternalProcs#). 
+
+    run Sleep in hExternalProcs#(iMillisecondsIP#).
+
+  end method. /* MicroSleep */  
 
 
 end class.
