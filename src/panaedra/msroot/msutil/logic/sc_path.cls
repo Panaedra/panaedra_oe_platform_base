@@ -6,22 +6,23 @@ class panaedra.msroot.msutil.logic.sc_path:
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_path.cls $ 
-          Version: $Revision: 21 $ 
+          Version: $Revision: 22 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-08-09 11:56:10+02:00 $ 
-    Date Modified: $Modtime: 2010-08-08 21:22:21+02:00 $ 
+     Date Checkin: $Date: 2010-08-10 12:23:28+02:00 $ 
+    Date Modified: $Modtime: 2010-08-10 12:20:49+02:00 $ 
   
-      Description: Method om o.a. cIniDir en cSystemDir voor huidige sessie op te vragen.
+      Description: Methods and properties voor common os paths and directories like
+                   cIniDir en cSystemDir.
       
-                   Gebruikt voor cIniDir hard coded paths omdat anders kip-ei problemen
-                   ontstaan.
+                   For path cIniDir hard coded paths are used, to avoid chicken/egg
+                   problems.
                    
   \*****************************  Include Files ********************************/
   
   /************************  Source control constructor ************************/
   constructor public sc_path(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 21 $", "{&sourcecontrolversions}").
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 22 $", "{&sourcecontrolversions}").
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/  
   
@@ -34,8 +35,8 @@ class panaedra.msroot.msutil.logic.sc_path:
   
   def protected static temp-table ttPath no-undo rcode-info
     field cEnv      as char xml-node-type "attribute"
-    field cHostname as char xml-node-type "attribute" /* We zoeken eerst naar specifieke hostname, daarna naar blanco hostname */
-    field cToken    as char xml-node-type "attribute" /* Alle pad identifiers behalve cIniDir, anders kip-ei probleem */
+    field cHostname as char xml-node-type "attribute" /* First look for specific hostname, then default for OS, then default */
+    field cToken    as char xml-node-type "attribute" /* Everything except for cIniDir, you have to start somewhere */
     field cPath     as char xml-node-type "attribute"
     index cEnv_cHostname_cToken is primary unique cEnv cHostname cToken
     .
@@ -105,7 +106,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     protected set.
   
   
-  /* Systeem directory */
+  /* "Systeem" directory */
   define public static property cSysteemDir as character no-undo 
     get():
       if not bTtPathInitialized then 
@@ -127,7 +128,7 @@ class panaedra.msroot.msutil.logic.sc_path:
   define public static property cLogDirDbg as character no-undo 
     get():
       if not bTtPathInitialized then TtPathInitialize().
-      cLogDir     = FillPathProperty("cLogDir").
+      cLogDir     = FillPathProperty(sc_environment:cEnv, "cLogDir").
       return cLogDir.
     end get.
     protected set.
@@ -196,6 +197,8 @@ class panaedra.msroot.msutil.logic.sc_path:
   
   
   /* ---Methods--- */
+  
+  
   method protected static void IniInitialize():
     
     if not bIniInitialized then 
@@ -227,11 +230,11 @@ class panaedra.msroot.msutil.logic.sc_path:
     do:
       bTtPathInitialized = yes.
       temp-table ttPath:read-xml("file", cIniDir + "sc_path.config", "empty", ?, false). /* Note: the getter of cIniDir initializes cIniDir automatically */
-      cSysteemDir = FillPathProperty("cSysteemDir").
-      cLogDir     = FillPathProperty("cLogDir").
-      cNoSweatDir = FillPathProperty("cNoSweatDir").
-      c_SRVR_Dir  = FillPathProperty("c_SRVR_Dir").
-      c_SRVR_Dir = FillPathProperty("c_SRVR_Dir").
+      cSysteemDir = FillPathProperty(sc_environment:cEnv, "cSysteemDir").
+      cLogDir     = FillPathProperty(sc_environment:cEnv, "cLogDir").
+      cNoSweatDir = FillPathProperty(sc_environment:cEnv, "cNoSweatDir").
+      c_SRVR_Dir  = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
+      c_SRVR_Dir = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
     end.
     
   end method. /* TtPathInitialize */
@@ -239,46 +242,60 @@ class panaedra.msroot.msutil.logic.sc_path:
   
   method public static character GetDir(cTokenIP# as character):
     
-    /* Te gebruiken om paden uit de config file op te vragen,
-       waar geen property voor is gedefinieerd.
+    /* Use to get your own paths from the config file,
+       for items that have no dedicated property.
      */
     define variable cReturn# as character no-undo.
     
     if not bTtPathInitialized then TtPathInitialize(). 
 
-    cReturn# = FillPathProperty(cTokenIP#).
+    cReturn# = FillPathProperty(sc_environment:cEnv, cTokenIP#).
     
     return cReturn#.
     
   end method. /* GetDir */
   
   
-  method protected static character FillPathProperty(cTokenIP# as character):
+  method public static character GetDirOfOtherEnv(cEnvIP# as character, cTokenIP# as character):
+    
+    /* Use to get paths from the config file,
+       for any environment.
+     */
+    define variable cReturn# as character no-undo.
+    
+    if not bTtPathInitialized then TtPathInitialize(). 
 
-    define variable cEnv#          as character no-undo.
+    cReturn# = FillPathProperty(cEnvIP#, cTokenIP#).
+    
+    return cReturn#.
+    
+  end method. /* GetDir */
+  
+  
+  method protected static character FillPathProperty(cEnvIP# as character, cTokenIP# as character):
+
     define variable cHostName#     as character no-undo.
     define variable cDefaultOpsys# as character no-undo.
     define variable iEclipseFix#   as integer   no-undo.
     define buffer b-ttPath for ttPath.
     
-    cEnv#          = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").
     cHostName#     = panaedra.msroot.msutil.logic.sc_environment:GetHostName().
     cDefaultOpsys# = subst("default_&1",opsys).
     
     find first b-ttPath 
-      where b-ttPath.cEnv      = cEnv# 
+      where b-ttPath.cEnv      = cEnvIP# 
       and   b-ttPath.cToken    = cTokenIP#
       and   b-ttPath.cHostname = cHostName#
       no-error.
        
     if not avail b-ttPath then find first b-ttPath 
-        where b-ttPath.cEnv      = cEnv# 
+        where b-ttPath.cEnv      = cEnvIP# 
         and   b-ttPath.cToken    = cTokenIP#
         and   b-ttPath.cHostname = cDefaultOpsys#
         no-error.
     
     if not avail b-ttPath then find first b-ttPath 
-        where b-ttPath.cEnv      = cEnv# 
+        where b-ttPath.cEnv      = cEnvIP# 
         and   b-ttPath.cToken    = cTokenIP#
         and   b-ttPath.cHostname = "default"
         no-error.
