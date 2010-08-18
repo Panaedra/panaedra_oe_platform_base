@@ -6,10 +6,10 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_asconnect.cls $ 
-          Version: $Revision: 12 $ 
+          Version: $Revision: 13 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-08-10 09:53:46+02:00 $ 
-    Date Modified: $Modtime: 2010-08-09 08:48:42+02:00 $ 
+     Date Checkin: $Date: 2010-08-18 11:19:02+02:00 $ 
+    Date Modified: $Modtime: 2010-08-18 11:04:46+02:00 $ 
 
       Description: Methods aan te roepen vanaf de client om een 
                    appserver connectie te maken.
@@ -19,7 +19,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
   /************************  Source control constructor ************************/
   constructor public sc_asconnect(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -192,7 +192,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
   end method. /* _sys_GetAppServer */
   
   
-  method protected static char GetSuffix ():
+  method public static char GetSuffix ():
     
     define variable cSuffix# as character no-undo.
     define variable cReturn# as character no-undo.
