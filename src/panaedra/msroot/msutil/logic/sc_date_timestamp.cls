@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_date_timestamp.cls $ 
-          Version: $Revision: 13 $ 
+          Version: $Revision: 14 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-08-05 16:03:33+02:00 $ 
-    Date Modified: $Modtime: 2010-08-03 11:01:22+02:00 $ 
+     Date Checkin: $Date: 2010-08-22 16:56:23+02:00 $ 
+    Date Modified: $Modtime: 2010-08-22 16:53:56+02:00 $ 
 
       Description: Date and time timestamp functionality
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   /************************  Source control constructor ************************/
   constructor public sc_date_timestamp(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -37,6 +37,12 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   define public static property cTimeStamp_Readable_DateAndTime as character no-undo get:
       return replace(replace(replace(substring(iso-date(now),1,23),":","_"),".","_"),"-","_").
     end get.
+    
+  
+  define public static variable iMsInDay    as int64 no-undo init 86400000.  
+  define public static variable iMsInHour   as int64 no-undo init 3600000.  
+  define public static variable iMsInMinute as int64 no-undo init 60000.  
+    
 
 /* TODO: function in class moet weg */
 function englishAbvDate returns character(dtWhenIP# as date) in super.
