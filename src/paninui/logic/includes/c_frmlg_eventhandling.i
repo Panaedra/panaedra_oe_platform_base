@@ -1,10 +1,11 @@
+&if not (opsys = "unix" or "{&window-system}" = "tty") &then
 &if no &then
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: /ont/src/paninui/logic/includes/c_frmlg_eventhandling.i $ 
-        Version: $Revision: 6 $ 
+        Version: $Revision: 7 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-11-02 15:29:38+01:00 $ 
-  Date Modified: $Modtime: 2009-11-02 13:02:52+01:00 $ 
+   Date Checkin: $Date: 2010-08-22 15:30:38+02:00 $ 
+  Date Modified: $Modtime: 2010-08-22 04:25:04+02:00 $ 
 
     Description: JoinUi uilogic class preprocessors.
 
@@ -28,7 +29,7 @@
 
 \**************************** End of Dvcs_ Header ****************************/
 &endif &glob ~
-    sourcecontrolversions {&sourcecontrolversions} | paninui_logic_includes_c_frmlg_eventhandling_i $Revision: 6 $
+    sourcecontrolversions {&sourcecontrolversions} | paninui_logic_includes_c_frmlg_eventhandling_i $Revision: 7 $
 &if no &then 
 /*$NoKeywords:  $*/ 
 &endif &glob JoinUiNull ~
@@ -50,12 +51,19 @@
         iDelegateID#, ~{~&JoinUiLogicObject}, "~{~&JoinUiWidgetName}", "~{~&JoinUiEvent}"  ~{&JoinUiEventOptions}). ~~n~
 &glob JoinUiEventCodeFooter 
 using Progress.Lang.*.
-&if opsys <> "unix" &then using paninui.view.init.delegates.* from assembly. 
+using paninui.view.init.delegates.* from assembly. 
 using paninui.view.enums.* from assembly. 
 using paninui.view.eventargs.* from assembly. 
+using paninui.view.use.delegates.* from assembly. 
 using paninui.view.use.*.
 using paninui.view.use.display.*.
-using paninui.view.use.delegates.* from assembly. 
 using paninui.view.use.events.*. 
-using paninui.view.interfaces.*. &endif
+using paninui.view.interfaces.*.
+&else
+using paninui.view.use.*.
+using paninui.view.use.display.*.
+using paninui.view.use.events.*. 
+using paninui.view.interfaces.*.
+using paninui.view.interfaces_tty.*.
+&endif
 /* EOF : paninui/logic/includes/c_frmlg_eventhandling.i */
