@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_osfile.cls $ 
-          Version: $Revision: 9 $ 
+          Version: $Revision: 10 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-07-05 14:43:41+02:00 $ 
-    Date Modified: $Modtime: 2010-06-30 16:59:10+02:00 $ 
+     Date Checkin: $Date: 2010-08-22 16:56:23+02:00 $ 
+    Date Modified: $Modtime: 2010-08-22 16:43:04+02:00 $ 
 
       Description: Os-file functionality, replaces lib/osfilelib.p eventually.
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   /************************  Source control constructor ************************/
   constructor public sc_osfile(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -30,10 +30,12 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     cDirIP#       as character, 
     cMatchesIP#   as character,
     bRecursiveIP# as logical):
+      
+    define variable dtmDummy# as datetime-tz no-undo.
     
     empty temp-table ttFile.
     
-    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, bRecursiveIP#).
+    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmDummy#, dtmDummy#, bRecursiveIP#).
     
     DeleteFiles(table ttFile by-reference).
             
@@ -141,33 +143,64 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 	  
     */
     
+    define variable dtmDummy# as datetime-tz no-undo.
+    
     empty temp-table ttFile.
     
-    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, bRecursiveIP#).
+    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmDummy#, dtmDummy#, bRecursiveIP#).
     
   end method. /* GetFileNamesInDirectory */
 
 
+  method static public void GetFileNamesInDirectory(    
+    input  cDirIP#       as character, 
+    input  cMatchesIP#   as character,
+    input  dtmFromIP#    as datetime-tz,
+    input  dtmToIP#      as datetime-tz,
+    input  bRecursiveIP# as logical,
+    output table for ttFile
+    ):
+    
+    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmFromIP#, dtmToIP#, bRecursiveIP#).
+    
+  end method. /* Overload: filter on mod-date range */
+
   method protected static void GetFileNamesInDirectorySub(
     input cDirIP#       as character, 
     input cMatchesIP#   as character,
+    input dtmFromIP#    as datetime-tz,
+    input dtmToIP#      as datetime-tz,
     input bRecursiveIP# as logical
     ):
 
     define variable cLine#   as char     no-undo extent 3.
     define variable oStream# as c_file_stream no-undo.
+    define variable dtmFile# as datetime-tz   no-undo.
     
     oStream# = new c_file_stream().
     
     input stream-handle oStream#:hStream from os-dir(cDirIP#).
-  
+    
+    b_repeat_osdir:
     repeat:
       import stream-handle oStream#:hStream cLine#.
       cLine#[2] = replace(cLine#[2],"~\","/").
-      if cLine#[1] = "."  then next.
-      if cLine#[1] = ".." then next.
+      if cLine#[1] = "."  then next b_repeat_osdir.
+      if cLine#[1] = ".." then next b_repeat_osdir.
       if cLine#[3] begins "F" then 
       do:
+        if dtmFromIP# <> ? or dtmToIP# <> ? then 
+        do:
+          if cLine#[2] matches "*_tty*" then. /* message 1 cLine#[2]
+              view-as alert-box.*/
+          file-info:file-name = cLine#[2].
+/*          if cLine#[2] matches "*_tty*" then message 2 file-info:file-mod-date*/
+/*              view-as alert-box.                                              */
+          if file-info:file-mod-date = ? then next b_repeat_osdir.
+          dtmFile# = datetime-tz(substitute("&1 &2", string(file-info:file-mod-date,"99-99-9999"), string(file-info:file-mod-time,"HH:MM:SS"))).
+          if dtmFromIP# <> ? and dtmFile# < dtmFromIP# then next b_repeat_osdir.
+          if dtmToIP#   <> ? and dtmFile# > dtmToIP#   then next b_repeat_osdir.
+        end.
         if cMatchesIP# = ? or cMatchesIP# = "" or entry(num-entries(cLine#[2],"/"),cLine#[2],"/") matches cMatchesIP# then 
         do:
           create ttFile.
@@ -178,7 +211,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
       else if cLine#[3] begins "D" then 
         do:
           if bRecursiveIP# then 
-            GetFileNamesInDirectorySub(cLine#[2], cMatchesIP#, bRecursiveIP#).
+            GetFileNamesInDirectorySub(cLine#[2], cMatchesIP#, dtmFromIP#, dtmToIP#, bRecursiveIP#).
         end.
     end.
    
