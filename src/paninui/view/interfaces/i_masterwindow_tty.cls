@@ -5,10 +5,10 @@ interface paninui.view.interfaces.i_masterwindow_tty:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/interfaces/i_masterwindow_tty.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:14+01:00 $ 
+     Date Checkin: $Date: 2010-08-22 15:30:38+02:00 $ 
+    Date Modified: $Modtime: 2010-08-22 15:13:04+02:00 $ 
 
       Description: paninui.dll i_masterwindow stub for tty/unix
 
@@ -21,10 +21,11 @@ interface paninui.view.interfaces.i_masterwindow_tty:
   define property oUiFrameMenuStrip as i_uiframe_tty no-undo get.
   define property oUiFrameStatusBar as i_uiframe_tty no-undo get.
   define property oUiFrameWorkSpace as i_uiframe_tty no-undo get.
+  define property bIsShown          as logical       no-undo get.
   
   method public void AddFrameToMainContainer (oFrmlgIP# as i_uiframe_tty).
   method public void SetStatusBarInfo (cLocationIP# as character, cMessageIP# as character).
-  
+
 end interface.
 
 /* EOF */ 
