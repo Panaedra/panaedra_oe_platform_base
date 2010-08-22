@@ -6,10 +6,10 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_osfile.cls $ 
-          Version: $Revision: 10 $ 
+          Version: $Revision: 11 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-08-22 16:56:23+02:00 $ 
-    Date Modified: $Modtime: 2010-08-22 16:43:04+02:00 $ 
+     Date Checkin: $Date: 2010-08-22 16:58:32+02:00 $ 
+    Date Modified: $Modtime: 2010-08-22 16:58:11+02:00 $ 
 
       Description: Os-file functionality, replaces lib/osfilelib.p eventually.
 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   /************************  Source control constructor ************************/
   constructor public sc_osfile(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -191,11 +191,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
       do:
         if dtmFromIP# <> ? or dtmToIP# <> ? then 
         do:
-          if cLine#[2] matches "*_tty*" then. /* message 1 cLine#[2]
-              view-as alert-box.*/
           file-info:file-name = cLine#[2].
-/*          if cLine#[2] matches "*_tty*" then message 2 file-info:file-mod-date*/
-/*              view-as alert-box.                                              */
           if file-info:file-mod-date = ? then next b_repeat_osdir.
           dtmFile# = datetime-tz(substitute("&1 &2", string(file-info:file-mod-date,"99-99-9999"), string(file-info:file-mod-time,"HH:MM:SS"))).
           if dtmFromIP# <> ? and dtmFile# < dtmFromIP# then next b_repeat_osdir.
