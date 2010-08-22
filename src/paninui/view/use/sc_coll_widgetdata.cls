@@ -16,22 +16,22 @@ class paninui.view.use.sc_coll_widgetdata
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 28 $ 
+          Version: $Revision: 29 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-05 13:57:09+01:00 $ 
-    Date Modified: $Modtime: 2010-02-04 14:00:54+01:00 $ 
+     Date Checkin: $Date: 2010-08-22 15:30:38+02:00 $ 
+    Date Modified: $Modtime: 2010-08-22 02:29:45+02:00 $ 
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
       
   \*****************************  Include Files ********************************/
-
+  {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
   {paninui/view/use/sc_coll_widgetdata_tt.i &class=true &protected=protected &static=static}
 
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 28 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 29 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
@@ -54,7 +54,7 @@ class paninui.view.use.sc_coll_widgetdata
   end constructor.
   
     
-  method public static int64 FrameAdd (oPackIP# as i_pack, oUiFrameIP# as i_uiframe):
+  method public static int64 FrameAdd (oPackIP# as i_pack, oUiFrameIP# as {&i_uiframe}):
     
     /* TODO: perhaps use the overload with LinkFrameName (which was implemented when subframes were implemented) */
     FrameAdd (oPackIP#, oUiFrameIP#, "Initial").
@@ -62,7 +62,7 @@ class paninui.view.use.sc_coll_widgetdata
   end method.
   
 
-  method public static int64 FrameAdd (oPackIP# as i_pack, oUiFrameIP# as i_uiframe, cLinkFrameNameIP# as character):
+  method public static int64 FrameAdd (oPackIP# as i_pack, oUiFrameIP# as {&i_uiframe}, cLinkFrameNameIP# as character):
 
     define variable bEclipseFix# as logical no-undo.  
     def buffer ttUIFrame for ttUIFrame.
@@ -103,10 +103,10 @@ class paninui.view.use.sc_coll_widgetdata
       
       if avail ttUIFrame then 
       do:
-        
+        &if not {&paninui_tty} &then
         if valid-object(ttUIFrame.oFrame) and type-of(ttUIFrame.oFrame, System.Windows.Forms.Control) 
           then cast(ttUIFrame.oFrame, System.Windows.Forms.Control):Visible = false.
-        
+        &endif
       end.
       
     end.
@@ -596,11 +596,11 @@ class paninui.view.use.sc_coll_widgetdata
   end method. /* GetWidgetByHandle */
 
   
-  method public static i_uiframe GetFrameByLinkName(cLinkNameIP# as character):
+  method public static {&i_uiframe} GetFrameByLinkName(cLinkNameIP# as character):
     
     /* Return frame object found by the linkname */
     
-    define variable oUiFrame# as i_uiframe no-undo.
+    define variable oUiFrame# as {&i_uiframe} no-undo.
     define buffer b-ttUIFrame for ttUIFrame.
     
     find first b-ttUIFrame where b-ttUIFrame.cLinkFrameName = cLinkNameIP# no-error.
@@ -609,7 +609,7 @@ class paninui.view.use.sc_coll_widgetdata
       return ?.
     else
     do:
-      oUiFrame# = cast(b-ttUIFrame.oFrame, i_uiframe).
+      oUiFrame# = cast(b-ttUIFrame.oFrame, {&i_uiframe}).
       return oUiFrame#.   
     end.
       
