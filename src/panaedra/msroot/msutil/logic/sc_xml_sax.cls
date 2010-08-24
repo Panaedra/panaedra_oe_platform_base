@@ -7,10 +7,10 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_xml_sax.cls $ 
-          Version: $Revision: 2 $ 
+          Version: $Revision: 3 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-08-24 12:05:44+02:00 $ 
-    Date Modified: $Modtime: 2010-08-24 12:04:34+02:00 $ 
+     Date Checkin: $Date: 2010-08-24 14:17:11+02:00 $ 
+    Date Modified: $Modtime: 2010-08-24 12:11:00+02:00 $ 
 
       Description: XML SAX helper methods
 
@@ -19,7 +19,7 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
   /************************  Source control constructor ************************/
   constructor public sc_xml_sax(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
@@ -65,8 +65,8 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
     hSaxReader#:sax-parse().
     
     for each b-ttError:
-      if length(cErrorOP#) < 1000 then
-        cErrorOP# = cErrorOP# + chr(10) + subst("&1 &2@L&3C&4: &5", b-ttError.iOrder, b-ttError.cType, b-ttError.iLine, b-ttError.iCol, b-ttError.cError).
+      if length(cErrorOP#) < 10000 then
+        cErrorOP# = cErrorOP# + chr(10) + subst("&1 &2@[Line]&3[Col]&4: &5", b-ttError.iOrder, b-ttError.cType, b-ttError.iLine, b-ttError.iCol, b-ttError.cError).
     end. 
     cErrorOP# = substring(cErrorOP#,2).
     
@@ -95,6 +95,8 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
       b-ttError.iCol   = hSaxReaderCurrent:locator-column-number
       b-ttError.iLine  = hSaxReaderCurrent:locator-line-number
       .
+    
+    if iTtErrorOrder > 100 then hSaxReaderCurrent:stop-parsing().
 
   end method. /* _sys_SaxValidatingReturnedWarning */
 
@@ -115,6 +117,7 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
       b-ttError.iLine  = hSaxReaderCurrent:locator-line-number
       .
 
+    if iTtErrorOrder > 100 then hSaxReaderCurrent:stop-parsing().
 
   end method. /* _sys_SaxValidatingReturnedError */
 
@@ -135,6 +138,8 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
       b-ttError.iLine  = hSaxReaderCurrent:locator-line-number
       .
 
+    if iTtErrorOrder > 100 then hSaxReaderCurrent:stop-parsing().
+    
   end method. /* _sys_SaxValidatingReturnedFatalError */
 
 end class.
