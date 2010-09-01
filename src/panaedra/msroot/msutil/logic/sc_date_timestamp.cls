@@ -207,6 +207,68 @@ function englishAbvDate returns character(dtWhenIP# as date) in super.
 
   end method. /* GetEndOfDay */
   
+  
+  method public static datetime-tz DatetimeFromString(cFormatIP# as character, cDatetimeIP# as character):
+    
+    define variable dtmReturn# as datetime-tz no-undo.
+    define variable iDtm#      as integer     no-undo extent 8.
+    
+    case cFormatIP#:
+      
+      when "rfc3339date" then 
+        do:
+          IsoDatetimeExplodeToInts(cDatetimeIP#, output iDtm#).
+          /* Without time-zone, revert to system default */
+          if iDtm#[8] = ? then dtmReturn# = datetime-tz(iDtm#[2],iDtm#[3],iDtm#[1],iDtm#[4],iDtm#[5],iDtm#[6],iDtm#[7]).
+          /* Else use time-zone in string */
+          else dtmReturn# = datetime-tz(iDtm#[2],iDtm#[3],iDtm#[1],iDtm#[4],iDtm#[5],iDtm#[6],iDtm#[7],iDtm#[8]).
+          return dtmReturn#.
+        end.
+        
+      otherwise 
+      undo, throw 
+        new Progress.Lang.AppError(subst("Unsupported DatetimeFromString format: '&1'", cFormatIP#), 9990311).
+        
+    end. /* case cFormatIP# */
+  
+  end method. /* DatetimeFromString */
+
+
+  method public static void DatetimeExplodeToInts(input dtmInput# as datetime-tz, output iDtmOP# as integer extent 8):
+  
+    define variable cIso# as character no-undo.
+    
+    cIso# = iso-date(dtmInput#).
+    IsoDatetimeExplodeToInts(cIso#, output iDtmOP#).
+
+  end method. /* DatetimeExplodeToInts */
+  
+
+  method public static void IsoDatetimeExplodeToInts(input cIsoIP# as character, output iDtmOP# as integer extent 8):
+  
+    iDtmOP#[1] = int(substring(cIsoIP#,1,4)) no-error.
+    if iDtmOP#[1] = ? then iDtmOP#[1] = year(today).
+    iDtmOP#[2] = int(substring(cIsoIP#,6,2)) no-error.
+    if iDtmOP#[2] = ? then iDtmOP#[2] = month(today).
+    iDtmOP#[3] = int(substring(cIsoIP#,9,2)) no-error.
+    if iDtmOP#[3] = ? then iDtmOP#[3] = day(today).
+      
+    iDtmOP#[4] = int(substring(cIsoIP#,12,2))no-error.
+    if iDtmOP#[4] = ? then iDtmOP#[4] = 0.
+    iDtmOP#[5] = int(substring(cIsoIP#,15,2))no-error.
+    if iDtmOP#[5] = ? then iDtmOP#[5] = 0.
+    iDtmOP#[6] = int(substring(cIsoIP#,18,2))no-error.
+    if iDtmOP#[6] = ? then iDtmOP#[6] = 0.
+    iDtmOP#[7] = int(substring(cIsoIP#,21,3))no-error.
+    if iDtmOP#[7] = ? then iDtmOP#[7] = 0.
+    
+    if length(trim(cIsoIP#)) < 25 then iDtmOP#[8] = ?.
+    else iDtmOP#[8] = int(substring(cIsoIP#,25,2))no-error.
+    /* Important: if no timezone info, don't return zero. That's somewhere in england. */
+    if error-status:num-messages > 0 then iDtmOP#[8] = ?.
+  
+  end method. /* DatetimeExplodeToInts */
+  
 end class.
 
 /* EOF */ 

@@ -38,26 +38,27 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   define protected static variable bDbLayer     as log   no-undo.
 
   define protected static temp-table ttTableInfo no-undo
-    field cTempTableName as character init ? /* either cTempTableName or cDbTableName is filled */
-    field cDbTableName   as character init ? /* either cTempTableName or cDbTableName is filled */
-    field cNonCased      as character
-    field cCased         as character
-    field cLabel         as character 
-    field cDescription   as character
-    field cNsSubroot     as character
-    field cNsGroupdir    as character
-    field cNsKey         as character
-    field cNsPath        as character
+    field cTempTableName   as character init ? /* either cTempTableName or cDbTableName is filled */
+    field cDbTableName     as character init ? /* either cTempTableName or cDbTableName is filled */
+    field cNonCased        as character
+    field cCased           as character
+    field cLabel           as character 
+    field cDescription     as character
+    field cNsSubroot       as character
+    field cNsGroupdir      as character
+    field cNsKey           as character
+    field cNsPath          as character
+    field cPersistencyMode as character
     index cCased is primary        cCased
     index cTempTableName is unique cTempTableName
     index cDbTableName is unique   cDbTableName
     .
   
   define protected static temp-table ttCacheLogicLocations no-undo
-    field cTable        as character
-    field cType         as character init "wri"
-    field cLogic        as character init "<none>"
-    field bDummy        as logical   init ?
+    field cTable as character
+    field cType  as character init "wri"
+    field cLogic as character init "<none>"
+    field bDummy as logical   init ?
     /* The following index is a workaround on a OE10.2A01 bug.
        A direct/normal cTable cType index gets corrupted:
        Find statement on index doesn't work in tty (unix or win32). 
@@ -313,6 +314,12 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
   
   
   method public static int64 NewID ( hBuffIP# as handle, cCasedIP# as char):
+    
+    define variable iReturn# as int64 no-undo.
+    define variable rUuid#   as raw   no-undo.  
+
+    define buffer b-ttTableInfo for ttTableInfo.
+
 
     if not bInitialized then 
     do:
@@ -321,13 +328,30 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
       else panaedra.msroot.msutil.logic.sc_boot:cBootSessionParameter = session:parameter.
       bDbLayer = lookup(panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Layer"),"all,db,db_r,db_u") > 0.
       if bDbLayer = ? then bDbLayer = false.
-      iNewID = -1 * time. /* Mainly for developing purposes, where a static class can be reloaded, and we don't want to start each time with the same negative number because of ambiguity.  */
+      rUuid# = generate-uuid.
+      /* We don't want the same negative number because of possible ambiguity outside the session, or in case of persistent data. It's also handy for debugging.   */
+      /* The generate-uuid is just a safety precaution for sessions that get their first iNewID at exactly the same time (in ms).                                  */
+      /* We take the most variable byte of the uuid regarding short (<1ms) intervals, and convert it to a signed short. Then we append it to the ms interval.      */
+      /* The "abs" is for poor people who's bios battery has died. It prevents logical errors within the session (find first cq last).                             */
+      /* iNewID is always negative, to indicate that it's a temporary key for use with temp-tables. On the database persistency layer, the buffer gets a real key. */
+      iNewID = -1 * (100000 * abs(interval(now,datetime-tz(1,1,2010,0,0,0),"milliseconds"))) + (32767 + get-short(rUuid#,12)).
     end.
     
     if not bDbLayer or hBuffIP#:table-handle <> ? then 
     do:
-      iNewID = iNewID - 1.
-      return iNewID.
+      assign
+        iNewID   = iNewID - 1
+        iReturn# = iNewID.
+      if hBuffIP#:table-handle <> ? then 
+      do:
+        GetTtInfo(buffer b-ttTableInfo, hBuffIP#).
+        if b-ttTableInfo.cPersistencyMode = "xml-store" then 
+        do:
+          /* If the temp-table is defined as "store to xml file" (not to db), we return a positive iID */
+          iReturn# = (iNewID * -1).
+        end.
+      end.
+      return iReturn#.
     end.
     else 
     do transaction on error undo, throw:
@@ -439,14 +463,15 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
       if not hBuff#:available then undo, throw new Progress.Lang.AppError(subst("Table '&1' not found", hBuffIP#:table),99950285).
       if not num-entries(hBuff#::_Desc,"/") >= 3 then undo, throw new Progress.Lang.AppError(subst("Table '&1' Description invalid: '&2'", hBuffIP#:table, hBuff#::_Desc),99950286).
       assign
-        b-ttTableInfo.cNonCased    = hBuffIP#:table
-        b-ttTableInfo.cLabel       = hBuff#::_File-Label
-        b-ttTableInfo.cDescription = hBuff#::_Desc
-        b-ttTableInfo.cNsPath      = entry(1,b-ttTableInfo.cDescription,"/")
-        b-ttTableInfo.cCased       = entry(2,b-ttTableInfo.cDescription,"/")
-        b-ttTableInfo.cNsKey       = entry(3,b-ttTableInfo.cDescription,"/")
-        b-ttTableInfo.cNsSubroot   = entry(1,b-ttTableInfo.cNsPath,".")
-        b-ttTableInfo.cNsGroupdir  = entry(2,b-ttTableInfo.cNsPath,".")
+        b-ttTableInfo.cNonCased        = hBuffIP#:table
+        b-ttTableInfo.cLabel           = hBuff#::_File-Label
+        b-ttTableInfo.cDescription     = hBuff#::_Desc
+        b-ttTableInfo.cNsPath          = entry(1,b-ttTableInfo.cDescription,"/")
+        b-ttTableInfo.cCased           = entry(2,b-ttTableInfo.cDescription,"/")
+        b-ttTableInfo.cNsKey           = entry(3,b-ttTableInfo.cDescription,"/")
+        b-ttTableInfo.cNsSubroot       = entry(1,b-ttTableInfo.cNsPath,".")
+        b-ttTableInfo.cNsGroupdir      = entry(2,b-ttTableInfo.cNsPath,".")
+        b-ttTableInfo.cPersistencyMode = "oe-database"
         .
     end.
         
@@ -475,11 +500,12 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
         sc_prop:PropsFromString(hFirstField#, sc_string_csv:GetParam(cHelpString#,"private-data")).
       
       assign
-        b-ttTableInfo.cCased      = sc_prop:GetProp(hFirstField#,"CasedTableName")
-        b-ttTableInfo.cNonCased   = sc_prop:GetProp(hFirstField#,"TableAlias")
-        b-ttTableInfo.cNsKey      = sc_prop:GetProp(hFirstField#,"NsKey")
-        b-ttTableInfo.cNsSubroot  = sc_prop:GetProp(hFirstField#,"NsSubroot")
-        b-ttTableInfo.cNsGroupdir = sc_prop:GetProp(hFirstField#,"NsGroupdir")
+        b-ttTableInfo.cCased           = sc_prop:GetProp(hFirstField#,"CasedTableName")
+        b-ttTableInfo.cNonCased        = sc_prop:GetProp(hFirstField#,"TableAlias")
+        b-ttTableInfo.cNsKey           = sc_prop:GetProp(hFirstField#,"NsKey")
+        b-ttTableInfo.cNsSubroot       = sc_prop:GetProp(hFirstField#,"NsSubroot")
+        b-ttTableInfo.cNsGroupdir      = sc_prop:GetProp(hFirstField#,"NsGroupdir")
+        b-ttTableInfo.cPersistencyMode = sc_prop:GetProp(hFirstField#,"PersistencyMode")
         .
       
       if trim(b-ttTableInfo.cCased) = "" or b-ttTableInfo.cCased = ? then 
@@ -515,8 +541,8 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     define variable oTriggerLogic#     as i_triggerlogic     no-undo.
     define variable oTriggerLogicData# as c_triggerlogicdata no-undo.
     
-    define buffer b-ttCacheLogicLocations     for ttCacheLogicLocations.
-    define buffer b-ttTableInfo               for ttTableInfo.
+    define buffer b-ttCacheLogicLocations for ttCacheLogicLocations.
+    define buffer b-ttTableInfo           for ttTableInfo.
     
     if hBuffTableInfoIP# <> ? and hBuffTableInfoIP#:available 
       then 
