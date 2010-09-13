@@ -623,6 +623,29 @@ class paninui.view.use.display.sc_displaydata   :
 
   method public static void SetUiValue(
     
+    /* Directly set any property of a grid widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oFrmLogicIP#    as i_frmlogic,
+    oGridOVID#      as i_widgettype_grid,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    bValueIP#       as logical):
+      
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, bValueIP#).
+
+  end method. /* SetUiValue ; Grid */
+
+
+  method public static void SetUiValue(
+    
     /* Directly set a property of a griditem semi-widget (grid column) to a new value, without databinding.
        Currently only Visible is supported.
      */
