@@ -423,7 +423,9 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     
     if bReturn# and rReposition#[1] <> ? then 
     do:
-      sys__hQuery:reposition-to-rowid(rReposition#).
+      sys__hQuery:reposition-to-rowid(rReposition#) no-error.
+      if error-status:num-messages > 0 then
+        sys__hQuery:reposition-to-row(0) no-error.
     end.
     
     return bReturn#.
