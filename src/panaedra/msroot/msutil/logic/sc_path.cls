@@ -133,6 +133,13 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
+  /* Voorgang log directory */
+  define public static property cLogVoortgangDir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cLogVoortgangDir.
+    end get.
+    protected set.
 
   /* _SRVR_ directory */
   define public static property cNoSweatDir as character no-undo 
@@ -230,11 +237,12 @@ class panaedra.msroot.msutil.logic.sc_path:
     do:
       bTtPathInitialized = yes.
       temp-table ttPath:read-xml("file", cIniDir + "sc_path.config", "empty", ?, false). /* Note: the getter of cIniDir initializes cIniDir automatically */
-      cSysteemDir = FillPathProperty(sc_environment:cEnv, "cSysteemDir").
-      cLogDir     = FillPathProperty(sc_environment:cEnv, "cLogDir").
-      cNoSweatDir = FillPathProperty(sc_environment:cEnv, "cNoSweatDir").
-      c_SRVR_Dir  = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
-      c_SRVR_Dir = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
+      cSysteemDir      = FillPathProperty(sc_environment:cEnv, "cSysteemDir").
+      cLogDir          = FillPathProperty(sc_environment:cEnv, "cLogDir").
+      cLogVoortgangDir = FillPathProperty(sc_environment:cEnv, "cLogVoortgangDir").
+      cNoSweatDir      = FillPathProperty(sc_environment:cEnv, "cNoSweatDir").
+      c_SRVR_Dir       = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
+      c_SRVR_Dir      = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
     end.
     
   end method. /* TtPathInitialize */
