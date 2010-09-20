@@ -11,7 +11,7 @@ class panaedra.msroot.msutil.logic.sc_win32:
      Date Checkin: $Date: 2010-08-09 12:16:03+02:00 $ 
     Date Modified: $Modtime: 2010-08-08 21:42:23+02:00 $ 
 
-      Description: Algemene Windows API calls
+      Description: Common Windows API calls
 
   \*****************************  Include Files ********************************/
 
@@ -29,30 +29,45 @@ class panaedra.msroot.msutil.logic.sc_win32:
 
   method public static void ShellExecute(cFileIP# as char):
     
-    /* 'dubbelklik' een bestandje vanaf Windows Explorer. */
+    /* 'Doubleclick' a file from Windows Explorer. */
     
-    ShellExecute(cFileIP#, "open").
+    ShellExecute(cFileIP#, "open", "").
     
   end method. /* ShellExecute ; Action = "open" */
   
 
   method public static void ShellExecute(cFileIP# as char, cActionIP# as char):
     
+    ShellExecute(cFileIP#, cActionIP#, "").
+    
+  end method. /* ShellExecute ; Specific action like "open" */
+
+
+  method public static void ShellExecute(cFileIP# as char, cActionIP# as char, cRuntimeParamsIP# as char):
+    
     define variable cFileFull# as character            no-undo.
     define variable oDummy#    as Progress.Lang.Object no-undo.
     
-    /* 'dubbelklik' een bestandje vanaf Windows Explorer. */
+    /* 'Doubleclick' a file from Windows Explorer. */
     
     if opsys <> "unix" then 
     do:
     
       if not valid-handle(hExternalProcs#) then
-        sc_procedurehandles:PersistentProcedure(oDummy#, "panaedra/msroot/msutil/logic/sc_win32_sub.p", output hExternalProcs#). 
+        sc_procedurehandles:PersistentProcedure(oDummy#, "panaedra/msroot/msutil/logic/sc_win32_sub.p", output hExternalProcs#).
+        
+      if num-entries(cFileIP#,":") >= 1 and length(entry(1, cFileIP#,":")) = 1 then do:   
+        file-info:file-name = cFileIP#.
+        if file-info:full-pathname = ? then
+          undo, throw new Progress.Lang.AppError(substitute("The file '&1' does not exist", cFileIP#), 99958221).
+        cFileFull# = replace(file-info:full-pathname, "/", "~\").
+      end.
+      
+      if num-entries(trim(cRuntimeParamsIP#,'"'),":") >= 1 and length(entry(1, trim(cRuntimeParamsIP#,'"'),":")) = 1 then do:   
+        cRuntimeParamsIP# = replace(cRuntimeParamsIP#, "/", "~\").
+      end.
     
-      file-info:file-name = cFileIP#.
-      cFileFull# = replace(file-info:full-pathname, "/", "~\").
-    
-      run ShellExecuteA in hExternalProcs# (0, cActionIP#, if cFileFull# > "" then cFileFull# else cFileIP#, "", ".", 0).
+      run ShellExecuteA in hExternalProcs# (0, cActionIP#, if cFileFull# > "" then cFileFull# else cFileIP#, cRuntimeParamsIP#, ".", 0).
     
     end.
     else 
@@ -62,12 +77,12 @@ class panaedra.msroot.msutil.logic.sc_win32:
       
     end.
     
-  end method. /* ShellExecute ; Op te geven action */
+  end method. /* ShellExecute ; Specific action like "open", and specific parameters */
 
 
   method public static void MessageBox(cMsgIP# as char, cTitleIP# as char):
     
-    /* MessageBox via de api */
+    /* MessageBox through Windows api */
 
     define variable oDummy# as Progress.Lang.Object no-undo.
     
