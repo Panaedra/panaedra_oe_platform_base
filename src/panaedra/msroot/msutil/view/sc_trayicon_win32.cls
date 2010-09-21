@@ -115,7 +115,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
     /* Show last message in a baloon tip */
     notifyIcon1:Visible = true.
     notifyIcon1:ShowBalloonTip(500, "_CMPNY_ Info", cMsgIP#, ToolTipIcon:None).
-
+    
   end method.
 
   method protected static void exitToolStripMenuItem_Click( input sender as System.Object, input e as System.EventArgs ):
