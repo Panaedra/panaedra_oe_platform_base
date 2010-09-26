@@ -35,7 +35,12 @@ interface paninui.pack.interfaces.i_pack:
 
   method void  ShowMdi (
     oMdiWindowIP# as {&i_masterwindow}).
-  
+
+  method public void MaximizeSubFrame(
+    bMaximizeIP#    as logical,
+    cWidgetTypeIP#  as character,
+    cWidgetNameIP#  as character).
+    
   method void LoadSubframe(
     oGroupframeOverlayOVID# as i_showlocationtype_groupframeoverlay,
     cLocationWidgetTypeIP#  as character,

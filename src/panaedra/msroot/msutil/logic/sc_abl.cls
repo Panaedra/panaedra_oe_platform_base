@@ -23,8 +23,9 @@ class panaedra.msroot.msutil.logic.sc_abl   :
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  define public static variable iMinInt as integer no-undo init -2147483648.
-  define public static variable iMaxInt as integer no-undo init 2147483647.
+  define public static variable iMinInt          as integer no-undo init -2147483648.
+  define public static variable iMaxInt          as integer no-undo init 2147483647.
+  define public static variable bNoProcessEvents as logical no-undo.
 
 
   method public static void MicroSleep(input iMillisecondsIP# as integer):
@@ -55,12 +56,12 @@ class panaedra.msroot.msutil.logic.sc_abl   :
 
     /*
 	  
-	   CPU friendly sleep in milliseconds for inside a do while true loop with a process events.
+     CPU friendly sleep in milliseconds for inside a do while true loop with a process events.
 	   
-	   In WinXPSP2 Intel E6600/4GB, reduced CPU load from 50.0% (dual core!) to 0.00% with a sleep 
-	   of 10 ms, and also 0.00% with a sleep of 1 ms.
+     In WinXPSP2 Intel E6600/4GB, reduced CPU load from 50.0% (dual core!) to 0.00% with a sleep 
+     of 10 ms, and also 0.00% with a sleep of 1 ms.
 	   
-	   TW 20070807
+     TW 20070807
 	    
     */
     
@@ -69,7 +70,31 @@ class panaedra.msroot.msutil.logic.sc_abl   :
     &endif
     
   end method. /* MicroSleep */  
+  
+  
+  method public static void ProcessEvents():
 
+    if not bNoProcessEvents then
+      process events.
+
+  end method. /* ProcessEvents */
+
+
+  method public static void ProcessEvents(oObjectIP# as Progress.Lang.Object):
+    
+    /* This void (!) method is for safely doing a "process events.".
+    
+       Can be "stalled" when the environment is in a state where process events 
+       is prohibited, or ignored alltogether.
+
+       The "process events" statement shouldn't be used directly.
+       
+     */
+  
+    ProcessEvents().
+    
+  end method. /* ProcessEvents */
+  
 
 end class.
 

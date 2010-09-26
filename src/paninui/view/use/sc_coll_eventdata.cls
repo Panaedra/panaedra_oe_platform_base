@@ -512,6 +512,90 @@ class paninui.view.use.sc_coll_eventdata
 
   method public static int64 ItemAdd(
   
+    oWidgetType_GroupFrameOVID# as i_widgettype_groupframe, 
+    iPackIDIP#                  as int64,
+    iFrmLogicIDIP#              as int64,
+    iDelegateIDIP#              as int64,
+    oFrmLogicBufferIP#          as panaedra.msroot.msdr.logic.c_buf,
+    cWidgetNameIP#              as character,
+    cEventTypeIP#               as character):
+
+    define variable oWidget#              as Progress.Lang.Object            no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object            no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource                 no-undo.
+    define variable bDummy#               as logical                         no-undo.
+    define variable oFormsTabcontrol#     as System.Windows.Forms.TabControl no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+    
+    if oSingleton = ? then oSingleton = new sc_coll_eventdata().
+    
+    do for ttUiEvent:
+          
+      assign
+        cWidgetNameIP# = replace(cWidgetNameIP#,"_",".")
+        oWidget#       = sc_coll_widgetdata:GetWidget(iPackIDIP#,"groupframe",?,cWidgetNameIP#, output bDummy#).
+
+      if oWidget# <> ? then 
+      do:
+        
+        if oFrmLogicBufferIP# <> ? then 
+        do:
+          
+          oBindingSource# = sc_coll_widgetdata:GetBindingSource(iPackIDIP#,"groupframe",oFrmLogicBufferIP#:hBuffer,cWidgetNameIP#).
+        
+          if oBindingSource# = ? then 
+          do:
+            assign
+              oBindingSourceStrong# = new c_bindingsource(sc_bindingsourcetype:i_Buffer, oFrmLogicBufferIP#:hBuffer)
+              oBindingSource#       = oBindingSourceStrong#.
+            sc_coll_widgetdata:SetBindingSource(oFrmLogicBufferIP#, oBindingSourceStrong#, oFrmLogicBufferIP#:hBuffer).
+          end.
+          else
+            oBindingSourceStrong# = cast(oBindingSource#,c_bindingsource).
+            
+        end. /* A c_buf object is given. This is optional, you can also solely use the screen values (i_uivalue). */
+        
+        if type-of(oWidget#,System.Windows.Forms.TabControl) then 
+        do:
+          
+          oFormsTabcontrol# = cast(oWidget#,System.Windows.Forms.TabControl).
+          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+          do: 
+            case cEventTypeIP#:
+              
+              when "SelectedIndexChanged" 
+              then oFormsTabcontrol#:SelectedIndexChanged:Subscribe(oSingleton:OnEventArgsHandler_SelectedIndexChanged).
+              
+            end case.
+            
+          end. /* First ttUiEvent */
+            
+        end. /* TabControl */
+        
+        return ItemAddImplement(
+          iPackIDIP#, 
+          iFrmLogicIDIP#, 
+          iDelegateIDIP#, 
+          oWidget#, 
+          (if oFrmLogicBufferIP# = ? then ? else oFrmLogicBufferIP#:hBuffer), 
+          cWidgetNameIP#, 
+          "combobox", 
+          cEventTypeIP#,
+          "").
+      
+      end.
+      
+    end. /* oWidget# is found */
+
+    return 0.
+    
+  end method. /* ItemAdd ; GroupFrame */
+
+
+
+  method public static int64 ItemAdd(
+  
     oWidgetType_FormOVID# as i_widgettype_form, 
     iPackIDIP#                as int64,
     iFrmLogicIDIP#            as int64,
@@ -957,8 +1041,9 @@ class paninui.view.use.sc_coll_eventdata
     
   method private void OnEventArgsHandler_SelectedIndexChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable oComboBox# as System.Windows.Forms.ComboBox     no-undo.
-    define variable oUiValue#  as paninui.view.interfaces.i_uivalue no-undo.
+    define variable oComboBox#   as System.Windows.Forms.ComboBox     no-undo.
+    define variable oTabControl# as System.Windows.Forms.TabControl   no-undo.
+    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -971,6 +1056,13 @@ class paninui.view.use.sc_coll_eventdata
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(oComboBox#:SelectedValue:ToString())).
+        end.
+        else
+        if type-of(oSender#, System.Windows.Forms.TabControl) then 
+        do:
+          assign
+            oTabControl# = cast(oSender#, System.Windows.Forms.TabControl)
+            oUiValue#    = new c_uivalue_groupframe(sc_coll_widgetdata:WidgetNameToLinkName(oTabControl#,oTabControl#:Name,""), oTabControl#:Enabled, oTabControl#:Visible, oTabControl#:SelectedIndex).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
@@ -1012,7 +1104,7 @@ class paninui.view.use.sc_coll_eventdata
     
     end.
     
-  end method. /* OnEventArgsHandler_SelectedIndexChanged */ 
+  end method. /* OnEventArgsHandler_DropDown */ 
     
     
   method private void OnEventArgsHandler_DropDownClosed(oSender# as System.Object, oArgs# as System.EventArgs):
@@ -1042,7 +1134,7 @@ class paninui.view.use.sc_coll_eventdata
     
     end.
     
-  end method. /* OnEventArgsHandler_SelectedIndexChanged */ 
+  end method. /* OnEventArgsHandler_DropDownClosed */ 
     
     
   method private void OnEventArgsHandler_KeyPress(oSender# as System.Object, oArgs# as System.EventArgs):

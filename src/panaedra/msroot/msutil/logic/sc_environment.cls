@@ -141,25 +141,8 @@ class panaedra.msroot.msutil.logic.sc_environment:
     return session:get-wait-state() = "general".
 
   end method. /* GetWaitState */
+ 
   
-  
-  method public static void ProcessEvents(oObjectIP# as Progress.Lang.Object):
-    
-    /* This void (!) method is for safely doing a "process events.".
-    
-       Is now only an entry point.
-       Can be "stalled" when the environment is in a state where process events 
-       is prohibited, or ignored alltogether.
-
-       The "process events" statement shouldn't be used directly.
-       
-     */
-  
-    process events.
-
-  end method. /* ProcessEvents */
-  
-
   method public static integer GetProcessID():
     
     &if {&paninui_tty} &then

@@ -173,7 +173,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     input bRecursiveIP# as logical
     ):
 
-    define variable cLine#   as char     no-undo extent 3.
+    define variable cLine#   as char          no-undo extent 3.
     define variable oStream# as c_file_stream no-undo.
     define variable dtmFile# as datetime-tz   no-undo.
     
@@ -241,6 +241,19 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   end method. /* CorrectFileRights */
 
+  def protected static temp-table ttTempFile no-undo rcode-info
+    field cFullPath as char.
+  
+  method public static void RegisterTempFile( 
+    /* Registreer een temp file, deze wordt (indien niet gelocked) 
+       opgeruimd aan het eind van de sessie.*/
+     
+    cFullPathIP# as char ):
+  
+    create ttTempFile.
+    ttTempFile.cFullPath = cFullPathIP#.
+  
+  end method. /* RegisterTempFile */ 
   
 end.
 
