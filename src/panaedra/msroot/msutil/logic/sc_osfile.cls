@@ -22,8 +22,11 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  define static temp-table ttFile no-undo rcode-info
+  define protected static temp-table ttFile no-undo rcode-info
     field cFullPath as character.
+
+  define protected static temp-table ttTempFile no-undo rcode-info
+    field cFullPath as char.
 
 
   method public static void DeleteAllFilesInDir(
@@ -241,9 +244,6 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   end method. /* CorrectFileRights */
 
-  def protected static temp-table ttTempFile no-undo rcode-info
-    field cFullPath as char.
-  
   method public static void RegisterTempFile( 
     /* Registreer een temp file, deze wordt (indien niet gelocked) 
        opgeruimd aan het eind van de sessie.*/
@@ -254,6 +254,15 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     ttTempFile.cFullPath = cFullPathIP#.
   
   end method. /* RegisterTempFile */ 
+
+
+  method public static void DeleteTempFiles():
+    
+    for each ttTempFile:
+      os-delete value (ttTempFile.cFullPath) no-error.
+    end.
+    
+  end method. /* DeleteTempFiles */
   
 end.
 
