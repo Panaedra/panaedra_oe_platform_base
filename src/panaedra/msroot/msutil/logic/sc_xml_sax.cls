@@ -141,6 +141,167 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
     if iTtErrorOrder > 100 then hSaxReaderCurrent:stop-parsing().
     
   end method. /* _sys_SaxValidatingReturnedFatalError */
+  
+
+  method public static void sys__DatasetToXmlFile(
+    
+    /* Write a dataset to an xml-file,
+       into the same format as the write-xml ABL method, 
+       but support changes on the internal queries prepare strings.
+       
+       This is a "sys__"  method, use sc_dataset_xml:WriteXmlFile (so that
+        sc_dataset_xml can choose the technical implementation 'black box')
+       
+    */
+    
+    hDatasetIP# as handle, 
+    cFileIP# as character):
+    
+    define variable hSax#       as handle  no-undo.
+    define variable hBuff#      as handle  no-undo.
+    define variable iField#     as integer no-undo.
+    define variable bHasChilds# as logical no-undo.
+    define variable hAttrib#    as handle  no-undo.
+    define variable hQuery#     as handle  no-undo.
+    
+    create sax-writer  hSax#.
+  
+    hSax#:formatted = true.
+    hSax#:strict    = true.
+  
+    hSax#:set-output-destination ("file", cFileIP#).
+    hSax#:encoding = "utf-8".
+  
+    hSax#:start-document().
+
+    hSax#:start-element(hDatasetIP#:xml-node-name).
+    hSax#:declare-namespace("http://www.w3.org/2001/XMLSchema-instance", "xsi").
+    
+    /* Note: 
+       For now, we only support 1 top-buffer query. Can easily be extended. 
+    */
+    hQuery# = hDatasetIP#:top-nav-query(1).
+    hQuery#:query-open().
+    
+    do while hQuery#:get-next:
+      hBuff# = hQuery#:get-buffer-handle(1).
+      bHasChilds# = DatasetBufferHasChildRelation(hDatasetIP#, hBuff#).
+      hSax#:start-element(hBuff#:xml-node-name).
+      if not bHasChilds# then 
+      do:
+        hAttrib# = GetSaxAttributesFromBuffer(hBuff#).
+        hSax#:write-empty-element(hBuff#:xml-node-name, "", hAttrib#).
+        delete object hAttrib#.
+      end.
+      else
+      do iField# = 1 to hBuff#:num-fields:
+        WriteSaxBufferField(hSax#, hBuff#:buffer-field(iField#)).
+      end.
+      WriteSaxXmlDsrelations(hSax#, hDatasetIP#, hBuff#).
+      hSax#:end-element(hQuery#:get-buffer-handle(1):xml-node-name).
+    end.
+
+    hSax#:end-element(hDatasetIP#:xml-node-name).
+    
+    hSax#:end-document().
+    
+    finally:
+      if valid-handle(hSax#) then delete object hSax#.
+    end finally.
+  
+  end method. /* sys__DatasetToXmlFile */
+  
+  
+  method protected static void WriteSaxXmlDsrelations(hSaxIP# as handle, hDatasetIP# as handle, hParentBuffIP# as handle):
+
+    define variable iRelation#  as integer no-undo.
+    define variable hRelation#  as handle  no-undo.
+    define variable iField#     as integer no-undo.
+    define variable bHasChilds# as logical no-undo.
+    define variable hAttrib#    as handle  no-undo.
+
+    do iRelation# = 1 to hDatasetIP#:num-relations:
+      hRelation# = hDatasetIP#:get-relation(iRelation#).
+      if hRelation#:parent-buffer:name = hParentBuffIP#:name then 
+      do:
+        bHasChilds# = DatasetBufferHasChildRelation(hDatasetIP#, hRelation#:child-buffer).
+        hRelation#:query:query-open().
+        do while hRelation#:query:get-next():
+          if not bHasChilds# then 
+          do:
+            hAttrib# = GetSaxAttributesFromBuffer(hRelation#:child-buffer).
+            hSaxIP#:write-empty-element(hRelation#:child-buffer:xml-node-name, "", hAttrib#).
+            delete object hAttrib#.
+          end.
+          else 
+          do:
+            hSaxIP#:start-element(hRelation#:child-buffer:xml-node-name).
+            do iField# = 1 to hRelation#:child-buffer:num-fields:
+              WriteSaxBufferField(hSaxIP#, hRelation#:child-buffer:buffer-field(iField#)).
+            end.
+            WriteSaxXmlDsrelations(hSaxIP#, hDatasetIP#, hRelation#:child-buffer).
+            hSaxIP#:end-element(hRelation#:child-buffer:xml-node-name).
+          end.
+        end.
+      end.
+    end.
+  
+  end method. /* WriteSaxXmlDsrelations */
+  
+  
+  method protected static void WriteSaxBufferField(hSaxIP# as handle, hFieldIP# as handle):
+    
+    case hFieldIP#:xml-node-type:
+      when "attribute" then hSaxIP#:insert-attribute( hFieldIP#:xml-node-name, string(hFieldIP#:buffer-value)).
+      when "hidden"    then.
+      otherwise hSaxIP#:write-data-element(hFieldIP#:xml-node-name, string(hFieldIP#:buffer-value)).
+    end.
+  
+  end method. /* WriteSaxBufferField */
+  
+  
+  method protected static logical DatasetBufferHasChildRelation(hDatasetIP# as handle, hParentBuffIP# as handle):
+    
+    define variable iRelation# as integer no-undo.
+    define variable hRelation# as handle  no-undo.
+    define variable iField#    as integer no-undo.
+
+    do iRelation# = 1 to hDatasetIP#:num-relations:
+      hRelation# = hDatasetIP#:get-relation(iRelation#).
+      if hRelation#:parent-buffer:name = hParentBuffIP#:name then 
+        return true.
+      do iField# = 1 to hRelation#:child-buffer:num-fields:
+        case hRelation#:child-buffer:buffer-field(iField#):xml-node-type:
+          when "attribute" or
+          when "hidden"    then.
+          otherwise 
+          return true.
+        end.
+      end.
+    end.
+    
+    return false.
+  
+  end method. /* DatasetBufferHasChildRelation */
+  
+  
+  method protected static handle GetSaxAttributesFromBuffer(hBuffIP# as handle):
+    
+    define variable hAttrib# as handle  no-undo.
+    define variable iField#  as integer no-undo.
+    define variable hField#  as handle  no-undo.
+    
+    create sax-attributes hAttrib#. 
+    
+    do iField# = 1 to hBuffIP#:num-fields:
+      hField# = hBuffIP#:buffer-field(iField#).
+      if hField#:xml-node-type = "attribute" then
+        hAttrib#:insert-attribute(hField#:xml-node-name, string(hField#:buffer-value)).
+    end.
+    
+    return hAttrib#.
+    
+  end method. /* GetSaxAttributesFromBuffer */
 
 end class.
 

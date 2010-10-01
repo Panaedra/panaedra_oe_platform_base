@@ -83,6 +83,12 @@ class panaedra.msroot.msutil.logic.sc_datasetcontroller:
     
   end method. /* TrackingChangesDisableAll */
 
+  method public static void WriteXmlFile(oDatasetControllerIP# as c_datasetcontroller, cFileIP# as character):
+    
+    sc_dataset_xml:WriteSaxXmlFile(oDatasetControllerIP#:hDataset, cFileIP#).
+  
+  end method. /* WriteXmlFile */
+
 end class.
 
 /* EOF */ 

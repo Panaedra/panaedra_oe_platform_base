@@ -56,7 +56,7 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml:
         .
       
       assign
-        iSplit#        = 1.
+        iSplit# = 1.
     
       hTopQuery#:query-open().
     
@@ -129,7 +129,23 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml:
     sc_osfile:CorrectFileRights(cOutputFileIP#).
         
   end method. /* WriteXmlAndSplit_Sub */  
-
+  
+  
+  method public static void WriteXmlFile(
+    
+    /* Write a dataset to an xml-file,
+       into the same format as the write-xml ABL method, 
+       but support changes on the internal queries prepare strings.
+       
+    */
+    
+    hDatasetIP# as handle, 
+    cFileIP# as character):  
+      
+    sc_xml_sax:sys__DatasetToXmlFile(hDatasetIP#, cFileIP#).      
+      
+  end method. /* WriteXmlFile */
+    
 end class.
 
 /* EOF */ 

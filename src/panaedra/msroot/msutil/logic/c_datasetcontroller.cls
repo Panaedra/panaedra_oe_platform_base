@@ -139,6 +139,13 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
     
   end method. /* ToString */
   
+  
+  method public void WriteXmlFile(cFileIP# as character):
+    
+    sc_datasetcontroller:WriteXmlFile(this-object, cFileIP#).
+  
+  end method. /* WriteXmlFile */
+  
 end class.
 
 /* EOF */ 
