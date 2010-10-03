@@ -94,7 +94,7 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
 
   method public integer GetUiValueInt(
     
-    /* Directly set any property of a grid widget to a new value, without databinding.
+    /* Directly get any property of a grid widget to a new value, without databinding.
        See the overload without OVID# parameter for more information.
      */
     
@@ -103,6 +103,21 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
     cPropertyIP#    as character):
       
     return sc_getuiframevalues:GetUiValueInt(oFrmLogic, oGridOVID#, cWidgetNameIP#, cPropertyIP#).
+
+  end method. /* GetUiValue ; ComboBox */
+  
+
+  method public datetime-tz GetUiValueDateTime(
+    
+    /* Directly get any property of a combobox widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character):
+      
+    return sc_getuiframevalues:GetUiValueDateTimeTz(oFrmLogic, oComboBoxOVID#, cWidgetNameIP#, cPropertyIP#).
 
   end method. /* GetUiValue ; ComboBox */
 
@@ -206,6 +221,18 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
     iValueIP#       as integer):
       
     paninui.view.use.display.sc_displaydata:SetUiValue(oFrmLogic, oComboBoxOVID#, cWidgetNameIP#, cPropertyIP#, iValueIP#).
+
+  end method. /* SetUiValue ; ComboBox + integer */
+
+
+  method public void SetUiValue(
+    
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    dtmValueIP#     as datetime-tz):
+      
+    paninui.view.use.display.sc_displaydata:SetUiValue(oFrmLogic, oComboBoxOVID#, cWidgetNameIP#, cPropertyIP#, dtmValueIP#).
 
   end method. /* SetUiValue ; ComboBox + integer */
 

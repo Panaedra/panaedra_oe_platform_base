@@ -107,6 +107,31 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
   end method. /* GetUiValue ; ComboBox */
 
 
+  method public static datetime-tz GetUiValueDatetimeTz(
+    
+    /* Directly set any property of a combobox widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oFrmLogicIP#    as i_frmlogic,
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character):
+      
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+    define variable dtmReturn#          as datetime-tz          no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+      GetUiValueImplement(oWidget#, cPropertyIP#, output dtmReturn#).
+      
+    return dtmReturn#.
+
+  end method. /* GetUiValue ; ComboBox */
+
+
   method public static integer GetUiValueInt(
     
     /* Directly set any property of a grid widget to a new value, without databinding.
@@ -280,6 +305,37 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
          Otherwise, we get a meaningless handle in the iValueOP#.
       */
       iValueOP# = int(string(oValue#)).
+    end.
+
+  end method. /* GetUiValueImplement */
+
+
+  method protected static void GetUiValueImplement(
+    
+    /* Directly set any property of any widget to a new value, without databinding.
+     */
+    
+    oWidgetIP#         as Progress.Lang.Object,
+    cPropertyIP#       as character,
+    output dtmValueOP# as datetime-tz):
+
+    define variable oControl# as System.Object no-undo.
+    define variable oValue#   as System.Object no-undo.
+
+    /* We only support Text or Int objects for cValueIP#, and we can convert this to other objects
+       later in time 
+       (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
+    */
+    if valid-object(oWidgetIP#) then 
+    do:
+      oControl# = cast(oWidgetIP#, System.Object).
+      paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oControl#, cPropertyIP#, output oValue#).
+      /* Cast to string is necessary, for example with property "FirstDisplayedScrollingRowIndex" .
+         Otherwise, we get a meaningless handle in the iValueOP#.
+      */
+      define variable oDateTime# as System.DateTime no-undo.
+      oDateTime# = cast(cast(oValue#,Progress.Lang.Object),System.DateTime).
+      dtmValueOP# = datetime-tz(oDateTime#:Month,oDateTime#:Day,oDateTime#:Year,oDateTime#:Hour,oDateTime#:Minute,oDateTime#:Second,oDateTime#:MilliSecond).
     end.
 
   end method. /* GetUiValueImplement */

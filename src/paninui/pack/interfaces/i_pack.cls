@@ -63,6 +63,12 @@ interface paninui.pack.interfaces.i_pack:
     cLocationWidgetNameIP#  as character,
     oSubpackIP#             as i_pack).
 
+  method void LoadSubframepack(
+    oGroupframeOverlayOVID# as i_showlocationtype_groupframeoverlay,
+    cLocationWidgetTypeIP#  as character,
+    cLocationWidgetNameIP#  as character,
+    cSubpackIP#             as character).
+
   method void HideSubframepack(
     oModalPackIP#           as i_pack,
     cLocationWidgetTypeIP#  as character,

@@ -56,14 +56,16 @@ class panaedra.msroot.msutil.logic.sc_win32:
       if not valid-handle(hExternalProcs#) then
         sc_procedurehandles:PersistentProcedure(oDummy#, "panaedra/msroot/msutil/logic/sc_win32_sub.p", output hExternalProcs#).
         
-      if num-entries(cFileIP#,":") >= 1 and length(entry(1, cFileIP#,":")) = 1 then do:   
+      if num-entries(cFileIP#,":") >= 1 and length(entry(1, cFileIP#,":")) = 1 then 
+      do:   
         file-info:file-name = cFileIP#.
         if file-info:full-pathname = ? then
           undo, throw new Progress.Lang.AppError(substitute("The file '&1' does not exist", cFileIP#), 99958221).
         cFileFull# = replace(file-info:full-pathname, "/", "~\").
       end.
       
-      if num-entries(trim(cRuntimeParamsIP#,'"'),":") >= 1 and length(entry(1, trim(cRuntimeParamsIP#,'"'),":")) = 1 then do:   
+      if num-entries(trim(cRuntimeParamsIP#,'"'),":") >= 1 and length(entry(1, trim(cRuntimeParamsIP#,'"'),":")) = 1 then 
+      do:   
         cRuntimeParamsIP# = replace(cRuntimeParamsIP#, "/", "~\").
       end.
     
@@ -141,6 +143,20 @@ class panaedra.msroot.msutil.logic.sc_win32:
 
   end method. /* MicroSleep */  
 
+  method public static int GetProcessID():
+
+    define variable iProcessID# as integer no-undo.
+    
+    run GetCurrentProcessId in hExternalProcs# (output iProcessID#).
+
+    iProcessID# = (2147483648.0 + iProcessID#) mod 65536.
+    /* 2^31 + iProcessID# to have unsigned PID, MOD 65536 to have 16 bits part */
+    
+    if iProcessID# > 32748 then
+      /* the 16 bits part stored in _connect is signed */
+      iProcessID# = iProcessID# - 65536.
+    
+  end method. /* GetProcessID */
 
 end class.
 

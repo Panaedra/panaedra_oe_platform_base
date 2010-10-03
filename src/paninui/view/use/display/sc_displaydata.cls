@@ -600,6 +600,29 @@ class paninui.view.use.display.sc_displaydata   :
 
   method public static void SetUiValue(
     
+    /* Directly set any property of a combobox widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oFrmLogicIP#    as i_frmlogic,
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    dtmValueIP#     as datetime-tz):
+      
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, dtmValueIP#).
+
+  end method. /* SetUiValue ; ComboBox */
+
+
+  method public static void SetUiValue(
+    
     /* Directly set any property of a grid widget to a new value, without databinding.
        See the overload without OVID# parameter for more information.
      */
@@ -855,6 +878,33 @@ class paninui.view.use.display.sc_displaydata   :
       RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oValue#).
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, iValueIP#).
+    end.
+
+  end method. /* SetUiValueImplement ; integer */
+
+
+  method protected static void SetUiValueImplement(
+    
+    /* Directly set any property of any widget to a new value, without databinding.
+     */
+    
+    oWidgetIP#    as Progress.Lang.Object,
+    cPropertyIP#  as character,
+    dtmValueIP#   as datetime-tz):
+
+    define variable oControl# as System.Object        no-undo.
+    define variable cDummy#   as character            no-undo.
+    define variable oValue#   as Progress.Lang.Object no-undo.
+    
+    /* We only support Text objects for cValueIP#, and we can convert this to other objects
+       later in time 
+       (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
+    */
+    if valid-object(oWidgetIP#) then 
+    do:
+      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oValue#).
+      oControl# = cast(oWidgetIP#, System.Object).
+      paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, dtmValueIP#).
     end.
 
   end method. /* SetUiValueImplement ; integer */
