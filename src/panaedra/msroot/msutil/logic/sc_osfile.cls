@@ -263,6 +263,31 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     end.
     
   end method. /* DeleteTempFiles */
+
+
+  method public static character StripInvalidChars (
+    cNameIP#     as character,
+    bStripAllIP# as logical):
+    
+    cNameIP# = replace(cNameIP#,">","_").
+    cNameIP# = replace(cNameIP#,"<","_").
+    cNameIP# = replace(cNameIP#,"|","_").
+    cNameIP# = replace(cNameIP#,"?","_").
+    cNameIP# = replace(cNameIP#,"*","_").
+    cNameIP# = replace(cNameIP#,"~"","_").
+    cNameIP# = replace(cNameIP#,"'","_").
+    cNameIP# = replace(cNameIP#,"%","_").
+
+    if bStripAllIP# then 
+    do:
+      cNameIP# = replace(cNameIP#,":","_").
+      cNameIP# = replace(cNameIP#,"~/","_").
+      cNameIP# = replace(cNameIP#,"~\","_").
+    end.
+    
+    return cNameIP#.
+    
+  end method. /* OsFileLibStripInvalidChars */
   
 end.
 
