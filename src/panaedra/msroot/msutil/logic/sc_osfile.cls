@@ -287,7 +287,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     
     return cNameIP#.
     
-  end method. /* OsFileLibStripInvalidChars */
+  end method. /* StripInvalidChars */
   
 end.
 
