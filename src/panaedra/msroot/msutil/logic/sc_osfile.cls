@@ -266,8 +266,14 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
 
   method public static character StripInvalidChars (
-    cNameIP#     as character,
-    bStripAllIP# as logical):
+
+    /* Always be careful for slashes and periods (samba share etc.) */
+
+    cNameIP#            as character,
+    cReplaceExtraChars# as character):
+    
+    define variable cChar# as character no-undo.
+    define variable iChar# as integer   no-undo.
     
     cNameIP# = replace(cNameIP#,">","_").
     cNameIP# = replace(cNameIP#,"<","_").
@@ -278,15 +284,26 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     cNameIP# = replace(cNameIP#,"'","_").
     cNameIP# = replace(cNameIP#,"%","_").
 
-    if bStripAllIP# then 
-    do:
-      cNameIP# = replace(cNameIP#,":","_").
-      cNameIP# = replace(cNameIP#,"~/","_").
-      cNameIP# = replace(cNameIP#,"~\","_").
+    if cReplaceExtraChars# > "" then
+    do iChar# = 1 to length(cReplaceExtraChars#):
+      cChar# = substring(cReplaceExtraChars#,iChar#,1).
+      cNameIP# = replace(cNameIP#, cChar#, "_"). 
     end.
-    
+
     return cNameIP#.
+      
+  end method. /* StripInvalidChars */
+
     
+  method public static character StripInvalidChars (
+  
+    /* Always be careful for slashes and periods (samba share etc.) */
+    
+    cNameIP#     as character,
+    bStripAllIP# as logical):
+    
+    return StripInvalidChars(cNameIP#, if bStripAllIP# then "/~\:" else "").
+        
   end method. /* StripInvalidChars */
   
 end.
