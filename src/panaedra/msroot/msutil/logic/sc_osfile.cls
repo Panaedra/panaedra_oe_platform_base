@@ -22,6 +22,9 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
+  define stream s-alg-in.
+  define stream s-alg-out.
+
   define protected static temp-table ttFile no-undo rcode-info
     field cFullPath as character.
 
@@ -46,9 +49,9 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   
   method public static void DeleteFiles(
+    /* Note on directories: Deletes only empty directories */
     table for ttFile /* by-ref */ ):
     
-    /* Delete only lege directory's */
     
     define variable oAppError as Progress.Lang.AppError no-undo.
     
@@ -118,33 +121,29 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     output table for ttFile
     ):
     
-    /* Haal eenvoudig alle bestandsnamen op in een
-     directory, met optioneel alle subdirectories.
-	     
-     De matches string is een normale matches, denk
-     eraan dat de punt een wildcard is die
-     ge-escaped moet/kan worden.
-	     
-     De matches string vergelijkt met de 
-     bestandsnaam-zonder-pad.
-	     
-     Voorbeeld:
-	     
-     def temp-table ttFile no-undo rcode-info
-       field cFullPath as char.
-	      
-     run GetFileNamesInDirectory(
-       "/ota/wrktst/",
-       "*~~.txt",
-       yes,
-       output table ttFile).     
-	       
-     N.B.1 cFullPath bevat altijd forward slashes
-     N.B.2 Er zit geen index op de temp-table, maar er zullen geen dubbele entries in zitten
-     N.B.3 Maakt intern gebruik van stream-handle, dus DLC10.1C+  
-     N.B.4 Werkt zowel op windows als unix
-	  
-    */
+    /* Simply get all filenames in a directory (optionally with subdirectories)
+       
+       The matches parameter is a normal ABL matches statement.
+       Remember to escape a dot with a tilde ("*~~.txt").
+       The matches only matches the file-name-part of the complete path.
+       
+       Example:
+         
+       define temp-table ttFile no-undo rcode-info
+         field cFullPath as char.
+          
+       sc_osfile:GetFileNamesInDirectory(
+         "/ota/wrktst/",
+         "*~~.txt",
+         yes,
+         output table ttFile).     
+           
+       N.B.1 cFullPath always contains forward slashes
+       N.B.2 The temp-table is not indexed, since it will normally be parsed top-through-bottom anyway. It does not contain duplicate entries.
+       N.B.3 Stream-handles are used internally  
+       N.B.4 Windows and unix platform support
+    
+     */
     
     define variable dtmDummy# as datetime-tz no-undo.
     
@@ -167,6 +166,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmFromIP#, dtmToIP#, bRecursiveIP#).
     
   end method. /* Overload: filter on mod-date range */
+
 
   method protected static void GetFileNamesInDirectorySub(
     input cDirIP#       as character, 
@@ -231,7 +231,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   method public static void CorrectFileRights(input cFileIP# as character):
   
-    /* Zet de bestandsrechten goed onder unix, indien bestand als root aangemaakt.
+    /* Correct the os file rights (especially important for batch processes that run as root).
     */
   
     file-info:file-name = cFileIP#.
@@ -245,8 +245,9 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   end method. /* CorrectFileRights */
 
   method public static void RegisterTempFile( 
-    /* Registreer een temp file, deze wordt (indien niet gelocked) 
-       opgeruimd aan het eind van de sessie.*/
+    /* If you have your own temp file that can't be deleted immediately, register it with this method.
+       At the end of the session, it will be removed (if it isn't locked by another process).
+    */
      
     cFullPathIP# as char ):
   
@@ -265,7 +266,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   end method. /* DeleteTempFiles */
 
 
-  method public static character StripInvalidChars (
+  method public static character StripInvalidChars(
 
     /* Always be careful for slashes and periods (samba share etc.) */
 
@@ -306,6 +307,162 @@ class panaedra.msroot.msutil.logic.sc_osfile:
         
   end method. /* StripInvalidChars */
   
-end.
+
+  method public static character GetIniValue(
+
+    /* Read values from INI files.
+       Note: the INI file must end with a linefeed.
+    */
+    
+    cIniIP#     as char, 
+    cSectionIP# as char, 
+    cVarIP#     as char):
+  
+    def var cLine#    as char no-undo.
+    def var cSection# as char no-undo.
+    def var iIndex#   as int  no-undo.
+    def var cRet#     as char no-undo init ?.
+  
+    file-info:file-name = cIniIP#.
+  
+    if file-info:full-pathname = ? then return ?.
+   
+    input stream s-alg-in from value(file-info:full-pathname).
+  
+    searchLine:
+    repeat:
+      import stream s-alg-in unformatted cLine#.
+      cLine# = left-trim(cLine#).
+      if cLine# begins ";" or cLine# = "" then next.
+      if cLine# begins "[" then 
+      do:
+        iIndex# = 
+        index(cLine#,"]").
+        if iIndex# > 0 then 
+        do:
+          cSection# = substring(cLine#,2,iIndex# - 2).
+        end.
+      end.
+      if cSection# = cSectionIP# then 
+      do:
+        if entry(1,cLine#,"=") = cVarIP# then 
+        do:
+          cRet# = substring(cLine#,
+          index(cLine#,"=") + 1,-1).
+          leave searchLine.
+        end.
+      end.
+    end.
+  
+    input stream s-alg-in close.
+  
+    return cRet#.
+  
+  end method. /* GetIniValue */
+  
+
+  method public static logical PutIniValue (
+
+    /* Change a INI file setting.
+       Note:  the INI file will end with a linefeed.
+       Note2: the complete INI file will be rewritten (but old values are of course respected).
+    */
+    
+    cIniIP#     as char, 
+    cSectionIP# as char, 
+    cVarIP#     as char, 
+    cValueIP#   as char):
+  
+    def var cLine#        as char no-undo.
+    def var cSection#     as char no-undo.
+    def var cPrevSection# as char no-undo.
+    def var iIndex#       as int  no-undo.
+    def var cTempFile#    as char no-undo.
+    def var bWritten#     as log  no-undo.
+  
+    file-info:file-name = cIniIP#.
+  
+    if file-info:full-pathname = ? then 
+    do:
+      output stream s-alg-out to value(cIniIP#).
+      put stream s-alg-out unformatted "[" cSectionIP# "]" skip.
+      put stream s-alg-out unformatted     cVarIP# "=" cValueIP# skip.
+      output stream s-alg-out close.
+      return yes.
+    end.
+   
+    cTempFile# = file-info:full-pathname + "~~".
+    
+    input  stream s-alg-in  from value(file-info:full-pathname).
+    output stream s-alg-out to   value(cTempFile#).
+  
+    copyLines:
+    repeat:
+   
+      import stream s-alg-in unformatted cLine#.
+    
+      if left-trim(cLine#) begins ";" or left-trim(cLine#) = "" then 
+      do:
+        put stream s-alg-out unformatted cLine# skip. 
+        next copyLines.
+      end.
+
+      cLine# = left-trim(cLine#).
+
+      if cLine# begins "[" then 
+      do:
+        iIndex# = 
+        index(cLine#,"]").
+        if iIndex# > 0 then 
+        do:
+          cSection# = substring(cLine#,2,iIndex# - 2).
+        end.
+        if not bWritten# 
+          and cPrevSection# = cSectionIP# 
+          and cPrevSection# <> cSection# 
+          then 
+        do:
+          put stream s-alg-out unformatted cVarIP# "=" cValueIP# skip.
+          bWritten# = yes.
+        end. 
+        cPrevSection# = cSection#.
+        put stream s-alg-out unformatted cLine# skip.
+      end.
+      else 
+      do:
+        if cSection# = cSectionIP# then 
+        do:
+          if not bWritten# and entry(1,cLine#,"=") = cVarIP# then 
+          do:
+            put stream s-alg-out unformatted cVarIP# "=" cValueIP# skip.
+            bWritten# = yes.
+          end.
+          else put stream s-alg-out unformatted cLine# skip.
+        end.
+        else put stream s-alg-out unformatted cLine# skip.
+      end.    
+    end.
+  
+    if not bWritten# then 
+    do:
+      if cSection# <> cSectionIP# then 
+        put stream s-alg-out unformatted "[" cSectionIP# "]" skip.
+      put stream s-alg-out unformatted     cVarIP# "=" cValueIP# skip.
+    end.
+  
+    input  stream s-alg-in  close.
+    output stream s-alg-out close.
+  
+    os-copy value(cTempFile#) value(file-info:full-pathname).
+   
+    if os-error > 0 then return no. 
+  
+    os-delete value(cTempFile#).
+  
+    return true.
+  
+  end method. /* PutIniValue */
+  
+end class.
 
 /* EOF */ 

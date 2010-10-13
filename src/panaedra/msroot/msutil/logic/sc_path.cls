@@ -184,7 +184,7 @@ class panaedra.msroot.msutil.logic.sc_path:
         if search(cIniFile#) = ? then cIniFile# = subst("&1_CLOUD_.ini", sc_path:cIniDir).
         
         /* Read value from ini file */
-        cNaarWebDir# = dynamic-function( "GetIniValue", cIniFile#, "Directories" , "NaarWebDir").
+        cNaarWebDir# = sc_osfile:GetIniValue(cIniFile#, "Directories" , "NaarWebDir").
 
         if cNaarWebDir# = ? or cNaarWebDir# = "" then 
         do:
