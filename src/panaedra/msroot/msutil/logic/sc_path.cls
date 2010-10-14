@@ -180,7 +180,8 @@ class panaedra.msroot.msutil.logic.sc_path:
         if not bTtPathInitialized then TtPathInitialize(). /* for cSysteemDir */
         
         /* First look for [Env]ironment specific ini file, otherwise just use _CLOUD_.ini */
-        cIniFile# = subst("&1_CLOUD__&2.ini", sc_path:cIniDir, sc_boot:SessionParameter("Env")).
+        cIniFile# = subst("&1_CLOUD__&2_&3.ini", sc_path:cIniDir, sc_boot:SessionParameter("Env"), sc_boot:SessionParameter("Layer")).
+        if search(cIniFile#) = ? then cIniFile# = subst("&1_CLOUD__&2.ini", sc_path:cIniDir, sc_boot:SessionParameter("Env")).
         if search(cIniFile#) = ? then cIniFile# = subst("&1_CLOUD_.ini", sc_path:cIniDir).
         
         /* Read value from ini file */

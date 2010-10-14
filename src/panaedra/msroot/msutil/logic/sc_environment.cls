@@ -1,3 +1,6 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
+
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
 
@@ -31,7 +34,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     public get:
       if not bSessionGuidSet then assign
           bSessionGuidSet = true
-          cSessionGuid    = panaedra.msroot.msutil.logic.sc_dbtrig:NewGUID().
+          cSessionGuid    = sc_dbtrig:NewGUID().
       return cSessionGuid.
     end get.
     protected set.
@@ -53,9 +56,21 @@ class panaedra.msroot.msutil.logic.sc_environment:
     public get:
       if cEnv = "" then 
       do:
-        cEnv = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").
+        cEnv = sc_boot:SessionParameter("Env").
       end.
       return cEnv.
+    end get.
+    protected set.
+
+  
+  define static property bDbReadonly as logical no-undo init ?
+    public get:
+      if bDbReadonly = ? then 
+      do:
+        bDbReadOnly = sc_boot:SessionParameter("Layer") = "db_r".
+        if bDbReadOnly = ? then bDbReadOnly = false.
+      end.
+      return bDbReadonly.
     end get.
     protected set.
 
