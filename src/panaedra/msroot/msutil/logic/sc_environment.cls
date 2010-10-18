@@ -67,7 +67,11 @@ class panaedra.msroot.msutil.logic.sc_environment:
     public get:
       if bDbReadonly = ? then 
       do:
-        bDbReadOnly = sc_boot:SessionParameter("Layer") = "db_r".
+        /* (1) Sessions with db-read Layer, 
+             and sessions with no allowed db connections; 
+           (2) webclient user sessions and 
+           (3) appservers with no db connections. */
+        bDbReadOnly = lookup(sc_boot:SessionParameter("Layer"),"db_r,webclient,as_nodb") > 0. 
         if bDbReadOnly = ? then bDbReadOnly = false.
       end.
       return bDbReadonly.
