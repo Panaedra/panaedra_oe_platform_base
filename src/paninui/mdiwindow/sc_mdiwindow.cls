@@ -1,5 +1,6 @@
 using paninui.*.
 using paninui.view.interfaces.*.
+using paninui.view.init.display.*.
 using panaedra.msroot.msutil.logic.*.
 
 
@@ -32,7 +33,8 @@ class paninui.mdiwindow.sc_mdiwindow:
     define variable cMdiNew#   as character                  no-undo.
     define variable oAssembly# as System.Reflection.Assembly no-undo.
     define variable oForm#     as System.Windows.Forms.Form  no-undo.
-
+    
+    
     /* TODO: MDI window dll and/or class via [Mdi] session parameter, or config file */
 
     file-info:file-name = cMdiDllNameIP#.
