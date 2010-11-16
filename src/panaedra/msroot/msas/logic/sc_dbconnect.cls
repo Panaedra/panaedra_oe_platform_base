@@ -33,7 +33,6 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
     
     define variable cEnv#      as character no-undo.
     define variable cHostName# as character no-undo.
-    define variable cExtraDbs# as character no-undo.
     
     if not can-find(first ttDbConnect)
       then temp-table ttDbConnect:read-xml("file", panaedra.msroot.msutil.logic.sc_path:cIniDir + "sc_dbconnect.config", "empty", ?, false).
@@ -44,7 +43,6 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
       
       cEnv#      = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").      
       cHostName# = panaedra.msroot.msutil.logic.sc_environment:GetHostName().
-      cExtraDbs# = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("ExtraDbs").
       
       
       /* Zoek voor record met hostname _SRVR_ of _PRODUCT_ */
@@ -68,8 +66,10 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
         connect value(ttDbConnect.cConnect). /* In principe: adm en log (en zonodig andere db's) */
       end.  
       
-      if cExtraDbs# > "" then 
-        connect value(cExtraDbs#).
+      ConnectExtraDbs_Implement().
+      
+      if error-status:num-messages > 0 then
+        undo, throw new Progress.Lang.AppError(subst("DB connect error: &1", error-status:get-message(1)),95001267).
         
       SetAliases().  
      
@@ -78,10 +78,36 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
   end method. /* connect_ma_lo */
   
   
+  method public static void ConnectExtraDbs():
+
+    ConnectExtraDbs_Implement().
+     
+    SetAliases().  
+     
+  end method. /* ConnectExtraDbs */
+
+
+  method protected static void ConnectExtraDbs_Implement():
+
+    define variable cExtraDbs# as character no-undo.
+
+    cExtraDbs# = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("ExtraDbs").
+
+    if cExtraDbs# > "" then 
+    do: 
+      connect value(cExtraDbs#) no-error.
+      
+      if error-status:num-messages > 0 then
+        undo, throw new Progress.Lang.AppError(subst("DB connect error: &1", error-status:get-message(1)),95001267).
+    end.
+    
+  end method. /* ConnectExtraDbs_Implement */
+  
+  
   method public static void SetAliases():
  
     def var cDbLd#     as char no-undo.
-    def var iTell#     as int   no-undo.
+    def var iTell#     as int  no-undo.
     def var cAliasDbs# as char no-undo.
     def var cMasterDb# as char no-undo.
   
@@ -149,7 +175,7 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
     */
   
     def var cMasterDb# as char no-undo.
-    def var iTell#     as int   no-undo.
+    def var iTell#     as int  no-undo.
   
     /* no-error: supers wellicht nog niet in de lucht. */
     cMasterDb# = sc_prop:GetSharedVar("Aliases","MasterDb") no-error.
