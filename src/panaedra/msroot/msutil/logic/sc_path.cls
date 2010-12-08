@@ -203,6 +203,13 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.       /* cNaarWebDir */
     protected set. /* cNaarWebDir */
   
+  /* DataRecovery directory */
+  define public static property cDataRecoveryDir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cDataRecoveryDir.
+    end get.
+    protected set.
   
   /* ---Methods--- */
   
@@ -244,6 +251,7 @@ class panaedra.msroot.msutil.logic.sc_path:
       cNoSweatDir      = FillPathProperty(sc_environment:cEnv, "cNoSweatDir").
       c_SRVR_Dir       = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
       c_SRVR_Dir      = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
+      cDataRecoveryDir = FillPathProperty(sc_environment:cEnv, "cDataRecoveryDir").
     end.
     
   end method. /* TtPathInitialize */
