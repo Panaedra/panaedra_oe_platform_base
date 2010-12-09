@@ -244,6 +244,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   end method. /* CorrectFileRights */
 
+
   method public static void RegisterTempFile( 
     /* If you have your own temp file that can't be deleted immediately, register it with this method.
        At the end of the session, it will be removed (if it isn't locked by another process).
@@ -462,6 +463,82 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     return true.
   
   end method. /* PutIniValue */
+  
+  
+  method public static integer SafeFileCopy(
+
+    /* Kopieer bestand van cFileFromIP# naar cFileToIP# en maak gebruik van CorrectFileRights,
+       cErrorOP# = foutmelding */
+
+    input cFileFromIP# as character,
+    input cFileToIP#   as character,
+    input bAppendIP#   as logical
+    ):
+    
+    return _sys_SafeFileCopyOrMove(cFileFromIP#,cFileToIP#,bAppendIP#,false).
+    
+  end method. /* SafeFileMove */
+  
+  
+  method public static integer SafeFileMove(
+
+    /* Verplaats bestand van cFileFromIP# naar cFileToIP# en maak gebruik van CorrectFileRights,
+       cErrorOP# = foutmelding */
+
+    input cFileFromIP# as character,
+    input cFileToIP#   as character,
+    input bAppendIP#   as logical
+    ):
+    
+    return _sys_SafeFileCopyOrMove(cFileFromIP#,cFileToIP#,bAppendIP#,true).
+    
+  end method. /* SafeFileMove */
+  
+  
+  method public static integer _sys_SafeFileCopyOrMove(
+
+    /* Kopieer bestand van cFileFromIP# naar cFileToIP# en maak gebruik van CorrectFileRights,
+       cErrorOP# = foutmelding */
+
+    input cFileFromIP# as character,
+    input cFileToIP#   as character,
+    input bAppendIP#   as logical,
+    input bMoveIP#     as logical
+    ):
+
+    define variable iErrorNrOP# as integer no-undo initial 0.
+  
+    /* kopieer/append bestand naar gvnosweat# */
+    if bAppendIP# then 
+      os-append value(cFileFromIP#) value(cFileToIP#).
+    else
+      os-copy value(cFileFromIP#) value(cFileToIP#).
+                   
+    /* Als het kopieeren niet gelukt is... */                 
+    if os-error <> 0 then
+    do:
+      iErrorNrOP# = 50370.
+    end.
+    else  
+    /* Als het kopieeren wel gelukt is */
+    do:
+      CorrectFileRights (input cFileToIP#).
+      
+      if bMoveIP# then
+      do:
+        os-delete value(cFileFromIP#).
+        /* Als het verwijderen niet gelukt is */
+        if os-error <> 0 then
+        do:
+          iErrorNrOP# = 50371.
+        end.
+      end. /* bMove# */
+        
+    end.
+  
+    return iErrorNrOP#.
+
+  end method. /* _sys_SafeFileCopyOrMove */
   
 end class.
 
