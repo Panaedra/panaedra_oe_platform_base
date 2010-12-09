@@ -495,7 +495,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   end method. /* SafeFileMove */
   
   
-  method public static integer _sys_SafeFileCopyOrMove(
+  method protected static integer _sys_SafeFileCopyOrMove(
 
     /* Kopieer bestand van cFileFromIP# naar cFileToIP# en maak gebruik van CorrectFileRights,
        cErrorOP# = foutmelding */
