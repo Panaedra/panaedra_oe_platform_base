@@ -12,6 +12,8 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
     Date Modified: $Modtime: 2010-08-22 16:53:56+02:00 $ 
 
       Description: Date and time timestamp functionality
+      
+                   TODO: some of these methods should be moved to the newer class sc_datetime.cls.
 
   \*****************************  Include Files ********************************/
 
@@ -44,8 +46,8 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   define public static variable iMsInMinute as int64 no-undo init 60000.  
     
 
-/* TODO: function in class moet weg */
-function englishAbvDate returns character(dtWhenIP# as date) in super.
+  /* TODO: function in class moet weg */
+  function englishAbvDate returns character(dtWhenIP# as date) in super.
 
   method public static character EnglishAbvDate(dtmWhenIP# as datetime-tz):
     
