@@ -22,10 +22,12 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   define public property bErrorOnLogManager as logical no-undo get. set.
   
   /* write a status message */
-  method public void StatusMsg(cMessage# as character).
+  method public void WriteStatus(cMessage# as character).
+  method public void WriteStatusLn(cMessage# as character).
   
   /* write a error message */
-  method public void ErrorMsg(cMessage# as character).
+  method public void WriteError(cMessage# as character).
+  method public void WriteErrorLn(cMessage# as character).
   
   /* signal the end of the logging */
   method public void Dispose(). 
