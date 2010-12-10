@@ -21,6 +21,18 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   /* direct errors to the log-manager */
   define public property bErrorOnLogManager as logical no-undo get. set.
   
+  /* error log file name */
+  define public property cErrorLogFileName as character no-undo get.
+  
+  /* error stream */
+  define public property hErrorStream as handle no-undo get.
+  
+  /* status log file name */
+  define public property cStatusLogFileName as character no-undo get.
+  
+  /* status log file stream */
+  define public property hStatusStream as handle no-undo get.
+  
   /* write a status message */
   method public void WriteStatus(cMessage# as character).
   method public void WriteStatusLn(cMessage# as character).
