@@ -475,7 +475,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     input bAppendIP#   as logical
     ):
     
-    return _sys_SafeFileCopyOrMove(cFileFromIP#,cFileToIP#,bAppendIP#,false).
+    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,false).
     
   end method. /* SafeFileMove */
   
@@ -490,12 +490,12 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     input bAppendIP#   as logical
     ):
     
-    return _sys_SafeFileCopyOrMove(cFileFromIP#,cFileToIP#,bAppendIP#,true).
+    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,true).
     
   end method. /* SafeFileMove */
   
   
-  method protected static integer _sys_SafeFileCopyOrMove(
+  method protected static integer SafeFileCopyOrMove_Implement(
 
     /* Kopieer bestand van cFileFromIP# naar cFileToIP# en maak gebruik van CorrectFileRights,
        cErrorOP# = foutmelding */
