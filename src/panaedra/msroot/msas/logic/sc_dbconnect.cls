@@ -68,9 +68,6 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
       
       ConnectExtraDbs_Implement().
       
-      if error-status:num-messages > 0 then
-        undo, throw new Progress.Lang.AppError(subst("DB connect error: &1", error-status:get-message(1)),95001267).
-        
       SetAliases().  
      
     end. /* Connected */
