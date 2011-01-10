@@ -33,6 +33,12 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   /* status log file stream */
   define public property hStatusStream as handle no-undo get.
   
+  /* timestamp toevoegen aan WriteStatusLn regels */
+  define public property bIncludeTimeStamp as logical no-undo get. set.
+  
+  /* timestamp */
+  define public property cTimeStamp as character no-undo get.
+  
   /* write a status message */
   method public void WriteStatus(cMessage# as character).
   method public void WriteStatusLn(cMessage# as character).
