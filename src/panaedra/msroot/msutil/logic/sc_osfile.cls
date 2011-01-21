@@ -539,6 +539,17 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     return iErrorNrOP#.
 
   end method. /* _sys_SafeFileCopyOrMove */
+
+  
+  method public static logical FileExists (
+    input cFilenameIP# as character 
+    ):
+    
+    file-info:file-name = cFilenameIP#.
+    return file-info:full-pathname <> ?.
+        
+  end method. /* FileExists */
+  
   
 end class.
 
