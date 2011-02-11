@@ -1,3 +1,5 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
 class panaedra.msroot.msutil.logic.sc_boot:
@@ -52,7 +54,7 @@ class panaedra.msroot.msutil.logic.sc_boot:
     cPara = cBootSessionParameter.
        
     if cPara = "" and session:parameter matches "*[*" then
-      cPara = session:parameter.
+      cPara = sc_string_substitute:ExpandOsEnv(session:parameter).
     
     do iTell = 1 to num-entries(cPara,"["):
       cEntr = entry(iTell,cPara,"[").

@@ -325,7 +325,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     do:
       bInitialized = true.
       if panaedra.msroot.msutil.logic.sc_boot:cBootSessionParameter > "" then.
-      else panaedra.msroot.msutil.logic.sc_boot:cBootSessionParameter = session:parameter.
+      else panaedra.msroot.msutil.logic.sc_boot:cBootSessionParameter = sc_string_substitute:ExpandOsEnv(session:parameter).
       bDbLayer = lookup(panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Layer"),"all,db,db_r,db_u") > 0.
       if bDbLayer = ? then bDbLayer = false.
       rUuid# = generate-uuid.
