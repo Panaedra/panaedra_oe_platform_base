@@ -424,8 +424,18 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     if bReturn# and rReposition#[1] <> ? then 
     do:
       sys__hQuery:reposition-to-rowid(rReposition#) no-error.
-      if error-status:num-messages > 0 then
+      if error-status:num-messages > 0 then do:
         sys__hQuery:reposition-to-row(0) no-error.
+      end.
+      /* 
+         Workaround: if the result is 1, sometimes a child buffer is not available. 
+         Even if the reposition-to-rowid (2 rowid's) succeeded, get-buffer-handle(2):avail 
+         returned false. 
+      */
+      if sys__hQuery:num-results = 1
+      then do:
+         bReturn# = QueryOpen(false).
+      end.
     end.
     
     return bReturn#.
