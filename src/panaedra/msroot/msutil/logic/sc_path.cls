@@ -488,7 +488,9 @@ class panaedra.msroot.msutil.logic.sc_path:
        A string like "one/two/three.i" or "one\two\three.i" returns "three.i". 
      */
    
-    if cPathIP# = ? then return "".
+    if cPathIP# = ? or 
+      cPathIP# = "" then 
+      return "".
    
     cPathIP# = replace(cPathIP#,"~\","/").
    
@@ -521,9 +523,9 @@ class panaedra.msroot.msutil.logic.sc_path:
      */
      
     define variable iIndex# as integer no-undo.
-   
+     
     cPathIP# = replace(cPathIP#,"~\","/").
-   
+
     iIndex# = r-index(cPathIP#,"/").
     if iIndex# = 0 then return "".
     else return substring(cPathIP#,1,iIndex#).
