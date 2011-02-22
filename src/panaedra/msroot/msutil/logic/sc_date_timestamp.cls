@@ -217,13 +217,25 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
     
     case cFormatIP#:
       
-      when "rfc3339date" then 
+      when "rfc3339date" /* Used by EDI and raw e-mail headers   */
+      then 
         do:
           IsoDatetimeExplodeToInts(cDatetimeIP#, output iDtm#).
           /* Without time-zone, revert to system default */
           if iDtm#[8] = ? then dtmReturn# = datetime-tz(iDtm#[2],iDtm#[3],iDtm#[1],iDtm#[4],iDtm#[5],iDtm#[6],iDtm#[7]).
           /* Else use time-zone in string */
-          else dtmReturn# = datetime-tz(iDtm#[2],iDtm#[3],iDtm#[1],iDtm#[4],iDtm#[5],iDtm#[6],iDtm#[7],iDtm#[8]).
+          else dtmReturn# = datetime-tz(iDtm#[2],iDtm#[3],iDtm#[1],iDtm#[4],iDtm#[5],iDtm#[6],iDtm#[7],iDtm#[8] * 60 /* offset in minutes */).
+          return dtmReturn#.
+        end.
+        
+      when "iso-date"    /* Normal ABL conversion also supported */ 
+      then 
+        do:
+          IsoDatetimeExplodeToInts(cDatetimeIP#, output iDtm#).
+          /* Without time-zone, revert to system default */
+          if iDtm#[8] = ? then dtmReturn# = datetime-tz(iDtm#[2],iDtm#[3],iDtm#[1],iDtm#[4],iDtm#[5],iDtm#[6],iDtm#[7]).
+          /* Else use time-zone in string */
+          else dtmReturn# = datetime-tz(iDtm#[2],iDtm#[3],iDtm#[1],iDtm#[4],iDtm#[5],iDtm#[6],iDtm#[7],iDtm#[8] * 60 /* offset in minutes */).
           return dtmReturn#.
         end.
         
