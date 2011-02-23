@@ -67,7 +67,8 @@ class panaedra.msroot.msutil.logic.sc_exception:
     case iErrorIP#:
          
       /* 10 */
-         
+      when 2570 then /* Routine <name> sent called routine <name> mismatched parameters. (2570) */
+        return 10.         
          
       /* 20 */
          
@@ -75,7 +76,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
       /* 30 */
       when 76 then /* ** Invalid character in numeric input <character>. (76) */
         return 30.
-           
+            
       when 5729 then /* Incompatible datatypes found during runtime conversion. (5729) */
         return 30. 
            
@@ -86,7 +87,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
         cHostname# = panaedra.msroot.msutil.logic.sc_environment:GetHostName().   
            
         output stream str-log to value(panaedra.msroot.msutil.logic.sc_path:cLogDir + "sc_exception_rating.log") unbuffered append.
-        put stream str-log unformatted substitute("User: &1, PID: &2, Errornum: &3", cHostname#, panaedra.msroot.msutil.logic.sc_environment:GetProcessID(), iErrorIP#) skip.
+        put stream str-log unformatted substitute("User: &1, PID: &2, Errornum: &3. Error number is not rated, modify source: sc_exception.cls.", cHostname#, panaedra.msroot.msutil.logic.sc_environment:GetProcessID(), iErrorIP#) skip.
         put stream str-log unformatted substitute("Calling procedure: &1, &2", program-name(2), iso-date(now)) skip.
         output stream str-log close.
            
