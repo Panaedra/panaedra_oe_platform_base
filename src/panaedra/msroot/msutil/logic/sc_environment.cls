@@ -79,6 +79,17 @@ class panaedra.msroot.msutil.logic.sc_environment:
     protected set.
 
   
+  define static property bLiveEnv as logical no-undo init ?
+    public get:
+      if bLiveEnv = ? then 
+      do:
+        bLiveEnv = cEnv matches "*live*" or cEnv = "bas" .
+      end.
+      return bLiveEnv.
+    end get.
+    protected set.
+
+  
   constructor static sc_environment():
     
     /* This is technically not the exact time the session is started, but the first time sc_environment is used. */
