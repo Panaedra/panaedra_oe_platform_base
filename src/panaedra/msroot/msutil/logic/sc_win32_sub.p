@@ -34,13 +34,21 @@ procedure GetKeyState external "user32":U :
   def return param lReturn  as short no-undo.
 end procedure.
 
-procedure Sleep external "kernel32.dll":U persistent:
+procedure Sleep external "kernel32":U persistent:
   def input param iMillisecondsIP# as long.
 end procedure.
 
-procedure GetCurrentProcessId external "kernel32.dll":U:
+procedure GetCurrentProcessId external "kernel32":U:
   define return parameter iPidOP# as long.
 end procedure.
 
+procedure LoadLibraryA external "kernel32":U:
+  define input  parameter cFileNameIP# as character.
+  define return parameter iDllIdOP#   as short.
+end procedure.
+
+procedure FreeLibraryA external "kernel32":U:
+  define input  parameter iDllIdIP# as short.
+end procedure.
 
 /* EOF */
