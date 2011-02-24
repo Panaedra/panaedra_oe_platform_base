@@ -41,17 +41,21 @@ class panaedra.msroot.msutil.logic.sc_abl   :
        have an external (shared object or HLC) at the moment.
        For now - as good as it gets.
 	   
+       os-command silent 
+         value("/progress/scripts/usleep.pl "
+         +
+         trim(string(trunc(iMillisecondsIP# / 1000.0, 0),">>9"))
+         + "." + string(iMillisecondsIP# mod 1000,"999")
+         + " 1> /dev/null 2> /dev/null").
+    
        TW 20070807
 	    
     */
-  
-    os-command silent 
-      value("/progress/scripts/usleep.pl "
-      +
-      trim(string(trunc(iMillisecondsIP# / 1000.0, 0),">>9"))
-      + "." + string(iMillisecondsIP# mod 1000,"999")
-      + " 1> /dev/null 2> /dev/null").
     
+    /* TW 20110224, we have a shared object implementation now, that's much more efficient. */
+    /* See http://bertnet/_DOC_/doku.php?id=dev:aix_shared_objects                           */
+    sc_unix:MicroSleep(iMillisecondsIP#).
+  
     &else
 
     /*
