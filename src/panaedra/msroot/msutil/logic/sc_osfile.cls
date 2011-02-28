@@ -463,12 +463,35 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     return true.
   
   end method. /* PutIniValue */
+
+
+  method public static integer SafeFileMoveAndArchive(
+
+    /* This method copies a file to two places and then it deletes the original file */
+    
+    input cFileFromIP#   as character,
+    input cFileToIP#     as character,
+    input cFileArchive#  as character,
+    input bAppendCopyIP# as logical, /* append voor fileto */
+    input bAppendMoveIP# as logical /* append voor achive */
+    ):
+   
+   define variable iReturn# as integer no-undo.
+   
+   iReturn# = SafeFileCopy(cFileFromIP#,cFileToIP#,bAppendCopyIP#).
+   
+   if iReturn# = 0 then
+     iReturn# = SafeFileMove(cFileFromIP#,cFileArchive#,bAppendMoveIP#).
+   
+   return iReturn#.
+   
+  end method. /* SafeFileMoveAndArchive */
   
   
   method public static integer SafeFileCopy(
 
-    /* Kopieer bestand van cFileFromIP# naar cFileToIP# en maak gebruik van CorrectFileRights,
-       cErrorOP# = foutmelding */
+    /* Copy file from cFileFromIP# to cFileToIP# and use CorrectFileRights,
+       returns error number when error occured */
 
     input cFileFromIP# as character,
     input cFileToIP#   as character,
@@ -482,8 +505,8 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   
   method public static integer SafeFileMove(
 
-    /* Verplaats bestand van cFileFromIP# naar cFileToIP# en maak gebruik van CorrectFileRights,
-       cErrorOP# = foutmelding */
+    /* Copy file from cFileFromIP# to cFileToIP# and use CorrectFileRights,
+       returns error number when error occured */
 
     input cFileFromIP# as character,
     input cFileToIP#   as character,
@@ -497,8 +520,8 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   
   method protected static integer SafeFileCopyOrMove_Implement(
 
-    /* Kopieer bestand van cFileFromIP# naar cFileToIP# en maak gebruik van CorrectFileRights,
-       cErrorOP# = foutmelding */
+    /* Copy file from cFileFromIP# to cFileToIP# and use CorrectFileRights,
+       returns error number when error occured */
 
     input cFileFromIP# as character,
     input cFileToIP#   as character,
@@ -508,7 +531,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
     define variable iErrorNrOP# as integer no-undo initial 0.
   
-    /* kopieer/append bestand naar gvnosweat# */
+    /* Copy/append file */
     if bAppendIP# then 
       os-append value(cFileFromIP#) value(cFileToIP#).
     else
