@@ -42,6 +42,7 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   /* write a status message */
   method public void WriteStatus(cMessage# as character).
   method public void WriteStatusLn(cMessage# as character).
+  method public void WriteStatusEmptyLn().
   
   /* write a error message */
   method public void WriteError(cMessage# as character).
