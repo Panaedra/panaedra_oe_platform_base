@@ -27,6 +27,10 @@ class paninui.mdiwindow.sc_mdiwindow:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
+  define public static property oFirstMdiWindow as Progress.Lang.Object no-undo 
+    public get. 
+    protected set. 
+  
   method public static void StartNewMdiWindow(cMdiDllNameIP# as character, cMdiClassNameIP# as character):
 
     define variable oMdiNew#   as i_masterwindow             no-undo.
@@ -57,6 +61,7 @@ class paninui.mdiwindow.sc_mdiwindow:
     paninui.view.use.sc_coll_eventdata:Initialize().
     
     /* TODO: Support for multiple MDI windows in one session */
+    if oFirstMdiWindow = ? then oFirstMdiWindow = oMdiNew#.
     paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow        = oMdiNew#.
 
     if os-getenv("ECLIPSE_PROJECT") > "" then

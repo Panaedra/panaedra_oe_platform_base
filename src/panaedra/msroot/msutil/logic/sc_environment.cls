@@ -140,7 +140,6 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     /* This method is for controlling session:wait-state.
     
-       Is now only an entry point.
        Can be made FIFO with a protected static temp-table, or ignored alltogether.
 
        session:set-wait-state shouldn't be set directly.
@@ -150,11 +149,78 @@ class panaedra.msroot.msutil.logic.sc_environment:
     oObjectIP# as Progress.Lang.Object, 
     bValueIP#  as logical):
     
-    session:set-wait-state(if bValueIP# then "general" else "").
-
+    SetWaitStateImplement(bValueIP#).
+    
   end method. /* SetWaitState */
+
+
+  method public static void SetWaitState(
+    
+    /* This method is for controlling session:wait-state.
+    
+       Can be made FIFO with a protected static temp-table, or ignored alltogether.
+
+       session:set-wait-state shouldn't be set directly.
+       
+     */
   
+    hProcIP#   as handle, 
+    bValueIP#  as logical):
+      
+    SetWaitStateImplement(bValueIP#).
+
+  end method. /* SetWaitState (handle instead of object) */  
+
+
+  method public static void SetWaitState(
+    
+    /* This method is for controlling session:wait-state.
+    
+       Can be made FIFO with a protected static temp-table, or ignored alltogether.
+
+       session:set-wait-state shouldn't be set directly.
+       
+     */
   
+    cClassIP#  as character, 
+    bValueIP#  as logical):
+      
+    SetWaitStateImplement(bValueIP#).
+
+  end method. /* SetWaitState (handle instead of object) */  
+
+
+  method protected static void SetWaitStateImplement(
+    
+    /* This method is for controlling session:wait-state.
+    
+       Can be made FIFO with a protected static temp-table, or ignored alltogether.
+
+       session:set-wait-state shouldn't be set directly.
+       
+     */
+  
+    bValueIP#  as logical):
+    
+    &if opsys = "unix" &then
+    
+    session:set-wait-state(if bValueIP# then "general" else "").
+    
+    &else
+        
+    if paninui.mdiwindow.sc_mdiwindow:oFirstMdiWindow = ? 
+      /* Workaround for 10.2B04. Form isn't reachable anymore after set-wait-state. Worked fine in 10.2B03.
+         Note: first-form gives "?" for paninui forms. 
+      */
+      then do:
+      session:set-wait-state(if bValueIP# then "general" else "").
+    end.
+    
+    &endif
+    
+  end method. /* SetWaitStateImplement */
+
+
   method public static logical GetWaitState(
     
     /* This method is for getting session:wait-state.
