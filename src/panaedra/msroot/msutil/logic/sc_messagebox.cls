@@ -42,7 +42,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   method public static void Show(oTypeOVID# as i_messageboxtype_simple, cMsgIP# as character):
     
-    sc_environment:SetWaitState(?, false).
+    sc_environment:SetWaitState("panaedra.msroot.msutil.logic.sc_messagebox", false).
 
     &if opsys = "unix" or "{&window-system}" = "tty" &then
 
@@ -80,7 +80,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   method public static void Show(oTypeOVID# as i_messageboxtype_simple_ontop, cMsgIP# as character):
 
-    sc_environment:SetWaitState(?, false).
+    sc_environment:SetWaitState("panaedra.msroot.msutil.logic.sc_messagebox", false).
     
     &if opsys = "unix" or "{&window-system}" = "tty" &then
 
@@ -108,7 +108,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
 
   method public static logical Show(oTypeOVID# as i_messageboxtype_yesno, cMsgIP# as character, bDefaultOkayIP# as logical):
 
-    sc_environment:SetWaitState(?, false).
+    sc_environment:SetWaitState("panaedra.msroot.msutil.logic.sc_messagebox", false).
 
     message cMsgIP#
       view-as alert-box buttons yes-no update bDefaultOkayIP#.
@@ -196,7 +196,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
     
     cProgramName# = if program-name(2) matches "*sc_messagebox*" then program-name(3) else program-name(2).
     
-    sc_environment:SetWaitState(?, false).
+    sc_environment:SetWaitState("panaedra.msroot.msutil.logic.sc_messagebox", false).
 
     &if opsys = "unix" or "{&window-system}" = "tty" &then
     
