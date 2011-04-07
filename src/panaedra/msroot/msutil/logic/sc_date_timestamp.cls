@@ -148,7 +148,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   end method. /* GetTimeAsHHMM: time input */
 
 
-  method public static datetime-tz TimezoneInterval(
+  method public static datetime TimezoneInterval(
     input iMillisecondsIP# as int64):
       
     return TimezoneInterval(0,0,iMillisecondsIP#).
@@ -156,7 +156,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   end method. /* TimezoneInterval */
 
   
-  method public static datetime-tz TimezoneInterval(
+  method public static datetime TimezoneInterval(
     input iSecondsIP# as integer,
     input iMilliSecondsIP# as int64
     ):
@@ -166,7 +166,12 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   end method. /* TimezoneInterval */
   
   
-  method public static datetime-tz TimezoneInterval(
+  define public static property dtDeltaNull as date
+    get:
+      return 1/1/0001.
+    end get.
+  
+  method public static datetime TimezoneInterval(
     input iMinutesIP# as integer, 
     input iSecondsIP# as integer,
     input iMilliSecondsIP# as int64
@@ -174,7 +179,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
     
     /* Returns a time interval starting count on 1/1/0001 */
     
-    define variable dInterval#     as date    no-undo init 1/1/0001.
+    define variable dtInterval#    as date    no-undo init 1/1/0001.
     define variable iMilliSeconds# as int64   no-undo.
     define variable iDays#         as integer no-undo.
     define variable iMsPerDay#     as int64   no-undo.
@@ -188,15 +193,15 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
 
     assign     
       iDays#     = truncate(dec(iMilliSeconds#) / iMsPerDay#, 0)
-      dInterval# = dInterval# + iDays#. 
+      dtInterval# = dtDeltaNull + iDays#. 
   
-    return datetime-tz(dInterval#, iMilliSeconds# mod iMsPerDay#).
+    return datetime(dtInterval#, iMilliSeconds# mod iMsPerDay#).
   
   end method. /* TimezoneInterval */
 
 
   method public static datetime-tz DateTimeNowMinusDelta(
-    dtmDateIP# as datetime-tz):
+    dtmDateIP# as datetime):
 
     return TimezoneInterval(0, 0, datetime-tz(now) - dtmDateIP# ).
     
