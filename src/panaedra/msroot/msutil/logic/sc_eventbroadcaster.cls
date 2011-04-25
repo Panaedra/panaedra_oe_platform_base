@@ -119,42 +119,74 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
   end method. /* UnSubscribeAllEvents */  
   
   
-  method public static logical FireEvent(cEventNameIP# as char):
+  method public static void FireEvent(cEventNameIP# as char):
     
-    return FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#)).
+    FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#)).
 
   end method. /* FireEvent ; char */  
   
   
-  method public static logical FireEvent(cEventNameIP# as char, cEventDataIP# as char):
+  method public static void FireEvent(cEventNameIP# as char, output oEventBroadcastDataOP# as i_eventbroadcastdata):
     
-    return FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, cEventDataIP#)).
+    oEventBroadcastDataOP# = new c_eventbroadcastdata(cEventNameIP#).
+    FireEventImplement(cEventNameIP#, oEventBroadcastDataOP#).
+
+  end method. /* FireEvent ; char + output dataobject */  
+  
+  
+  method public static void FireEvent(cEventNameIP# as char, cEventDataIP# as char):
+    
+    FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, cEventDataIP#)).
 
   end method. /* FireEvent ; char + char */  
   
   
-  method public static logical FireEvent(cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object):
+  method public static void FireEvent(cEventNameIP# as char, cEventDataIP# as char, output oEventBroadcastDataOP# as i_eventbroadcastdata):
     
-    return FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#)).
+    oEventBroadcastDataOP# = new c_eventbroadcastdata(cEventNameIP#, cEventDataIP#).
+    FireEventImplement(cEventNameIP#, oEventBroadcastDataOP#).
+
+  end method. /* FireEvent ; char + char + output dataobject */  
+  
+  
+  method public static void FireEvent(cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object):
+    
+    FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#)).
 
   end method. /* FireEvent ; char + Object */  
   
 
-  method public static logical FireEvent(cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object, cEventDataIP# as char):
+  method public static void FireEvent(cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object, output oEventBroadcastDataOP# as i_eventbroadcastdata):
     
-    return FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#, cEventDataIP#)).
+    oEventBroadcastDataOP# = new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#).
+    FireEventImplement(cEventNameIP#, oEventBroadcastDataOP#).
+
+  end method. /* FireEvent ; char + Object + output dataobject */  
+  
+
+  method public static void FireEvent(cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object, cEventDataIP# as char):
+    
+    FireEventImplement(cEventNameIP#, new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#, cEventDataIP#)).
 
   end method. /* FireEvent ; char + Object + char */  
   
 
+  method public static void FireEvent(cEventNameIP# as char, oEventDataIP# as Progress.Lang.Object, cEventDataIP# as char, output oEventBroadcastDataOP# as i_eventbroadcastdata):
+    
+    oEventBroadcastDataOP# = new c_eventbroadcastdata(cEventNameIP#, oEventDataIP#, cEventDataIP#).
+    FireEventImplement(cEventNameIP#, oEventBroadcastDataOP#).
+
+  end method. /* FireEvent ; char + Object + char + output dataobject */  
+  
+
   method public static logical FireCustomEvent(oDataIP# as i_eventbroadcastdata):
     
-    return FireEventImplement(oDataIP#:cEventName, oDataIP#).
+    FireEventImplement(oDataIP#:cEventName, oDataIP#).
 
   end method. /* FireCustomEvent */  
 
   
-  method protected static logical FireEventImplement(cEventNameIP# as char, oDataIP# as i_eventbroadcastdata):
+  method protected static void FireEventImplement(cEventNameIP# as char, oDataIP# as i_eventbroadcastdata):
     
     define variable bEclipseFix# as logical no-undo.
     define buffer ttEventClient for ttEventClient.
@@ -163,11 +195,11 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
       for each ttEventClient where ttEventClient.cEventName = cEventNameIP#
         on error undo, throw:
         cast(ttEventClient.oClient, i_eventbroadcastclient):OnEventBroadcast(oDataIP#).
-        if oDataIP#:iAbort > 0 then return false.
+        if oDataIP#:iAbort > 0 then do:
+          return.
+        end.
       end.
     end.
-    
-    return true.
 
   end method. /* FireEventImplement */  
   
