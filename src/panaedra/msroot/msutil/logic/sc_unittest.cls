@@ -47,29 +47,30 @@ class panaedra.msroot.msutil.logic.sc_unittest:
 
   end method. /* Assert ; logical field */
   
+  
   method public static void Assert(
     cTestIDIP# as character, 
     cTestDescIP# as character,
-    bNewValueIP# as date,
-    bExpectedValueIP# as date
+    dtNewValueIP# as date,
+    dtExpectedValueIP# as date
     ):
       
-    if (bExpectedValueIP# = ? and bNewValueIP# <> ?)
-      or (bExpectedValueIP# <> ? and bNewValueIP# = ?)
-      or (bExpectedValueIP# <> bNewValueIP#) then 
+    if (dtExpectedValueIP# = ? and dtNewValueIP# <> ?)
+      or (dtExpectedValueIP# <> ? and dtNewValueIP# = ?)
+      or (dtExpectedValueIP# <> dtNewValueIP#) then 
     do:
       
       message now "Assert failed." skip
         sc_environment:cEnv skip
         cTestIDIP# skip
         cTestDescIP# skip
-        "Calculated:" bNewValueIP# skip
-        "Expected:" bExpectedValueIP#
+        "Calculated:" dtNewValueIP# skip
+        "Expected:" dtExpectedValueIP#
         view-as alert-box.
       
     end.
 
-  end method. /* Assert ; logical field */
+  end method. /* Assert ; date field */
   
 
 end class.
