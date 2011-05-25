@@ -272,6 +272,36 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
     return bIsEmpty#.
     
   end method. /* IsDataSetEmpty ; dataset + logical */
+  
+
+  method public static logical DatasetCompare(
+    
+    /* Compare the complete contents of two datasets.
+       We do an xml comparison and a json comparison.
+       We could implement a query-parsing buffer-compare comparison later.
+     */
+  
+    dataset-handle hDatasetOneIP#, 
+    dataset-handle hDatasetTwoIP#):
+      
+    define variable bXmlOne# as longchar no-undo.  
+    define variable bXmlTwo# as longchar no-undo.
+    define variable bJsonOne# as longchar no-undo.  
+    define variable bJsonTwo# as longchar no-undo.
+    
+    hDatasetOneIP#:write-xml("longchar", bXmlOne#, true, "utf-8").  
+    hDatasetTwoIP#:write-xml("longchar", bXmlTwo#, true, "utf-8").
+    
+    if bXmlOne# <> bXmlTwo# then return false.  
+
+    hDatasetOneIP#:write-json("longchar", bJsonOne#, true, "utf-8").  
+    hDatasetTwoIP#:write-json("longchar", bJsonTwo#, true, "utf-8").
+    
+    if bJsonOne# <> bJsonTwo# then return false.  
+    
+    return true.
+
+  end method. /* DatasetCompare */  
 
 end class.
 

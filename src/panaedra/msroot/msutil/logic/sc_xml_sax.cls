@@ -175,6 +175,11 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
     hSax#:start-document().
 
     hSax#:start-element(hDatasetIP#:xml-node-name).
+
+    if hDatasetIP#:namespace-uri > "" then do:
+      hSax#:declare-namespace(hDatasetIP#:namespace-uri, "").
+    end.
+    
     hSax#:declare-namespace("http://www.w3.org/2001/XMLSchema-instance", "xsi").
     
     /* Note: 
@@ -252,9 +257,10 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
   method protected static void WriteSaxBufferField(hSaxIP# as handle, hFieldIP# as handle):
     
     case hFieldIP#:xml-node-type:
-      when "attribute" then hSaxIP#:insert-attribute( hFieldIP#:xml-node-name, string(hFieldIP#:buffer-value)).
+      
+      when "attribute" then hSaxIP#:insert-attribute(hFieldIP#:xml-node-name, sc_bufferfield:IsoString(hFieldIP#)).
       when "hidden"    then.
-      otherwise hSaxIP#:write-data-element(hFieldIP#:xml-node-name, string(hFieldIP#:buffer-value)).
+      otherwise hSaxIP#:write-data-element(hFieldIP#:xml-node-name, sc_bufferfield:IsoString(hFieldIP#)).
     end.
   
   end method. /* WriteSaxBufferField */
@@ -296,7 +302,7 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
     do iField# = 1 to hBuffIP#:num-fields:
       hField# = hBuffIP#:buffer-field(iField#).
       if hField#:xml-node-type = "attribute" then
-        hAttrib#:insert-attribute(hField#:xml-node-name, string(hField#:buffer-value)).
+        hAttrib#:insert-attribute(hField#:xml-node-name, sc_bufferfield:IsoString(hField#)).
     end.
     
     return hAttrib#.
