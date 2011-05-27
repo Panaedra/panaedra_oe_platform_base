@@ -441,6 +441,37 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     return bReturn#.
     
   end method. /* QueryOpenAndReposition */
+
+
+  method public logical QueryRepositionToBuffers():
+    
+    define variable rReposition# as rowid   no-undo extent 18.
+    define variable iTell#       as integer no-undo.
+    define variable bReturn#     as logical no-undo.
+    
+    rReposition# = ?.
+    
+    do iTell# = 1 to min(sys__hQuery:num-buffers, 18):
+      rReposition#[iTell#] = sys__hQuery:get-buffer-handle(iTell#):rowid.
+    end.
+    
+    if rReposition#[1] <> ? then 
+    do:
+      bReturn# = true.
+      sys__hQuery:reposition-to-rowid(rReposition#) no-error.
+      if error-status:num-messages > 0 then do:
+        sys__hQuery:reposition-to-row(0) no-error.
+      end.
+    end.
+    
+    /* Workaround; always "find" the buffer to the original rowid*/
+    do iTell# = 1 to min(sys__hQuery:num-buffers, 18):
+      sys__hQuery:get-buffer-handle(iTell#):find-by-rowid(rReposition#[iTell#], no-lock).
+    end.
+
+    return bReturn#.
+    
+  end method. /* QueryRepositionToBuffers */
   
 
   method public logical QueryOpen(bPointerBeforeFirstIP# as logical):
