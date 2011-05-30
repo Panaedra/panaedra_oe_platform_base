@@ -165,6 +165,14 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
+  /* Nonstatic directory */
+  define public static property cNonstaticDir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cNonstaticDir.
+    end get.
+    protected set.
+  
   define protected static variable bNaarWebDirInitialized as logical no-undo.
   
   /* Systeem naarweb directory */
@@ -251,6 +259,7 @@ class panaedra.msroot.msutil.logic.sc_path:
       cNoSweatDir      = FillPathProperty(sc_environment:cEnv, "cNoSweatDir").
       c_SRVR_Dir       = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
       c_SRVR_Dir      = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
+      cNonstaticDir    = FillPathProperty(sc_environment:cEnv, "cNonstaticDir").
       cDataRecoveryDir = FillPathProperty(sc_environment:cEnv, "cDataRecoveryDir").
     end.
     
