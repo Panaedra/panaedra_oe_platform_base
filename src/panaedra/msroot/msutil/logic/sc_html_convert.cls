@@ -27,7 +27,10 @@ class panaedra.msroot.msutil.logic.sc_html_convert   :
     field cHtmlCode as char xml-node-type "attribute"
     field cHtmlSafe as char xml-node-type "attribute"
     field cInfo     as char xml-node-type "attribute"
-    index iAscii is primary unique iAscii.
+    index iAscii is primary unique iAscii
+    index cHtmlCode                cHtmlCode
+    index cHtmlSafe                cHtmlSafe
+    .
   
   define protected static buffer b-ttHtmlConvert for ttHtmlConvert.
   
@@ -60,11 +63,11 @@ class panaedra.msroot.msutil.logic.sc_html_convert   :
         case cModeIP#:
           
           when "" then 
-              cLett# = if b-ttHtmlConvert.cHtmlCode > "" then b-ttHtmlConvert.cHtmlCode else b-ttHtmlConvert.cHtmlSafe.
+            cLett# = if b-ttHtmlConvert.cHtmlCode > "" then b-ttHtmlConvert.cHtmlCode else b-ttHtmlConvert.cHtmlSafe.
           when "Safe" then 
-              cLett# = if b-ttHtmlConvert.cHtmlSafe > "" then b-ttHtmlConvert.cHtmlSafe else b-ttHtmlConvert.cHtmlCode.
+            cLett# = if b-ttHtmlConvert.cHtmlSafe > "" then b-ttHtmlConvert.cHtmlSafe else b-ttHtmlConvert.cHtmlCode.
           when "OnlySafe" then 
-              cLett# = b-ttHtmlConvert.cHtmlSafe.
+            cLett# = b-ttHtmlConvert.cHtmlSafe.
               
         end case.
         
@@ -79,6 +82,57 @@ class panaedra.msroot.msutil.logic.sc_html_convert   :
     return cReturn#.
     
   end method. /* ConvertToHtml */
+
+
+  method public static character ConvertFromHtml(cInputIP# as character):
+    
+    define variable cReturn# as character no-undo.
+    define variable iTell#   as integer   no-undo.
+    define variable cLett#   as character no-undo.
+    define variable iSem#    as integer   no-undo.
+    define variable cHtml#   as character no-undo.
+    
+    do iTell# = 1 to length(cInputIP#):
+      
+      cLett# = substring(cInputIP#,iTell#,1).
+      
+      if cLett# = "&" then 
+      do:
+        
+        iSem# = index(cInputIP#,";", iTell# + 1).
+        if iSem# > 0 and iSem# - iTell# < 20 then 
+        do:
+          
+          /* An encoded character was found */
+          cHtml# = substring(cInputIP#,iTell#,iSem# - iTell# + 1).
+          
+          /* Jump iTell# forward */
+          iTell# = iSem#. 
+
+          find first b-ttHtmlConvert where b-ttHtmlConvert.cHtmlCode = cHtml# no-lock no-error.
+
+          if not avail b-ttHtmlConvert then
+            find first b-ttHtmlConvert where b-ttHtmlConvert.cHtmlSafe = cHtml# no-lock no-error.
+
+          if avail b-ttHtmlConvert then
+          do:
+            cLett# = chr(b-ttHtmlConvert.iAscii).
+            release b-ttHtmlConvert.
+          end.
+          else 
+            cLett# = " ".
+
+        end. /* html coded character found */
+        
+      end. /* ampersand found */
+      
+      cReturn# = cReturn# + cLett#.
+      
+    end. /* walk the string */
+    
+    return cReturn#.
+    
+  end method. /* ConvertFromHtml */
 
 
   method public static void ReloadConfigFile():
