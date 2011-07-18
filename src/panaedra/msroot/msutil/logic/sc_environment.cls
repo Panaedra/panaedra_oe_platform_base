@@ -47,7 +47,6 @@ class panaedra.msroot.msutil.logic.sc_environment:
     public get.
     public set.
   
-
   define static property dtmStarted as datetime-tz no-undo 
     public get.
     protected set.
@@ -90,6 +89,10 @@ class panaedra.msroot.msutil.logic.sc_environment:
     protected set.
 
   
+  define static property iServerSocketPort as integer no-undo 
+    public get.
+    public set.
+    
   constructor static sc_environment():
     
     /* This is technically not the exact time the session is started, but the first time sc_environment is used. */
