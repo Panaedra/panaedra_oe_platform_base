@@ -27,9 +27,10 @@ class panaedra.msroot.msutil.logic.sc_environment:
   define stream str-in.
   
   define protected static variable bSessionGuidSet as logical   no-undo.
-  define public static    variable bDebugLogAsync  as logical   no-undo.
   define protected static variable cBootProcedure  as character no-undo.
-  
+  define public static    variable bDebugLogAsync  as logical   no-undo.
+  define public static    variable oLog            as i_log     no-undo.
+    
   define static property cSessionGuid as character no-undo 
     public get:
       if not bSessionGuidSet then assign
@@ -215,7 +216,8 @@ class panaedra.msroot.msutil.logic.sc_environment:
       /* Workaround for 10.2B04. Form isn't reachable anymore after set-wait-state. Worked fine in 10.2B03.
          Note: first-form gives "?" for paninui forms. 
       */
-      then do:
+      then 
+    do:
       session:set-wait-state(if bValueIP# then "general" else "").
     end.
     
