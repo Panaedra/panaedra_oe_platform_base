@@ -219,6 +219,14 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
+  /* DataExchange directory */
+  define public static property cDataExchangeDir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cDataExchangeDir.
+    end get.
+    protected set.
+  
   /* ---Methods--- */
   
   
@@ -246,6 +254,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     end.
     
   end method. /* IniInitialize */
+  
 
   method protected static void TtPathInitialize():
     
@@ -264,6 +273,7 @@ class panaedra.msroot.msutil.logic.sc_path:
       c_SRVR_Dir      = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
       cNonstaticDir    = FillPathProperty(sc_environment:cEnv, "cNonstaticDir").
       cDataRecoveryDir = FillPathProperty(sc_environment:cEnv, "cDataRecoveryDir").
+      cDataExchangeDir = FillPathProperty(sc_environment:cEnv, "cDataExchangeDir").
     end.
     
   end method. /* TtPathInitialize */
