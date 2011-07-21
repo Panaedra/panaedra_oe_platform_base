@@ -65,6 +65,7 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   /* write a error message */
   method public void WriteError(cMessage# as character).
   method public void WriteErrorLn(cMessage# as character).
+  method public void WriteException(oExepctionIP# as Progress.Lang.Error).
   
   /* signal the end of the logging */
   method public void Dispose(). 
