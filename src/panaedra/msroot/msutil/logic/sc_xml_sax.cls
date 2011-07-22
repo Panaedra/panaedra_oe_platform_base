@@ -1,6 +1,5 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
-
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.sc_xml_sax   : 
@@ -141,9 +140,38 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
     if iTtErrorOrder > 100 then hSaxReaderCurrent:stop-parsing().
     
   end method. /* _sys_SaxValidatingReturnedFatalError */
+
+  
+  method static logical WriteSaxXmlFileWithoutRoot(
+    /* ----------------------------------------
+       write dataset to xml without root node.
+       ---------------------------------------- */
+    hDatasetIP# as handle, 
+    cFileIP# as character):  
+      
+    sys__DatasetToXmlFileImplement(hDatasetIP#, cFileIP#, no).  
+  
+  end method. /* WriteXmlFileWithoutRoot */
   
 
   method public static void sys__DatasetToXmlFile(
+    
+    /* Write a dataset to an xml-file,
+       into the same format as the write-xml ABL method, 
+       but support changes on the internal queries prepare strings.
+       
+       This is a "sys__"  method, use sc_dataset_xml:WriteXmlFile (so that
+        sc_dataset_xml can choose the technical implementation 'black box')   */
+    
+    hDatasetIP# as handle, 
+    cFileIP# as character):
+      
+    sys__DatasetToXmlFileImplement(hDatasetIP#, cFileIP#, yes).  
+      
+  end method.  
+
+
+  method protected static void sys__DatasetToXmlFileImplement(
     
     /* Write a dataset to an xml-file,
        into the same format as the write-xml ABL method, 
@@ -155,7 +183,8 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
     */
     
     hDatasetIP# as handle, 
-    cFileIP# as character):
+    cFileIP# as character,
+    bWithRootNodeIP# as logical):
     
     define variable hSax#       as handle  no-undo.
     define variable hBuff#      as handle  no-undo.
@@ -172,15 +201,18 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
     hSax#:set-output-destination ("file", cFileIP#).
     hSax#:encoding = "utf-8".
   
-    hSax#:start-document().
-
-    hSax#:start-element(hDatasetIP#:xml-node-name).
-
-    if hDatasetIP#:namespace-uri > "" then do:
-      hSax#:declare-namespace(hDatasetIP#:namespace-uri, "").
+      hSax#:start-document().
+  
+    if bWithRootNodeIP# then do: 
+      hSax#:start-element(hDatasetIP#:xml-node-name).
+  
+      if hDatasetIP#:namespace-uri > "" then 
+      do:
+        hSax#:declare-namespace(hDatasetIP#:namespace-uri, "").
+      end.
+      
+      hSax#:declare-namespace("http://www.w3.org/2001/XMLSchema-instance", "xsi").
     end.
-    
-    hSax#:declare-namespace("http://www.w3.org/2001/XMLSchema-instance", "xsi").
     
     /* Note: 
        For now, we only support 1 top-buffer query. Can easily be extended. 
@@ -206,7 +238,8 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
       hSax#:end-element(hQuery#:get-buffer-handle(1):xml-node-name).
     end.
 
-    hSax#:end-element(hDatasetIP#:xml-node-name).
+    if bWithRootNodeIP# then
+      hSax#:end-element(hDatasetIP#:xml-node-name).
     
     hSax#:end-document().
     
@@ -308,6 +341,7 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
     return hAttrib#.
     
   end method. /* GetSaxAttributesFromBuffer */
+  
 
 end class.
 
