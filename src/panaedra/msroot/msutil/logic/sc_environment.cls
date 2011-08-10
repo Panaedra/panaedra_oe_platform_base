@@ -45,7 +45,10 @@ class panaedra.msroot.msutil.logic.sc_environment:
     public set.
   
   define static property cUserID as character no-undo 
-    public get.
+    public get:
+      if cUserID = "" then return sc_boot:SessionParameter("DefaultUser").
+      else return cUserID.
+    end.
     public set.
   
   define static property dtmStarted as datetime-tz no-undo 
