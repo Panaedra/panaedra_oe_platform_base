@@ -74,7 +74,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       
       undo, throw new c__FCMPNY_exception(
         99909002,
-        subst("AppServer configuration (sc_asconnect.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+        subst("Error: AppServer configuration (sc_asconnect.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
         cEnvIP#,
         cMirrorIP#,
         cSuffixIP#)).
@@ -168,7 +168,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
     if not avail ttAsConnect then 
       undo, throw new c__FCMPNY_exception(
         99909002,
-        subst("AppServer configuration (sc_asconnect.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+        subst("Error: AppServer configuration (sc_asconnect.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
         cEnvIP#,
         cMirrorIP#,
         cSuffixIP#)).
