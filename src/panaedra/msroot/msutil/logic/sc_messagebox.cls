@@ -3,7 +3,9 @@ using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
 
-class panaedra.msroot.msutil.logic.sc_messagebox   : 
+class panaedra.msroot.msutil.logic.sc_messagebox
+  implements panaedra.msroot.msutil.interfaces.i_eventbroadcastclient
+  : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_messagebox.cls $ 
@@ -31,6 +33,109 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
+  
+  define protected variable hAblWindow as handle no-undo.
+
+  define private frame frmMsgLibPS#
+    with 1 down no-box keep-tab-order overlay 
+    side-labels no-underline three-d 
+    at col 1 row 1
+    size 44.8 by 7.43.
+
+  define protected static property oSingleton as panaedra.msroot.msutil.logic.sc_messagebox no-undo
+    get:
+      if oSingleton = ? then oSingleton = new panaedra.msroot.msutil.logic.sc_messagebox().
+      return oSingleton.
+    end get.
+    set.
+  
+  constructor protected sc_messagebox 
+    
+    /* This constructor is for the MsgBox functionality only.
+       We need a singleton for the "frame" abl definition.
+     */
+    
+    ():
+
+    sc_eventbroadcaster:SubscribeEvent(this-object,"evt@SessionClose").
+    
+    if session:display-type = "gui":u then
+      create window hAblWindow assign
+        hidden             = yes
+        title              = "MsgLib"
+        height             = 7.43
+        width              = 44.8
+        max-height         = 16
+        max-width          = 80
+        virtual-height     = 16
+        virtual-width      = 80
+        resize             = yes
+        scroll-bars        = no
+        status-area        = no
+        bgcolor            = ?
+        fgcolor            = ?
+        keep-frame-z-order = yes
+        three-d            = yes
+        message-area       = no
+        sensitive          = yes.
+    else hAblWindow = current-window.
+
+    if session:display-type = "gui":u and valid-handle(hAblWindow)
+      then hAblWindow:hidden = no.
+
+    if not session:batch-mode then 
+    do:
+
+      on end-error of hAblWindow 
+        or endkey  of hAblWindow 
+        do:
+          /* This case occurs when the user presses the "Esc" key.
+             In a persistently run window, just ignore this.  If we did not, the
+             application would exit. */
+          return no-apply.
+        end.
+  
+      on window-close of hAblWindow 
+        do:
+          OnClose().
+          return no-apply.
+        end.
+
+      /* Set current-window: this will parent dialog-boxes and frames.        */
+      assign current-window            = hAblWindow.
+
+    end.
+
+    /* Best default for gui applications is...                              */
+    pause 0 before-hide.
+
+    /* Now enable the interface and wait for the exit condition.            */
+    /* (note: handle error and end-key so cleanup code will always fire.    */
+    if session:window-system <> "tty" then
+    main-block:
+    do on error   undo main-block, leave main-block
+      on end-key undo main-block, leave main-block:
+      if not session:batch-mode then 
+      do:
+        view frame frmMsgLibPS# in window hAblWindow.
+        view hAblWindow.
+        hAblWindow:hidden = yes.
+      end.
+    end.
+
+    &scop msgStack _sys_MsgBox(subst("&1~~n&2~~n&3~~n&4~~n&5~~n&6~~n&7~~n&8~~n&9",~
+                         program-name(2),~
+                         program-name(3),~
+                         program-name(4),~
+                         program-name(5),~
+                         program-name(6),~
+                         program-name(7),~
+                         program-name(8),~
+                         program-name(9),~
+                         program-name(10)~
+                         )).
+    
+  end.
 
 
   method public static void Show(cMsgIP# as character):
@@ -43,14 +148,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   method public static void Show(oTypeOVID# as i_messageboxtype_simple, cMsgIP# as character):
     
     sc_environment:SetWaitState("panaedra.msroot.msutil.logic.sc_messagebox", false).
-
+    
     &if opsys = "unix" or "{&window-system}" = "tty" &then
-
-    message 
-      cMsgIP#
-      view-as alert-box title
-      subst("Panaedra &1", substring(iso-date(now),1,23)
-      ).    
+    
+    MsgBox(cMsgIP#).
       
     &else
 
@@ -84,8 +185,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
     
     &if opsys = "unix" or "{&window-system}" = "tty" &then
 
-    message cMsgIP#
-      view-as alert-box.
+    MsgBox(cMsgIP#).
 
     &else
 
@@ -203,21 +303,20 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
     if (not session:batch-mode) and length(cProgramName#) > 40
       then cProgramName# = substring(cProgramName#, length(cProgramName#) - 39).
 
-    message 
-      cProgramName# skip
-      cMsgIP#[1]    skip
-      if extent(cMsgIP#) < 2 or cMsgIP#[2] = "" then "" else cMsgIP#[2] + "~n"
-      if extent(cMsgIP#) < 3 or cMsgIP#[3] = "" then "" else cMsgIP#[3] + "~n"
-      if extent(cMsgIP#) < 4 or cMsgIP#[4] = "" then "" else cMsgIP#[4] + "~n"
-      if extent(cMsgIP#) < 5 or cMsgIP#[5] = "" then "" else cMsgIP#[5] + "~n"
-      if extent(cMsgIP#) < 6 or cMsgIP#[6] = "" then "" else cMsgIP#[6] + "~n"
-      if extent(cMsgIP#) < 7 or cMsgIP#[7] = "" then "" else cMsgIP#[7] + "~n"
-      if extent(cMsgIP#) < 8 or cMsgIP#[8] = "" then "" else cMsgIP#[8] + "~n"
+    MsgBox(
+    subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
+      cProgramName# ,
+      cMsgIP#[1]    ,
+      if extent(cMsgIP#) < 2 or cMsgIP#[2] = "" then "" else cMsgIP#[2] + "~n" ,
+      if extent(cMsgIP#) < 3 or cMsgIP#[3] = "" then "" else cMsgIP#[3] + "~n" ,
+      if extent(cMsgIP#) < 4 or cMsgIP#[4] = "" then "" else cMsgIP#[4] + "~n" ,
+      if extent(cMsgIP#) < 5 or cMsgIP#[5] = "" then "" else cMsgIP#[5] + "~n" ,
+      if extent(cMsgIP#) < 6 or cMsgIP#[6] = "" then "" else cMsgIP#[6] + "~n" ,
+      if extent(cMsgIP#) < 7 or cMsgIP#[7] = "" then "" else cMsgIP#[7] + "~n" ,
+      if extent(cMsgIP#) < 8 or cMsgIP#[8] = "" then "" else cMsgIP#[8] + "~n" +
       if extent(cMsgIP#) < 9 or cMsgIP#[9] = "" then "" else cMsgIP#[9]
-      view-as alert-box title
-      subst("Panaedra Debug &1", substring(iso-date(now),1,23)
-      ).    
-      
+    )).
+
     &else
 
     System.Windows.Forms.MessageBox:Show(cProgramName# + "~n" + subst("01: &1~n02: &2~n03: &3~n04: &4~n05: &5~n06: &6~n07: &7~n08: &8~n09: &9",
@@ -239,6 +338,172 @@ class panaedra.msroot.msutil.logic.sc_messagebox   :
   &endif /* unix or tty */
      
   end method. /* Show; type_debug , variable extent */
+
+
+  method public void _sys_MsgBoxDbg(
+
+    cMsgIP# as char ):
+  
+    message cMsgIP# view-as alert-box.
+    
+  end method. /* MsgBoxDbg */
+
+
+  method public static void MsgBox(
+    
+    /* Use MsgBox for a simple message box.
+       The content is scrollable and selectable.
+       Does not use .NET.
+       Unix compatible.
+     */
+  
+    cMsgIP# as character):
+      
+    oSingleton:_sys_MsgBox(cMsgIP#).  
+    
+    catch ex as Progress.Lang.Error :
+      
+      /* On errors (like input blocking), just show the message in the simplest way possible */
+      
+      message cMsgIP#
+        view-as alert-box title "Progress" + string(now,"9999-99-99 hh:mm:ss") .
+    		
+    end catch.
+    
+  end method. /* MsgBox */
+  
+
+  method public void _sys_MsgBox(
+  
+    cMsgIP# as character):
+  
+    if session:batch-mode then 
+    do:
+      message cMsgIP#.
+      return.
+    end.  
+  
+    def var cMsg# as char
+      view-as editor no-box
+      size 63 by 4.
+       
+    define button btnOk# auto-go 
+      label "&OK" 
+      size 15 by 1.14
+      bgcolor ? .
+
+    define button btnInfo# 
+      label "&Info" 
+      size 15 by 1.14
+      bgcolor ? .
+  
+    define frame frmMsgBox
+      cMsg#  at row 1.24 col 2 no-label
+      skip(0.1)
+      btnOk#   at row 5.29 col 26
+      btnInfo# at row 5.29 col 46 
+      skip(0.1)
+      with view-as dialog-box keep-tab-order 
+      side-labels no-underline three-d  scrollable 
+      title "Progress"
+      default-button btnOk#.
+  
+    assign 
+      frame frmMsgBox:scrollable         = no
+      frame frmMsgBox:hidden             = yes
+      btnInfo#:hidden in frame frmMsgBox = (not session:debug-alert)
+      &if opsys = "win32" &then
+      cMsg#:read-only in frame frmMsgBox = if session:window-system = "tty" then no else yes
+      &endif
+      .
+  
+    if num-entries(cMsgIP#,chr(10)) > 3 or length(cMsgIP#) > 500 then 
+    do:
+      assign
+        frame frmMsgBox:row    = 3
+        frame frmMsgBox:column = 8
+        frame frmMsgBox:height = frame frmMsgBox:height + 12
+        cMsg#:height           = cMsg#:height + 12
+        btnOk#:row             = btnOk#:row   + 12
+        btnInfo#:row           = btnInfo#:row + 12.
+    end. 
+  
+    &if "{&window-system}" = "tty" &then
+    on tab of btnInfo# 
+      do:
+        cMsg#:read-only in frame frmMsgBox = yes.
+        cMsg#:sensitive in frame frmMsgBox = yes.
+        apply "entry" to cMsg#.
+        return no-apply.
+      end.
+    &endif
+  
+    on window-close of frame frmMsgBox
+      do:
+        apply "end-error":u to self.
+      end.
+  
+    on choose of btnInfo# oSingleton:{&msgStack}
+  
+    /* parent the dialog-box */
+    frame frmMsgBox:parent = hAblWindow.
+  
+    msg-block:
+    do on error   undo msg-block, leave msg-block:
+      cMsg# = cMsgIP#.     
+      enable_block:
+      do:
+        display cMsg# 
+          with frame frmMsgBox.
+        enable cMsg# 
+          when session:window-system <> "tty"
+          btnInfo# 
+          when (session:debug-alert)
+          btnOk# 
+          with frame frmMsgBox.
+        frame frmMsgBox:title = frame frmMsgBox:title + " " + string(time,"hh:mm:ss") + "." + string(etime mod 1000,"999").
+        if session:window-system = "tty"
+          then frame frmMsgBox:title = " " + frame frmMsgBox:title + " ".
+        view frame frmMsgBox.
+      end.
+      wait-for go of frame frmMsgBox focus btnOk#.
+    end.
+
+    hide frame frmMsgBox.
+
+    if session:window-system <> "tty" and not default-window:hidden 
+      then default-window:hidden = yes.
+  
+  end method /* _sys_MsgBox */.
+
+
+  method public void OnEventBroadcast(oBroadcastDataIP# as i_eventbroadcastdata):
+    
+    case oBroadcastDataIP#:cEventName:
+      
+      when "evt@SessionClose" then 
+        do:
+          OnClose().
+        end.
+        
+    end case.
+    
+  end method. /* OnEventBroadcast */
+  
+  
+  method public void OnClose():
+
+    if session:display-type = "gui":u and valid-handle(hAblWindow)
+      then delete widget hAblWindow.
+      
+    if valid-object(oSingleton) then 
+      delete object oSingleton.
+    
+    finally:
+      oSingleton = ?.
+    end finally.
+    
+  end method. /* OnClose */
 
 end class.
 

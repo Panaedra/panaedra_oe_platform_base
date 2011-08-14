@@ -187,6 +187,25 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     
   end method. /* Assert ; two datasets */
 
+  
+  method public static void OnException(
+  
+    cTestIDIP#   as character, 
+    oExIP#       as Progress.Lang.Error):
+
+    panaedra.msroot.msutil.logic.sc_messagebox:MsgBox(
+      subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
+      "Assert failed; exception.", 
+      sc_environment:cEnv,
+      cTestIDIP#,
+      oExIP#:GetMessage(1),
+      oExIP#:GetMessage(2),
+      oExIP#:GetMessage(3),
+      oExIP#:CallStack     
+      )).
+
+  end method. /* OnException */  
+
 end class.
 
 /* EOF */ 

@@ -54,6 +54,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
           ex:GetMessage(1) skip
           ex:GetMessage(2) skip
           ex:GetMessage(3) skip(1)
+          ex:CallStack     skip
           panaedra.msroot.msutil.logic.sc_info:GetCallStack()
           view-as alert-box title "_CMPNY_ " + string(now,"99-99-9999 hh:mm").
         
@@ -76,6 +77,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     message 
       ex:GetMessage(1) skip
       ex:GetMessage(2) skip
+      ex:CallStack     skip
       cLastProgram#
       view-as alert-box title "_CMPNY_ " + string(now,"99-99-99 hh:mm").
     
