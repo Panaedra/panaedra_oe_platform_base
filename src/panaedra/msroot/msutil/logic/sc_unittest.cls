@@ -171,17 +171,18 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       hDatasetOneIP#:write-json("longchar", bJsonOne#, true, "utf-8").  
       hDatasetTwoIP#:write-json("longchar", bJsonTwo#, true, "utf-8").
 
-      message now "Assert failed." skip
-        sc_environment:cEnv skip
-        cTestIDIP# skip
-        cTestDescIP# skip
-        "Calculated:" bDatasetsEqual# skip
-        "Expected:" bExpectedEqualIP# skip(2)
-        "Dataset One:" hDatasetOneIP#:name hDatasetOneIP#:get-buffer-handle(1):name skip
-        "Dataset Two:" hDatasetTwoIP#:name hDatasetTwoIP#:get-buffer-handle(1):name skip
-        "JSON One:" string(substring(bJsonOne#,1,90)) skip
-        "JSON Two:" string(substring(bJsonTwo#,1,90))
-        view-as alert-box.
+      panaedra.msroot.msutil.logic.sc_messagebox:MsgBox(
+        subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
+        subst("Assert failed. [Env] &1", sc_environment:cEnv),
+        cTestIDIP#,
+        cTestDescIP#,
+        subst("Calculated: &1", bDatasetsEqual#                                                  ),
+        subst("Expected:   &1", bExpectedEqualIP#                                                ),
+        subst("Dataset One: &1 &2", hDatasetOneIP#:name, hDatasetOneIP#:get-buffer-handle(1):name),
+        subst("Dataset Two: &1 &2", hDatasetTwoIP#:name, hDatasetTwoIP#:get-buffer-handle(1):name),
+        subst("JSON One: &1", string(substring(bJsonOne#,1,90))                                  ),
+        subst("JSON Two: &1", string(substring(bJsonTwo#,1,90))                                  )
+        )).
 
     end.
     
