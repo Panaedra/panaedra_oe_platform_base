@@ -1,3 +1,6 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
+
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
 &if opsys <> "unix" and "{&window-system}" <> "tty" &then
@@ -14,8 +17,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
      Date Checkin: $Date: 2010-08-02 08:43:20+02:00 $ 
     Date Modified: $Modtime: 2010-07-31 19:27:34+02:00 $ 
 
-      Description: Stop alle informatie in .net window en toon hem daarna,
-                   indien het fout gaat, geef een normale message.
+      Description: Show exceptions/errors on all platforms and ui's.
 
   \*****************************  Include Files ********************************/
 
@@ -35,33 +37,41 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
     &if opsys <> "unix" and "{&window-system}" <> "tty" &then
     
-    if not valid-object(oForm) then 
-      oForm = new panaedra.msroot.msutil.view.c_dotnetformshowexception().
-      
-    /* Vul het form met de exception. */
-    oForm:ShowException(ex).
+    /* This code does not compile on unix, only on .NET win32 */
     
-    do on error undo, throw:
-      
-      /* Laat form zien als dit mogelijk is */
-      ShowFormSafe().
-      
-      catch eDummy as Progress.Lang.Error :
-        /* Als we niet ShowDialog kunnen doen, bv Input Blocking vanuit een function,
-           gewoon een message tonen en niet re-throwen.
-        */
-        message 
-          ex:GetMessage(1) skip
-          ex:GetMessage(2) skip
-          ex:GetMessage(3) skip(1)
-          ex:CallStack     skip
-          panaedra.msroot.msutil.logic.sc_info:GetCallStack()
-          view-as alert-box title "_CMPNY_ " + string(now,"99-99-9999 hh:mm").
+    if not sc_environment:bBatchMode then do:
+    
+      if not valid-object(oForm) then 
+        oForm = new panaedra.msroot.msutil.view.c_dotnetformshowexception().
         
-      end catch.
+      /* Fill form data with data from exception. */
+      oForm:ShowException(ex).
+      
+      do on error undo, throw:
+        
+        /* Show the form if possible */
+        ShowFormSafe().
+        
+        catch eDummy as Progress.Lang.Error :
+          /* Possible input blocking, just show message. */
+          ShowExceptionImplement(ex).    
+        end catch.
+      end.
+      
     end.
     
-    &else
+    else
+    &endif /* Not unix/tty */
+    
+    ShowExceptionImplement(ex).    
+    
+  end method. /* ShowException */
+  
+  
+  method protected static void ShowExceptionImplement(
+    input ex as Progress.Lang.Error):
+
+    /* The following code is used on win32 as well as unix */
     
     define variable cLastProgram# as character no-undo.
     
@@ -80,17 +90,14 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       ex:CallStack     skip
       cLastProgram#
       view-as alert-box title "_CMPNY_ " + string(now,"99-99-99 hh:mm").
-    
-  &endif /* unix/tty */
-    
-  end method. /* ShowException */
-
   
+  end method. /* ShowExceptionImplement */
+
   &if opsys <> "unix" and "{&window-system}" <> "tty" &then
   
   method protected static void ShowFormSafe():
 
-    /* Toon het exception scherm en wacht tot er op ok gedrukt is. */
+    /* Show the exception form and wait for Okay. */
     wait-for oForm:ShowDialog().
     
   end method.

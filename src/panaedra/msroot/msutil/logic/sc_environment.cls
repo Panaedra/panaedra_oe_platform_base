@@ -93,6 +93,23 @@ class panaedra.msroot.msutil.logic.sc_environment:
     protected set.
 
   
+  define static property bBatchMode as logical no-undo init ?
+    public get:
+      define variable cUiMode# as character no-undo.
+      if bBatchMode = ? then 
+      do:
+        cUiMode# = sc_boot:SessionParameter("UiMode").
+        bBatchMode = 
+          session:batch-mode 
+          or (cUiMode# matches "*service*") /* For example: GuiAsService */
+          or (cUiMode# matches "*batch*")   
+          .
+      end.
+      return bBatchMode.
+    end get.
+    protected set.
+
+  
   define static property iServerSocketPort as integer no-undo 
     public get.
     public set.
