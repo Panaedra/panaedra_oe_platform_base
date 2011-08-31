@@ -1,3 +1,5 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.sc_html: 
@@ -98,6 +100,24 @@ class panaedra.msroot.msutil.logic.sc_html:
       return string(hFieldIP#:buffer-value,cFormat#).
     else 
       return hFieldIP#:buffer-value.
+    
+    catch ex as Progress.Lang.Error :
+    	
+      do on error undo, throw:
+    	
+        if valid-handle(hFieldIP#) and hFieldIP#:buffer-handle:available then
+          /* Return the value with no formatting applied */
+          return hFieldIP#:buffer-value.
+        
+        else sc_showexception:ShowException(ex).
+        
+        catch ex2 as Progress.Lang.Error :
+          sc_showexception:ShowException(ex2).
+        end catch.  
+    	
+      end.
+    		
+    end catch.  
       
   end method. /* FormatBufferValue */
   
