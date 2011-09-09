@@ -173,6 +173,22 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
+  /* VanWan directory */
+  define public static property cVanWanDir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cVanWanDir.
+    end get.
+    protected set.
+  
+  /* NaarWan directory */
+  define public static property cNaarWanDir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cNaarWanDir.
+    end get.
+    protected set.
+  
   define protected static variable bNaarWebDirInitialized as logical no-undo.
   
   /* Systeem naarweb directory */
@@ -274,6 +290,8 @@ class panaedra.msroot.msutil.logic.sc_path:
       cNonstaticDir    = FillPathProperty(sc_environment:cEnv, "cNonstaticDir").
       cDataRecoveryDir = FillPathProperty(sc_environment:cEnv, "cDataRecoveryDir").
       cDataExchangeDir = FillPathProperty(sc_environment:cEnv, "cDataExchangeDir").
+      cVanWanDir       = FillPathProperty(sc_environment:cEnv, "cVanWanDir").
+      cNaarWanDir      = FillPathProperty(sc_environment:cEnv, "cNaarWanDir").
     end.
     
   end method. /* TtPathInitialize */
