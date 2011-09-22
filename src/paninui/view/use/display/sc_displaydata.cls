@@ -977,6 +977,31 @@ class paninui.view.use.display.sc_displaydata   :
     end case. /* IsOfUiTechnology ; Abstraction of widget properties  */
 
   end method. /* RenameWidgetPropertyByUiTechnology */
+  
+  method public static void AppendText(
+  
+    oFrmLogicIP#    as i_frmlogic,
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cTextIP#        as character):
+
+    define variable bIsDisplayLinkedOP# as logical                      no-undo.
+    define variable oWidget#            as Progress.Lang.Object         no-undo.
+    define variable oTextbox#           as System.Windows.Forms.TextBox no-undo.
+    
+    if cTextIP# > "" then 
+    do:
+      oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+      if valid-object(oWidget#) and type-of(oWidget#,System.Windows.Forms.TextBox) then 
+      do:
+        oTextbox# = cast(oWidget#, System.Windows.Forms.TextBox).
+        oTextbox#:AppendText(cTextIP#).
+      end.
+      
+    end.
+    
+  end method. /* AppendText */
 
 end class.
 

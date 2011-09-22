@@ -344,6 +344,17 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
       
   end method. /* RefreshData ; Grid + i_qry */
 
+
+  method public void AppendText(
+  
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cTextIP#        as character):
+
+    paninui.view.use.display.sc_displaydata:AppendText(oFrmLogic, oComboBoxOVID#, cWidgetNameIP#, cTextIP#).
+  
+  end method. /* AppendText */
+
 end class.
 
 /* EOF */ 
