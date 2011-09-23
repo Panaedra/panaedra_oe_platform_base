@@ -31,11 +31,11 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
     protected set.
   
   define protected static temp-table ttAsConnect no-undo rcode-info
-    field cEnv       as char xml-node-type "attribute"
-    field cMirror    as char xml-node-type "attribute"
-    field cSuffix    as char xml-node-type "attribute"
-    field cConnect   as char xml-node-type "attribute"
-    field hAppserver as handle    xml-node-type "hidden"
+    field cEnv       as char   xml-node-type "attribute"
+    field cMirror    as char   xml-node-type "attribute"
+    field cSuffix    as char   xml-node-type "attribute"
+    field cConnect   as char   xml-node-type "attribute"
+    field hAppserver as handle xml-node-type "hidden"
     index cEnv_cMirror is primary unique cEnv cMirror cSuffix
     .
   
@@ -129,6 +129,62 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
   end method. /* ConnectToServer */
 
 
+  method public static logical DisconnectServer(cMirrorIP# as char):
+    
+    define variable cSuffix# as character no-undo.
+    
+    if bInitialized then 
+    do:
+      
+      cSuffix# = GetSuffix().
+
+      find first ttAsConnect 
+        where ttAsConnect.cEnv    = sc_environment:cEnv
+        and   ttAsConnect.cMirror = cMirrorIP#
+        and   ttAsConnect.cSuffix = cSuffix#
+        no-error.
+    
+      if not avail ttAsConnect then 
+      do:
+      
+        undo, throw new c__FCMPNY_exception(
+          99909002,
+          subst("Error: AppServer configuration (sc_asconnect.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+          sc_environment:cEnv,
+          cMirrorIP#,
+          cSuffix#)).
+        
+      end. 
+      else 
+      do: /* avail ttAsConnect */
+      
+        if valid-handle(ttAsConnect.hAppserver) and ttAsConnect.hAppserver <> session:handle and ttAsConnect.hAppserver:connected() then 
+        do:
+          
+          ttAsConnect.hAppserver:disconnect() no-error.
+
+          if error-status:num-messages = 0 and (not ttAsConnect.hAppserver:connected()) then 
+            return true.
+          else undo, throw new c__FCMPNY_exception(
+              99909011,
+              subst("AppServer connection '&1' disconnect failed.~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'~n~n&5", 
+              ttAsConnect.cConnect, 
+              ttAsConnect.cEnv,
+              ttAsConnect.cMirror,
+              ttAsConnect.cSuffix,
+              error-status:get-message(1))).
+
+        end.
+      
+      end. /* avail ttAsConnect */
+    
+    end.
+    
+    return true.
+    
+  end method. /* DisconnectServer */
+  
+
   method public static handle GetAppServer(input cMirrorIP# as char):
     
     return _sys_GetAppServer(input sc_environment:cEnv, input cMirrorIP#).
@@ -152,7 +208,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
        a mirror appserver.
     */
     
-    define variable hReturn# as handle    no-undo.
+    define variable hReturn# as handle no-undo.
     
     if not bInitialized then 
     do:
