@@ -145,6 +145,52 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml:
     sc_xml_sax:sys__DatasetToXmlFile(hDatasetIP#, cFileIP#).      
       
   end method. /* WriteXmlFile */
+  
+  
+  method public static character CsvNodenamesGet(
+    hDsIP# as handle):
+    
+    define variable iTell#        as integer   no-undo.
+    define variable cSvNodenames# as character no-undo.
+      
+    do iTell# = 1 to hDsIP#:num-buffers:
+      
+      cSvNodenames# = cSvNodenames# + subst(",&1|&2",
+      
+        hDsIP#:get-buffer-handle(iTell#):name,
+        hDsIP#:get-buffer-handle(iTell#):xml-node-name
+        ).
+      
+    end.
+    
+    return substring(cSvNodenames#,2).
+    
+  end method. /* GetCsvNodenames */
+  
+  
+  method public static void CsvNodenamesApply(
+    hDsIP#          as handle,
+    cSvNodenamesIP# as character):
+    
+    define variable iTell#      as integer   no-undo.
+    define variable cEntry#     as character no-undo.  
+    define variable cNodename#  as character no-undo.
+    define variable cTablename# as character no-undo.
+    
+    do iTell# = 1 to num-entries(cSvNodenamesIP#):
+      
+      assign
+        cEntry#     = entry(iTell#, cSvNodenamesIP#)
+        cTablename# = entry(1, cEntry#, "|")
+        cNodename#  = entry(2, cEntry#, "|")
+        .
+      
+      hDsIP#:get-buffer-handle(cTablename#):xml-node-name = cNodename#. 
+      
+    end.
+    
+  end method. /* GetCsvNodenames */
+  
     
 end class.
 
