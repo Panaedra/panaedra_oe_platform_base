@@ -30,6 +30,14 @@ class paninui.mdiwindow.sc_mdiwindow:
   define public static property oFirstMdiWindow as Progress.Lang.Object no-undo 
     public get. 
     protected set. 
+
+
+  method public static void StartNewMdiWindow(cMdiClassNameIP# as character):
+
+    StartNewMdiWindow("[no dll]", cMdiClassNameIP#).
+    
+  end method.  
+
   
   method public static void StartNewMdiWindow(cMdiDllNameIP# as character, cMdiClassNameIP# as character):
 
@@ -39,19 +47,24 @@ class paninui.mdiwindow.sc_mdiwindow:
     define variable oForm#     as System.Windows.Forms.Form  no-undo.
     
     
-    /* TODO: MDI window dll and/or class via [Mdi] session parameter, or config file */
-
-    file-info:file-name = cMdiDllNameIP#.
-    cMdiNew# = file-info:full-pathname.
-
-    if cMdiNew# <> ? then 
+    if cMdiDllNameIP# <> "[no dll]" then 
     do:
-      oAssembly# =
-        System.Reflection.Assembly:LoadFile(cMdiNew#).
-      if oAssembly# <> ? then
-        oMdiNew# = cast(oAssembly#:CreateInstance(cMdiClassNameIP#), i_masterwindow).
-    end.
 
+      file-info:file-name = cMdiDllNameIP#.
+      cMdiNew# = file-info:full-pathname.
+
+      if cMdiNew# <> ? then 
+      do:
+        oAssembly# =
+          System.Reflection.Assembly:LoadFile(cMdiNew#).
+        if oAssembly# <> ? then
+          oMdiNew# = cast(oAssembly#:CreateInstance(cMdiClassNameIP#), i_masterwindow).
+      end.
+    
+    end.
+    else 
+      oMdiNew# = dynamic-new cMdiClassNameIP#().
+    
     oForm# = cast(cast(oMdiNew#,Progress.Lang.Object), System.Windows.Forms.Form).
     
     /* TODO: SetAliases doesn't really belong here. */
