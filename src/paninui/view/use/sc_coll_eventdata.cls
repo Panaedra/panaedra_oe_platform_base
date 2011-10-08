@@ -633,7 +633,13 @@ class paninui.view.use.sc_coll_eventdata
         if type-of(oWidget#,System.Windows.Forms.Form) then 
         do:
           
+          
           oFormsForm# = cast(oWidget#,System.Windows.Forms.Form).
+
+          if lookup(cEventTypeIP#, "KeyPress,KeyDown,KeyUp") > 0 and 
+            not oFormsForm#:KeyPreview then
+            undo, throw new Progress.Lang.AppError(subst("Event &1 will never fire. Set attribute KeyPreview to true in Form &2 (&3)", cEventTypeIP#, oFormsForm#:ToString(), oFormsForm#:Text), 99950131).
+
           if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
             case cEventTypeIP#:
               when "KeyPress" then oFormsForm#:KeyPress:Subscribe(oSingleton:OnEventArgsHandler_KeyPress).

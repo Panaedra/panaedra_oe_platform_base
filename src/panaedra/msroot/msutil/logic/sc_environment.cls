@@ -232,9 +232,10 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     &else
         
-    if paninui.mdiwindow.sc_mdiwindow:oFirstMdiWindow = ? 
-      /* Workaround for 10.2B04. Form isn't reachable anymore after set-wait-state. Worked fine in 10.2B03.
-         Note: first-form gives "?" for paninui forms. 
+    if session:first-form <> ? or paninui.mdiwindow.sc_mdiwindow:oFirstMdiWindow = ? 
+      /* Workaround for 10.2B04. .NET Form from dll isn't reachable anymore after set-wait-state. Worked fine in 10.2B03.
+         Note: first-form gives "?" for paninui .NET forms from dll.
+         20111008: There is a better workaround now, paninui supports ABL mdi windows. 
       */
       then 
     do:
