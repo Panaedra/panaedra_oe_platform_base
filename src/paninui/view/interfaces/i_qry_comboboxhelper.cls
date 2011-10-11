@@ -1,6 +1,10 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_interface.i} 
 
-interface paninui.view.interfaces.i_qry_comboboxhelper:  
+interface paninui.view.interfaces.i_qry_comboboxhelper
+
+  /* This is what we want, will be supported in a future OE release:
+  inherits panaedra.msroot.msdr.interfaces.i_qry */
+  :  
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive:  $ 
@@ -14,9 +18,18 @@ interface paninui.view.interfaces.i_qry_comboboxhelper:
   \*****************************  Include Files ********************************/
 
   /******************************* $NoKeywords:  $ *****************************/
-  method public void RefreshCsvData(cSsvIP# as character).
-  method public handle GetBuffer(iBufferIP# as integer).
-
+  method public void      RefreshCsvData(cSsvIP# as character).
+  method public handle    GetBufferHandle().
+  method public logical   FindByID(iIdIP# as int64).
+  method public character GetDisplayValue().
+  method public logical   BufferAvailable().
+  
+  /* i_qry methods: */
+  method public logical QueryOpen().
+  method public logical QueryOpenAndReposition().
+  method public void QueryClose().
+  method public void UiRefreshAll().
+  
 end interface.
 
 /* EOF */ 
