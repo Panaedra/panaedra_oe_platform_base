@@ -35,10 +35,39 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
     .
   
   method public static void ValidateXmlByXsd(
+    input  cXmlFileIP#   as character, 
+    input  cNameSpaceIP# as character,
+    input  cXsdFileIP#   as character, 
+    output cErrorOP#     as character):
+    
+    ValidateXmlByXsd_Implement(cXmlFileIP#,?,cNameSpaceIP#,cXsdFileIP#,output cErrorOP#).
+  
+  end method. /* ValidateXmlByXsd */
+  
+  
+  method public static void ValidateXmlByXsd(
+    input  hDsIP#        as handle, 
+    input  cXsdFileIP#   as character, 
+    output cErrorOP#     as character):
+    
+    define variable cNameSpace# as character no-undo.
+    define variable mDs#        as memptr    no-undo.
+    
+    cNameSpace# = hDsIP#:namespace-uri.
+    
+    hDsIP#:write-xml("memptr", mDs#, true, "utf-8").
+    
+    ValidateXmlByXsd_Implement("",mDs#,cNameSpace#,cXsdFileIP#,output cErrorOP#).
+    
+  end method. /* ValidateXmlByXsd */
+  
+  
+  method protected static void ValidateXmlByXsd_Implement(
     
     /* Validate an XML to an XSD. Sax-reader is used. */
   
     input  cXmlFileIP#   as character, 
+    input  mDsIP#        as memptr,
     input  cNameSpaceIP# as character,
     input  cXsdFileIP#   as character, 
     output cErrorOP#     as character):
@@ -47,7 +76,6 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
     define variable hSaxReader#     as handle no-undo.
     
     define buffer b-ttError for ttError.
-    
     
     iTtErrorOrder = 0.
     empty temp-table ttError.
@@ -58,7 +86,11 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
   
     hSaxReaderCurrent = hSaxReader#.
     
-    hSaxReader#:set-input-source("file", cXmlFileIP#).
+    if cXmlFileIP# > "" then
+      hSaxReader#:set-input-source("file", cXmlFileIP#).
+    else
+      hSaxReader#:set-input-source("memptr", mDsIP#).  
+    
     hSaxReader#:handler = hSaxReaderProc#.
     hSaxReader#:add-schema-location(cNameSpaceIP#, cXsdFileIP#).
     hSaxReader#:sax-parse().
@@ -201,9 +233,10 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
     hSax#:set-output-destination ("file", cFileIP#).
     hSax#:encoding = "utf-8".
   
-      hSax#:start-document().
+    hSax#:start-document().
   
-    if bWithRootNodeIP# then do: 
+    if bWithRootNodeIP# then 
+    do: 
       hSax#:start-element(hDatasetIP#:xml-node-name).
   
       if hDatasetIP#:namespace-uri > "" then 
