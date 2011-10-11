@@ -381,7 +381,12 @@ class paninui.view.use.display.sc_displaydata   :
         else 
         do:
           cCased# = sc_dbtrig:GetCased(oQryIP#:sys__hQuery:get-buffer-handle(1)).
-          oComboBox#:ValueMember   = subst("iID&1", cCased#).
+          do on error undo, throw:
+            oComboBox#:ValueMember   = subst("iID&1", cCased#).
+            catch ex as Progress.Lang.Error :
+            	 undo, throw new Progress.Lang.AppError(subst("ValueMember of combobox could not be set. Does your temp-table contain a &1 field?", subst("iID&1", cCased#)), 99950823).
+            end catch.
+          end.
         end.
       end.
       sc_coll_widgetdata:SetDisplayLinked(oWidget#).
