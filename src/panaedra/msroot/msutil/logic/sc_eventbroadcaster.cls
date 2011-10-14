@@ -194,9 +194,14 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
     do for ttEventClient:
       for each ttEventClient where ttEventClient.cEventName = cEventNameIP#
         on error undo, throw:
-        cast(ttEventClient.oClient, i_eventbroadcastclient):OnEventBroadcast(oDataIP#).
-        if oDataIP#:iAbort > 0 then do:
-          return.
+        if not valid-object(ttEventClient.oClient) then do:
+          delete ttEventClient.
+        end.
+        else do:
+          cast(ttEventClient.oClient, i_eventbroadcastclient):OnEventBroadcast(oDataIP#).
+          if oDataIP#:iAbort > 0 then do:
+            return.
+          end.
         end.
       end.
     end.
