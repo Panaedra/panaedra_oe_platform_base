@@ -278,7 +278,8 @@ class panaedra.msroot.msutil.logic.sc_path:
     do:
       bTtPathInitialized = yes.
       temp-table ttPath:read-xml("file", cIniDir + "sc_path.config", "empty", ?, false) no-error. /* Note: the getter of cIniDir initializes cIniDir automatically */
-      if error-status:num-messages > 0 then do:
+      if error-status:num-messages > 0 then 
+      do:
         undo, throw new Progress.Lang.AppError(substitute("sc_path.config could not be read; inidir '&1' path '&2' search '&3'. &4", cIniDir,  cIniDir + "sc_path.config", search(cIniDir + "sc_path.config"), error-status:get-message(1)),99952271).
       end.
       cSysteemDir      = FillPathProperty(sc_environment:cEnv, "cSysteemDir").
@@ -607,9 +608,36 @@ class panaedra.msroot.msutil.logic.sc_path:
     
     return cPathIP#.
 
-  end method. /* SplitGetClassName */  
+  end method. /* SplitGetClassName */
+  
 
-   
+  method public static character SplitPutTag(
+    
+    /* Pure string calculation.
+       Puts a tag in the file path, before the extention.
+       A string like "panaedra/msf/logic/somefile.log" , "_tag" returns "panaedra/msf/logic/somefile_tag.log". 
+     */
+     
+    cPathIP# as character, 
+    cTagIP#  as character): 
+    
+    define variable cExt# as character no-undo.
+     
+    if cPathIP# > "" and cTagIP# > "" then 
+    do:
+      cExt# = SplitGetFileExt(cPathIP#).
+      cExt# = if cExt# > "" then "." + cExt# else "".
+      return
+        SplitGetFileDir(cPathIP#) + 
+        SplitGetFileName(cPathIP#) + 
+        cTagIP# + 
+        cExt#.
+    end.
+    else 
+      return cPathIP#.
+
+  end method. /* SplitPutTag */  
+
 end class.
 
 /* EOF */
