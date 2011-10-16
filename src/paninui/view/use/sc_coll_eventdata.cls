@@ -1264,7 +1264,14 @@ class paninui.view.use.sc_coll_eventdata
         do:
           bFirst# = false.
           oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
-          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+          if oFocus# <> ? then 
+            paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+          else do:
+            /* Can happen if no widget has the focus. Happens always with an empty mdi window. */
+            assign
+              oFocus#       = oSender#
+              iFocusPackID# = ttUiEvent.iPackID.
+          end.  
         end.  
         
         if ttUiEvent.iPackID <> iFocusPackID# then next b_EachUiEvent.
