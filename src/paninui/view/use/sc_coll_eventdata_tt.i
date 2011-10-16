@@ -21,6 +21,7 @@ procedure dvcs__paninui_view_use_sc_coll_eventdata_tt_i: return "$Revision: 7 $"
     field dtmCreUiEvent    as datetime-tz          format "99-99-9999 hh:mm:ss" initial ? xml-node-type "attribute" 
 
     field iPackID          as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute"
+    field bAllPacks        as logical                                                     xml-node-type "attribute"
     field iFrmLogicID      as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute"
     field iDelegateID      as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" 
 
@@ -37,9 +38,8 @@ procedure dvcs__paninui_view_use_sc_coll_eventdata_tt_i: return "$Revision: 7 $"
     index oWidget_EventType_Delegate     is primary unique oWidget cEventType iDelegateID
     index hWidget_EventType_Delegate     is         unique hWidget cEventType iDelegateID
     index oWidget_EventNameType_Delegate is         unique oWidget cEventName cEventType iDelegateID
-    
+    index iPackID                        is         unique iPackID iFrmLogicID cWidgetName cEventType
     .
-
 
   define {&protected} {&static} temp-table ttEventsSuspend no-undo rcode-information
     field iIDEventsSuspend       as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=EventsSuspend " 

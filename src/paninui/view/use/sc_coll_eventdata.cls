@@ -593,7 +593,6 @@ class paninui.view.use.sc_coll_eventdata
   end method. /* ItemAdd ; GroupFrame */
 
 
-
   method public static int64 ItemAdd(
   
     oWidgetType_FormOVID# as i_widgettype_form, 
@@ -1064,12 +1063,12 @@ class paninui.view.use.sc_coll_eventdata
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(oComboBox#:SelectedValue:ToString())).
         end.
         else
-        if type-of(oSender#, System.Windows.Forms.TabControl) then 
-        do:
-          assign
-            oTabControl# = cast(oSender#, System.Windows.Forms.TabControl)
-            oUiValue#    = new c_uivalue_groupframe(sc_coll_widgetdata:WidgetNameToLinkName(oTabControl#,oTabControl#:Name,""), oTabControl#:Enabled, oTabControl#:Visible, oTabControl#:SelectedIndex).
-        end.
+          if type-of(oSender#, System.Windows.Forms.TabControl) then 
+          do:
+            assign
+              oTabControl# = cast(oSender#, System.Windows.Forms.TabControl)
+              oUiValue#    = new c_uivalue_groupframe(sc_coll_widgetdata:WidgetNameToLinkName(oTabControl#,oTabControl#:Name,""), oTabControl#:Enabled, oTabControl#:Visible, oTabControl#:SelectedIndex).
+          end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
       
@@ -1266,7 +1265,8 @@ class paninui.view.use.sc_coll_eventdata
           oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
           if oFocus# <> ? then 
             paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
-          else do:
+          else 
+          do:
             /* Can happen if no widget has the focus. Happens always with an empty mdi window. */
             assign
               oFocus#       = oSender#
@@ -1274,7 +1274,9 @@ class paninui.view.use.sc_coll_eventdata
           end.  
         end.  
         
-        if ttUiEvent.iPackID <> iFocusPackID# then next b_EachUiEvent.
+        if (not ttUiEvent.bAllPacks) 
+          and ttUiEvent.iPackID <> iFocusPackID# 
+          then next b_EachUiEvent.
           
         if type-of(oSender#, System.Windows.Forms.Form) then 
         do:
@@ -1992,7 +1994,41 @@ class paninui.view.use.sc_coll_eventdata
     end. /* Strong scoping */
     
   end method. /* EventsResume */
+  
 
+  method public static void AddEventOption(
+    /* Add specific options to registered events */
+    
+    iPackIDIP#                as int64,
+    iFrmLogicIDIP#            as int64,
+    cWidgetNameIP#            as character,
+    cEventTypeIP#             as character,
+    cSvEventOptionIP#         as character
+    ):
+  
+    define buffer ttUiEvent for ttUiEvent.
+    
+    do for ttUiEvent on error undo, throw:
+      
+      b_EachUiEvent:
+      for each ttUiEvent 
+        where ttUiEvent.iPackID     = iPackIDIP#
+        and   ttUiEvent.iFrmLogicID = iFrmLogicIDIP#
+        and   ttUiEvent.cWidgetName = cWidgetNameIP#
+        and   ttUiEvent.cEventType  = cEventTypeIP#
+        on error undo,throw:
+        
+        if "|" + cSvEventOptionIP# + "|" matches "|bAllPacks=true|" then 
+        do:
+          ttUiEvent.bAllPacks = true.
+        end.
+          
+      end.
+            
+    end.
+    
+  end method. /* AddEventOption */
+  
     
   method public static void DebugShowData():
 
