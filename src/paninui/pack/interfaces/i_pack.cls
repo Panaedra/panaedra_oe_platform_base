@@ -45,12 +45,14 @@ interface paninui.pack.interfaces.i_pack:
     oGroupframeOverlayOVID# as i_showlocationtype_groupframeoverlay,
     cLocationWidgetTypeIP#  as character,
     cLocationWidgetNameIP#  as character,
-    cSubframeLinkNameIP#    as character).
+    cSubframeLinkNameIP#    as character,
+    output iSubframeIdOP#   as int64).
 
   method void LoadSubframe(
     oGroupframeOverlayOVID# as i_showlocationtype_mditopleft,
     cMdiNameIP#             as character,
-    cSubframeLinkNameIP#    as character).
+    cSubframeLinkNameIP#    as character,
+    output iSubframeIdOP#   as int64).
 
   method void HideSubframe(
     cLocationWidgetTypeIP#  as character,
@@ -66,13 +68,15 @@ interface paninui.pack.interfaces.i_pack:
     oGroupframeOverlayOVID# as i_showlocationtype_groupframeoverlay,
     cLocationWidgetTypeIP#  as character,
     cLocationWidgetNameIP#  as character,
-    oSubpackIP#             as i_pack).
+    oSubpackIP#             as i_pack,
+    output iSubframeIdOP#   as int64).
 
   method void LoadSubframepack(
     oGroupframeOverlayOVID# as i_showlocationtype_groupframeoverlay,
     cLocationWidgetTypeIP#  as character,
     cLocationWidgetNameIP#  as character,
-    cSubpackIP#             as character).
+    cSubpackIP#             as character,
+    output iSubframeIdOP#   as int64).
 
   method void HideSubframepack(
     oModalPackIP#           as i_pack,
