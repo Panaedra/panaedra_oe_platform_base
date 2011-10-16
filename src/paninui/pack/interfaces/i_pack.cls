@@ -47,6 +47,11 @@ interface paninui.pack.interfaces.i_pack:
     cLocationWidgetNameIP#  as character,
     cSubframeLinkNameIP#    as character).
 
+  method void LoadSubframe(
+    oGroupframeOverlayOVID# as i_showlocationtype_mditopleft,
+    cMdiNameIP#             as character,
+    cSubframeLinkNameIP#    as character).
+
   method void HideSubframe(
     cLocationWidgetTypeIP#  as character,
     cLocationWidgetNameIP#  as character,
