@@ -32,7 +32,7 @@ procedure dvcs__paninui_view_use_sc_coll_eventdata_tt_i: return "$Revision: 7 $"
     field cEventName       as character            format "x(50)"               xml-node-type "attribute"
     field cEventType       as character            format "x(50)"               xml-node-type "attribute"
     field cEventOptions    as character            format "x(50)"               xml-node-type "attribute"
-
+    field cSvFilterKeyCode as character            format "x(50)"               xml-node-type "attribute"
     index iIDUiEvent       is unique iIDUiEvent ascending 
     
     index oWidget_EventType_Delegate     is primary unique oWidget cEventType iDelegateID

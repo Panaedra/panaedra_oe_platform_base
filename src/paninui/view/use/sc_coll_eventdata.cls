@@ -1171,8 +1171,10 @@ class paninui.view.use.sc_coll_eventdata
           paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
         end.  
         
-        if ttUiEvent.iPackID <> iFocusPackID# then next b_EachUiEvent.
-          
+        if (not ttUiEvent.bAllPacks) 
+          and ttUiEvent.iPackID <> iFocusPackID# 
+          then next b_EachUiEvent.
+  
         if type-of(oSender#, System.Windows.Forms.Form) then 
         do:
           assign
@@ -1183,6 +1185,9 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oFormsKeyPressArgs# = cast(oArgs#, System.Windows.Forms.KeyPressEventArgs).
+          if ttUiEvent.cSvFilterKeyCode > "" 
+            and lookup(string(oFormsKeyPressArgs#:KeyChar), ttUiEvent.cSvFilterKeyCode) = 0 
+            then next b_EachUiEvent.
           /*            cCasedLetter#  = string(oFormsKeyPressArgs#:KeyChar).                                                  */
           /*          if length(cCasedLetter#) <> 1 then cCasedLetter# = "".                                                   */
           /*          if                                                                                                       */
@@ -1277,7 +1282,7 @@ class paninui.view.use.sc_coll_eventdata
         if (not ttUiEvent.bAllPacks) 
           and ttUiEvent.iPackID <> iFocusPackID# 
           then next b_EachUiEvent.
-          
+        
         if type-of(oSender#, System.Windows.Forms.Form) then 
         do:
           assign
@@ -1289,6 +1294,9 @@ class paninui.view.use.sc_coll_eventdata
           assign
             oFormsKeyArgs# = cast(oArgs#, System.Windows.Forms.KeyEventArgs)
             cCasedLetter#  = string(oFormsKeyArgs#:KeyCode).
+          if ttUiEvent.cSvFilterKeyCode > "" 
+            and lookup(string(oFormsKeyArgs#:KeyCode), ttUiEvent.cSvFilterKeyCode) = 0 
+            then next b_EachUiEvent.
           if length(cCasedLetter#) <> 1 then cCasedLetter# = "".
           if 
             (asc(cCasedLetter#) >= asc("A") and asc(cCasedLetter#) <= asc("Z"))
@@ -1367,7 +1375,9 @@ class paninui.view.use.sc_coll_eventdata
           paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
         end.  
         
-        if ttUiEvent.iPackID <> iFocusPackID# then next b_EachUiEvent.
+        if (not ttUiEvent.bAllPacks) 
+          and ttUiEvent.iPackID <> iFocusPackID# 
+          then next b_EachUiEvent.
           
         if type-of(oSender#, System.Windows.Forms.Form) then 
         do:
@@ -1380,6 +1390,9 @@ class paninui.view.use.sc_coll_eventdata
           assign
             oFormsKeyArgs# = cast(oArgs#, System.Windows.Forms.KeyEventArgs)
             cCasedLetter#  = string(oFormsKeyArgs#:KeyCode).
+          if ttUiEvent.cSvFilterKeyCode > "" 
+            and lookup(string(oFormsKeyArgs#:KeyCode), ttUiEvent.cSvFilterKeyCode) = 0 
+            then next b_EachUiEvent.
           if length(cCasedLetter#) <> 1 then cCasedLetter# = "".
           if 
             (asc(cCasedLetter#) >= asc("A") and asc(cCasedLetter#) <= asc("Z"))
@@ -2008,6 +2021,10 @@ class paninui.view.use.sc_coll_eventdata
   
     define buffer ttUiEvent for ttUiEvent.
     
+    define variable iIndex#  as integer no-undo.
+    define variable iStart#  as integer no-undo.
+    define variable iLength# as integer no-undo.
+    
     do for ttUiEvent on error undo, throw:
       
       b_EachUiEvent:
@@ -2018,9 +2035,18 @@ class paninui.view.use.sc_coll_eventdata
         and   ttUiEvent.cEventType  = cEventTypeIP#
         on error undo,throw:
         
-        if "|" + cSvEventOptionIP# + "|" matches "|bAllPacks=true|" then 
+        if "|" + cSvEventOptionIP# + "|" matches "*|bAllPacks=true|*" then 
         do:
           ttUiEvent.bAllPacks = true.
+        end.
+        
+        if "|" + cSvEventOptionIP# + "|" matches "*|cSvFilterKeyCode=*" then 
+        do:
+          assign
+            iIndex#                    = index("|" + cSvEventOptionIP#, "|cSvFilterKeyCode=")
+            iStart#                    = iIndex# + length("|cSvFilterKeyCode=") - 1
+            iLength#                   = index("|" + cSvEventOptionIP# + "|", "|", iStart#) - iStart# - 1
+            ttUiEvent.cSvFilterKeyCode = substring(cSvEventOptionIP#, iStart#, iLength#).
         end.
           
       end.
