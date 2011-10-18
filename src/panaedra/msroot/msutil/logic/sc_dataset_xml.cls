@@ -190,8 +190,17 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml:
     end.
     
   end method. /* GetCsvNodenames */
+
   
-    
+  method public static void CopyNodenames( 
+    hDsFromIP# as handle,
+    hDsToIP#   as handle
+    ):
+
+    CsvNodenamesApply(hDsToIP#,CsvNodenamesGet(hDsFromIP#)).
+  
+  end method. /* CopyNodenames */
+  
 end class.
 
 /* EOF */ 
