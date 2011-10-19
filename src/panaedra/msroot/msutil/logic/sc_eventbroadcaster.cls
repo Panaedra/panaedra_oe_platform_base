@@ -208,6 +208,13 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
 
   end method. /* FireEventImplement */  
   
+  method public static void DebugShowData():
+
+    if sc_html:TempTableToHTML(buffer ttEventClient:handle, sc_path:cTempDir + "ttBroadcastClient.html") then 
+      sc_win32:ShellExecute(sc_path:cTempDir + "ttBroadcastClient.html"). /* Open file */
+    
+  end method. /* DebugShowData */    
+
 
   method public c_array_char GetRuntimeHelp():
     
