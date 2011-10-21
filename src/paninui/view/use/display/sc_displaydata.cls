@@ -613,6 +613,29 @@ class paninui.view.use.display.sc_displaydata   :
     oComboBoxOVID#  as i_widgettype_combobox,
     cWidgetNameIP#  as character,
     cPropertyIP#    as character,
+    bValueIP#       as logical):
+      
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, bValueIP#).
+
+  end method. /* SetUiValue ; ComboBox */
+
+
+  method public static void SetUiValue(
+    
+    /* Directly set any property of a combobox widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oFrmLogicIP#    as i_frmlogic,
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
     dtmValueIP#     as datetime-tz):
       
     define variable bIsDisplayLinkedOP# as logical              no-undo.

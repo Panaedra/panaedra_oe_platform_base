@@ -230,6 +230,18 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
     oComboBoxOVID#  as i_widgettype_combobox,
     cWidgetNameIP#  as character,
     cPropertyIP#    as character,
+    bValueIP#       as logical):
+      
+    paninui.view.use.display.sc_displaydata:SetUiValue(oFrmLogic, oComboBoxOVID#, cWidgetNameIP#, cPropertyIP#, bValueIP#).
+
+  end method. /* SetUiValue ; ComboBox + integer */
+
+
+  method public void SetUiValue(
+    
+    oComboBoxOVID#  as i_widgettype_combobox,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
     dtmValueIP#     as datetime-tz):
       
     paninui.view.use.display.sc_displaydata:SetUiValue(oFrmLogic, oComboBoxOVID#, cWidgetNameIP#, cPropertyIP#, dtmValueIP#).
