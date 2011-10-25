@@ -929,6 +929,7 @@ class paninui.view.use.sc_coll_eventdata
     
     define variable bEclipseFix# as logical                           no-undo.
     define variable oComboBox#   as System.Windows.Forms.ComboBox     no-undo.
+    define variable oTextBox#    as System.Windows.Forms.TextBox      no-undo.
     define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
@@ -942,6 +943,12 @@ class paninui.view.use.sc_coll_eventdata
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
+        end.
+        else if type-of(oSender#, System.Windows.Forms.TextBox) then 
+        do:
+          assign
+            oTextBox# = cast(oSender#, System.Windows.Forms.TextBox)
+            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oTextBox#,oTextBox#:Name,""), oTextBox#:Enabled, oTextBox#:Visible, oTextBox#:Text).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
