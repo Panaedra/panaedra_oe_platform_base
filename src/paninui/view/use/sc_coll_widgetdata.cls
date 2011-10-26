@@ -231,8 +231,9 @@ class paninui.view.use.sc_coll_widgetdata
     
     define variable cLinkPrefix# as character no-undo.
     
-    def buffer ttWidgetData          for ttWidgetData.
-    def buffer b-parent-ttWidgetData for ttWidgetData.
+    define buffer ttWidgetData          for ttWidgetData.
+    define buffer b-parent-ttWidgetData for ttWidgetData.
+    define buffer b-ttUIFrame           for ttUIFrame.
     
     do for ttWidgetData, b-parent-ttWidgetData:
     
@@ -276,6 +277,10 @@ class paninui.view.use.sc_coll_widgetdata
       end.
       
       ttWidgetData.cLinkName = WidgetNameToLinkName(?, ttWidgetData.cLinkName, cLinkPrefix#).
+      
+      find first b-ttUIFrame where b-ttUIFrame.iIDUiFrame = iIDUIFrameIP#.
+
+      ttWidgetData.iFramePackId = b-ttUIFrame.iPackID.
 
       return ttWidgetData.iIDWidgetData.
       
@@ -493,7 +498,8 @@ class paninui.view.use.sc_coll_widgetdata
         return ttWidgetData.oWidget.
       end.
         
-      if cLinkNameAlt# > "" then
+      if cLinkNameAlt# > "" then 
+      do:
         b_getwidgetAlt:
         for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
           each ttWidgetData of ttUIFrame
@@ -502,6 +508,16 @@ class paninui.view.use.sc_coll_widgetdata
           bIsDisplayLinkedOP# = ttWidgetData.bIsDisplayLinked.
           return ttWidgetData.oWidget.
         end.
+      end.
+      
+      if sc_environment:IsIdeRunning() then
+        sc_developerfeedback:DevMsg(
+          subst("Not necessarily a bug: Widget '&1/&2/&3/&4' requested but not present.",
+          iPackIdIP#,     
+          cWidgetTypeIP#,
+          hBuffOrQueryIP#,
+          cDataRefIP#)
+          , sc_info:GetCallStack()).
         
     end.
     
@@ -564,6 +580,14 @@ class paninui.view.use.sc_coll_widgetdata
         end.
         
     end.
+
+    if sc_environment:IsIdeRunning() then
+      sc_developerfeedback:DevMsg(
+        subst("Not necessarily a bug: Widget '&1/&2/&3/&4' requested but not present.",
+        iPackIdIP#,     
+        cWidgetTypeIP#,
+        cDataRefIP#)
+        , sc_info:GetCallStack()).
     
   end method. /* GetWidget : only by type (or any type) and name */
   
@@ -805,7 +829,8 @@ class paninui.view.use.sc_coll_widgetdata
 
     oBindingSource# = oQryIP#:GetActiveBindingsource().      
 
-    if oBindingSource# <> ? then do:
+    if oBindingSource# <> ? then 
+    do:
       
       for each   b-ttWidgetData no-lock
         where b-ttWidgetData.oBindingSource = oBindingSource# /* This field is indexed */
@@ -833,6 +858,12 @@ class paninui.view.use.sc_coll_widgetdata
       panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msroot.msutil.logic.sc_path:cTempDir + "ttWidgetData.html"). /* Open file */
 
   end method. /* DebugShowData */
+
+  
+  method public static void GetTtWidgetData(
+    output table ttWidgetData):
+  
+  end method. /* GetTtWidgetData */
   
 
   method public void OnEventBroadcast(oBroadcastDataIP# as i_eventbroadcastdata):

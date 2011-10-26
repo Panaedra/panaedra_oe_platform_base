@@ -39,6 +39,7 @@ procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 8 $
     field dtmCreWidgetData    as datetime-tz          format "99-99-9999 hh:mm:ss" initial ? xml-node-type "attribute" 
     field dtmModWidgetData    as datetime-tz          format "99-99-9999 hh:mm:ss" initial ? xml-node-type "attribute"
 
+    field iFramePackId        as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" 
     field iIDUiFrame          as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" 
     field iIDWidgetDataParent as int64                format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute"
 
@@ -54,8 +55,9 @@ procedure dvcs__paninui_view_use_sc_coll_widgetdata_tt_i: return "$Revision: 8 $
 
     index iIDWidgetData            is unique iIDWidgetData 
     index i_frame_parent_self      is primary iIDUiFrame ascending iIDWidgetDataParent descending iIDWidgetData descending 
-    index iIDUIFrame_Type_LinkName iIDUIFrame cWidgetType cLinkName 
-    index iIDUIFrame_LinkName      iIDUIFrame cLinkName 
+    index iIDUIFrame_Type_LinkName iIDUIFrame   cWidgetType cLinkName 
+    index iIDUIFrame_LinkName      iIDUIFrame   cLinkName 
+    index iFramePackId_cLinkName   iFramePackId cLinkName 
     index dtmCreWidgetData         dtmCreWidgetData 
     index dtmModWidgetData         dtmModWidgetData 
     index oWidget                  oWidget          
