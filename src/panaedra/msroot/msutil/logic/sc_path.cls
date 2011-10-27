@@ -277,10 +277,10 @@ class panaedra.msroot.msutil.logic.sc_path:
     if not bTtPathInitialized then 
     do:
       bTtPathInitialized = yes.
-      temp-table ttPath:read-xml("file", cIniDir + "sc_path.config", "empty", ?, false) no-error. /* Note: the getter of cIniDir initializes cIniDir automatically */
+      temp-table ttPath:read-xml("file", cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config", "empty", ?, false) no-error. /* Note: the getter of cIniDir initializes cIniDir automatically */
       if error-status:num-messages > 0 then 
       do:
-        undo, throw new Progress.Lang.AppError(substitute("sc_path.config could not be read; inidir '&1' path '&2' search '&3'. &4", cIniDir,  cIniDir + "sc_path.config", search(cIniDir + "sc_path.config"), error-status:get-message(1)),99952271).
+        undo, throw new Progress.Lang.AppError(substitute("sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config could not be read; inidir '&1' path '&2' search '&3'. &4", cIniDir,  cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config", search(cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config"), error-status:get-message(1)),99952271).
       end.
       cSysteemDir      = FillPathProperty(sc_environment:cEnv, "cSysteemDir").
       cLogDir          = FillPathProperty(sc_environment:cEnv, "cLogDir").

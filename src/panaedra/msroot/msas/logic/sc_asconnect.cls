@@ -50,7 +50,11 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
     
     if oSingleton = ? then oSingleton = new panaedra.msroot.msas.logic.sc_asconnect().
     
-    temp-table ttAsConnect:read-xml("file", sc_path:cIniDir + "sc_asconnect.config", "empty", ?, false).
+    if sc_environment:bLiveEnv
+      then
+      temp-table ttAsConnect:read-xml("file", sc_path:cIniDir + "sc_asconnect_live.config", "empty", ?, false).
+    else
+      temp-table ttAsConnect:read-xml("file", sc_path:cIniDir + "sc_asconnect_nonlive.config", "empty", ?, false).
     
   end method. /* Initialize */
 
@@ -74,10 +78,11 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       
       undo, throw new c__FCMPNY_exception(
         99909002,
-        subst("Error: AppServer configuration (sc_asconnect.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+        subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
         cEnvIP#,
         cMirrorIP#,
-        cSuffixIP#)).
+        cSuffixIP#,
+        trim(string(sc_environment:bLiveEnv,"_live/_nonlive")))).
         
     end. 
     else 
@@ -149,10 +154,11 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       
         undo, throw new c__FCMPNY_exception(
           99909002,
-          subst("Error: AppServer configuration (sc_asconnect.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+          subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
           sc_environment:cEnv,
           cMirrorIP#,
-          cSuffix#)).
+          cSuffix#,
+          trim(string(sc_environment:bLiveEnv,"_live/_nonlive")))).
         
       end. 
       else 
@@ -224,10 +230,11 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
     if not avail ttAsConnect then 
       undo, throw new c__FCMPNY_exception(
         99909002,
-        subst("Error: AppServer configuration (sc_asconnect.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+        subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
         cEnvIP#,
         cMirrorIP#,
-        cSuffixIP#)).
+        cSuffixIP#,
+        trim(string(sc_environment:bLiveEnv,"_live/_nonlive")))).
 
     if ttAsConnect.hAppserver <> session:handle then 
     do:

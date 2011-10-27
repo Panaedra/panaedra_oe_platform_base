@@ -11,7 +11,7 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
      Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
     Date Modified: $Modtime: 2010-01-27 19:45:54+01:00 $ 
 
-      Description: Connect to database(s) (for appserver)
+      Description: Connect to database(s) (also for appservers)
 
   \*****************************  Include Files ********************************/
 
@@ -22,9 +22,9 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  def protected static temp-table ttDbConnect no-undo rcode-info
+  define protected static temp-table ttDbConnect no-undo rcode-info
     field cEnv      as char xml-node-type "attribute"
-    field cHostname as char xml-node-type "attribute" /* We zoeken eerst naar specifieke hostname, daarna naar blanco hostname */
+    field cHostname as char xml-node-type "attribute" /* First look for specific hostname, secondly for empty hostname */
     field cConnect  as char xml-node-type "attribute"
     index cEnv_cHostname is primary unique cEnv cHostname
     .
@@ -35,23 +35,24 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
     define variable cHostName# as character no-undo.
     
     if not can-find(first ttDbConnect)
-      then temp-table ttDbConnect:read-xml("file", panaedra.msroot.msutil.logic.sc_path:cIniDir + "sc_dbconnect.config", "empty", ?, false).
+      then temp-table ttDbConnect:read-xml("file", 
+      sc_path:cIniDir + "sc_dbconnect_" + (if sc_environment:bLiveEnv then "live" else "nonlive") + ".config", "empty", ?, false).
     
-    /* Als er nog geen database verbinding is ... */
+    /* Check for existing connection */
     if not connected("ma") and not connected("lo") then 
     do:
       
-      cEnv#      = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").      
-      cHostName# = panaedra.msroot.msutil.logic.sc_environment:GetHostName().
+      cEnv#      = sc_boot:SessionParameter("Env").      
+      cHostName# = sc_environment:GetHostName().
       
       
-      /* Zoek voor record met hostname _SRVR_ of _PRODUCT_ */
+      /* Check for specific host */
       find ttDbConnect 
         where ttDbConnect.cEnv      = cEnv#
         and   ttDbConnect.cHostname = cHostName#
         no-error.
     
-      /* Als er geen record gevonden is zoek dan voor record met hostname "" */
+      /* Check for generic host */
       if not available ttDbConnect then
       do:
         find ttDbConnect 
@@ -60,10 +61,10 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
           no-error.
       end.  
         
-      /* Als er een record gevonden is ... */
+      /* Connect db's */
       if available ttDbConnect then
       do:
-        connect value(ttDbConnect.cConnect). /* In principe: adm en log (en zonodig andere db's) */
+        connect value(ttDbConnect.cConnect).
       end.  
       
       ConnectExtraDbs_Implement().
@@ -88,14 +89,19 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
 
     define variable cExtraDbs# as character no-undo.
 
-    cExtraDbs# = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("ExtraDbs").
+    cExtraDbs# = sc_boot:SessionParameter("ExtraDbs").
 
     if cExtraDbs# > "" then 
     do: 
       connect value(cExtraDbs#) no-error.
       
       if error-status:num-messages > 0 then
-        undo, throw new Progress.Lang.AppError(subst("DB connect error: &1", error-status:get-message(1)),95001267).
+        undo, throw new c_panaedraexception(
+          95001267,
+          sc_lang:oEnglish,
+          subst("DB connect error: &1", error-status:get-message(1))
+          ).
+        
     end.
     
   end method. /* ConnectExtraDbs_Implement */
@@ -108,14 +114,13 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
     def var cAliasDbs# as char no-undo.
     def var cMasterDb# as char no-undo.
   
-    /* Deze shared vars zullen only in speciale gevallen
-       gevuld zijn, bv vanuit de _CMPNY_ xref viewer.
-       Normale sessies: AliasDbs = leeg, MasterDb = "ma"
+    /* Compatibility for special cases like _CMPNY_ xref viewer.
+       
      */
    
     cMasterDb# = sc_prop:GetSharedVar("Aliases","MasterDb") no-error.
    
-    /* no-error: supers wellicht nog niet in de lucht. */
+    /* no-error: static classes, supers.. */
     cAliasDbs# =  sc_prop:GetSharedVar("Aliases","AliasDbs") no-error.
     if cAliasDbs# = ? then cAliasDbs# = "".
   
