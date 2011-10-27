@@ -476,14 +476,14 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     input bAppendMoveIP# as logical /* append voor achive */
     ):
    
-   define variable iReturn# as integer no-undo.
+    define variable iReturn# as integer no-undo.
    
-   iReturn# = SafeFileCopy(cFileFromIP#,cFileToIP#,bAppendCopyIP#).
+    iReturn# = SafeFileCopy(cFileFromIP#,cFileToIP#,bAppendCopyIP#).
    
-   if iReturn# = 0 then
-     iReturn# = SafeFileMove(cFileFromIP#,cFileArchive#,bAppendMoveIP#).
+    if iReturn# = 0 then
+      iReturn# = SafeFileMove(cFileFromIP#,cFileArchive#,bAppendMoveIP#).
    
-   return iReturn#.
+    return iReturn#.
    
   end method. /* SafeFileMoveAndArchive */
   
@@ -573,6 +573,27 @@ class panaedra.msroot.msutil.logic.sc_osfile:
         
   end method. /* FileExists */
   
+
+  method public static datetime-tz GetFileModDatetime(cFileIP# as character):
+    
+    define variable dtmReturn# as datetime-tz no-undo.
+    
+    file-info:file-name = cFileIP#.
+    
+    if file-info:full-pathname > "" then 
+    do:
+      dtmReturn# = datetime-tz(file-info:file-mod-date, file-info:file-mod-time * 1000).
+    end.
+    else
+      undo, throw new c_panaedraexception(
+        99958002,
+        sc_lang:oDutch,
+        substitute("Error, '&1' does not exist", cFileIP#)
+        ).
+      
+    return dtmReturn#.
+  
+  end method. /* GetFileModDatetime */
   
 end class.
 

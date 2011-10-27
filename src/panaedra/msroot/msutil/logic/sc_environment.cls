@@ -65,6 +65,25 @@ class panaedra.msroot.msutil.logic.sc_environment:
     end get.
     protected set.
 
+  define static property cDeployID as character no-undo 
+    public get:
+      if cDeployID = "" then 
+      do:
+        cDeployID = sc_boot:SessionParameter("DeployID").
+      end.
+      return cDeployID.
+    end get.
+    protected set.
+  
+  define static property cLayer as character no-undo 
+    public get:
+      if cLayer = "" then 
+      do:
+        cLayer = sc_boot:SessionParameter("Layer").
+      end.
+      return cLayer.
+    end get.
+    protected set.
   
   define static property bDbReadonly as logical no-undo init ?
     public get:
