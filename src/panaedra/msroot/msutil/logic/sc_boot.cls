@@ -32,6 +32,22 @@ class panaedra.msroot.msutil.logic.sc_boot:
     
   /******************************* Methods *************************************/
     
+  constructor static sc_boot():
+    
+    &if opsys = "win32" &then
+    
+    if not sc_environment:bBatchMode then 
+    do:
+      assign
+        session:system-alert-boxes = true
+        session:appl-alert-boxes   = true.
+    end.
+    
+    &endif
+    
+  end constructor.
+  
+
   method public static char SessionParameter (cTokenIP# as char):
     
     if not can-find (first t-sesspara) then buildTsesspara().
@@ -65,7 +81,6 @@ class panaedra.msroot.msutil.logic.sc_boot:
     end.
 
   end method.
-  
   
 end class.
 
