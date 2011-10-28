@@ -40,6 +40,8 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployConfig{&ttSuffix} 
   {&reference-only} {&rcode-information} {&before-table}
   field iIDMsDeployConfig as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsDeployConfig | PersistencyMode=xml-store "  
   field cDeployID         as character   xml-node-type "attribute"
+  field cSvUserInclude    as character   xml-node-type "attribute"
+  field cSvUserExclude    as character   xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsDeployConfig is unique         iIDMsDeployConfig
   index cDeployID         is unique primary cDeployID

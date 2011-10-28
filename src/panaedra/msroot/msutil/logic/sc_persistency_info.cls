@@ -371,7 +371,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
 
     define variable iTell#       as integer   no-undo.
     define variable iOrder#      as integer   no-undo.
-    define variable cEntry#      as character no-undo.
+    define variable cDvcs_ProcEntry#      as character no-undo.
     define variable bDebugAlert# as logical   no-undo view-as fill-in format "Y/N" label "Debug-alert".
     define variable hProcAll#    as handle    no-undo.
     
@@ -381,14 +381,14 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
     do:
 
       do iTell# = 1 to num-entries(hProcOndeIP#:internal-entries):
-        cEntry# = entry(iTell#,hProcOndeIP#:internal-entries).
-        if cEntry# begins "dvcs__" then 
+        cDvcs_ProcEntry# = entry(iTell#,hProcOndeIP#:internal-entries).
+        if cDvcs_ProcEntry# begins "dvcs__" then 
         do:
-          run value(cEntry#) in hProcOndeIP# no-error.
+          run value(cDvcs_ProcEntry#) in hProcOndeIP# no-error.
           create ttSourceControl.
           ttSourceControl.hProc     = hProcOndeIP#.
           ttSourceControl.cFileName = hProcOndeIP#:file-name.
-          ttSourceControl.cIden     = cEntry#.
+          ttSourceControl.cIden     = cDvcs_ProcEntry#.
           ttSourceControl.iVersion  = int(trim(entry(2,return-value,":")," $")) no-error.
           release ttSourceControl.
         end.
@@ -410,15 +410,15 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
 
     do while valid-handle(hProcAll#):
       do iTell# = 1 to num-entries(hProcAll#:internal-entries):
-        cEntry# = entry(iTell#,hProcAll#:internal-entries).
-        if cEntry# begins "dvcs__" then 
+        cDvcs_ProcEntry# = entry(iTell#,hProcAll#:internal-entries).
+        if cDvcs_ProcEntry# begins "dvcs__" then 
         do:
           iOrder# = iOrder# + 1.
-          run value(cEntry#) in hProcAll# no-error.
+          run value(cDvcs_ProcEntry#) in hProcAll# no-error.
           create ttSourceControl.
           ttSourceControl.hProc     = hProcAll#.
           ttSourceControl.cFileName = hProcAll#:file-name.
-          ttSourceControl.cIden     = cEntry#.
+          ttSourceControl.cIden     = cDvcs_ProcEntry#.
           ttSourceControl.iOrder    = iOrder#.
           ttSourceControl.iVersion  = int(trim(entry(2,return-value,":")," $")) no-error.
           release ttSourceControl.

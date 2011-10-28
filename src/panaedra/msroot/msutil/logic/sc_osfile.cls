@@ -179,6 +179,8 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     define variable cLine#   as char          no-undo extent 3.
     define variable oStream# as c_file_stream no-undo.
     define variable dtmFile# as datetime-tz   no-undo.
+    define variable iTell#   as integer       no-undo.
+    define variable cMatch#  as character     no-undo.
     
     oStream# = new c_file_stream().
     
@@ -200,11 +202,23 @@ class panaedra.msroot.msutil.logic.sc_osfile:
           if dtmFromIP# <> ? and dtmFile# < dtmFromIP# then next b_repeat_osdir.
           if dtmToIP#   <> ? and dtmFile# > dtmToIP#   then next b_repeat_osdir.
         end.
+        if num-entries(cMatchesIP#) > 1 then 
+        do iTell# = 1 to num-entries(cMatchesIP#):
+          cMatch# = entry(iTell#,cMatchesIP#).
+          if entry(num-entries(cLine#[2],"/"),cLine#[2],"/") matches cMatch# then 
+          do:
+            create ttFile.
+            assign 
+              ttFile.cFullPath = cLine#[2].
+          end.
+        end.
+        else do:
         if cMatchesIP# = ? or cMatchesIP# = "" or entry(num-entries(cLine#[2],"/"),cLine#[2],"/") matches cMatchesIP# then 
-        do:
-          create ttFile.
-          assign 
-            ttFile.cFullPath = cLine#[2].
+          do:
+            create ttFile.
+            assign 
+              ttFile.cFullPath = cLine#[2].
+          end.
         end.
       end.
       else if cLine#[3] begins "D" then 
