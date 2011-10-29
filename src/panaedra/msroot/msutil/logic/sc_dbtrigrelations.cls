@@ -1,9 +1,9 @@
-{panaedra/msroot/msutil/logic/top_i/ctop_class.i}
-
 using panaedra.msroot.msdr.logic.*.
 using panaedra.msroot.msdr.interfaces.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
+
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
 class panaedra.msroot.msutil.logic.sc_dbtrigrelations   : 
 
@@ -50,12 +50,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrigrelations   :
     if not can-find(first b-ttMsdrDbtrigTables) then 
     do:
       /* sc_dbtrigrelations.datarel_xml is the central (override-)storage for datarelations. Normally empty. */
-      file-information:file-name = "panaedra/msroot/msutil/logic_val/cfg/sc_dbtrigrelations.datarel_xml".
-      if file-information:full-pathname > "" then 
-      do:
-        dataset dsDbRelations:read-xml("file", file-information:full-pathname, "empty", ?, false).
-      end.
-      else undo, throw new Progress.Lang.AppError("'panaedra/msroot/msutil/logic_val/cfg/sc_dbtrigrelations.datarel_xml' was not found.", 99953969).
+      sc_config:ReadXml(dataset dsDbRelations:handle, "panaedra/msroot/msutil/logic_val/cfg/sc_dbtrigrelations.datarel_xml").
     end.
     
     cNsGroupdir# = hBuffTableInfoIP#::cNsGroupdir. 
@@ -74,16 +69,9 @@ class panaedra.msroot.msutil.logic.sc_dbtrigrelations   :
           + hBuffTableInfoIP#::cNsGroupdir + "/logic_val/cfg/"
           + substitute("&1.&2.datarel_xml", hBuffTableInfoIP#::cNsKey, cNsGroupdir#)
           .
+
+        sc_config:ReadXml(dataset dsDbRelations:handle,cFileName#, "append").
           
-        file-information:file-name = cFileName#.
-        
-        if file-information:full-pathname > "" then 
-        do:
-          dataset dsDbRelations:read-xml("file", file-information:full-pathname, "append", ?, false). 
-        end.
-        else 
-          undo, throw new Progress.Lang.AppError(subst("Datarelation file '&1' not found", cFileName#),99958476).
-        
         /* This do while is needed, because within the preselect, 
            new records can be created. 
            Circular recursion *is* allowed in datarel_xml files,
@@ -108,13 +96,8 @@ class panaedra.msroot.msutil.logic.sc_dbtrigrelations   :
               assign
                 b-ttMsdrTriggerLink.bHandled = true
                 file-information:file-name   = b-ttMsdrTriggerLink.cPath.
-          
-              if file-information:full-pathname > "" then 
-              do:
-                dataset dsDbRelations:read-xml("file", file-information:full-pathname, "append", ?, false). 
-              end.
-              else 
-                undo, throw new Progress.Lang.AppError(subst("Triggerlink '&1' not found", cFileName#),99958477).
+                
+              sc_config:ReadXml(dataset dsDbRelations:handle, b-ttMsdrTriggerLink.cPath, "append").  
           
             end.
             

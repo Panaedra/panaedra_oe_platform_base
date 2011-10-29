@@ -1,3 +1,6 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
+
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.sc_html_convert   : 
@@ -139,17 +142,16 @@ class panaedra.msroot.msutil.logic.sc_html_convert   :
     
     define variable cFile# as character no-undo.
     
-    cFile# = panaedra.msroot.msutil.logic.sc_path:cIniDir + subst("sc_html_convert_&1.config",session:cpinternal).
+    cFile# = sc_path:cIniDir + subst("sc_html_convert_&1.config",session:cpinternal).
     
     if search(cFile#) = ? then 
     do:
       undo, throw new AppError(subst("The html conversion file '&1' could not be found.", cFile#), 99950140).  
     end.
 
-    temp-table ttHtmlConvert:read-xml("file",cFile#,"empty",?,?).
+    sc_config:ReadXml(temp-table ttHtmlConvert:handle, cFile#).
     
   end method. /* ReloadConfigFile */
-
 
 end class.
 

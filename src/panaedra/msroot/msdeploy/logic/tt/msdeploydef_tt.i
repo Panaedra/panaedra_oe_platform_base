@@ -41,8 +41,9 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployDef{&ttSuffix} {&n
   field iIDMsDeployDef as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsDeployDef | PersistencyMode=xml-store "  
   field cModuleID      as character   xml-node-type "attribute"
   field cPackageType   as character   xml-node-type "attribute"
-  field cRepoRoot      as character   xml-node-type "attribute"
+  field cRepoUrl       as character   xml-node-type "attribute"
   field cSvRepoPath    as character   xml-node-type "attribute"
+  field cInfo          as character   xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsDeployDef is unique primary iIDMsDeployDef
   {&ttExtraIndices}

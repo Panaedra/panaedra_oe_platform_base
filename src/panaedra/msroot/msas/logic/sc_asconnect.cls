@@ -52,9 +52,9 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
     
     if sc_environment:bLiveEnv
       then
-      temp-table ttAsConnect:read-xml("file", sc_path:cIniDir + "sc_asconnect_live.config", "empty", ?, false).
+      sc_config:ReadXml(temp-table ttAsConnect:handle, sc_path:cIniDir + "sc_asconnect_live.config").
     else
-      temp-table ttAsConnect:read-xml("file", sc_path:cIniDir + "sc_asconnect_nonlive.config", "empty", ?, false).
+      sc_config:ReadXml(temp-table ttAsConnect:handle, sc_path:cIniDir + "sc_asconnect_nonlive.config").
     
   end method. /* Initialize */
 
