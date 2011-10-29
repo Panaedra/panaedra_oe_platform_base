@@ -16,7 +16,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
      Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
     Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
 
-      Description: add_your_comments_here
+      Description: Functionality to get UI frame values
 
   \*****************************  Include Files ********************************/
 
@@ -384,7 +384,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
       assign
         oGridSelection_Rows#  = oFormsGrid#:SelectedRows
         oGridSelection_Cells# = oFormsGrid#:SelectedCells.
-
+        
       if oGridSelection_Rows#:Count > 0 then 
       do: 
 
@@ -422,7 +422,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
             cIDFieldName# = entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_") +
               "__iID" +
               entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_").
-                  
+              
           if iLimitExtentIP# > 0 then iMaxExtent# = min(iLimitExtentIP#, iMaxExtent#).
           extent(iCellsToRows#) = iMaxExtent#.
           
@@ -431,8 +431,21 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
                For now, only "Rows" is supported.
              */
             oOwningRow# = cast(cast(oGridSelection_Cells#:Item[iCell#],Progress.Lang.Object),System.Windows.Forms.DataGridViewCell):OwningRow.
-            iGenericID# = int64(oOwningRow#:Cells[cIDFieldName#]:Value:ToString()).
-            iCellsToRows#[iCell# + 1] = iGenericID#.
+            
+            if oOwningRow#:Cells[cIDFieldName#]:Value = ? then 
+            do:
+              undo, throw new c_panaedraexception(
+                99958211,
+                sc_lang:oEnglish,
+                substitute("Error: The column '&1' has no value. Is databinding properly set up? Is the iID field of the temp-table filled?", cIDFieldName#)
+                ).
+              
+            end.
+            else 
+            do:
+              iGenericID# = int64(oOwningRow#:Cells[cIDFieldName#]:Value:ToString()).
+              iCellsToRows#[iCell# + 1] = iGenericID#.
+            end.
           end.
           
           /* Remove duplicate rows */
