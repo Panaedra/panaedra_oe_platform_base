@@ -82,45 +82,6 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
     
   end method. /* NewPack */
   
-
-  method public static void BootFromPackConfig(cFilenameIP# as character):
-
-    define variable cBootPack# as character no-undo.
-    define variable cPackCfg#  as character no-undo.
-    
-    cPackCfg# = sc_path:Full2PartialPath(cFilenameIP#).
-    
-    /* Check for a valid configuration file */
-    if not sc_config:FileExists(cPackCfg#) then 
-    do:
-      message 
-        subst("Startup configuration '&1' not found. Exiting application.",
-        cPackCfg#)
-        view-as alert-box.
-      sc_eventbroadcaster:FireEvent("evt@SessionClose").
-      quit.
-    end.
-
-    /* For developers: login isn't shown, direct copy from startup parameter */
-    if sc_environment:IsIdeRunning() then
-      sc_environment:cUserID = sc_boot:SessionParameter("DefaultUser").
-      
-    cBootPack# = replace(cPackCfg#,"/",".").
-    entry(num-entries(cBootPack#,"."),cBootPack#,".") = "".
-    cBootPack# = right-trim(cBootPack#,".").
-
-    BootFromPack(cBootPack#).
-
-    /* We're done, tell it to the session */
-    sc_eventbroadcaster:FireEvent("evt@SessionClose").
-    quit.
-
-    catch e as Progress.Lang.Error:
-      sc_showexception:ShowException(e).
-    end catch.
-  
-  end method. /* BootFromPackConfig */
-
 end class.
 
 /* EOF */ 
