@@ -23,9 +23,10 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  define protected static variable p_oSgt#      as sc_sgt_masterwindow_eventhandler no-undo.
-  define public           variable cInitialPack as character                        no-undo.
-  define public           variable oInitialPack as paninui.pack.interfaces.i_pack   no-undo.
+  define protected static variable p_oSgt#         as sc_sgt_masterwindow_eventhandler no-undo.
+  define public           variable cInitialPack    as character                        no-undo.
+  define public           variable cInitialPackCfg as character                        no-undo.
+  define public           variable oInitialPack    as paninui.pack.interfaces.i_pack   no-undo.
 
   define public static property oMdiWindow as paninui.view.interfaces.i_masterwindow no-undo get. set.
   define public static property oSgt       as sc_sgt_masterwindow_eventhandler       no-undo
@@ -58,9 +59,11 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
 
     /* This method is called if there is no eclipse debugger. 
        From the eclipse debugger, only MdiOnShown is called. */
-
-    oInitialPack = dynamic-new cInitialPack().
-
+    if cInitialPackCfg = "" then
+      oInitialPack = dynamic-new cInitialPack().
+    else
+      oInitialPack = dynamic-new cInitialPack(cInitialPackCfg).
+      
     if valid-object(oInitialPack) then oInitialPack:LoadPack(oMdiWindow).
     
     cast(sender,System.Windows.Forms.Form):Load:Unsubscribe(this-object:MdiOnLoad).
@@ -95,7 +98,10 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
          "Shown" event for less crashes (but uglier screen at startup) 
       */
       if oInitialPack = ? then do:
-        oInitialPack = dynamic-new cInitialPack ().
+        if cInitialPackCfg = "" then
+          oInitialPack = dynamic-new cInitialPack().
+        else
+          oInitialPack = dynamic-new cInitialPack(cInitialPackCfg).
         if valid-object(oInitialPack) then oInitialPack:LoadPack(oMdiWindow).
       end.
     end.

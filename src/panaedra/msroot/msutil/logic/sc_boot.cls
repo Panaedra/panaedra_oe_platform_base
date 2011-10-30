@@ -29,6 +29,16 @@ class panaedra.msroot.msutil.logic.sc_boot:
     index cToken is primary unique cToken.
   
   define public static variable cBootSessionParameter as character no-undo.
+  
+  define public static property cBootPack as character no-undo init ?
+    get:
+      if cBootPack = ? then 
+      do:
+        cBootPack = SessionParameter("BootPack").
+      end.
+      return cBootPack.
+    end.
+    protected set.
     
   /******************************* Methods *************************************/
     
@@ -81,6 +91,48 @@ class panaedra.msroot.msutil.logic.sc_boot:
     end.
 
   end method.
+  
+  
+  method public static void SetBootPack(
+    
+    /* Set the boot pack dynamically, with the Lang.Class class.
+       
+       Is used from Eclipse IDE.
+       
+       A full path or relative path is converted to an abl 
+       class name (dots).
+     */
+    
+    cPackCfgIP# as character):
+    
+    define buffer b-ttSessPara for t-sesspara.
+    define variable cBootPack# as character no-undo.
+    
+    if not can-find (first b-ttSessPara) then buildTsesspara().
+    
+    find first b-ttSessPara where b-ttSessPara.cToken = "BootPack" no-error.
+    
+    if not avail b-ttSessPara then 
+    do:
+      create b-ttSessPara.
+      b-ttSessPara.cToken = "BootPack".
+    end.
+    
+    if replace(cPackCfgIP#,"~\","/") matches "*/*" then 
+    do:
+      cPackCfgIP# = sc_path:Full2PartialPath(cPackCfgIP#).
+      cBootPack# = replace(cPackCfgIP#,"/",".").
+      entry(num-entries(cBootPack#,"."),cBootPack#,".") = "".
+      cBootPack# = right-trim(cBootPack#,".").
+    end.
+    else
+      cBootPack# = cPackCfgIP#.
+    
+    b-ttSessPara.cValue = cBootPack#.
+    
+    release b-ttSessPara.
+      
+  end method. /* SetBootPack */
   
 end class.
 

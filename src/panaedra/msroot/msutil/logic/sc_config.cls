@@ -165,8 +165,10 @@ class panaedra.msroot.msutil.logic.sc_config:
     /* Mind no-error and throw in next statements when editing */
     if bUseXconfig# then
       hTtOrDsIP#:read-xml("memptr", mConfig#, cReadmodeIP#, ?, false) no-error.
-    else  
-      hTtOrDsIP#:read-xml("file", cFileIP#, cReadmodeIP#, ?, false) no-error.
+    else do:
+      file-info:file-name = cFileIP#.
+      hTtOrDsIP#:read-xml("file", file-info:full-pathname, cReadmodeIP#, ?, false) no-error.
+    end.
     
     if error-status:num-messages > 0 then 
       undo, throw new c_panaedraexception(
@@ -185,6 +187,21 @@ class panaedra.msroot.msutil.logic.sc_config:
     end finally.   
     
   end method. /* ReadXml */
+  
+  
+  method public static logical FileExists(cFileIP# as character):
+
+    define variable cXconfigfile# as character   no-undo.
+    
+    if search(cFileIP#) <> ? then return true.
+    
+    cXconfigfile# = sc_path:SplitGetFileDir(cFileIP#)
+      + sc_path:SplitGetFileName(cFileIP#)
+      + ".xconfig".  
+      
+    return (if search(cXconfigfile#) <> ? then true else false).
+      
+  end method. /* FileExists */
   
 end class.
 
