@@ -38,7 +38,16 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
     
     find ttMsPack.
     
-    find ttMsMdiMaster.
+    find ttMsMdiMaster no-error.
+    
+    if not avail ttMsMdiMaster then 
+    do:
+      create ttMsMdiMaster.
+    end.
+
+    if ttMsMdiMaster.cObject = "" 
+      /* Provide a default for the lazy programmer */
+      then ttMsMdiMaster.cObject = "panaedra.msroot.mspack.view_abl_dotnet.c_mdi_mspack".
 
     /* Set the initial pack */
     if sc_sgt_masterwindow_eventhandler:oSgt:cInitialPack = "" then 
@@ -117,9 +126,10 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
         cCodeBehind# = ClassToPath(ttMsPack.cPackRegisterAs).
         if search(cCodeBehind#) <> ?
           or sc_config:FileExists(replace(ttMsPack.cPackRegisterAs,".","/") + ".config") <> ?
-          then do:
-            cReturn# = cReturn# + chr(10) + cCodeBehind#.
-          end.
+          then 
+        do:
+          cReturn# = cReturn# + chr(10) + cCodeBehind#.
+        end.
       end.
 
       find ttMsMdiMaster no-error.
