@@ -99,7 +99,8 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
 
   method public static character GetCsvCompilables(cPackCfgIP# as character):
     
-    define variable cReturn# as character no-undo.
+    define variable cReturn#     as character no-undo.
+    define variable cCodeBehind# as character no-undo.
     
     if sc_config:FileExists(cPackCfgIP#) then 
     do:
@@ -107,8 +108,19 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
       sc_config:ReadXml(dataset dsPackConfig:handle, cPackCfgIP#).
 
       find ttMsPack.
+      
       if ttMsPack.cObject > "" then
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsPack.cObject).
+        
+      if ttMsPack.cPackRegisterAs > "" then 
+      do:
+        cCodeBehind# = ClassToPath(ttMsPack.cPackRegisterAs).
+        if search(cCodeBehind#) <> ?
+          or sc_config:FileExists(replace(ttMsPack.cPackRegisterAs,".","/") + ".config") <> ?
+          then do:
+            cReturn# = cReturn# + chr(10) + cCodeBehind#.
+          end.
+      end.
 
       find ttMsMdiMaster no-error.
       if avail ttMsMdiMaster and ttMsMdiMaster.cDotnetDLL = "" and ttMsMdiMaster.cObject > "" then
