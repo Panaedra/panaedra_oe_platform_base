@@ -43,6 +43,20 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
     /* Set the initial pack */
     if sc_sgt_masterwindow_eventhandler:oSgt:cInitialPack = "" then 
     do:
+      
+      if not ttMsPack.bAllowAsBootPack then 
+      do:
+        if sc_environment:IsIdeRunning()
+          then panaedra.msroot.msutil.logic.sc_developerfeedback:DevMsg(subst("Warning: pack '&1' is not allowed as bootpack. Adjust pack configuration.")).
+        else 
+          undo, throw new c_panaedraexception(
+            99944811,
+            sc_lang:oEnglish,
+            substitute("Error: Invalid boot configuration for '&1'", cPackAblNameIP#)
+            ).
+          
+      end.
+      
       assign
         sc_sgt_masterwindow_eventhandler:oSgt:cInitialPack    = ttMsPack.cObject
         sc_sgt_masterwindow_eventhandler:oSgt:cInitialPackCfg = cPackCfg#.
@@ -81,6 +95,73 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
     return oPack#.
     
   end method. /* NewPack */
+  
+
+  method public static character GetCsvCompilables(cPackCfgIP# as character):
+    
+    define variable cReturn# as character no-undo.
+    
+    if sc_config:FileExists(cPackCfgIP#) then 
+    do:
+      
+      sc_config:ReadXml(dataset dsPackConfig:handle, cPackCfgIP#).
+
+      find ttMsPack.
+      if ttMsPack.cObject > "" then
+        cReturn# = cReturn# + chr(10) + ClassToPath(ttMsPack.cObject).
+
+      find ttMsMdiMaster no-error.
+      if avail ttMsMdiMaster and ttMsMdiMaster.cDotnetDLL = "" and ttMsMdiMaster.cObject > "" then
+        cReturn# = cReturn# + chr(10) + ClassToPath(ttMsMdiMaster.cObject).
+        
+      find ttMsMainFrame no-error.
+      if avail ttMsMainFrame and ttMsMainFrame.cDotnetDLL = "" and ttMsMainFrame.cObject > "" then
+        cReturn# = cReturn# + chr(10) + ClassToPath(ttMsMainFrame.cObject).
+
+      for each ttMsPreloadPack where ttMsPreloadPack.bActive on error undo, throw:
+        cReturn# = cReturn# + chr(10) + ClassToPath(ttMsPreloadPack.cObject).
+      end.
+  
+      for each ttMsScopetable where ttMsScopetable.bActive on error undo, throw:
+        cReturn# = cReturn# + chr(10) + ClassToPath(ttMsScopetable.cObject).
+      end.
+  
+      for each ttMsDatasetConstructorItem where ttMsDatasetConstructorItem.bActive on error undo, throw:
+        cReturn# = cReturn# + chr(10) + ClassToPath(ttMsDatasetConstructorItem.cClass).
+      end.
+
+      for each ttMsDatasetController where ttMsDatasetController.bActive on error undo, throw:
+        cReturn# = cReturn# + chr(10) + ClassToPath(ttMsDatasetController.cClass).
+      end.
+
+      for each ttMsFrameLogic where ttMsFrameLogic.bActive on error undo, throw:
+        cReturn# = cReturn# + chr(10) + ClassToPath(ttMsFrameLogic.cObject).
+      end.
+
+      for each ttMsSubframePackOvly where ttMsSubframePackOvly.bActive on error undo, throw:
+        cReturn# = cReturn# + chr(10) + ClassToPath(ttMsSubframePackOvly.cObject).
+      end.
+  
+      for each ttMsChildPack where ttMsChildPack.bActive on error undo, throw:
+        cReturn# = cReturn# + chr(10) + ClassToPath(ttMsChildPack.cObject).
+      end.
+  
+    end.
+    
+    return substring(cReturn#,2).
+    
+  end method. /* GetCompilables */
+
+
+  method protected static character ClassToPath(cClassIP# as character):
+    
+    define variable cReturn# as character no-undo.
+    
+    cReturn# = replace(cClassIP#,".","/") + ".cls".
+    
+    return cReturn#.
+
+  end method. /* ClassToPath */
   
 end class.
 

@@ -24,6 +24,14 @@ class panaedra.msroot.msutil.logic.sc_developerfeedback:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
+  method public static void DevMsg(cMsgIP# as character):
+    
+    if sc_environment:IsIdeRunning() then
+      sc_trayicon_win32:ShowTrayIconMessage(cMsgIP#, "devinfo").
+  
+  end method. /* DevMsg ; character */
+  
+
   method public static void DevMsg(cMsgIP# as character, cCallStackIP# as character):
     
     if sc_environment:IsIdeRunning() then

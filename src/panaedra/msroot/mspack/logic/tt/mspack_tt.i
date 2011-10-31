@@ -38,9 +38,10 @@ procedure dvcs__panaedra_msroot_mspack_logic_tt_mspack_tt_i: return "$Revision: 
 define {&protected} {&static} temp-table tt{&ttPrefix}MsPack{&ttSuffix} {&no-undo} 
   xml-node-name "Pack"
   {&reference-only} {&rcode-information} {&before-table}
-  field iIDMsPack       as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsPack "  
-  field cPackRegisterAs as character   xml-node-type "attribute"  
-  field cObject         as character   xml-node-type "attribute"  
+  field iIDMsPack        as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsPack "  
+  field cPackRegisterAs  as character   xml-node-type "attribute"  
+  field cObject          as character   xml-node-type "attribute"  
+  field bAllowAsBootPack as logical     xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsPack is unique primary iIDMsPack
   {&ttExtraIndices}

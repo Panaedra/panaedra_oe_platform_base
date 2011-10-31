@@ -88,10 +88,20 @@ class panaedra.msroot.msutil.logic.sc_config:
     define variable clobConfig# as longchar no-undo.
     define variable mConfig#    as memptr   no-undo.
     
-    copy-lob file cFileXconfigIP# to mConfig# no-convert.
-    mConfig# = decrypt(mConfig#, rawConfigKey).
-    copy-lob mConfig# to file cFileTargetIP# no-convert.
-    set-size(mConfig#) = 0.
+    file-info:file-name = cFileXconfigIP#.
+    if file-info:full-pathname > "" then 
+    do:
+      copy-lob file cFileXconfigIP# to mConfig# no-convert.
+      mConfig# = decrypt(mConfig#, rawConfigKey).
+      copy-lob mConfig# to file cFileTargetIP# no-convert.
+      set-size(mConfig#) = 0.
+    end.
+    else
+      undo, throw new c_panaedraexception(
+        99943981,
+        sc_lang:oEnglish,
+        substitute("Error: File '&1' not found", cFileXconfigIP#)
+        ).
   
   end method. /* DecryptXConfigToFile */
   
@@ -107,8 +117,19 @@ class panaedra.msroot.msutil.logic.sc_config:
     define variable clobConfig# as longchar no-undo.
     define variable mConfig#    as memptr   no-undo.
     
-    copy-lob file cFileXconfigIP# to mConfig# no-convert.
-    mConfig# = decrypt(mConfig#, rawConfigKey).
+    file-info:file-name = cFileXconfigIP#.
+    if file-info:full-pathname > "" then 
+    do:
+      copy-lob file file-info:full-pathname to mConfig# no-convert.
+      mConfig# = decrypt(mConfig#, rawConfigKey).
+    end.
+    else
+      undo, throw new c_panaedraexception(
+        99943982,
+        sc_lang:oEnglish,
+        substitute("Error: File '&1' not found", cFileXconfigIP#)
+        ).
+      
     return mConfig#.
   
   end method. /* DecryptXConfigToMemptr */
@@ -165,7 +186,8 @@ class panaedra.msroot.msutil.logic.sc_config:
     /* Mind no-error and throw in next statements when editing */
     if bUseXconfig# then
       hTtOrDsIP#:read-xml("memptr", mConfig#, cReadmodeIP#, ?, false) no-error.
-    else do:
+    else 
+    do:
       file-info:file-name = cFileIP#.
       hTtOrDsIP#:read-xml("file", file-info:full-pathname, cReadmodeIP#, ?, false) no-error.
     end.
@@ -191,7 +213,7 @@ class panaedra.msroot.msutil.logic.sc_config:
   
   method public static logical FileExists(cFileIP# as character):
 
-    define variable cXconfigfile# as character   no-undo.
+    define variable cXconfigfile# as character no-undo.
     
     if search(cFileIP#) <> ? then return true.
     
