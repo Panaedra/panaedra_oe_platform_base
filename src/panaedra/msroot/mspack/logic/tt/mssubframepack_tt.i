@@ -45,6 +45,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsSubframePack{&ttSuffix} 
   field cLocationWidgetName as character   xml-node-type "attribute"
   field cObject             as character   xml-node-type "attribute"
   field bActive             as logical     xml-node-type "attribute"
+  field bOverride           as logical     xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsSubframePack is unique primary iIDMsSubframePack
   {&ttExtraIndices}

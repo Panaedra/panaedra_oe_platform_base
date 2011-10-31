@@ -46,6 +46,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsSubframe{&ttSuffix} {&no
   field cDotnetDLL          as character   xml-node-type "attribute"
   field cObject             as character   xml-node-type "attribute"
   field bActive             as logical     xml-node-type "attribute"
+  field bOverride           as logical     xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsSubframe  is unique primary iIDMsSubframe
   index iIDMsSubframes is unique iIDMsSubframes cSubframeID
