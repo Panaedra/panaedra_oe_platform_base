@@ -23,10 +23,11 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  define protected static variable p_oSgt#         as sc_sgt_masterwindow_eventhandler no-undo.
-  define public           variable cInitialPack    as character                        no-undo.
-  define public           variable cInitialPackCfg as character                        no-undo.
-  define public           variable oInitialPack    as paninui.pack.interfaces.i_pack   no-undo.
+  define protected static variable p_oSgt#            as sc_sgt_masterwindow_eventhandler no-undo.
+  define public           variable cInitialPack       as character                        no-undo.
+  define public           variable cInitialPackCfg    as character                        no-undo.
+  define public           variable oInitialPack       as paninui.pack.interfaces.i_pack   no-undo.
+  define public           variable bInitialPackExtras as logical                          no-undo.
 
   define public static property oMdiWindow as paninui.view.interfaces.i_masterwindow no-undo get. set.
   define public static property oSgt       as sc_sgt_masterwindow_eventhandler       no-undo
