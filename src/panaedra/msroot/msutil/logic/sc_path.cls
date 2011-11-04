@@ -157,14 +157,6 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
-  /* _SRVR_ directory */
-  define public static property c_SRVR_Dir as character no-undo 
-    get():
-      if not bTtPathInitialized then TtPathInitialize().
-      return c_SRVR_Dir.
-    end get.
-    protected set.
-  
   /* Nonstatic directory */
   define public static property cNonstaticDir as character no-undo 
     get():
@@ -284,7 +276,6 @@ class panaedra.msroot.msutil.logic.sc_path:
       cLogDir          = FillPathProperty(sc_environment:cEnv, "cLogDir").
       cLogVoortgangDir = FillPathProperty(sc_environment:cEnv, "cLogVoortgangDir").
       cNoSweatDir      = FillPathProperty(sc_environment:cEnv, "cNoSweatDir").
-      c_SRVR_Dir       = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
       c_SRVR_Dir      = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
       cNonstaticDir    = FillPathProperty(sc_environment:cEnv, "cNonstaticDir").
       cDataRecoveryDir = FillPathProperty(sc_environment:cEnv, "cDataRecoveryDir").
