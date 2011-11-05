@@ -18,7 +18,7 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
       Description: Start runtime configurations (from .config or .xconfig)
 
   \*****************************  Include Files ********************************/
-  
+  {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
   {panaedra/msroot/mspack/logic/ds/mspack_ds.i &class=class &protected=protected &static=static &reference-only=reference-only}
 
   /************************  Source control constructor ************************/
@@ -28,6 +28,7 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
+  &if {&paninui_tty} = true &then
   method public static void BootFromPack(cPackAblNameIP# as character):
  
     define variable cPackCfg# as character no-undo.
@@ -50,6 +51,7 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
       then ttMsMdiMaster.cObject = "panaedra.msroot.mspack.view_abl_dotnet.c_mdi_mspack".
 
     /* Set the initial pack */
+
     if sc_sgt_masterwindow_eventhandler:oSgt:cInitialPack = "" then 
     do:
       
@@ -81,6 +83,7 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
     end finally.
     
   end method. /* BootFromPack */
+  &endif
 
 
   method public static i_pack NewPack(cPackAblNameIP# as character):
