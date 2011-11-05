@@ -28,9 +28,9 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  &if {&paninui_tty} = true &then
+  &if {&paninui_tty} = false &then
   method public static void BootFromPack(cPackAblNameIP# as character):
- 
+
     define variable cPackCfg# as character no-undo.
     
     cPackCfg# = replace(cPackAblNameIP#,".","/") + ".config".
