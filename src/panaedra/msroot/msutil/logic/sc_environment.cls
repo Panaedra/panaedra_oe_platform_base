@@ -294,7 +294,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
         
     &if opsys = "unix" &then
     
-    cTempID# = "$A" + string(mtime,"999999999").
+    cTempID# = "$A" + replace(guid,"-","").
  
     input through value("ps -ef | grep $$ " + cTempID#).
  
@@ -374,52 +374,139 @@ class panaedra.msroot.msutil.logic.sc_environment:
   end method. /* GetProcessMemSize */
 
 
+  method public static integer GetNumProcessesByWildcard(
+    
+    /* Returns the number of processes whose command line matches
+       the supplied wildcards
+       
+       Can be used to check if a process is already running. 
+    */
+  
+    input bCasesensitiveIP# as logical,
+    input cWildcardOneIP#   as character,
+    input cWildcardTwoIP#   as character,
+    input cWildcardThreeIP# as character):
+      
+    define variable iReturn# as integer   no-undo.
+    define variable cLine#   as character no-undo.
+    define variable cCmd#    as character no-undo.
+
+    &if true or opsys = "unix" &then
+    
+    assign
+      cWildcardOneIP#   = replace(cWildcardOneIP#,"[","~\[")
+      cWildcardOneIP#   = replace(cWildcardOneIP#,"]","~\]")
+      cWildcardTwoIP#   = replace(cWildcardTwoIP#,"[","~\[")
+      cWildcardTwoIP#   = replace(cWildcardTwoIP#,"]","~\]")
+      cWildcardThreeIP# = replace(cWildcardThreeIP#,"[","~\[")
+      cWildcardThreeIP# = replace(cWildcardThreeIP#,"]","~\]")
+      .
+    
+    cCmd# = "ps -ef" 
+      + (if cWildcardOneIP#   > "" then subst("| grep &1 '&2'", trim(string(bCasesensitiveIP#,"/-i")), cWildcardOneIP#  ) else "" )
+      + (if cWildcardTwoIP#   > "" then subst("| grep &1 '&2'", trim(string(bCasesensitiveIP#,"/-i")), cWildcardTwoIP#  ) else "" )
+      + (if cWildcardThreeIP# > "" then subst("| grep &1 '&2'", trim(string(bCasesensitiveIP#,"/-i")), cWildcardThreeIP#) else "" ).
+    
+    input stream str-in through value(cCmd#).
+ 
+    repeat:
+      import stream str-in unformatted cLine#.
+      if cLine# > "" 
+        and (not (substring(cLine#,51, 6) = " grep "       ))
+        and (not (substring(cLine#,65,13) = "ps -ef| grep ")) 
+        then
+        iReturn# = iReturn# + 1.
+    end.
+    
+    input stream str-in close.
+
+    return iReturn#.  
+  
+    &else /* non unix */
+    
+    undo, throw new c_panaedraexception(
+      99959821,
+      sc_lang:oEnglish,
+      substitute("Error: '&1' not implemented for this platform.", program-name(1))).
+    
+    &endif    
+    
+  end method. /* GetNumProcessesByWildcard */
+
+
   method public static character GetCommandLine():
+    
+    define variable cParent#    as character no-undo.
+    define variable cTempID#    as character no-undo.
+    define variable cLine#      as character no-undo.
+    define variable cReturn#    as character no-undo.
+    define variable iPidByGuid# as integer   no-undo.
+    define variable iPidLine#   as integer   no-undo.
+
+    &if opsys = "unix" &then
+    
+    cTempID# = "$A" + replace(guid,"-","").
+ 
+    input stream str-in through value("ps -ef | grep $$ " + cTempID#).
+ 
+    repeat:
+      import stream str-in unformatted cLine#.
+      if cLine# matches "*grep $$ " + cTempID# + "*" then
+      do:
+        /* Get the parent process id from the temporary shell/fork */
+        assign
+          cParent#    = substring(cLine#,18,7)
+          iPidByGuid# = int(cParent#) no-error.
+        leave.
+      end.
+    end.
+    
+    input stream str-in close.
+
+    input stream str-in through value("ps -ef | grep " + cParent#).
+ 
+    repeat:
+      import stream str-in unformatted cLine#.
+      iPidLine# = int(substring(cLine#,10,7)).
+      if iPidLine# > 0 
+        /* Only the line that has the pid of this session */
+        and iPidLine# = iPidByGuid# 
+        /* Be extra sure if session:parameter is filled  */
+        and (if session:parameter > "" then (cLine# matches substitute("*&1*", session:parameter)) 
+      else true) 
+        then
+      do:
+        cReturn# = cLine#.
+        leave.
+      end.
+    end.
+    
+    input stream str-in close.
+
+    return cReturn#.
+    
+    &else /* non unix */
     
     &if {&paninui_tty} &then
 
-/*                                                                     */
-/*    define variable cParent# as character no-undo.                   */
-/*    define variable cTempID# as character no-undo.                   */
-/*    define variable cLine#   as character no-undo.                   */
-/*                                                                     */
-/*    cTempID# = "$A" + string(mtime,"999999999").                     */
-/*                                                                     */
-/*    input through value("ps -ef | grep $$ " + cTempID#).             */
-/*                                                                     */
-/*    repeat:                                                          */
-/*      import unformatted cLine#.                                     */
-/*      message cLine#                                                 */
-/*        view-as alert-box.                                           */
-/*                                                                     */
-/*      if cLine# matches "*grep $$ " + cTempID# + "*" then            */
-/*      do:                                                            */
-/*        /* Get the parent process id from the temporary shell/fork */*/
-/*        return cLine#.                                               */
-/*      end.                                                           */
-/*    end.                                                             */
-/*                                                                     */
-/*    return "[unknown]".                                              */
-
-    &else
-      
-/*      return sc_win32:GetCommandLine().*/
-      
-      
-      /* Werkt nog niet */ 
-           
-/*    define variable cReturn#  as character no-undo.                             */
-/*    define variable oCurProc# as System.Diagnostics.Process no-undo.            */
-/*                                                                                */
-/*    /* Use .NET Runtime */                                                      */
-/*    oCurProc# = System.Diagnostics.Process:GetCurrentProcess().                 */
-/*                                                                                */
-/*    cReturn# = string(oCurProc#:StartInfo:WorkingDirectory).                    */
-/*    /* oCurProc#:Dispose(). Don't know for sure if this is needed/better here */*/
-/*                                                                                */
-/*    return cReturn#.                                                            */
+      /*      return sc_win32:GetCommandLine().*/
+            
+      /* Not functional yet */ 
+                 
+      /*    define variable cReturn#  as character no-undo.                             */
+      /*    define variable oCurProc# as System.Diagnostics.Process no-undo.            */
+      /*                                                                                */
+      /*    /* Use .NET Runtime */                                                      */
+      /*    oCurProc# = System.Diagnostics.Process:GetCurrentProcess().                 */
+      /*                                                                                */
+      /*    cReturn# = string(oCurProc#:StartInfo:WorkingDirectory).                    */
+      /*    /* oCurProc#:Dispose(). Don't know for sure if this is needed/better here */*/
+      /*                                                                                */
+      /*    return cReturn#.                                                            */
     
-    &endif
+    &endif /* paninui_tty */
+    
+  &endif /* non unix */
     
   end method. /* GetCommandLine */
 
