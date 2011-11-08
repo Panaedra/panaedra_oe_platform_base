@@ -391,7 +391,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     define variable cLine#   as character no-undo.
     define variable cCmd#    as character no-undo.
 
-    &if true or opsys = "unix" &then
+    &if opsys = "unix" &then
     
     assign
       cWildcardOneIP#   = replace(cWildcardOneIP#,"[","~\[")
