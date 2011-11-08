@@ -58,7 +58,7 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
       if not ttMsPack.bAllowAsBootPack then 
       do:
         if sc_environment:IsIdeRunning()
-          then panaedra.msroot.msutil.logic.sc_developerfeedback:DevMsg(subst("Warning: pack '&1' is not allowed as bootpack. Adjust pack configuration.")).
+          then panaedra.msroot.msutil.logic.sc_developerfeedback:DevMsg(subst("Warning: pack '&1' is not allowed as bootpack. Adjust pack configuration.",cPackAblNameIP#)).
         else 
           undo, throw new c_panaedraexception(
             99944811,
