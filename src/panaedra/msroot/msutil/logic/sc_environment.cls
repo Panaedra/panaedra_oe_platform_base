@@ -105,7 +105,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     public get:
       if bLiveEnv = ? then 
       do:
-        bLiveEnv = cEnv matches "*live*" or cEnv = "bas" .
+        bLiveEnv = cEnv matches "*live*" or cEnv = "any_env" or cEnv = "bas".
       end.
       return bLiveEnv.
     end get.
