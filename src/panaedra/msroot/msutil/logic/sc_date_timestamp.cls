@@ -100,6 +100,26 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   end method. /* GetDateAsCCYYMMDD: date input */
 
 
+  method public static integer GetDateAsYYMMDD():
+    
+    /* Returns an integer in YYMMDD format; year 2-digit, month, day */
+  
+    return GetDateAsYYMMDD(today).
+  
+  end method. /* GetDateAsYYMMDD: simple overload with 'today' */
+  
+  
+  method public static integer GetDateAsYYMMDD(
+    
+    /* Returns an integer in YYMMDD format; year 2-digit, month, day */
+  
+    dtInputIP# as date):
+
+    return integer(((year(dtInputIP#) mod 100) * 10000) + (month(dtInputIP#) * 100) + day(dtInputIP#)).
+  
+  end method. /* GetDateAsYYMMDD: date input */
+
+
   method public static integer GetTimeAsHH_FCMPNY_S(
     
     /* Returns an integer in HH_FCMPNY_S format; hour, minutes, seconds  */
