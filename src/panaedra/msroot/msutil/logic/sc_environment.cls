@@ -423,6 +423,16 @@ class panaedra.msroot.msutil.logic.sc_environment:
     return iReturn#.  
   
     &else /* non unix */
+
+    &if {&paninui_tty} &then
+
+    undo, throw new c_panaedraexception(
+      99958223,
+      sc_lang:oEnglish,
+      subst("Error: &1 is not yet implemented for this platform.'", program-name(1))
+      ).
+    
+    &else
       
     define variable oManagementObjectSearcher#   as System.Management.ManagementObjectSearcher                              no-undo.
     define variable oManagementObjectCollection# as System.Management.ManagementObjectCollection                            no-undo.
@@ -454,8 +464,10 @@ class panaedra.msroot.msutil.logic.sc_environment:
     end.
     
     return iReturn#.
+
+    &endif  /* not paninui_tty */
       
-    &endif    
+    &endif  /* not unix */
     
   end method. /* GetNumProcessesByWildcard */
 
