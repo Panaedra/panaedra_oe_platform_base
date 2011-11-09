@@ -390,7 +390,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     define variable iReturn# as integer   no-undo.
     define variable cLine#   as character no-undo.
     define variable cCmd#    as character no-undo.
-
+    
     &if opsys = "unix" &then
     
     assign
@@ -423,12 +423,38 @@ class panaedra.msroot.msutil.logic.sc_environment:
     return iReturn#.  
   
     &else /* non unix */
+      
+    define variable oManagementObjectSearcher#   as System.Management.ManagementObjectSearcher                              no-undo.
+    define variable oManagementObjectCollection# as System.Management.ManagementObjectCollection                            no-undo.
+    define variable oManagementObject#           as System.Management.ManagementObjectCollection+ManagementObjectEnumerator no-undo.
+    define variable iProces#                     as integer                                                                 no-undo.
     
-    undo, throw new c_panaedraexception(
-      99959821,
-      sc_lang:oEnglish,
-      substitute("Error: '&1' not implemented for this platform.", program-name(1))).
+    if bCasesensitiveIP# then
+      undo, throw new c_panaedraexception(
+        99958224,
+        sc_lang:oEnglish,
+        "Error: bCasesensitiveIP# = true; not yet implemented for this platform.'"
+        ).
+
+    assign
+      oManagementObjectSearcher#   = new System.Management.ManagementObjectSearcher("select CommandLine from Win32_Process")
+      oManagementObjectCollection# = oManagementObjectSearcher#:Get()
+      oManagementObject#           = oManagementObjectCollection#:GetEnumerator().
+        
+    do while oManagementObject#:MoveNext():  
+      
+      cLine# = oManagementObject#:Current:Item["CommandLine"].
+      
+      if cLine# > ""  
+        and (cWildcardOneIP# = ""   or cLine# matches "*" + cWildcardOneIP# + "*") 
+        and (cWildcardTwoIP# = ""   or cLine# matches "*" + cWildcardTwoIP# + "*") 
+        and (cWildcardThreeIP# = "" or cLine# matches "*" + cWildcardThreeIP# + "*") then       
+        iReturn# = iReturn# + 1.
+       
+    end.
     
+    return iReturn#.
+      
     &endif    
     
   end method. /* GetNumProcessesByWildcard */
@@ -552,7 +578,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   method public static character GetBootProcedure():
   
     /* Gives back program-name(highest), with forward slashes. 
-       
+         
        Note:
        Evaluated only once, for efficiency.
     */
