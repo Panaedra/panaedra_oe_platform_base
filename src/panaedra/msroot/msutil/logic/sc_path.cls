@@ -235,6 +235,14 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
+  /* _TERM_UNDISCLOSED_queu directory */
+  define public static property c_TERM_UNDISCLOSED_queuDir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return c_TERM_UNDISCLOSED_queuDir.
+    end get.
+    protected set.
+  
   /* ---Methods--- */
   
   
