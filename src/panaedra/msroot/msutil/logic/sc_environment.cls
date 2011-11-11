@@ -460,6 +460,11 @@ class panaedra.msroot.msutil.logic.sc_environment:
         and (cWildcardTwoIP# = ""   or cLine# matches "*" + cWildcardTwoIP# + "*") 
         and (cWildcardThreeIP# = "" or cLine# matches "*" + cWildcardThreeIP# + "*") then       
         iReturn# = iReturn# + 1.
+        
+      if cLine# > ""  
+        and (cWildcardOneIP# = ""   or cLine# matches "*" + cWildcardOneIP# + "*") 
+        and (cWildcardTwoIP# = ""   or cLine# matches "*" + cWildcardTwoIP# + "*") 
+        and (cWildcardThreeIP# = "" or cLine# matches "*" + cWildcardThreeIP# + "*") then       
        
     end.
     
