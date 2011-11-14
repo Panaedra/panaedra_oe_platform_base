@@ -60,23 +60,37 @@ class panaedra.msroot.msutil.logic.sc_boot:
 
   method public static char SessionParameter (cTokenIP# as char):
     
-    if not can-find (first t-sesspara) then buildTsesspara().
+    if not can-find (first t-sesspara) then BuildTsesspara().
   
     find first t-sesspara where t-sesspara.cToken = cTokenIP# no-error.
   
     return if avail t-sesspara then t-sesspara.cValue else ?.
   
-  end method.
+  end method. /* SessionParameter */
+
+
+  method static public void _sys_BuildTsesspara ():
+
+    if not sc_environment:IsIdeRunning() then
+      undo, throw new c_panaedraexception(
+        99458271,
+        sc_lang:oEnglish,
+        "_sys_BuildTsesspara should not be run outside of IDE"
+        ).
+    
+    BuildTsesspara().    
+        
+  end method. /* _sys_BuildTsesspara */
+  
    
-   
-  method static private void buildTsesspara ():
+  method static protected void BuildTsesspara ():
 
     define variable iTell as integer   no-undo.
     define variable cPara as character no-undo.
     define variable cEntr as character no-undo.
 
     empty temp-table t-sesspara.
-
+    
     cPara = cBootSessionParameter.
        
     if cPara = "" and session:parameter matches "*[*" then
@@ -90,7 +104,7 @@ class panaedra.msroot.msutil.logic.sc_boot:
       t-sesspara.cValue = trim(entry(2,cEntr,"]")) no-error.
     end.
 
-  end method.
+  end method. /* BuildTsesspara */
   
   
   method public static void SetBootPack(
@@ -108,7 +122,7 @@ class panaedra.msroot.msutil.logic.sc_boot:
     define buffer b-ttSessPara for t-sesspara.
     define variable cBootPack# as character no-undo.
     
-    if not can-find (first b-ttSessPara) then buildTsesspara().
+    if not can-find (first b-ttSessPara) then BuildTsesspara().
     
     find first b-ttSessPara where b-ttSessPara.cToken = "BootPack" no-error.
     

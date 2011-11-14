@@ -236,10 +236,10 @@ class panaedra.msroot.msutil.logic.sc_path:
     protected set.
   
   /* _TERM_UNDISCLOSED_queu directory */
-  define public static property c_TERM_UNDISCLOSED_queuDir as character no-undo 
+  define public static property c_TERM_UNDISCLOSED_queueDir as character no-undo 
     get():
       if not bTtPathInitialized then TtPathInitialize().
-      return c_TERM_UNDISCLOSED_queuDir.
+      return c_TERM_UNDISCLOSED_queueDir.
     end get.
     protected set.
   
@@ -280,16 +280,17 @@ class panaedra.msroot.msutil.logic.sc_path:
       sc_config:ReadXml(temp-table ttPath:handle,
         /* Note: the getter of cIniDir initializes cIniDir automatically */ 
         cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config").
-      cSysteemDir      = FillPathProperty(sc_environment:cEnv, "cSysteemDir").
-      cLogDir          = FillPathProperty(sc_environment:cEnv, "cLogDir").
-      cLogVoortgangDir = FillPathProperty(sc_environment:cEnv, "cLogVoortgangDir").
-      cNoSweatDir      = FillPathProperty(sc_environment:cEnv, "cNoSweatDir").
-      c_SRVR_Dir      = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
-      cNonstaticDir    = FillPathProperty(sc_environment:cEnv, "cNonstaticDir").
-      cDataRecoveryDir = FillPathProperty(sc_environment:cEnv, "cDataRecoveryDir").
-      cDataExchangeDir = FillPathProperty(sc_environment:cEnv, "cDataExchangeDir").
-      cVanWanDir       = FillPathProperty(sc_environment:cEnv, "cVanWanDir").
-      cNaarWanDir      = FillPathProperty(sc_environment:cEnv, "cNaarWanDir").
+      cSysteemDir         = FillPathProperty(sc_environment:cEnv, "cSysteemDir").
+      cLogDir             = FillPathProperty(sc_environment:cEnv, "cLogDir").
+      cLogVoortgangDir    = FillPathProperty(sc_environment:cEnv, "cLogVoortgangDir").
+      cNoSweatDir         = FillPathProperty(sc_environment:cEnv, "cNoSweatDir").
+      c_SRVR_Dir         = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
+      cNonstaticDir       = FillPathProperty(sc_environment:cEnv, "cNonstaticDir").
+      cDataRecoveryDir    = FillPathProperty(sc_environment:cEnv, "cDataRecoveryDir").
+      cDataExchangeDir    = FillPathProperty(sc_environment:cEnv, "cDataExchangeDir").
+      cVanWanDir          = FillPathProperty(sc_environment:cEnv, "cVanWanDir").
+      cNaarWanDir         = FillPathProperty(sc_environment:cEnv, "cNaarWanDir").
+      c_TERM_UNDISCLOSED_queueDir = FillPathProperty(sc_environment:cEnv, "c_TERM_UNDISCLOSED_queueDir").
     end.
     
   end method. /* TtPathInitialize */
