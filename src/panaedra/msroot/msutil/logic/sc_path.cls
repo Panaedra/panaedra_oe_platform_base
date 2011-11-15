@@ -33,7 +33,7 @@ class panaedra.msroot.msutil.logic.sc_path:
   define protected static variable cPropathFull       as character                               no-undo.
   define protected static variable oPathHelper        as panaedra.msroot.msutil.logic.c_path_helper no-undo.
   
-  def protected static temp-table ttPath no-undo rcode-info
+  define protected static temp-table ttPath no-undo rcode-info
     field cEnv      as char xml-node-type "attribute"
     field cHostname as char xml-node-type "attribute" /* First look for specific hostname, then default for OS, then default */
     field cToken    as char xml-node-type "attribute" /* Everything except for cIniDir, you have to start somewhere */
@@ -42,6 +42,13 @@ class panaedra.msroot.msutil.logic.sc_path:
     .
   
   /* Properties */
+  define public static property cSlash as character no-undo
+    &if opsys = "unix" &then
+    initial "/"
+    &else
+    initial "~\"
+    &endif 
+    get. 
   
   /* Work directory */
   define public static property cWorkDir as character no-undo 
