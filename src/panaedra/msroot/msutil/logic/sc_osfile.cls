@@ -95,6 +95,27 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   end method. /* DeleteFile */
 
 
+  method public static void RenameFile(
+    cFileFromIP# as character,
+    cFileToIP# as character
+    ):
+    
+    os-rename value(cFileFromIP#) value(cFileToIP#).
+      
+    file-info:file-name = cFileFromIP#.      
+    if file-info:full-pathname <> ? then 
+    do:
+      undo, throw new c_panaedraexception(
+        99978542,
+        sc_lang:oEnglish,
+        substitute("Error renaming &1 -> &2", cFileFromIP#, cFileToIP#)
+        ).
+      
+    end.
+
+  end method. /* RenameFile */
+
+
   method public static void CreateFile(cFileIP# as character):
     
     define variable oAppError as Progress.Lang.AppError no-undo.
