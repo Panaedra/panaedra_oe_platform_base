@@ -318,7 +318,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     cNameIP#     as character,
     bStripAllIP# as logical):
     
-    return StripInvalidChars(cNameIP#, if bStripAllIP# then "/~\:" else "").
+    return StripInvalidChars(cNameIP#, if bStripAllIP# then "/~\: " else "").
         
   end method. /* StripInvalidChars */
   
