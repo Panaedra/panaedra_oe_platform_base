@@ -26,10 +26,10 @@ class panaedra.msroot.msutil.logic.sc_prop:
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected static temp-table ttSharedVars no-undo
-    field varDestId as char format "x(10)"  /* id voor wie de var is bedoeld */
+    field varDestId as char format "x(10)"  /* id */
     field varLabel  as char format "x(15)"
     field varValue  as char format "x(15)" 
-    field procname  as char format "x(35)" /* voor debugging, wie heeft var aaangemaakt  */
+    field procname  as char format "x(35)" /* for debugging, which procedure initialized it */
     index idxId is primary unique varDestId varLabel. 
 
 
@@ -268,7 +268,11 @@ class panaedra.msroot.msutil.logic.sc_prop:
   end method. /* PutSharedVar */
 
 
-  method public static void DispSharedVar(cVarDestIdIP# as char): /* toont de variabelen */
+  method public static void DispSharedVar(
+    
+    /* Show all shared var entries of the temp-table */
+    
+    cVarDestIdIP# as char):
   
     def frame f-dispSharedVar.
   
@@ -332,7 +336,7 @@ class panaedra.msroot.msutil.logic.sc_prop:
         end.
       when "dataset" then 
         do:
-          /* TODO: Check of num-buffers hier op een dataset ook werkt, of dat je top-buffers en data-relations moet gebruiken */
+          /* TODO:  Check if num-buffers also works on a dataset, instead we have to use top-buffers and data-relations */
           do iTell# = 1 to hDataObjectIP#:num-buffers:
             SetBufferPropsFromHelpString(hDataObjectIP#:get-buffer-handle(iTell#)).
           end.
