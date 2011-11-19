@@ -2,7 +2,7 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
-class panaedra.msroot.msutil.logic.sc_prop: 
+class panaedra.msroot.msutil.logic.sc_prop:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_prop.cls $ 
@@ -218,7 +218,8 @@ class panaedra.msroot.msutil.logic.sc_prop:
 
   method public static logical DelAllSharedVar(cVarDestidIP# as character):
 
-    for each ttSharedVars where ttSharedVars.VarDestId = cVarDestidIP#:
+    for each ttSharedVars where ttSharedVars.VarDestId = cVarDestidIP#
+      on error undo, throw:
       delete ttSharedVars.
     end.
       
@@ -277,10 +278,11 @@ class panaedra.msroot.msutil.logic.sc_prop:
     def frame f-dispSharedVar.
   
     do with frame f-dispSharedVar:
-      for each ttSharedVars where ttSharedVars.VarDestId = cVarDestIdIP# or cVarDestIdIP# = ? :
+      for each ttSharedVars where ttSharedVars.VarDestId = cVarDestIdIP# or cVarDestIdIP# = ?
+        on error undo, throw:
         disp ttSharedVars with frame f-dispSharedVar 10 down overlay centered row 4.
         down 1 with frame f-dispSharedVar.
-      end. /*     for each ttSharedVars where ttSharedVars.VarDestId = i-VarDestId or i-VarDestid = ? : */
+      end. /* each ttSharedVars where ttSharedVars.VarDestId = i-VarDestId or i-VarDestid = ? : */
       readkey.
       hide frame f-dispSharedVar.
     end.
