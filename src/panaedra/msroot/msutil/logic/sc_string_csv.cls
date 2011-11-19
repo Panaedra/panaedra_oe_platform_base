@@ -7,11 +7,11 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
           Version: $Revision: 12 $ 
        Programmer: $Author: $ 
      Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:12+01:00 $ 
+    Date Modified: $Modtime: 2010-01-27 19:30:12+01:00 $
 
-      Description: Class implementatie van de csvlib.
-                   Bevat (C)omma (S)eparated (V)alue gerelateerde functionaliteit
-                   (comma moet je breed zien).
+      Description: Class implementation of csvlib.
+                   Delivers (C)omma (S)eparated (V)alue functionality
+                   (comma not to be taken literally).
 
   \*****************************  Include Files ********************************/
 
@@ -31,9 +31,9 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     cParamIP# as character, 
     cTokenIP# as character):
   
-    /* Haalt waardes uit een goed te lezen string als " [Hallo] hoi [Bla] boe ".
-       Trim vindt automatisch plaats.
-       Dit formaat wordt ook bij session:parameter (de -param bij opstarten) gebruikt.
+    /* Gets values from a readable string like " [Hallo] hoi [Bla] boe ".
+       Trim is automatically applied.
+       Default format for session:parameter (-param) string.
     */
   
     define variable iTell# as integer   no-undo.
@@ -60,21 +60,16 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     cSearchIP# as character, 
     cValueIP#  as character):
       
-    /* Als SetParam, maar een searchstring waarnaar 
-       gezocht wordt in de parameter value
-       kan worden overschreven met een nieuwe waarde.
-       Indien de searchstring niet wordt gevonden,
-       wordt de nieuwe waarde geappend.
-       De volgende wildcard mag worden gebruikt: sterretje plus delimiter aan het eind.
-       Sterretje mag only op voorlaatste positie, anders
-       wordt het niet als wildcard beschouwd.
+    /* Like SetParam, but read-write to a subset in the token value.
+       You may use the following wildcard: asterisk plus end-delimiter.
 	    
-       Vb. " [Param1] sub1 = yes | sub2 = no | sub3 = waarde [Param2] waarde2 " 
-          met
+       I.e. " [Param1] sub1 = yes | sub2 = no | sub3 = value [Param2] value2 " 
+          with
           "Param1", "sub1 =*|", "sub1 = no"
-          wordt 
-          " [Param1] sub1 = no | sub2 = no | sub3 = waarde [Param2] waarde2 "
-       De gehele (nieuwe) parameter string wordt teruggegeven.
+          will be 
+          " [Param1] sub1 = no | sub2 = no | sub3 = value [Param2] value2 "
+       
+       The new parameter string is returned.
     */
   
     define variable iTell#   as integer   no-undo.
@@ -105,7 +100,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
           cValue# = trim(entry(2,cEntr#,"]")).
           if cSearchIP# matches "*~~*." then 
           do:
-            /* wildcard + delimiter ; sterretje is voorlaatste karakter */
+            /* wildcard + delimiter ; asterisk is position before last */
             cDelim# = substring(cSearchIP#,length(cSearchIP#)).
             cSearchIP# = substring(cSearchIP#,1,length(cSearchIP#) - 2).
             do iTell2# = 1 to num-entries(cValue#, cDelim#):
@@ -119,7 +114,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
               cValue# = " " + trim(cValue# + " " + cDelim# + " " + cValueIP#, cDelim# + " ") + " ".
           end.
           else cValue# = cValueIP#.
-        end. /* search string opgegeven */
+        end. /* search string supplied */
         else cValue# = cValueIP#.
       end.
       else
@@ -144,10 +139,10 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     cTokenIP# as character,
     cValueIP# as character):
     
-    /* Stel een parameter in, op de ingegeven tekst. 
-       Een bestaande waarde wordt overschreven.
-       Vb. " [Param1] waarde1 [Param2] waarde2 " wordt " [Param1] waardenieuw [Param2] waarde2 "
-       De gehele (nieuwe) parameter string wordt teruggegeven.
+    /* Set a parameter to the supplied value. 
+       Existing values are overwritten.
+       Example: " [Param1] value1 [Param2] value2 " will be " [Param1] valuenieuw [Param2] value2 "
+       The new parameter string is returned.
     */
     
     return panaedra.msroot.msutil.logic.sc_string_csv:SetSubParam(cParamIP#, cTokenIP#, "", cValueIP#).
@@ -161,7 +156,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     cDelimIP#   as character, 
     cOptionsIP# as character):
 
-    /* Vergelijkt twee csv lijsten met elkaar, en geeft de Join terug. */
+    /* Compares 2 csv lists, returns the Join */
     
     define variable csvJoin# as character no-undo.
     define variable iTell#   as integer   no-undo.
@@ -237,10 +232,10 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     cDelimIP#      as character):
 
     /*------------------------------------------------------------------------------
-      Purpose:  Kijkt of minstens 1 onderdeel van cListIP# in cTestStringIP# voorkomt
-                via index functie
-        Notes:  Vb1.: "tic,tac,toe" "ik wou dat ik een aap was"    "," geeft yes
-                Vb2.: "tic,tac,toe" "ik wou dat ik een schaap was" "," geeft yes
+      Purpose:  Verifies if at least 1 entry of cListIP# appears in cTestStringIP#.
+                Uses index function.
+        Notes:  Vb1.: "tic,tac,toe" "I hurt my toe"    "," returns yes
+                Vb2.: "tic,tac,toe" "This idea sticks" "," returns yes
     ------------------------------------------------------------------------------*/
    
     define variable iTell#     as integer   no-undo.
@@ -265,10 +260,9 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     cListIP#  as character, 
     cDelimIP# as character):
   
-    /* _TERM_UNDISCLOSED_ een lijst, gescheiden door delimiters.
-       Maak van bv A,D,C,B een lijst A,B,C,D.
-       Lege entries worden gerespecteerd.
-       Dubbele entries worden niet opgeschoond.
+    /* Sort a list alphabetically.
+       Empty entries are kept.
+       Double entries are kept.
     */
   
     define variable iTell#   as integer   no-undo.
@@ -276,13 +270,13 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   
     empty temp-table ttCsvSortList.
   
-    do iTell# = 1 to num-entries(cListIP#,cDelimIP#) transaction:
+    do iTell# = 1 to num-entries(cListIP#,cDelimIP#) transaction: /* codeQok#7103 */
       create ttCsvSortList.
       assign 
         ttCsvSortList.cValue = entry(iTell#,cListIP#,cDelimIP#).
     end.
   
-    for each ttCsvSortList:
+    for each ttCsvSortList on error undo, throw:
       cReturn# = cReturn# + cDelimIP# + ttCsvSortList.cValue.
     end.
   
@@ -295,13 +289,13 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
   method public static character CsvAddLast(cCsvIP# as character, cNewValueIP# as character):
     
-    /* ToDo: beslissing nemen over comment en annotation standaard */
+    /* ToDo: decide on comment and annotation standard */
     @panaedra.comment.method file
       (nl_desc="
-       Voegt een waarde toe aan een seperated value list, zonder dat er delimiters teveel in komen. ~n
+       Voegt een waarde toe aan een seperated value list, zonder dat er delimiters teveel in komen. ~n &if false &then codeQok#7104 &endif
        "
       ,nl_note="
-       In deze overload is de delimiter een komma (~",~") ~n
+       In deze overload is de delimiter een komma (~",~") ~n &if false &then codeQok#7104 &endif
        "
       ,en_desc="
        Adds a value to a seperated value list, unknown-value safe and with trim. ~n
@@ -318,8 +312,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
   method public static character CsvAddLast(cCsvIP# as character, cNewValueIP# as character, cDelimiterIP# as character):
     
-    /* Voegt een waarde toe aan een seperated value, zonder dat er delimiters teveel in komen.
-       Als deze overload aangeroepen wordt, is de delimiter op te geven. 
+    /* Adds a value to a seperated value, without adding too much delimiters.
+       Use this overload to supply your own delimiter. 
     */
     
     define variable cReturn# as character no-undo.
@@ -337,8 +331,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   
   method public static character CsvAddFirst(cCsvIP# as character, cNewValueIP# as character):
     
-    /* Voegt een waarde toe aan een seperated value vooraan de lijst, zonder dat er delimiters teveel in komen.
-       Als deze overload aangeroepen wordt, is de delimiter een komma (",") 
+    /* Adds a value to a seperated value, without adding too much delimiters.
+       Use this overload to get a comma as delimiter. 
     */
     
     return CsvAddFirst(cCsvIP#, cNewValueIP#, ",").
@@ -348,8 +342,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
   method public static character CsvAddFirst(cCsvIP# as character, cNewValueIP# as character, cDelimiterIP# as character):
     
-    /* Voegt een waarde toe aan een seperated value vooraan de lijst, zonder dat er delimiters teveel in komen.
-       Als deze overload aangeroepen wordt, is de delimiter op te geven. 
+    /* Adds a value to the front of a seperated value list, without adding too much delimiters.
+       Use this overload to supply your own delimiter. 
     */
     
     define variable cReturn# as character no-undo.
@@ -367,8 +361,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
   method public static character CsvAddFirstUnique(cCsvIP# as character, cNewValueIP# as character):
     
-    /* Voegt een waarde toe aan een seperated value (die hierin uniek is) vooraan de lijst, zonder dat er delimiters teveel in komen.
-       Als deze overload aangeroepen wordt, is de delimiter een komma (",") 
+    /* Adds a value to the front of a seperated value list, without adding too much delimiters.
+       Use this overload to use a comma as delimiter. 
     */
     
     return CsvAddFirstUNique(cCsvIP#, cNewValueIP#, ",").
@@ -378,8 +372,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
   method public static character CsvAddFirstUnique(cCsvIP# as character, cNewValueIP# as character, cDelimiterIP# as character):
     
-    /* Voegt een waarde toe aan een seperated value (die hierin uniek is) vooraan de lijst, zonder dat er delimiters teveel in komen.
-       Als deze overload aangeroepen wordt, is de delimiter op te geven. 
+    /* Adds a value to the front of a seperated value list, without adding too much delimiters.
+       Use this overload to supply your own delimiter. 
     */
     
     define variable cReturn# as character no-undo.
@@ -396,8 +390,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   
   method public static character CsvAddLastUnique(cCsvIP# as character, cNewValueIP# as character):
     
-    /* Voegt een waarde toe aan een seperated value (die hierin uniek is) vooraan de lijst, zonder dat er delimiters teveel in komen.
-       Als deze overload aangeroepen wordt, is de delimiter een komma (",") 
+    /* Adds a value to the end of a seperated value list, without adding too much delimiters.
+       Use this overload to use comma as delimiter. 
     */
     
     return CsvAddLastUnique(cCsvIP#, cNewValueIP#, ",").
@@ -407,8 +401,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
   method public static character CsvAddLastUnique(cCsvIP# as character, cNewValueIP# as character, cDelimiterIP# as character):
     
-    /* Voegt een waarde toe aan een seperated value (die hierin uniek is) vooraan de lijst, zonder dat er delimiters teveel in komen.
-       Als deze overload aangeroepen wordt, is de delimiter op te geven. 
+    /* Adds a value to the end of a seperated value list, without adding too much delimiters.
+       Use this overload to supply your own delimiter. 
     */
     
     define variable cReturn# as character no-undo.
