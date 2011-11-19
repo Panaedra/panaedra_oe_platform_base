@@ -2,7 +2,7 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
-class panaedra.msroot.msutil.logic.sc_dbtrig   : 
+class panaedra.msroot.msutil.logic.sc_dbtrig: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrig.cls $ 
@@ -168,7 +168,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
     
     define buffer b-ttTableInfo for ttTableInfo.
     
-    do transaction
+    do transaction /* codeQok#7103 */
       on error undo, throw
       on stop undo, retry
       on endkey undo, retry:
@@ -200,7 +200,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
       
       SetKeyFields(hBuffInput#, cCased#).
       
-    end. /* transaction */
+    end. /* transaction codeQok#7103 */
     
     return true.
 
@@ -230,7 +230,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
 
     cCased# = b-ttTableInfo.cCased.
     
-    do transaction
+    do transaction /* codeQok#7103 */
       on error undo, throw
       on stop undo, retry
       on endkey undo, retry:
@@ -273,13 +273,13 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
               iIDParent# = hBuffIP#:buffer-field(cIDParent#):buffer-value.
               
             hQueryChild#:set-buffers(hBuffChild#).
-            hQueryChild#:query-prepare(subst("for each &1 where &1.&2 = &3 exclusive-lock", hBuffRel#::cChildTable, cIDParent#, iIDParent#)).
+            hQueryChild#:query-prepare(subst("for each &1 where &1.&2 = &3 exclusive-lock" /* codeQok#7103 */, hBuffRel#::cChildTable, cIDParent#, iIDParent#)). 
             hQueryChild#:query-open.
             hQueryChild#:get-first.
             
             do while not hQueryChild#:query-off-end:
               hBuffChild#:buffer-delete.
-              hQueryChild#:get-next.  
+              hQueryChild#:get-next.
             end. /* Walk childs */
             
           end. /* Valid child buffer */
@@ -618,7 +618,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig   :
         if bValidateOkay# then.
         else 
         do:
-          /* ToDo: Later kunnen we de data verzamelen, maar voorlopig (proof of concept fase) toon ik only de eerste error want dat is makkelijker. */
+          /* ToDo: Later we can collect all data, but for now (proof of concept fase) only the first error is shown. */
           if oTriggerLogicData#:_sys_HasErrorText() then DisplayTriggerLogicError(hBuffIP#, hBuffOldIP#, oTriggerLogicData#:_sys_FirstErrorText()).
           else DisplayTriggerLogicError(hBuffIP#, hBuffOldIP#, subst("A data logic error has occurred for '&1'.", hBuffIP#:name)).
           return false.
