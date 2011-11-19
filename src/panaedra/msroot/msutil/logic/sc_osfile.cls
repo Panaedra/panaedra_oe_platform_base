@@ -2,7 +2,7 @@ using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
-class panaedra.msroot.msutil.logic.sc_osfile: 
+class panaedra.msroot.msutil.logic.sc_osfile:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_osfile.cls $ 
@@ -208,7 +208,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     input stream-handle oStream#:hStream from os-dir(cDirIP#).
     
     b_repeat_osdir:
-    repeat:
+    repeat on error undo, throw:
       import stream-handle oStream#:hStream cLine#.
       cLine#[2] = replace(cLine#[2],"~\","/").
       if cLine#[1] = "."  then next b_repeat_osdir.
@@ -295,7 +295,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   method public static void DeleteTempFiles():
     
-    for each ttTempFile:
+    for each ttTempFile on error undo, throw:
       os-delete value (ttTempFile.cFullPath) no-error.
     end.
     
@@ -366,7 +366,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     input stream s-alg-in from value(file-info:full-pathname).
   
     searchLine:
-    repeat:
+    repeat on error undo, throw:
       import stream s-alg-in unformatted cLine#.
       cLine# = left-trim(cLine#).
       if cLine# begins ";" or cLine# = "" then next.
@@ -433,7 +433,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     output stream s-alg-out to   value(cTempFile#).
   
     copyLines:
-    repeat:
+    repeat on error undo, throw:
    
       import stream s-alg-in unformatted cLine#.
     
@@ -507,8 +507,8 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     input cFileFromIP#   as character,
     input cFileToIP#     as character,
     input cFileArchive#  as character,
-    input bAppendCopyIP# as logical, /* append voor fileto */
-    input bAppendMoveIP# as logical /* append voor achive */
+    input bAppendCopyIP# as logical, /* append for fileto */
+    input bAppendMoveIP# as logical  /* append for archive */
     ):
    
     define variable iReturn# as integer no-undo.
@@ -572,20 +572,20 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     else
       os-copy value(cFileFromIP#) value(cFileToIP#).
                    
-    /* Als het kopieeren niet gelukt is... */                 
+    /* If copy failed */                 
     if os-error <> 0 then
     do:
       iErrorNrOP# = 50370.
     end.
     else  
-    /* Als het kopieeren wel gelukt is */
+    /* If copy succeeded */
     do:
       CorrectFileRights (input cFileToIP#).
       
       if bMoveIP# then
       do:
         os-delete value(cFileFromIP#).
-        /* Als het verwijderen niet gelukt is */
+        /* If delete failed */
         if os-error <> 0 then
         do:
           iErrorNrOP# = 50371.
@@ -596,7 +596,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   
     return iErrorNrOP#.
 
-  end method. /* _sys_SafeFileCopyOrMove */
+  end method. /* SafeFileCopyOrMove_Implement */
 
   
   method public static logical FileExists (
