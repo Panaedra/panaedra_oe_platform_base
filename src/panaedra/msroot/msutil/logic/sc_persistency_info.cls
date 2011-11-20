@@ -3,7 +3,7 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
-class panaedra.msroot.msutil.logic.sc_persistency_info   : 
+class panaedra.msroot.msutil.logic.sc_persistency_info: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_persistency_info.cls $ 
@@ -427,7 +427,7 @@ class panaedra.msroot.msutil.logic.sc_persistency_info   :
       hProcAll# = hProcAll#:next-sibling.
     end.
     
-    for each ttSourceControl:
+    for each ttSourceControl on error undo, throw:
 
       create ttPersistentThings.
       assign 
