@@ -6,10 +6,10 @@
   Date Modified: $Modtime: 2008-03-01 10:31:49+01:00 $
   
     Description: Dummy ttAssistNN temp-tables.
-                 Bedoeld voor queries met omgekeerde inner-join.
-                 Vb. for each A, each B of A outer-join, first ttAssist01 where rowid(B) = ?.
-                 Deze include wordt ook opgenomen in query analyze tools,
-                 zoals rp/gui/query-tester.w. 
+                 Meant for queries with negative inner-join.
+                 Vb. for each A, each B of A outer-join, first ttAssist01 where rowid(B) = ?.     codeQok#7105
+                 This include is used in query analyze tools,
+                 like rp/gui/query-tester.w. 
 
 \**************************** End of Dvcs_ Header ****************************/
 &if "{&dvcs__panaedra_msroot_msutil_logic_tt_queryassist_tt_i}" = "" &then
