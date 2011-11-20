@@ -2,7 +2,7 @@ using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
-class panaedra.msroot.msutil.logic.sc_xml_sax   : 
+class panaedra.msroot.msutil.logic.sc_xml_sax: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_xml_sax.cls $ 
@@ -95,7 +95,7 @@ class panaedra.msroot.msutil.logic.sc_xml_sax   :
     hSaxReader#:add-schema-location(cNameSpaceIP#, cXsdFileIP#).
     hSaxReader#:sax-parse().
     
-    for each b-ttError:
+    for each b-ttError on error undo, throw:
       if length(cErrorOP#) < 10000 then
         cErrorOP# = cErrorOP# + chr(10) + subst("&1 &2@[Line]&3[Col]&4: &5", b-ttError.iOrder, b-ttError.cType, b-ttError.iLine, b-ttError.iCol, b-ttError.cError).
     end. 
