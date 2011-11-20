@@ -2,10 +2,10 @@
        Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/tt/transactioncontext_tt.i $ 
         Version: $Revision: 3 $ 
      Programmer: $Author: $ 
-   Date Checkin: $Date: 2010-02-12 16:36:58+01:00 $ 
+   Date Checkin: $Date: 2010-02-12 16:36:58+01:00 $
   Date Modified: $Modtime: 2010-02-12 16:35:03+01:00 $ 
 
-    Description: Transaction-context temp-table, 1 per logical transaction (i.e. api call).
+    Description: Transaction-context temp-table, 1 per logical transaction (i.e. api call). codeQok#7103
     
                  Parent of ttValidation (with ttValidationError e.a.).
                   
@@ -36,10 +36,10 @@
 &glob tt{&ttPrefix}TransactionContext{&ttSuffix} true
 
 define {&protected} {&static} temp-table tt{&ttPrefix}TransactionContext{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
-  field iIDTransactionContext    as int64       /* This ID is kept throughout the "logical-transaction" life cycle                             */ help " [private-data] CasedTableName=TransactionContext "
+  field iIDTransactionContext    as int64       /* This ID is kept throughout the "logical-transaction" life cycle                             */ help " [private-data] CasedTableName=TransactionContext " /* codeQok#7103 */
   field dtmCreTransactionContext as datetime-tz /* Creation datetime                                                                           */
-  field iInitiatorID             as int64       /* Group multiple transaction-contexts of one initiator of one transaction (api-) call.        */
-  field cTransactionName         as character   /* Logical name of the transaction, i.e. "panaedra.msutil.msroot.dsexample.changeset.transaction" */
+  field iInitiatorID             as int64       /* Group multiple transaction-contexts of one initiator of one transaction (api-) call.        */ /* codeQok#7103 */
+  field cTransactionName         as character   /* Logical name of the transaction, i.e. "panaedra.msutil.msroot.dsexample.changeset.transaction" */ /* codeQok#7103 */
   field bRequiresAction          as logical     /* Calculated field, is true when there are "dirty" child records                              */
   {&ttExtraFields}
   index iIDTransactionContext is primary unique iIDTransactionContext descending
