@@ -16,7 +16,7 @@ class paninui.view.use.sc_coll_widgetdata
   
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 29 $ 
+          Version: $Revision: 29 $
        Programmer: $Author: $ 
      Date Checkin: $Date: 2010-08-22 15:30:38+02:00 $ 
     Date Modified: $Modtime: 2010-08-22 02:29:45+02:00 $ 
@@ -493,7 +493,8 @@ class paninui.view.use.sc_coll_widgetdata
       for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
         each ttWidgetData of ttUIFrame
         where ttWidgetData.cWidgetType = cWidgetTypeIP#
-        and   ttWidgetData.cLinkName   = cLinkName#:
+        and   ttWidgetData.cLinkName   = cLinkName#
+        on error undo, throw:
         bIsDisplayLinkedOP# = ttWidgetData.bIsDisplayLinked.
         return ttWidgetData.oWidget.
       end.
@@ -504,7 +505,8 @@ class paninui.view.use.sc_coll_widgetdata
         for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
           each ttWidgetData of ttUIFrame
           where ttWidgetData.cWidgetType = cWidgetTypeIP#
-          and   ttWidgetData.cLinkName   = cLinkNameAlt#:
+          and   ttWidgetData.cLinkName   = cLinkNameAlt#
+          on error undo, throw:
           bIsDisplayLinkedOP# = ttWidgetData.bIsDisplayLinked.
           return ttWidgetData.oWidget.
         end.
@@ -564,7 +566,8 @@ class paninui.view.use.sc_coll_widgetdata
         b_getwidget_all:
         for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
           each ttWidgetData of ttUIFrame
-          where ttWidgetData.cLinkName   = cLinkName#:
+          where ttWidgetData.cLinkName   = cLinkName#
+          on error undo, throw:
           bIsDisplayLinkedOP# = ttWidgetData.bIsDisplayLinked.
           return ttWidgetData.oWidget.
         end.
@@ -574,7 +577,8 @@ class paninui.view.use.sc_coll_widgetdata
         for each ttUIFrame where ttUIFrame.iPackID = iPackIdIP#,
           each ttWidgetData of ttUIFrame
           where ttWidgetData.cWidgetType = cWidgetTypeIP#
-          and   ttWidgetData.cLinkName   = cLinkName#:
+          and   ttWidgetData.cLinkName   = cLinkName#
+          on error undo, throw:
           bIsDisplayLinkedOP# = ttWidgetData.bIsDisplayLinked.
           return ttWidgetData.oWidget.
         end.
@@ -672,7 +676,7 @@ class paninui.view.use.sc_coll_widgetdata
         ,
         first ttUIFrame of ttWidgetData 
         where ttUIFrame.iPackID = iPackIdIP#
-        :
+        on error undo, throw:
         iExtentSize# = iExtentSize# + 1.
       end.
       
@@ -689,7 +693,7 @@ class paninui.view.use.sc_coll_widgetdata
           ,
           first ttUIFrame of ttWidgetData 
           where ttUIFrame.iPackID = iPackIdIP#
-          :
+          on error undo, throw:
           assign
             iExtentSize#                = iExtentSize# + 1
             oReturn#[iExtentSize#]      = ttWidgetData.oWidget
@@ -781,14 +785,14 @@ class paninui.view.use.sc_coll_widgetdata
     
     do for ttWidgetData:
       
-      for each ttWidgetData where ttWidgetData.oParent = oGridIP#:
+      for each ttWidgetData where ttWidgetData.oParent = oGridIP# on error undo, throw:
         iExtentSize# = iExtentSize# + 1.
       end.
       
       extent(oGridColumnsOP#) = iExtentSize#.
       
       iTell# = 0.
-      for each ttWidgetData where ttWidgetData.oParent = oGridIP#:
+      for each ttWidgetData where ttWidgetData.oParent = oGridIP# on error undo, throw:
         iTell# = iTell# + 1.
         oGridColumnsOP#[iTell#] = ttWidgetData.oWidget.
       end.
@@ -811,7 +815,8 @@ class paninui.view.use.sc_coll_widgetdata
       where  b-ttUIFrame.iPackID = iPackIDIP#
       and    b-ttUIFrame.iIDUIFrame = iIDUIFrameIP#,
       each   b-ttWidgetData no-lock
-      of     b-ttUIFrame:
+      of     b-ttUIFrame
+      on error undo, throw:
         
       b-ttWidgetData.cLinkName = replace(b-ttWidgetData.cLinkName, cFromIP#, cIntoIP#).
       
@@ -835,7 +840,8 @@ class paninui.view.use.sc_coll_widgetdata
       for each   b-ttWidgetData no-lock
         where b-ttWidgetData.oBindingSource = oBindingSource# /* This field is indexed */
         and   b-ttWidgetData.cWidgetType = "grid",
-        first b-ttUIFrame of b-ttWidgetData:
+        first b-ttUIFrame of b-ttWidgetData
+        on error undo, throw:
       
         assign
           cSvPackIDOP#    = cSvPackIDOP# + "," + trim(string(b-ttUIFrame.iPackID))
