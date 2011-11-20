@@ -18,7 +18,7 @@ class paninui.view.use.sc_coll_eventdata
          Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
           Version: $Revision: 37 $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-05 13:57:09+01:00 $ 
+     Date Checkin: $Date: 2010-02-05 13:57:09+01:00 $
     Date Modified: $Modtime: 2010-02-05 13:55:00+01:00 $ 
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
@@ -1937,7 +1937,8 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttEventsSuspend
         where ttEventsSuspend.iPackID = iPackIDIP#
-        and   ttEventsSuspend.bSuspendAll:
+        and   ttEventsSuspend.bSuspendAll
+        on error undo, throw:
           
         delete ttEventsSuspend.
         
@@ -1945,9 +1946,10 @@ class paninui.view.use.sc_coll_eventdata
       
       if not can-find(first ttEventsSuspend where ttEventsSuspend.bSuspendAll) then 
       do:
+        /* Note: negative ID's, so sort descending */
         for each ttEventsSuspend 
-          /* Note: negative ID's, so sort descending */
-          by ttEventsSuspend.iIDEventsSuspend descending:
+          by ttEventsSuspend.iIDEventsSuspend descending
+          on error undo, throw:
           
           case ttEventsSuspend.cEventType:
           
