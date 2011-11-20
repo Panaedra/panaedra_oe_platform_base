@@ -9,11 +9,11 @@ class panaedra.msroot.msutil.logic.sc_environment:
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_environment.cls $ 
           Version: $Revision: 13 $ 
-       Programmer: $Author: $ 
+       Programmer: $Author: $
      Date Checkin: $Date: 2010-07-13 10:55:04+02:00 $ 
     Date Modified: $Modtime: 2010-07-13 10:51:58+02:00 $ 
 
-      Description: Haal informatie uit de omgeving op zoals het pid (process id).
+      Description: Get session and environment information, like pid (process id).
 
   \*****************************  Include Files ********************************/
 
@@ -298,7 +298,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
  
     input through value("ps -ef | grep $$ " + cTempID#).
  
-    repeat:
+    repeat on error undo, throw:
       import unformatted cLine#.
       if cLine# matches "*grep $$ " + cTempID# + "*" then
       do:
@@ -345,7 +345,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     input through value(subst("ps vx | grep &1", iPID#)).
     
-    repeat:
+    repeat on error undo, throw:
       import unformatted cLine#.
       if " " + cLine# matches subst("* &1*", iPID#) then 
       do:
@@ -409,7 +409,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     input stream str-in through value(cCmd#).
  
-    repeat:
+    repeat on error undo, throw:
       import stream str-in unformatted cLine#.
       if cLine# > "" 
         and (not (substring(cLine#,51, 6) = " grep "       ))
@@ -487,7 +487,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
  
     input stream str-in through value("ps -ef | grep $$ " + cTempID#).
  
-    repeat:
+    repeat on error undo, throw:
       import stream str-in unformatted cLine#.
       if cLine# matches "*grep $$ " + cTempID# + "*" then
       do:
@@ -503,7 +503,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
 
     input stream str-in through value("ps -ef | grep " + cParent#).
  
-    repeat:
+    repeat on error undo, throw:
       import stream str-in unformatted cLine#.
       iPidLine# = int(substring(cLine#,10,7)).
       if iPidLine# > 0 
