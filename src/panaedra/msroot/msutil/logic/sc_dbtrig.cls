@@ -7,7 +7,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrig.cls $ 
           Version: $Revision: 20 $ 
-       Programmer: $Author: $ 
+       Programmer: $Author: $
      Date Checkin: $Date: 2010-05-20 15:27:00+02:00 $ 
     Date Modified: $Modtime: 2010-05-20 14:59:25+02:00 $ 
 
@@ -354,7 +354,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
       return iReturn#.
     end.
     else 
-    do transaction on error undo, throw:
+    do transaction on error undo, throw: /* codeQok#7103 , because wrong use of layer is prevented on runtime */
       return dynamic-next-value("s_ID" + cCasedIP#, hBuffIP#:table /* sc_dbconnect:SetAliases() is used; table name is alias db name */).
     end.
 
