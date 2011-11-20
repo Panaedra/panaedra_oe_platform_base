@@ -1,6 +1,6 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
-class panaedra.msroot.msutil.logic.c_triggerlogicdata   : 
+class panaedra.msroot.msutil.logic.c_triggerlogicdata: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_triggerlogicdata.cls $ 
@@ -9,7 +9,7 @@ class panaedra.msroot.msutil.logic.c_triggerlogicdata   :
      Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
     Date Modified: $Modtime: 2010-01-27 19:42:48+01:00 $ 
 
-      Description: Bevat data en methods voor de communicatie van trigger logic en sc_dbtrig.
+      Description: Data and methods for communication between trigger logic and sc_dbtrig.
 
   \*****************************  Include Files ********************************/
   
@@ -92,7 +92,8 @@ class panaedra.msroot.msutil.logic.c_triggerlogicdata   :
     
     define buffer b-ttTriggerLogicData for ttTriggerLogicData. 
     
-    for each b-ttTriggerLogicData where not b-ttTriggerLogicData.bBuffersAreSet:
+    for each b-ttTriggerLogicData where not b-ttTriggerLogicData.bBuffersAreSet
+      on error undo, throw:
       assign
         b-ttTriggerLogicData.bBuffersAreSet = true
         b-ttTriggerLogicData.hBuff          = hBuffIP#
