@@ -11,7 +11,7 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
      Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
     Date Modified: $Modtime: 2010-01-27 19:45:54+01:00 $ 
 
-      Description: Connect to database(s) (also for appservers)
+      Description: Connect to database(s) (also for appservers) 
 
   \*****************************  Include Files ********************************/
 
@@ -149,7 +149,7 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
     create query hQuer#.
     hQuer#:set-buffers(hBuff#).
     hQuer#:query-prepare(
-      "for each _File where " +
+      "for each _File where " + /* codeQok#7105  */
       "not _File._Hidden and " +
       "not _File._File-Name begins 'sys'").
     hQuer#:query-open.
@@ -179,7 +179,7 @@ class panaedra.msroot.msas.logic.sc_dbconnect:
     def var cMasterDb# as char no-undo.
     def var iTell#     as int  no-undo.
   
-    /* no-error: supers wellicht nog niet in de lucht. */
+    /* no-error: supers (old style) not running. */
     cMasterDb# = sc_prop:GetSharedVar("Aliases","MasterDb") no-error.
   
     if cMasterDb# > "" and connected(cMasterDb#) then 
