@@ -5,7 +5,7 @@ using panaedra.msroot.msutil.interfaces.*.
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
-class panaedra.msroot.msutil.logic.sc_dbtrigrelations   : 
+class panaedra.msroot.msutil.logic.sc_dbtrigrelations: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrigrelations.cls $ 
@@ -79,7 +79,8 @@ class panaedra.msroot.msutil.logic.sc_dbtrigrelations   :
         */
         do while can-find(first b-ttMsdrTriggerLink where b-ttMsdrTriggerLink.bHandled = false):
         
-          repeat preselect each b-ttMsdrTriggerLink where b-ttMsdrTriggerLink.bHandled = false:
+          repeat preselect each b-ttMsdrTriggerLink where b-ttMsdrTriggerLink.bHandled = false
+            on error undo, throw:
             
             find next b-ttMsdrTriggerLink.
           
