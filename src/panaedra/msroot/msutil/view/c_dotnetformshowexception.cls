@@ -14,7 +14,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
      Date Checkin: $Date: 2010-08-02 08:44:02+02:00 $ 
     Date Modified: $Modtime: 2010-07-31 19:26:31+02:00 $ 
 
-      Description: Tonen van een willekeurige progress exception
+      Description: Show any progress or dotnet exception to the user.
 
   \*****************************  Include Files ********************************/
   
@@ -30,7 +30,6 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-	
   &if opsys = "win32" and not "{&window-system}" = "tty" &then
   
   define private   variable components   as System.ComponentModel.IContainer no-undo.
@@ -59,18 +58,18 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
 	
     define variable nestedvar as System.Windows.Forms.AnchorStyles no-undo.
 	
-    /* Als details nog niet weergegeven zijn mag dit 1 keer uitgevoerd worden */
+    /* Do once if details aren't shown yet */
     if not bShowDetails then 
     do:
-      /* Zet tbInfo anchor bottom uit */
+      /* tbInfo anchor bottom off */
       nestedvar = cast(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
       this-object:tbinfo:Anchor = cast(Progress.Util.EnumHelper:Or(nestedvar, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
     
-      /* Zet button anchor naar top */
+      /* button anchor to top */
       this-object:btnOK:Anchor = System.Windows.Forms.AnchorStyles:Top.
       this-object:btnDetails:Anchor = System.Windows.Forms.AnchorStyles:Top.
       
-      /* Plaats tbstack */
+      /* Move tbstack */
       this-object:Height             = this-object:Height + 300.
       this-object:tbStack:Location   = new System.Drawing.Point(2, this-object:ClientSize:height - 298).
       this-object:tbStack:ClientSize = new System.Drawing.Size(this-object:ClientSize:width - 6, this-object:height - 302).
@@ -79,7 +78,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
       nestedvar = cast(Progress.Util.EnumHelper:Or(cast(Progress.Util.EnumHelper:Or(System.Windows.Forms.AnchorStyles:Top, System.Windows.Forms.AnchorStyles:Bottom), System.Windows.Forms.AnchorStyles), System.Windows.Forms.AnchorStyles:Left), System.Windows.Forms.AnchorStyles).
       this-object:tbStack:Anchor = cast(Progress.Util.EnumHelper:Or(nestedvar, System.Windows.Forms.AnchorStyles:Right), System.Windows.Forms.AnchorStyles).
       
-      /* Maak tbStack visible */
+      /* tbStack visible */
       this-object:tbStack:visible = true.
       
       bShowDetails = true.
@@ -206,12 +205,9 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
       tbInfo:Text      = ""
       tbStack:Text     = "".
     
-    /*    empty temp-table ttExceptions.*/
-    /*    empty temp-table ttCallstack. */
     empty temp-table ttAblExceptions.
     empty temp-table ttAblCallstack.
     
-    /* Als het een _FCMPNY_ exception is */
     if type-of(ex, panaedra.msroot.msutil.logic.c__FCMPNY_exception) then 
     do:
       
@@ -219,10 +215,10 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
       
       o_CMPNY_Exception# = cast(ex, panaedra.msroot.msutil.logic.c__FCMPNY_exception).
       
-      /* Controleer of er gebruik wordt gemaakt van dsContext 
-         (of de fout van de appserver/api komt)*/
+      /* Check if dsContext is used
+         (api/proxy)*/
       if o_CMPNY_Exception#:bUsesDataset then      
-        /* Haal dataset dsContext op, roep de callback routine aan in dit formpje */
+        /* Get dataset dsContext, use callback methods of this form */
         o_CMPNY_Exception#:GetDsContext(this-object).
       else
       do:
@@ -305,7 +301,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
 
   method public void CallbackDsContextStrong(table ttExceptions, table ttCallStack):
 
-    /* Hier is de dataset dsconfig dus opgehaald, en kan er mee gewerkt worden. */
+    /* dataset dsconfig is available in this method. */
     
     define variable cError# as character no-undo.
     define variable iOrder# as integer   no-undo.
@@ -315,7 +311,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
     
     tbInfo:Text = "".
     if can-find(first ttExceptions) then 
-      for each ttExceptions:
+      for each ttExceptions on error undo, throw:
         cError# = replace(ttExceptions.cError, chr(10), chr(13) + chr(10)).
         iOrder# = ttExceptions.iOrder. /* For easy debugging */
         tbInfo:Text = tbInfo:Text + cError# + chr(13) + chr(10) + chr(13) + chr(10).
@@ -323,16 +319,16 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
     else 
       tbInfo:Text = "Unknown error.".
     
-    /* Zet in de normale bovenste textbox, aan het eind: de laatste procedure van de eerste callstack. */
+    /* Put last procedure of first callstack in top textbox. */
     find first ttCallstack no-error.
     if avail ttCallStack and ttCallStack.cCallStack > "" then
       tbInfo:Text = tbInfo:Text + entry(num-entries(ttCallStack.cCallStack,chr(10)),ttCallStack.cCallStack,chr(10)) + chr(13) + chr(10) + chr(13) + chr(10).
     
-      /* Zorg ervoor de de gehele callstack in de juiste volgorde getoond wordt */
+      /* Adjust order of complete callstack  */
       open query hQuery# for each b-ttCallStack.
     get last hQuery#.
     
-    /* Vul de "Details" textbox met de complete stack */
+    /* Fill "Details" textbox with complete stack */
     tbStack:Text = "".
     if can-find(first ttCallstack) then 
     do while not query-off-end ("hQuery#"):
