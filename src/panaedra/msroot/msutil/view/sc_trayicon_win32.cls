@@ -37,6 +37,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
   define private static variable showLastToolStripMenuItem         as System.Windows.Forms.ToolStripMenuItem no-undo.
   define private static variable putClipboardLastToolStripMenuItem as System.Windows.Forms.ToolStripMenuItem no-undo.
   define private static variable ShowLogToolStripMenuItem          as System.Windows.Forms.ToolStripMenuItem no-undo.
+  define private static variable ClearLogToolStripMenuItem         as System.Windows.Forms.ToolStripMenuItem no-undo.
   
   define private static variable oSingleton as panaedra.msroot.msutil.view.sc_trayicon_win32 no-undo.
   
@@ -87,12 +88,14 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
       showLastToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem().
       putClipboardLastToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem().
       ShowLogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem().
+      ClearLogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem().
 
-      define variable arrayvar0 as System.Windows.Forms.ToolStripItem extent 4 no-undo.
+      define variable arrayvar0 as System.Windows.Forms.ToolStripItem extent 5 no-undo.
       arrayvar0[1] = showLastToolStripMenuItem.
       arrayvar0[2] = putClipboardLastToolStripMenuItem.
       arrayvar0[3] = ShowLogToolStripMenuItem.
-      arrayvar0[4] = exitToolStripMenuItem.
+      arrayvar0[4] = ClearLogToolStripMenuItem.
+      arrayvar0[5] = exitToolStripMenuItem.
       
       contextMenuStrip1:Items:AddRange(arrayvar0).
 
@@ -107,6 +110,9 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
 
       ShowLogToolStripMenuItem:Text = "&Show logfile".
       ShowLogToolStripMenuItem:Click:subscribe(ShowLogToolStripMenuItem_Click).
+      
+      ClearLogToolStripMenuItem:Text = "&Clear logfile".
+      ClearLogToolStripMenuItem:Click:subscribe(ClearLogToolStripMenuItem_Click).
       
       notifyIcon1:ContextMenuStrip = contextMenuStrip1.
 
@@ -138,6 +144,9 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
     
     if valid-object(ShowLogToolStripMenuItem) then ShowLogToolStripMenuItem:Dispose().
     ShowLogToolStripMenuItem= ?.
+    
+    if valid-object(ClearLogToolStripMenuItem) then ClearLogToolStripMenuItem:Dispose().
+    ClearLogToolStripMenuItem= ?.
     
     if valid-object(contextMenuStrip1) then contextMenuStrip1:Dispose().
     contextMenuStrip1 = ?.
@@ -171,11 +180,18 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
 
   method protected static void ShowLogToolStripMenuItem_Click( input sender as System.Object, input e as System.EventArgs ):
     
-    /* Maak html bestandje aan */
+    /* Create html and open */
     if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(temp-table ttLog:default-buffer-handle, panaedra.msroot.msutil.logic.sc_path:cTempDir + "trayiconlog.html") then 
       panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msroot.msutil.logic.sc_path:cTempDir + "trayiconlog.html"). /* Open bestandje */
     else
       notifyIcon1:ShowBalloonTip(500, "_CMPNY_ Info", "Error occured, no log file made.", ToolTipIcon:None).
+      
+  end method.
+
+
+  method protected static void ClearLogToolStripMenuItem_Click( input sender as System.Object, input e as System.EventArgs ):
+   
+   ClearLog().    
       
   end method.
 
