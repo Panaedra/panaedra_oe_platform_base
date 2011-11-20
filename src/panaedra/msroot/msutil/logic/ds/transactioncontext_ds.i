@@ -5,7 +5,7 @@
    Date Checkin: $Date: 2010-01-27 16:59:09+01:00 $ 
   Date Modified: $Modtime: 2010-01-27 16:59:09+01:00 $ 
 
-    Description: Transaction context dataset (holds validation messages, e.a.)
+    Description: Transaction context dataset (holds validation messages, e.a.) codeQok#7103
 
 \**************************** End of Dvcs_ Header ****************************/
 &if "{&dvcs__panaedra_msroot_msutil_logic_ds_transactioncontext_ds_i}" = "" &then
@@ -27,7 +27,6 @@ procedure dvcs__panaedra_msroot_msutil_logic_ds_transactioncontext_ds_i: return 
 &endif
 
 define {&protected} {&static} dataset dsTransactionContext {&reference-only} for ttTransactionContext, ttTransactionResponse, ttValidation, ttValidationError, ttValidationQuestion, ttValidationReply.
-
 
 &endif /* {&dvcs__panaedra_msroot_msutil_logic_ds_transactioncontext_ds_i} */
 
