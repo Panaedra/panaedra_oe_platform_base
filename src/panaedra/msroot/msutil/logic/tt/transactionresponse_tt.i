@@ -5,9 +5,9 @@
    Date Checkin: $Date: 2010-02-12 16:36:58+01:00 $ 
   Date Modified: $Modtime: 2010-02-12 16:35:13+01:00 $ 
 
-    Description: Transaction-context temp-table, 1 per logical transaction (i.e. api call).
+    Description: Transaction-context temp-table, 1 per logical transaction (i.e. api call). (codeQok#7103)
     
-                 Parent of ttValidation (with ttValidationError e.a.).
+                 Parent of ttValidation (with ttValidationError e.a.). 
                   
                  Parent of ttTransactionResponse (generic user feedback information which 
                  isn't the result of a validation).
