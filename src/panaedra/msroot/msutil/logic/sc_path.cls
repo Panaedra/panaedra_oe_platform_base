@@ -263,7 +263,7 @@ class panaedra.msroot.msutil.logic.sc_path:
         b_param:
         do iTell# = 1 to num-entries(cParams#):
           cEntry# = trim(entry(iTell#, cParams#)).
-          if cEntry# begins "-assemblies" then 
+          if cEntry# begins "-assemblies" then
           do:
             assign
               cAssemblies#              = cEntry#
