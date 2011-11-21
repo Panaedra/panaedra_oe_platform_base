@@ -242,7 +242,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
-  /* _TERM_UNDISCLOSED_queu directory */
+  /* _TERM_UNDISCLOSED_queue directory */
   define public static property c_TERM_UNDISCLOSED_queueDir as character no-undo 
     get():
       if not bTtPathInitialized then TtPathInitialize().
@@ -257,7 +257,6 @@ class panaedra.msroot.msutil.logic.sc_path:
       define variable cAssemblies# as character no-undo.
       define variable iTell# as integer no-undo.
       define variable cEntry# as character no-undo.
-
       if cAssemblyDir = ? then 
       do:
         cParams# = session:startup-parameters.
@@ -275,7 +274,6 @@ class panaedra.msroot.msutil.logic.sc_path:
           then cAssemblyDir = cAssemblies#.
         else
           cAssemblyDir = cWorkDir.
-        
       end.
       return cAssemblyDir.
     end get.
