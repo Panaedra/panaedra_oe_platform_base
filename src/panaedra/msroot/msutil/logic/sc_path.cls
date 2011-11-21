@@ -11,7 +11,7 @@ class panaedra.msroot.msutil.logic.sc_path:
      Date Checkin: $Date: 2010-08-10 12:23:28+02:00 $ 
     Date Modified: $Modtime: 2010-08-10 12:20:49+02:00 $ 
   
-      Description: Methods and properties voor common os paths and directories like
+      Description: Methods and properties for common os paths and directories like
                    cIniDir en cSystemDir.
       
                    For path cIniDir hard coded paths are used, to avoid chicken/egg
@@ -250,6 +250,38 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
+  /* Assembly directory */
+  define public static property cAssemblyDir as character no-undo init ?
+    get():
+      define variable cParams# as character no-undo.
+      define variable cAssemblies# as character no-undo.
+      define variable iTell# as integer no-undo.
+      define variable cEntry# as character no-undo.
+
+      if cAssemblyDir = ? then 
+      do:
+        cParams# = session:startup-parameters.
+        b_param:
+        do iTell# = 1 to num-entries(cParams#):
+          cEntry# = trim(entry(iTell#, cParams#)).
+          if cEntry# begins "-assemblies" then do:
+            cAssemblies# = cEntry#.
+            entry(1,cAssemblies#," ") = "".
+            cAssemblies# = trim(cAssemblies#). 
+            leave b_param.
+          end.
+        end.
+        if cAssemblies# > "" 
+          then cAssemblyDir = cAssemblies#.
+        else
+          cAssemblyDir = cWorkDir.
+        
+      end.
+      return cAssemblyDir.
+    end get.
+    protected set.
+  
+
   /* ---Methods--- */
   
   
