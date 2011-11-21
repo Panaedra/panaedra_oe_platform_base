@@ -253,20 +253,23 @@ class panaedra.msroot.msutil.logic.sc_path:
   /* Assembly directory */
   define public static property cAssemblyDir as character no-undo init ?
     get():
-      define variable cParams# as character no-undo.
+      define variable cParams#     as character no-undo.
       define variable cAssemblies# as character no-undo.
-      define variable iTell# as integer no-undo.
-      define variable cEntry# as character no-undo.
+      define variable iTell#       as integer   no-undo.
+      define variable cEntry#      as character no-undo.
       if cAssemblyDir = ? then 
       do:
         cParams# = session:startup-parameters.
         b_param:
         do iTell# = 1 to num-entries(cParams#):
           cEntry# = trim(entry(iTell#, cParams#)).
-          if cEntry# begins "-assemblies" then do:
-            cAssemblies# = cEntry#.
-            entry(1,cAssemblies#," ") = "".
-            cAssemblies# = trim(cAssemblies#). 
+          if cEntry# begins "-assemblies" then 
+          do:
+            assign
+              cAssemblies#              = cEntry#
+              entry(1,cAssemblies#," ") = ""
+              cAssemblies#              = trim(cAssemblies#) 
+              cAssemblies#              = right-trim(replace(cAssemblies#,"~\","/"),"/") + "/". 
             leave b_param.
           end.
         end.
