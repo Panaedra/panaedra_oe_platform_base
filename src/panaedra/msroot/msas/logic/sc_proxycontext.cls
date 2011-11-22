@@ -9,7 +9,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
      Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
     Date Modified: $Modtime: 2010-01-27 19:53:29+01:00 $ 
 
-      Description: Api-proxy functionaliteit: generieke methods die client-side (proxy)
+      Description: Api-proxy functionality: generic methods die client-side (proxy)
                    worden aangeroepen.
 
   \*****************************  Include Files ********************************/
@@ -75,7 +75,11 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
         
       find first b-ttExceptions no-error.
       
-      undo, throw (new panaedra.msroot.msutil.logic.c_apiproxyexception(99909008,
+      undo, throw (new panaedra.msroot.msutil.logic.c_apiproxyexception(
+        if (not avail b-ttExceptions) or 
+          (b-ttExceptions.iError = ?) or 
+          (b-ttExceptions.iError = 0) then 99909008 
+          else b-ttExceptions.iError,
         subst("Api/proxy exception&1 for: '&2' -> '&3'",
         if not avail b-ttExceptions then "" else " '" + b-ttExceptions.cError + "'",
         program-name(4), program-name(3)), 
