@@ -60,11 +60,11 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       
       find first b-ttExceptions no-error.
       
-      /* Als er een fout in de proxy zelf is ontstaan */
+      /* If an exception has occurred in the proxy itself */
       if not avail b-ttExceptions then
         panaedra.msroot.msutil.logic.sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, cMirrorIP#).
       else
-      /* Als er een error van een appserver vandaan komt, moet de callstack nog worden aangevult vanaf de eerste procedure */
+      /* If an exception has occurred on an appserver, append callstack */
       do:
         if panaedra.msroot.msutil.logic.sc_boot:SessionParameter("UiMode") <> "AppServer"
           and panaedra.msroot.msas.logic.sc_asconnect:GetAppserver(cMirrorIP#) <> session:handle then
@@ -80,8 +80,8 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
           (b-ttExceptions.iError = ?) or 
           (b-ttExceptions.iError = 0) then 99909008 
           else b-ttExceptions.iError,
-        subst("Api/proxy exception&1 for: '&2' -> '&3'",
-        if not avail b-ttExceptions then "" else " '" + b-ttExceptions.cError + "'",
+        subst("&1 [Api/proxy exception for: '&2' -> '&3']",
+        if not avail b-ttExceptions then "Error:" else b-ttExceptions.cError,
         program-name(4), program-name(3)), 
         dataset dsContext /* ->not<- by-reference */ )).
         
