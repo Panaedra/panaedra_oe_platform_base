@@ -76,7 +76,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
     if not avail ttAsConnect then 
     do:
       
-      undo, throw new c__FCMPNY_exception(
+      undo, throw new c_apiproxyexception(
         99909002,
         subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
         cEnvIP#,
@@ -116,7 +116,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
         */
         if error-status:num-messages = 0 and ttAsConnect.hAppserver:connected() then 
           return true.
-        else undo, throw new c__FCMPNY_exception(
+        else undo, throw new c_apiproxyexception(
             99909001,
             subst("AppServer connection '&1' failed.~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'~n~n&5", 
             ttAsConnect.cConnect, 
@@ -152,7 +152,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       if not avail ttAsConnect then 
       do:
       
-        undo, throw new c__FCMPNY_exception(
+        undo, throw new c_apiproxyexception(
           99909002,
           subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
           sc_environment:cEnv,
@@ -171,7 +171,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
 
           if error-status:num-messages = 0 and (not ttAsConnect.hAppserver:connected()) then 
             return true.
-          else undo, throw new c__FCMPNY_exception(
+          else undo, throw new c_apiproxyexception(
               99909011,
               subst("AppServer connection '&1' disconnect failed.~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'~n~n&5", 
               ttAsConnect.cConnect, 
@@ -228,7 +228,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       no-error.
         
     if not avail ttAsConnect then 
-      undo, throw new c__FCMPNY_exception(
+      undo, throw new c_apiproxyexception(
         99909002,
         subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
         cEnvIP#,

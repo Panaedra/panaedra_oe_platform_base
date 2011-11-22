@@ -5,7 +5,7 @@ using System.Windows.Forms.*.
 using Progress.Windows.Form.
 &endif
 
-class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" &then inherits Form implements panaedra.msroot.msutil.interfaces.i__FCMPNY_exception &endif : 
+class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" &then inherits Form implements panaedra.msroot.msutil.interfaces.i_apiproxyexception &endif : 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/view/c_dotnetformshowexception.cls $ 
@@ -208,12 +208,12 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
     empty temp-table ttAblExceptions.
     empty temp-table ttAblCallstack.
     
-    if type-of(ex, panaedra.msroot.msutil.logic.c__FCMPNY_exception) then 
+    if type-of(ex, panaedra.msroot.msutil.logic.c_apiproxyexception) then 
     do:
       
-      def var o_CMPNY_Exception# as panaedra.msroot.msutil.logic.c__FCMPNY_exception no-undo.
+      def var o_CMPNY_Exception# as panaedra.msroot.msutil.logic.c_apiproxyexception no-undo.
       
-      o_CMPNY_Exception# = cast(ex, panaedra.msroot.msutil.logic.c__FCMPNY_exception).
+      o_CMPNY_Exception# = cast(ex, panaedra.msroot.msutil.logic.c_apiproxyexception).
       
       /* Check if dsContext is used
          (api/proxy)*/
@@ -285,7 +285,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
   
   method public void CallbackDsContext (dataset-handle hDsContext# /* by-ref */):
     
-    /* Krijgt dsContext binnen van c__FCMPNY_exception via by-reference callback */
+    /* Krijgt dsContext binnen van c_apiproxyexception via by-reference callback */
     
     define variable hTt# as handle no-undo extent 2.
     

@@ -372,7 +372,7 @@ class paninui.view.use.display.sc_displaydata   :
         
         oComboBox#:DataSource = oBindingSource#. /* Dit vult automatisch de listitems van de combobox. */
         
-        if extent(oQryIP#:hDisplayField)= ? then undo, throw new panaedra.msroot.msutil.logic.c__FCMPNY_exception(99950822, "You didn't set the extent of the field to display in the combobox (oQry:hDisplayField)").
+        if extent(oQryIP#:hDisplayField)= ? then undo, throw new panaedra.msroot.msutil.logic.c_apiproxyexception(99950822, "You didn't set the extent of the field to display in the combobox (oQry:hDisplayField)").
         
         oComboBox#:DisplayMember = oQryIP#:hDisplayField[1]:name.
         

@@ -75,7 +75,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
         
       find first b-ttExceptions no-error.
       
-      undo, throw (new panaedra.msroot.msutil.logic.c__FCMPNY_exception(99909008,
+      undo, throw (new panaedra.msroot.msutil.logic.c_apiproxyexception(99909008,
         subst("Api/proxy exception&1 for: '&2' -> '&3'",
         if not avail b-ttExceptions then "" else " '" + b-ttExceptions.cError + "'",
         program-name(4), program-name(3)), 

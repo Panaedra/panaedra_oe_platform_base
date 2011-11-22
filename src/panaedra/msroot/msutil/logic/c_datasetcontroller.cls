@@ -76,7 +76,7 @@ class panaedra.msroot.msutil.logic.c_datasetcontroller:
          at the unknown value.  
        */
       if oPack = ? then oPack = oValueIP#.
-      else undo, throw new panaedra.msroot.msutil.logic.c__FCMPNY_exception(99950481, "oPack can only be set once.").
+      else undo, throw new panaedra.msroot.msutil.logic.c_apiproxyexception(99950481, "oPack can only be set once.").
     end set.
     
   define public property bTrackingChangesEnableOnAsync as logical no-undo
