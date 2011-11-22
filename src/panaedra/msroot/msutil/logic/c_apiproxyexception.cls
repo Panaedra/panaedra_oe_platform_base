@@ -76,7 +76,7 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits Progress.Lang.Ap
   end constructor.
   
   
-  define public property apiproxyExceptions as character no-undo
+  define public property ApiproxyExceptions as character no-undo
     get():
       
       define variable cReturn#        as character no-undo.
@@ -113,7 +113,7 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits Progress.Lang.Ap
       
     if iErrorIP# = 1 and can-find(first b-ttExceptions) then 
     do:
-      return apiproxyExceptions.
+      return ApiproxyExceptions.
     end.
     else 
       return super:getMessage(iErrorIP#).
