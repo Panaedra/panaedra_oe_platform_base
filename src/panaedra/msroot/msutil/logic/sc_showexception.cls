@@ -39,7 +39,8 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
     /* This code does not compile on unix, only on .NET win32 */
     
-    if not sc_environment:bBatchMode then do:
+    if not sc_environment:bBatchMode then 
+    do:
     
       if not valid-object(oForm) then 
         oForm = new panaedra.msroot.msutil.view.c_dotnetformshowexception().
@@ -61,9 +62,9 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     end.
     
     else
-    &endif /* Not unix/tty */
+      &endif /* Not unix/tty */
     
-    ShowExceptionImplement(ex).    
+      ShowExceptionImplement(ex).    
     
   end method. /* ShowException */
   
@@ -74,6 +75,8 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     /* The following code is used on win32 as well as unix */
     
     define variable cLastProgram# as character no-undo.
+    define variable cMessage#     as character no-undo.
+    define variable iTell#        as integer   no-undo.
     
     assign
       cLastProgram# = panaedra.msroot.msutil.logic.sc_info:GetCallStack()
@@ -82,14 +85,22 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
     if length(cLastProgram#) >= 60 then
       cLastProgram# = "..." + 
-      substring(cLastProgram#, length(cLastProgram#) - 59).
+        substring(cLastProgram#, length(cLastProgram#) - 59).
+    
+    do iTell# = 1 to ex:NumMessages:
+      if iTell# > 1 
+        then cMessage# = cMessage# + chr(10).
+      cMessage# = cMessage# + 
+        ex:GetMessage(iTell#).
+      if index(cMessage#, subst("(&1)", ex:GetMessageNum(iTell#))) = 0
+        then cMessage# = cMessage# + subst(" (&1)", ex:GetMessageNum(iTell#)).
+    end.
     
     message 
-      ex:GetMessage(1) skip
-      ex:GetMessage(2) skip
+      cMessage#        skip
       ex:CallStack     skip
       cLastProgram#
-      view-as alert-box title "_CMPNY_ " + string(now,"99-99-99 hh:mm").
+      view-as alert-box title "Panaedra " + string(now,"99-99-99 hh:mm:ss").
   
   end method. /* ShowExceptionImplement */
 
@@ -102,7 +113,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
   end method.
   
-  &endif /* unix/tty */
+&endif /* unix/tty */
 
 end class.
 

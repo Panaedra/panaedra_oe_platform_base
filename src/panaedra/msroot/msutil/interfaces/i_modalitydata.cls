@@ -18,11 +18,11 @@ interface panaedra.msroot.msutil.interfaces.i_modalitydata:
 
   /******************************* $NoKeywords:  $ *****************************/
 
-  define property oModalityClient  as i_modalityclient     no-undo get.
-  define property cName            as character            no-undo get.
-  define property oCallData        as Progress.Lang.Object no-undo get. set.
-  define property oResponseData    as Progress.Lang.Object no-undo get. set.
-  define property o_CMPNY_Exception as c_apiproxyexception    no-undo get. set.
+  define property oModalityClient    as i_modalityclient       no-undo get.
+  define property cName              as character              no-undo get.
+  define property oCallData          as Progress.Lang.Object   no-undo get. set.
+  define property oResponseData      as Progress.Lang.Object   no-undo get. set.
+  define property oException         as Progress.Lang.AppError no-undo get. set.
 
   method void FireModalityResponse().
 

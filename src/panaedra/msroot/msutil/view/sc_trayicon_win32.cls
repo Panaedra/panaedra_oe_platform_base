@@ -16,7 +16,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
      Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
     Date Modified: $Modtime: 2010-01-27 19:39:42+01:00 $ 
 
-      Description: Display a message by a _CMPNY_ tray icon 
+      Description: Display a message by an Panaedra tray icon 
                    (static, so one per progress session)
 
   \*****************************  Include Files ********************************/
@@ -81,7 +81,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
       resources = Progress.Util.ResourceHelper:Load("panaedra/msroot/msutil/view/sc_trayicon_win32.resx", propath).
       notifyIcon1 = new System.Windows.Forms.NotifyIcon(components).
       notifyIcon1:Icon = cast(resources:GetObject("notifyIcon1.Icon"), System.Drawing.Icon).
-      notifyIcon1:Text = "_CMPNY_ Info".
+      notifyIcon1:Text = "Panaedra Info".
 
       contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(components).
       exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem().
@@ -120,7 +120,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
     
     /* Show last message in a baloon tip */
     notifyIcon1:Visible = true.
-    notifyIcon1:ShowBalloonTip(500, "_CMPNY_ Info", cMsgIP#, ToolTipIcon:None).
+    notifyIcon1:ShowBalloonTip(500, "Panaedra Info", cMsgIP#, ToolTipIcon:None).
     
   end method.
 
@@ -163,7 +163,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
     if available ttLog
       and ttLog.cMsg > "" 
       and valid-object(notifyIcon1) then
-      notifyIcon1:ShowBalloonTip(30000, "_CMPNY_ Info", ttLog.cMsg, ToolTipIcon:None).
+      notifyIcon1:ShowBalloonTip(30000, "Panaedra Info", ttLog.cMsg, ToolTipIcon:None).
         
   end method. /* showLastToolStripMenuItem_Click */
 
@@ -184,7 +184,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
     if panaedra.msroot.msutil.logic.sc_html:TempTableToHTML(temp-table ttLog:default-buffer-handle, panaedra.msroot.msutil.logic.sc_path:cTempDir + "trayiconlog.html") then 
       panaedra.msroot.msutil.logic.sc_win32:ShellExecute(panaedra.msroot.msutil.logic.sc_path:cTempDir + "trayiconlog.html"). /* Open bestandje */
     else
-      notifyIcon1:ShowBalloonTip(500, "_CMPNY_ Info", "Error occured, no log file made.", ToolTipIcon:None).
+      notifyIcon1:ShowBalloonTip(500, "Panaedra Info", "Error occured, no log file made.", ToolTipIcon:None).
       
   end method.
 

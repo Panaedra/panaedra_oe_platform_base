@@ -5,8 +5,8 @@
    Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
   Date Modified: $Modtime: 2010-01-27 19:30:12+01:00 $ 
 
-    Description: Include die in iedere _CMPNY_ Panaedra class gebruikt moet worden.
-                 "ctop" betekent: Aan het begin, voor de class definitie.
+    Description: Include this in each Panaedra class.
+                 "ctop" means: At the top of the source, before the class definition.
 
 \**************************** End of Dvcs_ Header ****************************/
 &if '{&dvcs__panaedra_msi_logic_ctop_class_i}' = '' &then

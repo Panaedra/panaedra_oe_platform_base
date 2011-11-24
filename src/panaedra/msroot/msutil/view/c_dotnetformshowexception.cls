@@ -101,7 +101,10 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
     if e:KeyChar = chr(3) /* Ctrl+C */ then 
     do:
       e:Handled = true.
-      clipboard:value = substitute("&2&1&1&3&1&1&4", chr(10), this-object:Text, tbInfo:Text, tbStack:Text).
+      clipboard:value = substitute("&2&1&1&3&1&1&4", chr(10), 
+        this-object:Text, 
+        tbInfo:Text, 
+        tbStack:Text).
     end.
       
   end method.
@@ -188,7 +191,8 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
     this-object:Name = "c_dotnetformshowexception".
     this-object:SizeGripStyle = System.Windows.Forms.SizeGripStyle:Show.
     this-object:StartPosition = System.Windows.Forms.FormStartPosition:CenterScreen.
-    this-object:Text = "_CMPNY_ waarschuwing".
+    this-object:Text = "Panaedra exception".
+    this-object:KeyPreview = true.
     this-object:KeyPress:subscribe(this-object:c_dotnetformshowexception_KeyPress).
     this-object:ResumeLayout(false).
     this-object:PerformLayout().
@@ -201,7 +205,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
   method public void ShowException(ex as Progress.Lang.Error):
     
     assign
-      this-object:Text = "_CMPNY_ " + string(now, "99-99-9999 hh:mm")
+      this-object:Text = "Panaedra " + string(now, "99-99-9999 hh:mm:ss")
       tbInfo:Text      = ""
       tbStack:Text     = "".
     
@@ -211,15 +215,15 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
     if type-of(ex, panaedra.msroot.msutil.logic.c_apiproxyexception) then 
     do:
       
-      def var o_CMPNY_Exception# as panaedra.msroot.msutil.logic.c_apiproxyexception no-undo.
+      def var oApiProxyException# as panaedra.msroot.msutil.logic.c_apiproxyexception no-undo.
       
-      o_CMPNY_Exception# = cast(ex, panaedra.msroot.msutil.logic.c_apiproxyexception).
+      oApiProxyException# = cast(ex, panaedra.msroot.msutil.logic.c_apiproxyexception).
       
       /* Check if dsContext is used
          (api/proxy)*/
-      if o_CMPNY_Exception#:bUsesDataset then      
+      if oApiProxyException#:bUsesDataset then      
         /* Get dataset dsContext, use callback methods of this form */
-        o_CMPNY_Exception#:GetDsContext(this-object).
+        oApiProxyException#:GetDsContext(this-object).
       else
       do:
         ExceptionToTtAblException(ex).
@@ -259,6 +263,8 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
     do for ttAblExceptions iTell# = 1 to ex:NumMessages:
       create ttAblExceptions.
       ttAblExceptions.cError = ex:GetMessage(iTell#).
+      if index(ttAblExceptions.cError, subst("(&1)", ex:GetMessageNum(iTell#))) = 0
+        then ttAblExceptions.cError = ttAblExceptions.cError + subst(" (&1)", ex:GetMessageNum(iTell#)).
     end.
     
   end method. /* ExceptionToTtAblException */

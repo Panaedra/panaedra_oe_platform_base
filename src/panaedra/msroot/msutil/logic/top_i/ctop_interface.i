@@ -5,8 +5,8 @@
    Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
   Date Modified: $Modtime: 2010-01-27 19:30:14+01:00 $ 
 
-    Description: Include die in iedere _CMPNY_ Panaedra interface gebruikt moet worden.
-                 "ctop" betekent: Aan het begin, voor de interface definitie.
+    Description: Include this in each Panaedra interface.
+                 "ctop" means: At the top of the source, before the interface definition.
 
 \**************************** End of Dvcs_ Header ****************************/
 &if '{&dvcs__panaedra_msi_logic_ctop_interface_i}' = '' &then
