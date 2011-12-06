@@ -278,6 +278,7 @@ class paninui.view.use.sc_coll_eventdata
     define variable oWpfButton#           as System.Windows.Controls.Button     no-undo.
     define variable oFormsMenuItem#       as System.Windows.Controls.MenuItem   no-undo.
     define variable oFormsToolStripItem#  as System.Windows.Forms.ToolStripItem no-undo.
+    define variable oFormsRadioButton#    as System.Windows.Forms.RadioButton   no-undo.
     
     
     define buffer ttUiEvent for ttUiEvent.
@@ -317,6 +318,16 @@ class paninui.view.use.sc_coll_eventdata
           if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
             case cEventTypeIP#:
               when "Press" then oFormsCheckBox#:CheckedChanged:Subscribe(oSingleton:OnEventArgsHandler_Press).
+            end case.
+            
+        end.
+        
+        if type-of(oWidget#,System.Windows.Forms.RadioButton) then 
+        do:
+          oFormsRadioButton# = cast(oWidget#,System.Windows.Forms.RadioButton).
+          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+            case cEventTypeIP#:
+              when "Press" then oFormsRadioButton#:CheckedChanged:Subscribe(oSingleton:OnEventArgsHandler_Press).
             end case.
             
         end.
@@ -945,11 +956,11 @@ class paninui.view.use.sc_coll_eventdata
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
         end.
         else if type-of(oSender#, System.Windows.Forms.TextBox) then 
-        do:
-          assign
-            oTextBox# = cast(oSender#, System.Windows.Forms.TextBox)
-            oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oTextBox#,oTextBox#:Name,""), oTextBox#:Enabled, oTextBox#:Visible, oTextBox#:Text).
-        end.
+          do:
+            assign
+              oTextBox# = cast(oSender#, System.Windows.Forms.TextBox)
+              oUiValue# = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oTextBox#,oTextBox#:Name,""), oTextBox#:Enabled, oTextBox#:Visible, oTextBox#:Text).
+          end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
       end.
       
