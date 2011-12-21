@@ -705,6 +705,75 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     end finally.
   
   end method. /* SetDtmExpire */
+
+  
+  method public static void DeleteExpiredRecords(
+  
+    /* Delete all records of a table, 
+       whose dtmExpire[Cased] field is before "now".
+       Locked records will be skipped.
+     */
+    
+    cTableNameIP# as character):
+      
+    define variable cCased#      as character no-undo.
+    define variable hBuffDyn#    as handle    no-undo.
+    define variable hBuffDynDel# as handle    no-undo.
+    define variable hQuery#      as handle    no-undo.
+    define variable hFldExpire#  as handle    no-undo.
+    define variable iBatchMax#   as integer   no-undo init 50.
+    define variable iTell#       as integer   no-undo.
+    
+    create buffer hBuffDyn#    for table cTableNameIP#.
+    assign
+      cCased#     = GetCased(hBuffDyn#)
+      hFldExpire# = hBuffDyn#:buffer-field("dtmExpire" + cCased#).
+    
+    create buffer hBuffDynDel# for table hBuffDyn#.
+    create query  hQuery#.
+    
+    hQuery#:set-buffers(hBuffDyn#).
+    
+    hQuery#:query-prepare(substitute("preselect " +
+      "each &1 no-lock where &1.&2 <= datetime-tz(&3)", 
+      hBuffDyn#:name, 
+      hFldExpire#:name, 
+      quoter(now))).
+      
+    hQuery#:query-open().
+    
+    do while hQuery#:get-next():
+      
+      iTell# = iTell# + 1.
+      
+      if (iTell# - 1) mod iBatchMax# = 0 then 
+      b_trans:
+      do
+        transaction /* codeQok#7103 */
+        on error undo, throw:
+        do while (not hQuery#:query-off-end): 
+          hBuffDynDel#:find-by-rowid(hBuffDyn#:rowid, exclusive-lock, no-wait). /* codeQok#7102 */
+          if not hBuffDynDel#:locked then
+          do:
+            hBuffDynDel#:buffer-delete().
+            OnDelete(hBuffDynDel#).
+          end.
+          if (iTell# mod iBatchMax# = 0) then leave b_trans.
+          hQuery#:get-next().
+          iTell# = iTell# + 1.
+        end.
+      end.
+      
+    end.
+    
+    finally:
+      
+      if valid-handle(hBuffDyn#)    then delete object hBuffDyn#.
+      if valid-handle(hBuffDynDel#) then delete object hBuffDynDel#.
+      
+    end finally.
+  
+  end method. /* SetDtmExpire */
   
 end class.
 
