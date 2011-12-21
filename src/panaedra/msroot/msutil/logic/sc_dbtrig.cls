@@ -673,6 +673,38 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     
   end method. /* DisplayTriggerLogicError */
 
+
+  method public static void SetDtmExpire(
+  
+    /* Fill the dtmExpire[Cased] field */
+    
+    hBuffInputIP# as handle,
+    dtmExpireIP#  as datetime-tz):
+      
+    define variable cCased#   as character no-undo.
+    define variable hBuffDyn# as handle    no-undo.
+
+    cCased# = GetCased(hBuffInputIP#).
+    
+    create buffer hBuffDyn# for table hBuffInputIP#.
+
+    do transaction on error undo, throw: /* codeQok#7103 */
+      
+      hBuffDyn#:find-by-rowid(hBuffInputIP#:rowid, exclusive-lock). /* codeQok#7102 */
+      
+      hBuffDyn#:buffer-field("dtmExpire" + cCased#):buffer-value = dtmExpireIP#.
+      
+      hBuffDyn#:buffer-release.
+    
+    end.
+    
+    finally:
+      
+      if valid-handle(hBuffDyn#) then delete object hBuffDyn#.
+      
+    end finally.
+  
+  end method. /* SetDtmExpire */
   
 end class.
 
