@@ -274,7 +274,16 @@ class panaedra.msroot.msutil.logic.sc_path:
           end.
         end.
         if cAssemblies# > "" 
-          then cAssemblyDir = cAssemblies#.
+          then 
+        do:
+          if length(cAssemblies#) > 2 
+            and substring(cAssemblies#,2,1) <> ":"
+            and index(cAssemblies#,"~\~\") = 0
+            then /* Relative path */
+            cAssemblyDir = cWorkDir + cAssemblies#.
+          else
+            cAssemblyDir = cAssemblies#.
+        end.
         else
           cAssemblyDir = cWorkDir.
       end.
