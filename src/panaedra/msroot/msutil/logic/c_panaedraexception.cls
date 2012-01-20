@@ -32,6 +32,9 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     public    get.
     protected set.
 
+  define property bLockedRecord as logical no-undo 
+    public    get.
+    protected set.
 
   constructor public c_panaedraexception(
     iErrorIP# as integer, 
@@ -53,6 +56,38 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     super(cErrorIP#, iErrorIP#).
 
     cLang = "English":u.
+    
+  end constructor.
+
+
+  constructor public c_panaedraexception(
+    iErrorIP# as integer, 
+    oDutchIP# as i_language_dutch,
+    cErrorIP# as character,
+    cSvOptionIP# as character):
+    
+    super(cErrorIP#, iErrorIP#).
+    
+    cLang = "Dutch":u.
+
+    if lookup("bLockedRecord",cSvOptionIP#) > 0 then
+      bLockedRecord = true.
+    
+  end constructor.
+
+
+  constructor public c_panaedraexception(
+    iErrorIP# as integer, 
+    oEnglishIP# as i_language_english,
+    cErrorIP# as character,
+    cSvOptionIP# as character):
+    
+    super(cErrorIP#, iErrorIP#).
+
+    cLang = "English":u.
+    
+    if lookup("bLockedRecord",cSvOptionIP#) > 0 then
+      bLockedRecord = true.
     
   end constructor.
 
