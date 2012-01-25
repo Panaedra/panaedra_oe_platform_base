@@ -424,7 +424,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   
     &else /* non unix */
 
-    &if {&paninui_tty} &then
+    &if {&paninui_tty} and int(entry(1,proversion,".")) <= 10 &then
 
     undo, throw new c_panaedraexception(
       99958223,
