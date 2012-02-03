@@ -36,6 +36,10 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     public    get.
     protected set.
 
+  define property oLog as i_log no-undo 
+    public    get.
+    protected set.
+
   constructor public c_panaedraexception(
     iErrorIP# as integer, 
     oDutchIP# as i_language_dutch,
@@ -85,6 +89,75 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     super(cErrorIP#, iErrorIP#).
 
     cLang = "English":u.
+    
+    if lookup("bLockedRecord",cSvOptionIP#) > 0 then
+      bLockedRecord = true.
+    
+  end constructor.
+
+  constructor public c_panaedraexception(
+    iErrorIP# as integer, 
+    oDutchIP# as i_language_dutch,
+    cErrorIP# as character,
+    oLogIP# as i_log
+    ):
+    
+    super(cErrorIP#, iErrorIP#).
+    
+    assign
+      this-object:oLog = oLogIP#
+      cLang            = "Dutch":u.
+    
+  end constructor.
+
+
+  constructor public c_panaedraexception(
+    iErrorIP# as integer, 
+    oEnglishIP# as i_language_english,
+    cErrorIP# as character,
+    oLogIP# as i_log
+    ):
+    
+    super(cErrorIP#, iErrorIP#).
+
+    assign
+      this-object:oLog = oLogIP#
+      cLang            = "English":u.
+    
+  end constructor.
+
+
+  constructor public c_panaedraexception(
+    iErrorIP# as integer, 
+    oDutchIP# as i_language_dutch,
+    cErrorIP# as character,
+    oLogIP# as i_log,
+    cSvOptionIP# as character):
+    
+    super(cErrorIP#, iErrorIP#).
+    
+    assign
+      this-object:oLog = oLogIP#
+      cLang            = "Dutch":u.
+
+    if lookup("bLockedRecord",cSvOptionIP#) > 0 then
+      bLockedRecord = true.
+    
+  end constructor.
+
+
+  constructor public c_panaedraexception(
+    iErrorIP# as integer, 
+    oEnglishIP# as i_language_english,
+    cErrorIP# as character,
+    oLogIP# as i_log,
+    cSvOptionIP# as character):
+    
+    super(cErrorIP#, iErrorIP#).
+
+    assign
+      this-object:oLog = oLogIP#
+      cLang            = "English":u.
     
     if lookup("bLockedRecord",cSvOptionIP#) > 0 then
       bLockedRecord = true.
