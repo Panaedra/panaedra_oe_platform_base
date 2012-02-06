@@ -1,3 +1,6 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
+
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.c_file_stream   : 
@@ -21,8 +24,10 @@ class panaedra.msroot.msutil.logic.c_file_stream   :
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  define public    property hStream         as handle get. set.
-  define protected property hPersistentProc as handle get. set.
+  define public    property hStream         as handle no-undo get. set.
+  define protected property hPersistentProc as handle no-undo get. set.
+  
+  define public variable bIsDisposed as log no-undo.
 
   constructor public c_file_stream():
     
@@ -37,13 +42,24 @@ class panaedra.msroot.msutil.logic.c_file_stream   :
       hStream         = hStream#.
     
   end constructor.
+  
+
+  method public void Dispose(
+    /* cleanup after use or (later) unregister usage */
+    ):
+    
+    bIsDisposed = true.
+    
+    if valid-handle(hPersistentProc) then 
+      sc_procedurehandles:DeleteProcedure(this-object, hPersistentProc).
+    
+  end method. /* Dispose */
 
 
   destructor public c_file_stream():
     
-    if valid-handle(hPersistentProc) then 
-      panaedra.msroot.msutil.logic.sc_procedurehandles:DeleteProcedure(this-object, hPersistentProc).
-
+    if not bIsDisposed then Dispose().
+    
   end destructor.
 
 end class.
