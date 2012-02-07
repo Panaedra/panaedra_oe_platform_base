@@ -57,21 +57,24 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
        However, the Eclipse debugger likes this and doesn't crash (well, far less often anyway).
      */
 		
-
-    /* This method is called if there is no eclipse debugger. 
-       From the eclipse debugger, only MdiOnShown is called. */
-    if cInitialPackCfg = "" then
-      oInitialPack = dynamic-new cInitialPack().
-    else
-      oInitialPack = dynamic-new cInitialPack(cInitialPackCfg).
+    do on error undo, throw:
+		
+      /* This method is called if there is no eclipse debugger. 
+         From the eclipse debugger, only MdiOnShown is called. */
+      if cInitialPackCfg = "" then
+        oInitialPack = dynamic-new cInitialPack().
+      else
+        oInitialPack = dynamic-new cInitialPack(cInitialPackCfg).
       
-    if valid-object(oInitialPack) then oInitialPack:LoadPack(oMdiWindow).
+      if valid-object(oInitialPack) then oInitialPack:LoadPack(oMdiWindow).
     
-    cast(sender,System.Windows.Forms.Form):Load:Unsubscribe(this-object:MdiOnLoad).
+      cast(sender,System.Windows.Forms.Form):Load:Unsubscribe(this-object:MdiOnLoad).
 
-    catch ex as Progress.Lang.Error :
-      panaedra.msroot.msutil.logic.sc_showexception:ShowException(ex).
-    end catch.
+      catch ex as Progress.Lang.Error :
+        panaedra.msroot.msutil.logic.sc_showexception:ShowException(ex).
+      end catch.
+      
+    end.
     
   end method. /* MdiOnLoad */
 
@@ -91,14 +94,13 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
        However, the Eclipse debugger likes this and doesn't crash (well, far less often anyway).
      */
 		
-    /* Later via: [RunObject] session parameter */
-
-    
-    if os-getenv("ECLIPSE_PROJECT") > "" then do:
+    if os-getenv("ECLIPSE_PROJECT") > "" then 
+    do:
       /* This means the eclipse debugger is running; Startup is postponed to the 
          "Shown" event for less crashes (but uglier screen at startup) 
       */
-      if oInitialPack = ? then do:
+      if oInitialPack = ? then 
+      do:
         if cInitialPackCfg = "" then
           oInitialPack = dynamic-new cInitialPack().
         else
@@ -111,7 +113,8 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
     
     cast(sender,System.Windows.Forms.Form):Shown:Unsubscribe(this-object:MdiOnShown).
 
-    if valid-object(oInitialPack) then do:
+    if valid-object(oInitialPack) then 
+    do:
       oInitialPack:ShowMdi(oMdiWindow).
       /* And fire the "Shown" logic, always last after LoadPack */
       oInitialPack:ShowPack().

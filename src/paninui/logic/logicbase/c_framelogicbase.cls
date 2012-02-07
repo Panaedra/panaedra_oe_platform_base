@@ -9,8 +9,8 @@ class paninui.logic.logicbase.c_framelogicbase
   &if {&paninui_tty} &then
   Progress.Lang.Object
   &else
-  /* TODO: Eens goed naar kijken... vind het vreemd dat framelogicbase overerft van c_uiframe... */
-  paninui.view.framebase.c_uiframe
+  /* Reason inheritance: for event binding. We could also have used a paninui.dll interface for this. */
+  System.Object
   &endif
   implements 
   i_frmlogic,
