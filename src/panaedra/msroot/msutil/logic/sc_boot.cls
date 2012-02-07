@@ -94,7 +94,9 @@ class panaedra.msroot.msutil.logic.sc_boot:
     cPara = cBootSessionParameter.
        
     if cPara = "" and session:parameter matches "*[*" then
-      cPara = sc_string_substitute:ExpandOsEnv(session:parameter).
+      cPara = session:parameter.
+      
+    cPara = sc_string_substitute:ExpandOsEnv(cPara).
     
     do iTell = 1 to num-entries(cPara,"["):
       cEntr = entry(iTell,cPara,"[").
