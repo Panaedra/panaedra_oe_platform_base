@@ -28,14 +28,8 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   /* error log file name */
   define public property cErrorLogFileName as character no-undo get.
   
-  /* error stream */
-  define public property hErrorStream as handle no-undo get.
-  
   /* status log file name */
   define public property cStatusLogFileName as character no-undo get.
-  
-  /* status log file stream */
-  define public property hStatusStream as handle no-undo get.
   
   /* timestamp toevoegen aan WriteStatusLn regels */
   define public property bIncludeTimeStamp as logical no-undo get. set.
