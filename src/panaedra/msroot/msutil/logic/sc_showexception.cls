@@ -53,10 +53,11 @@ class panaedra.msroot.msutil.logic.sc_showexception:
         /* Show the form if possible */
         ShowFormSafe().
         
-        catch eDummy as Progress.Lang.Error :
+        catch oError# as Progress.Lang.Error :
           /* Possible input blocking, just show message. */
           ShowExceptionImplement(ex).    
         end catch.
+        
       end.
       
     end.
@@ -64,7 +65,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     else
       &endif /* Not unix/tty */
     
-      ShowExceptionImplement(ex).    
+      ShowExceptionImplement(ex).  
     
   end method. /* ShowException */
   
@@ -107,9 +108,21 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   &if opsys <> "unix" and "{&window-system}" <> "tty" &then
   
   method protected static void ShowFormSafe():
-
-    /* Show the exception form and wait for Okay. */
-    wait-for oForm:ShowDialog().
+    
+    do on error undo, throw
+      on stop undo, retry:
+      
+      if retry then
+        undo, throw new c_panaedraexception(
+          99952997,
+          sc_lang:oEnglish,
+          substitute("Error: '&1'", "Cannot do wait-for on oForm of showexception")
+          ).
+        
+      /* Show the exception form and wait for Okay. */
+      wait-for oForm:ShowDialog(). 
+      
+    end.
     
   end method.
   
