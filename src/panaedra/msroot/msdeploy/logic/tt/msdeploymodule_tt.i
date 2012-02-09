@@ -42,6 +42,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployModule{&ttSuffix} 
   field iIDMsDeployConfig as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "hidden"  
   field iIDMsDeployDef    as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute"  
   field iRepoVersion      as integer     xml-node-type "attribute" 
+  field dtmRepoVersion    as datetime-tz xml-node-type "attribute" 
   {&ttExtraFields}
   index iIDMsDeployModule is unique         iIDMsDeployModule
   index iIDMsDeployConfig is unique primary iIDMsDeployConfig iIDMsDeployModule
