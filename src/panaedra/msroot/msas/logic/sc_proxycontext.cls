@@ -100,6 +100,16 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   end method. /* GetDefaultDsContext */
   
 
+  method public static void EmptyDefaultDsContext():
+    
+    if valid-handle(hDsContext) then 
+      delete object hDsContext.
+    
+    hDsContext = ?.
+
+  end method. /* EmptyDefaultDsContext */
+
+
   method public static handle GetNewDsContext():
     
     define variable hDsContextLocal# as handle no-undo.
@@ -129,7 +139,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       b-ttSession.cUserID      = panaedra.msroot.msutil.logic.sc_environment:cUserID
       b-ttSession.cSessionGuid = panaedra.msroot.msutil.logic.sc_environment:cSessionGuid
       b-ttSession.cEnv         = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").
-
+    
   end method. /* FillDefaultDsContext */
 
 end class.

@@ -1,5 +1,6 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
+using panaedra.msroot.msas.logic.*.
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
@@ -49,7 +50,12 @@ class panaedra.msroot.msutil.logic.sc_environment:
       if cUserID = "" then return sc_boot:SessionParameter("DefaultUser").
       else return cUserID.
     end.
-    public set.
+    public set(cInputIP# as character):
+      /* Reset the default appserver context dataset */
+      if cUserID <> cInputIP# then
+        sc_proxycontext:EmptyDefaultDsContext().
+      cUserID = cInputIP#.
+    end set.
   
   define static property dtmStarted as datetime-tz no-undo 
     public get.
@@ -467,7 +473,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
 
     &endif  /* not paninui_tty */
       
-    &endif  /* not unix */
+  &endif  /* not unix */
     
   end method. /* GetNumProcessesByWildcard */
 
