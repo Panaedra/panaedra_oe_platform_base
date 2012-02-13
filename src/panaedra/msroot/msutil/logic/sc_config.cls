@@ -24,34 +24,55 @@ class panaedra.msroot.msutil.logic.sc_config:
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected static property rawConfigKey as raw no-undo
+  
+    /* We provide a hard-coded key for encryption and decryption of config files. 
+       It shouldn't be a security issue, since server-side authentication with
+       client-principal and ssl is used.
+       We encrypt config files to avoid tampering, but the contents should never
+       be "atomic-bomb-launch-code-style" security sensitive. 
+    */
+    
     get:
-      define variable rawKey# as raw no-undo.
+      
+      define variable rawKey# as raw    no-undo.
+      define variable mKey#   as memptr no-undo.
       if length(rawConfigKey) = 0 then 
       do:
-        /* We provide a hard-coded key for encryption and decryption of config files. 
-           It shouldn't be a security issue, since server-side authentication with
-           client-principal and ssl is used.
-           We encrypt config files to avoid tampering, but the contents should never
-           be "atomic-bomb-launch-code-style" security sensitive. 
+        
+        /* Note: because progress doesn't support set-byte-order on a raw field,
+           we have to implement a workaround for endianess via a memptr.
+           If we don't do this, we get cross platform issues (win32/aix).
         */
-        put-unsigned-short(rawKey#,01) = 64532.
-        put-unsigned-short(rawKey#,02) = 298.
-        put-unsigned-short(rawKey#,03) = 48271.
-        put-unsigned-short(rawKey#,04) = 9283.
-        put-unsigned-short(rawKey#,05) = 29381.
-        put-unsigned-short(rawKey#,06) = 9977.
-        put-unsigned-short(rawKey#,07) = 19129.
-        put-unsigned-short(rawKey#,08) = 19385.
-        put-unsigned-short(rawKey#,09) = 59182.
-        put-unsigned-short(rawKey#,10) = 19375.
-        put-unsigned-short(rawKey#,11) = 33764.
-        put-unsigned-short(rawKey#,12) = 8635.
-        put-unsigned-short(rawKey#,13) = 7412.
-        put-unsigned-short(rawKey#,14) = 13518.
-        put-unsigned-short(rawKey#,15) = 55152.
+        
+        set-byte-order(mKey#) = big-endian.
+        set-size(mKey#) = 16.
+        
+        put-unsigned-short(mKey#,01) = 64532.
+        put-unsigned-short(mKey#,02) = 298.
+        put-unsigned-short(mKey#,03) = 48271.
+        put-unsigned-short(mKey#,04) = 9283.
+        put-unsigned-short(mKey#,05) = 29381.
+        put-unsigned-short(mKey#,06) = 9977.
+        put-unsigned-short(mKey#,07) = 19129.
+        put-unsigned-short(mKey#,08) = 19385.
+        put-unsigned-short(mKey#,09) = 59182.
+        put-unsigned-short(mKey#,10) = 19375.
+        put-unsigned-short(mKey#,11) = 33764.
+        put-unsigned-short(mKey#,12) = 8635.
+        put-unsigned-short(mKey#,13) = 7412.
+        put-unsigned-short(mKey#,14) = 13518.
+        put-unsigned-short(mKey#,15) = 55152.
+
+        put-bytes(rawKey#, 1) = mKey#.
+        
+        set-size(mKey#) = 0.
+        
         rawConfigKey = rawKey#.
+        
       end.
+      
       return rawConfigKey.
+      
     end get.
     set.
 
