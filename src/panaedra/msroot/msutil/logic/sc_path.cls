@@ -290,10 +290,22 @@ class panaedra.msroot.msutil.logic.sc_path:
       return cAssemblyDir.
     end get.
     protected set.
-  
+
+  /* Xobj directory, for rcode extra's like resx and png files. 
+     Also in Xobj dir: 
+      - assemblies_dyn.[x]config (if not in Xobj dir: assembly dir is used)
+      - deployedversions.[x]config
+      - datarel_xml files
+      - dynamically loaded dotnet dll's (paninui ui frames). 
+  */
+  define public static property cXobjDir as character no-undo init "|init|" 
+    get():
+      if cXobjDir = "|init|" then cXobjDir = sc_boot:SessionParameter("Xobj").
+      return cXobjDir.
+    end get.
+    protected set.
 
   /* ---Methods--- */
-  
   
   method protected static void IniInitialize():
     
