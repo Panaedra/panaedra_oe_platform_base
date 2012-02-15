@@ -1,3 +1,6 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
+
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msas.logic.sc_proxycontext : 
@@ -16,6 +19,9 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   
   {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &class=class}
   &undefine TtAllDefined
+
+  {panaedra/msroot/msdeploy/logic/tt/msdeployversion_tt.i &class=true &protected=protected &static=static}
+  &undefine TtAllDefined
    
   /************************  Source control constructor ************************/
   constructor public sc_proxycontext(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
@@ -30,10 +36,41 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   
   method public static logical BeginProxyCall(dataset dsContext /* by ref */, cMirrorIP# as character):
     
+    define variable iMaxVersion#   as integer     no-undo.
+    define variable dtmMaxVersion# as datetime-tz no-undo.
+    
     /* Remove previous exception messages */
     empty temp-table ttExceptions.
     empty temp-table ttCallStack.
+
+    if sc_config:FileExists(sc_path:cXobjDir + "deploy_version.config")
+      then 
+    do:
+      sc_config:ReadXml(
+        temp-table ttMsDeployVersion:handle, 
+        sc_path:cXobjDir + "deploy_version.config").
+    end.
     
+    for each ttMsDeployVersion on error undo, throw:
+      create ttMsAsVersion.
+      assign 
+        ttMsAsVersion.cDeployID      = ttMsDeployVersion.cDeployID
+        ttMsAsVersion.iRepoVersion   = ttMsDeployVersion.iRepoVersion
+        ttMsAsVersion.dtmRepoVersion = ttMsDeployVersion.dtmRepoVersion
+        ttMsAsVersion.cModuleID      = ttMsDeployVersion.cModuleID.
+      iMaxVersion# = max(iMaxVersion#,ttMsDeployVersion.iRepoVersion).
+      if dtmMaxVersion# = ? then dtmMaxVersion# = ttMsDeployVersion.dtmRepoVersion.
+      dtmMaxVersion# = max(dtmMaxVersion#, ttMsDeployVersion.dtmRepoVersion).
+    end.
+    
+    /* Create an extra "from environment" ttMsAsVersion. */
+    create ttMsAsVersion.
+    assign 
+      ttMsAsVersion.cDeployID      = sc_environment:cDeployID
+      ttMsAsVersion.iRepoVersion   = iMaxVersion#
+      ttMsAsVersion.dtmRepoVersion = now
+      ttMsAsVersion.cModuleID      = "[From_Environment]".
+        
     return true.
     
   end method. /* BeginProxyCall */
