@@ -300,7 +300,12 @@ class panaedra.msroot.msutil.logic.sc_path:
   */
   define public static property cXobjDir as character no-undo init "|init|" 
     get():
-      if cXobjDir = "|init|" then cXobjDir = sc_boot:SessionParameter("Xobj").
+      if cXobjDir = "|init|" then 
+      do:
+        cXobjDir = sc_boot:SessionParameter("Xobj").
+        cXobjDir = replace(cXobjDir,"~\","/").
+        if substring(cXobjDir,length(cXobjDir)) <> "/" then cXobjDir = cXobjDir + "/".
+      end.
       return cXobjDir.
     end get.
     protected set.
