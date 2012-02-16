@@ -43,6 +43,9 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     empty temp-table ttExceptions.
     empty temp-table ttCallStack.
 
+    /* Remove previous deploy versions */
+    empty temp-table ttMsDeployVersion.
+
     if sc_config:FileExists(sc_path:cXobjDir + "deploy_version.config")
       then 
     do:
@@ -68,7 +71,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     assign 
       ttMsAsVersion.cDeployID      = sc_environment:cDeployID
       ttMsAsVersion.iRepoVersion   = iMaxVersion#
-      ttMsAsVersion.dtmRepoVersion = now
+      ttMsAsVersion.dtmRepoVersion = dtmMaxVersion#
       ttMsAsVersion.cModuleID      = "[From_Environment]".
         
     return true.
