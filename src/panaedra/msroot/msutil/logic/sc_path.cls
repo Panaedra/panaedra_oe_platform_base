@@ -294,7 +294,6 @@ class panaedra.msroot.msutil.logic.sc_path:
   /* Xobj directory, for rcode extra's like resx and png files. 
      Also in Xobj dir: 
       - assemblies_dyn.[x]config (if not in Xobj dir: assembly dir is used)
-      - deployedversions.[x]config
       - datarel_xml files
       - dynamically loaded dotnet dll's (paninui ui frames). 
   */
@@ -307,6 +306,21 @@ class panaedra.msroot.msutil.logic.sc_path:
         if substring(cXobjDir,length(cXobjDir)) <> "/" then cXobjDir = cXobjDir + "/".
       end.
       return cXobjDir.
+    end get.
+    protected set.
+
+  /* Xcfg directory, seperate dir for deploy_version.xconfig 
+    (because it's a seperate deploy package). 
+  */
+  define public static property cXcfgDir as character no-undo init "|init|" 
+    get():
+      if cXcfgDir = "|init|" then 
+      do:
+        cXcfgDir = sc_boot:SessionParameter("Xcfg").
+        cXcfgDir = replace(cXcfgDir,"~\","/").
+        if substring(cXcfgDir,length(cXcfgDir)) <> "/" then cXcfgDir = cXcfgDir + "/".
+      end.
+      return cXcfgDir.
     end get.
     protected set.
 
