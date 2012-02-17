@@ -51,6 +51,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployVersion{&ttSuffix}
   field cInfo                  as character   xml-node-type "attribute" xml-node-name "info"
   field iRepoVersion           as integer     xml-node-type "attribute" xml-node-name "repo_version"
   field dtmRepoVersion         as datetime-tz xml-node-type "attribute" xml-node-name "repo_changed"
+  field cRepoVersionHash       as character   xml-node-type "attribute" xml-node-name "repo_hash"
 
   {&ttExtraFields}
   index iIDMsDeployVersion is unique primary iIDMsDeployVersion
