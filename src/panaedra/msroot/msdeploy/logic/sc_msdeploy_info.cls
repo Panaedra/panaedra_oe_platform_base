@@ -31,12 +31,12 @@ class panaedra.msroot.msdeploy.logic.sc_msdeploy_info:
     
     empty temp-table ttMsDeployVersion.
     
-    if sc_config:FileExists(sc_path:cXobjDir + "deploy_version.config")
+    if sc_config:FileExists(sc_path:cXcfgDir + "deploy_version.config")
       then 
     do:
       sc_config:ReadXml(
         temp-table ttMsDeployVersion:handle, 
-        sc_path:cXobjDir + "deploy_version.config").
+        sc_path:cXcfgDir + "deploy_version.config").
     end.
     
     for each ttMsDeployVersion on error undo, throw:
