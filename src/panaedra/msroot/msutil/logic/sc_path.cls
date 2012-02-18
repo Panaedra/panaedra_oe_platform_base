@@ -714,7 +714,15 @@ class panaedra.msroot.msutil.logic.sc_path:
     else 
       return cPathIP#.
 
-  end method. /* SplitPutTag */  
+  end method. /* SplitPutTag */
+  
+  method public static void DelTree(cDirIP# as character):
+    sc_osfile:DeleteAllFilesInDir(cDirIP#,"*",true).
+    os-delete value(cDirIP#). 
+    if os-error > 0 then do:
+      os-command silent value(subst('rmdir /Q /S "&1"', cDirIP#)).
+    end.
+  end method. /* DelTree */
 
 end class.
 

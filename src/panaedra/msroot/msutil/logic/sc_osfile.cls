@@ -72,7 +72,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     if oAppError <> ? then 
       undo, throw oAppError.
             
-  end method. /* DeleteAllFilesInDir */
+  end method. /* DeleteFiles */
   
   
   method public static void DeleteFile(

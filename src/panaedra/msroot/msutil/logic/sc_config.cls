@@ -77,7 +77,7 @@ class panaedra.msroot.msutil.logic.sc_config:
     set.
 
     
-  method public static void EncryptConfigToXConfig(
+  method public static character EncryptConfigToXConfig(
   
     /* A .config file gets a neighbor .xconfig file */
     
@@ -95,6 +95,8 @@ class panaedra.msroot.msutil.logic.sc_config:
     mConfig# = encrypt(clobConfig#, rawConfigKey).
     copy-lob mConfig# to file cFileTarget# no-convert.
     set-size(mConfig#) = 0.
+    
+    return cFileTarget#.
   
   end method. /* EncryptConfigToXConfig */
   
