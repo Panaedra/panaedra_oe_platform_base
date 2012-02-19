@@ -34,6 +34,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}Session{&ttSuffix} {&no-un
   field cUserID          as character
   field cSessionGuid     as character
   field cEnv             as character
+  field cLang            as character
   field cAsCallIntention as character
   field cAsCallPhase     as character
   field cDeployID        as character

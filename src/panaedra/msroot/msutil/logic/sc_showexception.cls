@@ -42,7 +42,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     if not sc_environment:bBatchMode then 
     do:
     
-      if not valid-object(oForm) then 
+      if not valid-object(oForm) then
         oForm = new panaedra.msroot.msutil.view.c_dotnetformshowexception().
         
       /* Fill form data with data from exception. */
@@ -65,7 +65,20 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     else
       &endif /* Not unix/tty */
     
-      ShowExceptionImplement(ex).  
+      ShowExceptionImplement(ex).
+    
+    
+    finally:
+      &if opsys <> "unix" and "{&window-system}" <> "tty" &then
+      /* In oe11 / .net 4, you can't re-show a modal form. 
+         We always destroy it now. 
+      */
+      if valid-object(oForm) then 
+        oForm:Dispose().
+      if valid-object(oForm) then 
+        delete object oForm.
+      &endif /* Not unix/tty */
+    end finally.  
     
   end method. /* ShowException */
   
