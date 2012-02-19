@@ -5,7 +5,7 @@
    Date Checkin: $Date: 2010-01-09 18:24:20+01:00 $ 
   Date Modified: $Modtime: 2010-01-09 17:10:27+01:00 $ 
 
-    Description: add_your_comments_here
+    Description: Session temp-table for appserver context
 
 \**************************** End of Dvcs_ Header ****************************/
 &if "{&dvcs__panaedra_msroot_msas_logic_tt_session_tt_i}" = "" &then
@@ -31,9 +31,15 @@
 &glob tt{&ttPrefix}Session{&ttSuffix} true
 
 define {&protected} {&static} temp-table tt{&ttPrefix}Session{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
-  field cUserID      as character
-  field cSessionGuid as character
-  field cEnv         as character
+  field cUserID          as character
+  field cSessionGuid     as character
+  field cEnv             as character
+  field cAsCallIntention as character
+  field cDeployID        as character
+  field iDeployVersion   as integer
+  field cDeployVersion   as character
+  field dtmDeployVersion as datetime-tz
+  field cSvParams        as character
   {&ttExtraFields}
   index cSessionGuid is primary unique cSessionGuid
   {&ttExtraIndices}.

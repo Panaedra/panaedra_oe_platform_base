@@ -1,6 +1,7 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 using panaedra.msroot.msas.logic.*.
+using panaedra.msroot.msdeploy.logic.*.
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
@@ -17,6 +18,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
       Description: Get session and environment information, like pid (process id).
 
   \*****************************  Include Files ********************************/
+
 
   /************************  Source control constructor ************************/
   constructor public sc_environment(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
@@ -78,6 +80,30 @@ class panaedra.msroot.msutil.logic.sc_environment:
         cDeployID = sc_boot:SessionParameter("DeployID").
       end.
       return cDeployID.
+    end get.
+    protected set.
+  
+  define static property iDeployVersion as integer no-undo init ?
+    public get:
+      if iDeployVersion = ? then 
+      do:
+        define variable dtmVersion# as datetime-tz no-undo.
+        sc_msdeploy_info:GetCurrentMaxVersion(output iDeployVersion, output dtmVersion#).
+        if iDeployVersion = ? then iDeployVersion = 0.
+      end.
+      return iDeployVersion.
+    end get.
+    protected set.
+
+  define static property dtmDeployVersion as datetime-tz no-undo init ?
+    public get:
+      if dtmDeployVersion = ? then 
+      do:
+        define variable iDeployVersion# as integer no-undo.
+        sc_msdeploy_info:GetCurrentMaxVersion(output iDeployVersion#, output dtmDeployVersion).
+        if dtmDeployVersion = ? then dtmDeployVersion = 1/1/2000.
+      end.
+      return dtmDeployVersion.
     end get.
     protected set.
   

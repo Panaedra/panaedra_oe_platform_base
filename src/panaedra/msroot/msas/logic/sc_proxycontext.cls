@@ -1,5 +1,6 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
+using panaedra.msroot.msas.logic.*.
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
@@ -17,7 +18,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   \*****************************  Include Files ********************************/
   
-  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &class=class}
+{panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &class=class}
   &undefine TtAllDefined
 
   {panaedra/msroot/msdeploy/logic/tt/msdeployversion_tt.i &class=true &protected=protected &static=static}
@@ -83,7 +84,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     
     bExceptions = true.
     
-    panaedra.msroot.msutil.logic.sc_exception:FillTtExceptionTtCallstack(oExceptionIP#, dataset dsContext by-reference, cMirrorIP#).
+    sc_exception:FillTtExceptionTtCallstack(oExceptionIP#, dataset dsContext by-reference, cMirrorIP#).
     
   end method. /* ExceptionsProxyCall */
 
@@ -102,20 +103,20 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       
       /* If an exception has occurred in the proxy itself */
       if not avail b-ttExceptions then
-        panaedra.msroot.msutil.logic.sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, cMirrorIP#).
+        sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, cMirrorIP#).
       else
       /* If an exception has occurred on an appserver, append callstack */
       do:
-        if panaedra.msroot.msutil.logic.sc_boot:SessionParameter("UiMode") <> "AppServer"
-          and panaedra.msroot.msas.logic.sc_asconnect:GetAppserver(cMirrorIP#) <> session:handle then
+        if sc_boot:SessionParameter("UiMode") <> "AppServer"
+          and sc_asconnect:GetAppserver(cMirrorIP#) <> session:handle then
         do:
-          panaedra.msroot.msutil.logic.sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, cMirrorIP#).
-        end. /* if panaedra.msroot.msutil.logic.sc_boot:SessionParameter("UiMode") <> "AppServer" */   
+          sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, cMirrorIP#).
+        end. /* if sc_boot:SessionParameter("UiMode") <> "AppServer" */   
       end. /* else do */    
         
       find first b-ttExceptions no-error.
       
-      undo, throw (new panaedra.msroot.msutil.logic.c_apiproxyexception(
+      undo, throw (new c_apiproxyexception(
         if (not avail b-ttExceptions) or 
           (b-ttExceptions.iError = ?) or 
           (b-ttExceptions.iError = 0) then 99909008 
@@ -176,9 +177,13 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       find b-ttSession.
     
     assign
-      b-ttSession.cUserID      = panaedra.msroot.msutil.logic.sc_environment:cUserID
-      b-ttSession.cSessionGuid = panaedra.msroot.msutil.logic.sc_environment:cSessionGuid
-      b-ttSession.cEnv         = panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env").
+      b-ttSession.cUserID          = sc_environment:cUserID
+      b-ttSession.cSessionGuid     = sc_environment:cSessionGuid
+      b-ttSession.cEnv             = sc_boot:SessionParameter("Env")
+      b-ttSession.cDeployID        = sc_environment:cDeployID
+      b-ttSession.iDeployVersion   = sc_environment:iDeployVersion
+      b-ttSession.dtmDeployVersion = sc_environment:dtmDeployVersion
+      .
     
   end method. /* FillDefaultDsContext */
 

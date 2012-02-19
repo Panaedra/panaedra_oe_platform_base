@@ -38,13 +38,14 @@ procedure dvcs__panaedra_msroot_msdeploy_logic_tt_msdeployconfig_tt_i: return "$
 define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployConfig{&ttSuffix} {&no-undo} 
   xml-node-name "DeployConfig"
   {&reference-only} {&rcode-information} {&before-table}
-  field iIDMsDeployConfig as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsDeployConfig | PersistencyMode=xml-store "  
+  field iIDMsDeployConfig as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsDeployConfig | PersistencyMode=xml-store "
+  field cEnv              as character   xml-node-type "attribute"
   field cDeployID         as character   xml-node-type "attribute"
   field cSvUserInclude    as character   xml-node-type "attribute"
   field cSvUserExclude    as character   xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsDeployConfig is unique         iIDMsDeployConfig
-  index cDeployID         is unique primary cDeployID
+  index cEnv_cDeployID    is unique primary cEnv cDeployID
   {&ttExtraIndices}
   .
 

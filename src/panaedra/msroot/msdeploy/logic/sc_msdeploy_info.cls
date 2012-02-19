@@ -12,12 +12,12 @@ class panaedra.msroot.msdeploy.logic.sc_msdeploy_info:
      Date Checkin: $Date:  $ 
     Date Modified: $Modtime:  $ 
 
-      Description: Logic layer msdeploy info
+      Description: Logic layer (client-side) msdeploy info. Will not use sc_msdeploy_[non]live.config.
 
   \*****************************  Include Files ********************************/
 
-{panaedra/msroot/msdeploy/logic/tt/msdeployversion_tt.i &class=true &protected=protected &static=static}
-
+  {panaedra/msroot/msdeploy/logic/tt/msdeployversion_tt.i &class=class &protected=protected &static=static}
+  
   /************************  Source control constructor ************************/
   constructor public sc_msdeploy_info(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
