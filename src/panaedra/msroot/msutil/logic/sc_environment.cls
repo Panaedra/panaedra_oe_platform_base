@@ -49,7 +49,13 @@ class panaedra.msroot.msutil.logic.sc_environment:
   
   define static property cUserID as character no-undo 
     public get:
-      if cUserID = "" then return sc_boot:SessionParameter("DefaultUser").
+      define variable cDefaultUser# as character no-undo.
+      if cUserID = "" then 
+      do:
+        cDefaultUser# = sc_boot:SessionParameter("DefaultUser").
+        if cDefaultUser# = ? then cDefaultUser# = "".
+        return cDefaultUser#.
+      end.
       else return cUserID.
     end.
     public set(cInputIP# as character):

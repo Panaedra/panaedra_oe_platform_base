@@ -180,6 +180,9 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       b-ttSession.cUserID          = sc_environment:cUserID
       b-ttSession.cSessionGuid     = sc_environment:cSessionGuid
       b-ttSession.cEnv             = sc_boot:SessionParameter("Env")
+      b-ttSession.cLang            = sc_boot:SessionParameter("Lang")
+      b-ttSession.cOpsys           = opsys
+      b-ttSession.cLayer           = sc_environment:cLayer
       b-ttSession.cDeployID        = sc_environment:cDeployID
       b-ttSession.iDeployVersion   = sc_environment:iDeployVersion
       b-ttSession.dtmDeployVersion = sc_environment:dtmDeployVersion

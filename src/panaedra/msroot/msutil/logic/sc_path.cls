@@ -172,6 +172,14 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
+  /* Deploy binaries directory */
+  define public static property cDeployBinariesDir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cDeployBinariesDir.
+    end get.
+    protected set.
+  
   /* VanWan directory */
   define public static property cVanWanDir as character no-undo 
     get():
@@ -366,6 +374,7 @@ class panaedra.msroot.msutil.logic.sc_path:
       cNoSweatDir         = FillPathProperty(sc_environment:cEnv, "cNoSweatDir").
       c_SRVR_Dir         = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
       cNonstaticDir       = FillPathProperty(sc_environment:cEnv, "cNonstaticDir").
+      cDeployBinariesDir  = FillPathProperty(sc_environment:cEnv, "cDeployBinariesDir").
       cDataRecoveryDir    = FillPathProperty(sc_environment:cEnv, "cDataRecoveryDir").
       cDataExchangeDir    = FillPathProperty(sc_environment:cEnv, "cDataExchangeDir").
       cVanWanDir          = FillPathProperty(sc_environment:cEnv, "cVanWanDir").
