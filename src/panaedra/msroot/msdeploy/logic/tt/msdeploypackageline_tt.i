@@ -45,7 +45,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployPackageline{&ttSuf
   field cDestPath               as character   xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsDeployPackageline is unique primary iIDMsDeployPackageline
-  index iDef_Module_Version    is unique iIDMsDeployPackageDef cModuleID iRepoVersion
+  index iDef_Module_Version    iIDMsDeployPackageDef cModuleID iRepoVersion
   {&ttExtraIndices}
   .
 
