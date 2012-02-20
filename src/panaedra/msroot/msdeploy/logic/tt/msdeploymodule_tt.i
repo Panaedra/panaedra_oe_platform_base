@@ -38,11 +38,16 @@ procedure dvcs__panaedra_msroot_msdeploy_logic_tt_msdeploymodule_tt_i: return "$
 define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployModule{&ttSuffix} {&no-undo} 
   xml-node-name "DeployModule"
   {&reference-only} {&rcode-information} {&before-table}
-  field iIDMsDeployModule as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsDeployModule | PersistencyMode=xml-store "  
-  field iIDMsDeployConfig as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "hidden"  
-  field iIDMsDeployDef    as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute"  
-  field iRepoVersion      as integer     xml-node-type "attribute" 
-  field dtmRepoVersion    as datetime-tz xml-node-type "attribute" 
+  field iIDMsDeployModule     as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsDeployModule | PersistencyMode=xml-store "  
+  field iIDMsDeployConfig     as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "hidden"  
+  field iIDMsDeployDef        as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute"  
+  /* Implemented features */
+  field iRepoVersion          as integer     xml-node-type "attribute" 
+  field dtmRepoVersion        as datetime-tz xml-node-type "attribute" 
+  field cDestPath             as character   xml-node-type "attribute"
+  /* Future features */
+  field cSvAllowRepoVersion   as character   xml-node-type "attribute"
+  field cSvRepoVersionPerUser as character   xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsDeployModule is unique         iIDMsDeployModule
   index iIDMsDeployConfig is unique primary iIDMsDeployConfig iIDMsDeployModule

@@ -180,6 +180,14 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
+  /* Deploy client target root directory */
+  define public static property cDeployTargetRootDir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cDeployTargetRootDir.
+    end get.
+    protected set.
+  
   /* VanWan directory */
   define public static property cVanWanDir as character no-undo 
     get():
@@ -368,18 +376,19 @@ class panaedra.msroot.msutil.logic.sc_path:
       sc_config:ReadXml(temp-table ttPath:handle,
         /* Note: the getter of cIniDir initializes cIniDir automatically */ 
         cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config").
-      cSysteemDir         = FillPathProperty(sc_environment:cEnv, "cSysteemDir").
-      cLogDir             = FillPathProperty(sc_environment:cEnv, "cLogDir").
-      cLogVoortgangDir    = FillPathProperty(sc_environment:cEnv, "cLogVoortgangDir").
-      cNoSweatDir         = FillPathProperty(sc_environment:cEnv, "cNoSweatDir").
-      c_SRVR_Dir         = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
-      cNonstaticDir       = FillPathProperty(sc_environment:cEnv, "cNonstaticDir").
-      cDeployBinariesDir  = FillPathProperty(sc_environment:cEnv, "cDeployBinariesDir").
-      cDataRecoveryDir    = FillPathProperty(sc_environment:cEnv, "cDataRecoveryDir").
-      cDataExchangeDir    = FillPathProperty(sc_environment:cEnv, "cDataExchangeDir").
-      cVanWanDir          = FillPathProperty(sc_environment:cEnv, "cVanWanDir").
-      cNaarWanDir         = FillPathProperty(sc_environment:cEnv, "cNaarWanDir").
-      c_TERM_UNDISCLOSED_queueDir = FillPathProperty(sc_environment:cEnv, "c_TERM_UNDISCLOSED_queueDir").
+      cSysteemDir          = FillPathProperty(sc_environment:cEnv, "cSysteemDir").
+      cLogDir              = FillPathProperty(sc_environment:cEnv, "cLogDir").
+      cLogVoortgangDir     = FillPathProperty(sc_environment:cEnv, "cLogVoortgangDir").
+      cNoSweatDir          = FillPathProperty(sc_environment:cEnv, "cNoSweatDir").
+      c_SRVR_Dir          = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
+      cNonstaticDir        = FillPathProperty(sc_environment:cEnv, "cNonstaticDir").
+      cDeployBinariesDir   = FillPathProperty(sc_environment:cEnv, "cDeployBinariesDir").
+      cDeployTargetRootDir = FillPathProperty(sc_environment:cEnv, "cDeployTargetRootDir").
+      cDataRecoveryDir     = FillPathProperty(sc_environment:cEnv, "cDataRecoveryDir").
+      cDataExchangeDir     = FillPathProperty(sc_environment:cEnv, "cDataExchangeDir").
+      cVanWanDir           = FillPathProperty(sc_environment:cEnv, "cVanWanDir").
+      cNaarWanDir          = FillPathProperty(sc_environment:cEnv, "cNaarWanDir").
+      c_TERM_UNDISCLOSED_queueDir  = FillPathProperty(sc_environment:cEnv, "c_TERM_UNDISCLOSED_queueDir").
     end.
     
   end method. /* TtPathInitialize */

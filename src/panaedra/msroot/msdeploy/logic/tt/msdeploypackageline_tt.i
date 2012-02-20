@@ -37,12 +37,15 @@ procedure dvcs__panaedra_msroot_msdeploy_logic_tt_msdeploypackageline_tt_i: retu
 &glob tt{&ttPrefix}MsDeployPackageLine{&ttSuffix} true
 define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployPackageline{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
   field iIDMsDeployPackageline  as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsDeployPackageline "  
-  field cModuleID           as character   xml-node-type "attribute" 
-  field iRepoVersion        as integer     xml-node-type "attribute" 
-  field dtmPackageContents  as datetime-tz xml-node-type "attribute" 
-  field blobPackageContents as blob        xml-node-type "attribute" 
+  field iIDMsDeployPackageDef   as int64   xml-node-type "hidden"   
+  field cModuleID               as character   xml-node-type "attribute" 
+  field iRepoVersion            as integer     xml-node-type "attribute" 
+  field dtmPackageContents      as datetime-tz xml-node-type "attribute" 
+  field blobPackageContents     as blob        xml-node-type "attribute"
+  field cDestPath               as character   xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsDeployPackageline is unique primary iIDMsDeployPackageline
+  index iDef_Module_Version    is unique iIDMsDeployPackageDef cModuleID iRepoVersion
   {&ttExtraIndices}
   .
 
