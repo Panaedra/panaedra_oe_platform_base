@@ -32,10 +32,6 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     public    get.
     protected set.
 
-  define property bLockedRecord as logical no-undo 
-    public    get.
-    protected set.
-
   define property oLog as i_log no-undo 
     public    get.
     protected set.
@@ -78,41 +74,6 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     iErrorIP# as integer, 
     oDutchIP# as i_language_dutch,
     cErrorIP# as character,
-    cSvOptionIP# as character):
-    
-    super().
-
-    this-object:AddMessage(cErrorIP#, iErrorIP#).
-    
-    cLang = "Dutch":u.
-
-    if lookup("bLockedRecord",cSvOptionIP#) > 0 then
-      bLockedRecord = true.
-    
-  end constructor.
-
-
-  constructor public c_panaedraexception(
-    iErrorIP# as integer, 
-    oEnglishIP# as i_language_english,
-    cErrorIP# as character,
-    cSvOptionIP# as character):
-    
-    super().
-
-    this-object:AddMessage(cErrorIP#, iErrorIP#).
-
-    cLang = "English":u.
-    
-    if lookup("bLockedRecord",cSvOptionIP#) > 0 then
-      bLockedRecord = true.
-    
-  end constructor.
-
-  constructor public c_panaedraexception(
-    iErrorIP# as integer, 
-    oDutchIP# as i_language_dutch,
-    cErrorIP# as character,
     oLogIP# as i_log
     ):
     
@@ -147,42 +108,25 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
 
   constructor public c_panaedraexception(
     iErrorIP# as integer, 
-    oDutchIP# as i_language_dutch,
-    cErrorIP# as character,
-    oLogIP# as i_log,
-    cSvOptionIP# as character):
-    
-    super().
-
-    this-object:AddMessage(cErrorIP#, iErrorIP#).
-    
-    assign
-      this-object:oLog = oLogIP#
-      cLang            = "Dutch":u.
-
-    if lookup("bLockedRecord",cSvOptionIP#) > 0 then
-      bLockedRecord = true.
-    
-  end constructor.
-
-
-  constructor public c_panaedraexception(
-    iErrorIP# as integer, 
-    oEnglishIP# as i_language_english,
-    cErrorIP# as character,
-    oLogIP# as i_log,
-    cSvOptionIP# as character):
+    oLangIP# as i_language_any,
+    oRecordStatus as c_recordstatus
+    ):
     
     super().
     
-    this-object:AddMessage(cErrorIP#, iErrorIP#).
-
-    assign
-      this-object:oLog = oLogIP#
-      cLang            = "English":u.
+    this-object:AddMessage(
+      /* The error message (english) is only for situation where we don't have ShowException. 
+         ShowException translates the c_recordstatus information to a message in the language 
+         of the end user. */
+      subst("see@c_recordstatus|Error: &1 record &2: &3", 
+      oRecordStatus:cTablename,
+      (if oRecordStatus:bLocked then "locked" else if oRecordStatus:bAmbiguous then "ambiguous" else "not available"), 
+      oRecordStatus:cSvKeyValues
+      ), 
+      iErrorIP#).
     
-    if lookup("bLockedRecord",cSvOptionIP#) > 0 then
-      bLockedRecord = true.
+    assign
+      cLang = "Any":u.
     
   end constructor.
 
