@@ -1,6 +1,9 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
+
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
-class panaedra.msroot.msutil.logic.c_apiproxyexception inherits Progress.Lang.AppError: 
+class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexception: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_apiproxyexception.cls $ 
@@ -17,7 +20,7 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits Progress.Lang.Ap
   
   /************************  Source control constructor ************************/
   constructor public c_apiproxyexception(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
+    super(o-sourcecontrol, this-object).
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
@@ -26,8 +29,9 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits Progress.Lang.Ap
 
 
   constructor public c_apiproxyexception (cErrorIP# as char):
-
-    super (cErrorIP#, 0). /* Note: The ABL string-only constructor has a bug (OE10.2A01) - it hides the GetMessage(1) ! So we use a different constructor. */
+  
+    super (0, sc_lang:oEnglish, cErrorIP#). 
+    
     bUsesDataset = false.
     
     define buffer b-ttExceptions for ttExceptions.
@@ -44,7 +48,8 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits Progress.Lang.Ap
 
   constructor public c_apiproxyexception ( iErrorIP# as int , cErrorIP# as char):
 
-    super (cErrorIP#, iErrorIP#).
+    super (iErrorIP#, sc_lang:oEnglish, cErrorIP#). 
+    
     bUsesDataset = false.
 		
     define buffer b-ttExceptions for ttExceptions.
@@ -59,9 +64,10 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits Progress.Lang.Ap
   end constructor.
 
 
-  constructor public c_apiproxyexception ( iErrorIP# as int , cErrorIP# as char, dataset dsContext append /* Dus niet bind of reference */):
+  constructor public c_apiproxyexception ( iErrorIP# as int , cErrorIP# as char, dataset dsContext append /* Note: no bind or reference here */):
     
-    super (cErrorIP#, iErrorIP#).
+    super (iErrorIP#, sc_lang:oEnglish, cErrorIP#). 
+    
     bUsesDataset = true.
     
     define buffer b-ttExceptions for ttExceptions.
