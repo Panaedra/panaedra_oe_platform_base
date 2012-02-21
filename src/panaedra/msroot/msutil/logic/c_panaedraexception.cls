@@ -28,6 +28,8 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
+  define variable oRecordStatus as c_recordstatus no-undo.
+  
   define property cLang as character no-undo 
     public    get.
     protected set.
@@ -109,19 +111,21 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
   constructor public c_panaedraexception(
     iErrorIP# as integer, 
     oLangIP# as i_language_any,
-    oRecordStatus as c_recordstatus
+    oRecordStatusIP# as c_recordstatus
     ):
     
     super().
     
+    oRecordStatus = oRecordStatusIP#.
+      
     this-object:AddMessage(
       /* The error message (english) is only for situation where we don't have ShowException. 
          ShowException translates the c_recordstatus information to a message in the language 
          of the end user. */
       subst("see@c_recordstatus|Error: &1 record &2: &3", 
-      oRecordStatus:cTablename,
-      (if oRecordStatus:bLocked then "locked" else if oRecordStatus:bAmbiguous then "ambiguous" else "not available"), 
-      oRecordStatus:cSvKeyValues
+      oRecordStatusIP#:cTablename,
+      (if oRecordStatusIP#:bLocked then "locked" else if oRecordStatusIP#:bAmbiguous then "ambiguous" else "not available"), 
+      oRecordStatusIP#:cSvKeyValues
       ), 
       iErrorIP#).
     
@@ -129,6 +133,14 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
       cLang = "Any":u.
     
   end constructor.
+  
+  
+  destructor public c_panaedraexception ():
+    
+    if valid-object(oRecordStatus) then
+      delete object oRecordStatus.
+       
+  end destructor.
 
 end class.
 
