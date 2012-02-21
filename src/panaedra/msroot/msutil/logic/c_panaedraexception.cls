@@ -45,7 +45,12 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     oDutchIP# as i_language_dutch,
     cErrorIP# as character):
     
-    super(cErrorIP#, iErrorIP#).
+    /* Note: 11.0A progress bug: 
+       in inheriting classes like c_apiproxyexception, the super with parameters does not work.
+       Splitting in two statements works around this issue. 
+       */    
+    super().
+    this-object:AddMessage(cErrorIP#, iErrorIP#).
     
     cLang = "Dutch":u.
     
@@ -57,7 +62,12 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     oEnglishIP# as i_language_english,
     cErrorIP# as character):
     
-    super(cErrorIP#, iErrorIP#).
+    /* Note: 11.0A progress bug: 
+       in inheriting classes like c_apiproxyexception, the super with parameters does not work.
+       Splitting in two statements works around this issue. 
+       */    
+    super().
+    this-object:AddMessage(cErrorIP#, iErrorIP#).
 
     cLang = "English":u.
     
@@ -70,7 +80,9 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     cErrorIP# as character,
     cSvOptionIP# as character):
     
-    super(cErrorIP#, iErrorIP#).
+    super().
+
+    this-object:AddMessage(cErrorIP#, iErrorIP#).
     
     cLang = "Dutch":u.
 
@@ -86,7 +98,9 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     cErrorIP# as character,
     cSvOptionIP# as character):
     
-    super(cErrorIP#, iErrorIP#).
+    super().
+
+    this-object:AddMessage(cErrorIP#, iErrorIP#).
 
     cLang = "English":u.
     
@@ -102,7 +116,9 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     oLogIP# as i_log
     ):
     
-    super(cErrorIP#, iErrorIP#).
+    super().
+
+    this-object:AddMessage(cErrorIP#, iErrorIP#).
     
     assign
       this-object:oLog = oLogIP#
@@ -118,7 +134,9 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     oLogIP# as i_log
     ):
     
-    super(cErrorIP#, iErrorIP#).
+    super().
+    
+    this-object:AddMessage(cErrorIP#, iErrorIP#).
 
     assign
       this-object:oLog = oLogIP#
@@ -134,7 +152,9 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     oLogIP# as i_log,
     cSvOptionIP# as character):
     
-    super(cErrorIP#, iErrorIP#).
+    super().
+
+    this-object:AddMessage(cErrorIP#, iErrorIP#).
     
     assign
       this-object:oLog = oLogIP#
@@ -153,7 +173,9 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     oLogIP# as i_log,
     cSvOptionIP# as character):
     
-    super(cErrorIP#, iErrorIP#).
+    super().
+    
+    this-object:AddMessage(cErrorIP#, iErrorIP#).
 
     assign
       this-object:oLog = oLogIP#

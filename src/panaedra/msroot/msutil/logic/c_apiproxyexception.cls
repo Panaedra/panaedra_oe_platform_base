@@ -30,7 +30,7 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexcept
 
   constructor public c_apiproxyexception (cErrorIP# as char):
   
-    super (0, sc_lang:oEnglish, cErrorIP#). 
+    super (99959890, sc_lang:oEnglish, cErrorIP#). 
     
     bUsesDataset = false.
     

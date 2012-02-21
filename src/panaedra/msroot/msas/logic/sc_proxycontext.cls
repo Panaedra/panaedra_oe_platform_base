@@ -115,16 +115,35 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       end. /* else do */    
         
       find first b-ttExceptions no-error.
+
+      define variable oApiProxyException# as c_apiproxyexception no-undo.
+      define variable cMessage#           as character           no-undo.
+      define variable cMessageDebug#      as character           no-undo.  
       
-      undo, throw (new c_apiproxyexception(
+      
+      cMessageDebug# = subst("&1 [Api/proxy exception for: '&2' -> '&3']",
+              if not avail b-ttExceptions then "Error:" else b-ttExceptions.cError,
+              program-name(4), program-name(3)).
+              
+      if avail b-ttExceptions then  
+        cMessage# = b-ttExceptions.cError.
+      else 
+      assign
+        cMessage#      = cMessageDebug#
+        cMessageDebug# = "". 
+      
+      oApiProxyException# = new c_apiproxyexception(
         if (not avail b-ttExceptions) or 
           (b-ttExceptions.iError = ?) or 
           (b-ttExceptions.iError = 0) then 99909008 
           else b-ttExceptions.iError,
-        subst("&1 [Api/proxy exception for: '&2' -> '&3']",
-        if not avail b-ttExceptions then "Error:" else b-ttExceptions.cError,
-        program-name(4), program-name(3)), 
-        dataset dsContext /* ->not<- by-reference */ )).
+        cMessage#, 
+        dataset dsContext /* ->not<- by-reference */ ).
+
+      if cMessageDebug# > "" then
+        oApiProxyException#:AddMessage(cMessageDebug#, 99909009).
+      
+      undo, throw oApiProxyException#.
         
     end.
      
