@@ -37,6 +37,7 @@ procedure dvcs__panaedra_msroot_msdeploy_logic_tt_msdeploypackagedef_tt_i: retur
 &glob tt{&ttPrefix}MsDeployPackageDef{&ttSuffix} true
 define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployPackageDef{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
   field iIDMsDeployPackageDef  as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsDeployPackageDef "  
+  field cEnv                   as character   xml-node-type "attribute" 
   field cDeployID              as character   xml-node-type "attribute" 
   field iRepoVersion           as integer     xml-node-type "attribute" 
   field dtmRepoVersion         as datetime-tz xml-node-type "attribute" 
@@ -46,7 +47,6 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployPackageDef{&ttSuff
   .
 
 &endif
-
 
 &endif /* {&dvcs__panaedra_msroot_msdeploy_logic_tt_msdeploypackagedef_tt_i} */
 
