@@ -24,6 +24,7 @@ class panaedra.msroot.msutil.interfaces.sc_lang:
   
   define public static property oDutch   as i_language_dutch   no-undo get.
   define public static property oEnglish as i_language_english no-undo get.
+  define public static property oAny     as i_language_any     no-undo get.
 
 end class.
 
