@@ -1,6 +1,7 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 using panaedra.msroot.msas.logic.*.
+using panaedra.msroot.msdeploy.logic.*.
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
@@ -18,7 +19,9 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   \*****************************  Include Files ********************************/
   
-{panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &class=class}
+  {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
+  
+  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &class=class}
   &undefine TtAllDefined
 
   {panaedra/msroot/msdeploy/logic/tt/msdeployversion_tt.i &class=true &protected=protected &static=static}
@@ -34,6 +37,10 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   define protected static variable hDsContext  as handle  no-undo.
   define public static    variable bExceptions as logical no-undo.
   
+  &if opsys = "win32" and not {&paninui_tty} = true &then
+  define public static variable oMsDeployAskPack as paninui.pack.interfaces.i_pack no-undo.
+  &endif
+  
   
   method public static logical BeginProxyCall(dataset dsContext /* by ref */, cMirrorIP# as character):
     
@@ -44,16 +51,18 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     empty temp-table ttExceptions.
     empty temp-table ttCallStack.
 
-    /* Remove previous deploy versions */
-    empty temp-table ttMsDeployVersion.
-
-    if sc_config:FileExists(sc_path:cXcfgDir + "deploy_version.config")
+    /* Read the ttMsDeployVersion file only at the first appserver call of the session. 
+       If config changes (install) it's still not valid until reboot of the session */
+    if (not can-find(first ttMsDeployVersion)) and
+    sc_config:FileExists(sc_path:cXcfgDir + "deploy_version.config")
       then 
     do:
       sc_config:ReadXml(
         temp-table ttMsDeployVersion:handle, 
         sc_path:cXcfgDir + "deploy_version.config").
     end.
+    
+    empty temp-table ttMsAsVersion.
     
     for each ttMsDeployVersion on error undo, throw:
       create ttMsAsVersion.
@@ -92,6 +101,8 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   method public static void FinallyProxyCall(dataset dsContext /* by ref */, cMirrorIP# as character):
     
     define variable bEclipseFix# as logical no-undo.
+    define variable bThrow#      as logical no-undo init true.
+    
     define buffer b-ttExceptions for ttExceptions.
     
     /* If an exception has occurred locally (bExceptions) or on an AppServer (b-ttExceptions), 
@@ -120,17 +131,16 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       define variable cMessage#           as character           no-undo.
       define variable cMessageDebug#      as character           no-undo.  
       
-      
       cMessageDebug# = subst("&1 [Api/proxy exception for: '&2' -> '&3']",
-              if not avail b-ttExceptions then "Error:" else b-ttExceptions.cError,
-              program-name(4), program-name(3)).
+        if not avail b-ttExceptions then "Error:" else b-ttExceptions.cError,
+        program-name(4), program-name(3)).
               
       if avail b-ttExceptions then  
         cMessage# = b-ttExceptions.cError.
       else 
-      assign
-        cMessage#      = cMessageDebug#
-        cMessageDebug# = "". 
+        assign
+          cMessage#      = cMessageDebug#
+          cMessageDebug# = "". 
       
       oApiProxyException# = new c_apiproxyexception(
         if (not avail b-ttExceptions) or 
@@ -143,7 +153,28 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       if cMessageDebug# > "" then
         oApiProxyException#:AddMessage(cMessageDebug#, 99909009).
       
-      undo, throw oApiProxyException#.
+      if (not sc_environment:bBatchMode) and lookup(string( 
+        oApiProxyException#:GetMessageNum(1),"99999999"), 
+        sc_msdeploy_info:cSvReinstallExceptions) > 0 then 
+      do:
+        
+        &if opsys = "win32" and not {&paninui_tty} = true &then
+        
+        if valid-object(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow) then do:
+          
+          oMsDeployAskPack = panaedra.msroot.mspack.logic.sc_packcfg:NewPack("panaedra.msroot.msdeploy.pack.c_pack_msdeploy_ask").
+          oMsDeployAskPack:LoadPack(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow).
+          oMsDeployAskPack:ShowPack().
+          bThrow# = false.
+          
+        end.
+        
+        &endif
+        
+        
+      end.
+      
+      if bThrow# then undo, throw oApiProxyException#.
         
     end.
      
