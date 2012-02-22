@@ -24,7 +24,10 @@ class panaedra.msroot.msdeploy.logic.sc_msdeploy_info:
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
-
+  
+  /* Exceptions with this error number should trigger a reïnstall */
+  define public static property cSvReinstallExceptions as character no-undo init "99927301,99927302,99927303" get.
+  
   method public static void GetCurrentMaxVersion(
     output iMaxVersionOP#   as integer,
     output dtmMaxVersionOP# as datetime-tz):
