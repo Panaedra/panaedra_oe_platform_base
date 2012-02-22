@@ -28,7 +28,10 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  define variable oRecordStatus as c_recordstatus no-undo.
+  
+  define property oRecordStatus as c_recordstatus no-undo
+    public get.
+    protected set.
   
   define property cLang as character no-undo 
     public    get.
