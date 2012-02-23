@@ -167,6 +167,9 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
           oMsDeployAskPack:ShowPack().
           bThrow# = false.
           
+          message 123 "we zouden wat moeten zien nu."
+            view-as alert-box.
+          
         end.
         
         &endif
