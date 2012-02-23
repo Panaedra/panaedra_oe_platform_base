@@ -20,9 +20,11 @@ interface paninui.pack.interfaces.i_pack:
   
   /******************************* $NoKeywords:  $ *****************************/
   
-  define property iPackID     as int64             no-undo get.
-  define property oMdiWindow  as {&i_masterwindow} no-undo get.
-  define property oScopeTable as i_scopetable      no-undo get.
+  define property iPackID      as int64             no-undo get.
+  define property oMdiWindow   as {&i_masterwindow} no-undo get.
+  define property oScopeTable  as i_scopetable      no-undo get.
+  define property bPackLoaded  as logical           no-undo get.
+  define property bPackVisible as logical           no-undo get.
 
   define property sys__oUiFrame as {&System.Object}     no-undo 
   get. 
@@ -32,6 +34,7 @@ interface paninui.pack.interfaces.i_pack:
     oMdiWindowIP# as {&i_masterwindow}).
 
   method void       ShowPack ().
+  method void       HidePack ().
 
   method void  ShowMdi (
     oMdiWindowIP# as {&i_masterwindow}).

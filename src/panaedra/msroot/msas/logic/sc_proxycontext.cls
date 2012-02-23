@@ -19,9 +19,9 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   \*****************************  Include Files ********************************/
   
-  {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
+{paninui/logic/includes/preproc_dotnetclasses.i &class=class}
   
-  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &class=class}
+{panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &class=class}
   &undefine TtAllDefined
 
   {panaedra/msroot/msdeploy/logic/tt/msdeployversion_tt.i &class=true &protected=protected &static=static}
@@ -34,11 +34,11 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  define protected static variable hDsContext  as handle  no-undo.
-  define public static    variable bExceptions as logical no-undo.
+  define protected static variable hDsContext       as handle                         no-undo.
+  define public static    variable bExceptions      as logical                        no-undo.
   
   &if opsys = "win32" and not {&paninui_tty} = true &then
-  define public static variable oMsDeployAskPack as paninui.pack.interfaces.i_pack no-undo.
+  define public static    variable oMsDeployAskPack as paninui.pack.interfaces.i_pack no-undo.
   &endif
   
   
@@ -127,9 +127,10 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
         
       find first b-ttExceptions no-error.
 
-      define variable oApiProxyException# as c_apiproxyexception no-undo.
-      define variable cMessage#           as character           no-undo.
-      define variable cMessageDebug#      as character           no-undo.  
+      define variable oApiProxyException#  as c_apiproxyexception  no-undo.
+      define variable cMessage#            as character            no-undo.
+      define variable cMessageDebug#       as character            no-undo.  
+      define variable oEventBroadcastData# as i_eventbroadcastdata no-undo.
       
       cMessageDebug# = subst("&1 [Api/proxy exception for: '&2' -> '&3']",
         if not avail b-ttExceptions then "Error:" else b-ttExceptions.cError,
@@ -160,20 +161,33 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
         
         &if opsys = "win32" and not {&paninui_tty} = true &then
         
-        if valid-object(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow) then do:
+        if valid-object(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow) then do on error undo, throw:
           
-          oMsDeployAskPack = panaedra.msroot.mspack.logic.sc_packcfg:NewPack("panaedra.msroot.msdeploy.pack.c_pack_msdeploy_ask").
-          oMsDeployAskPack:LoadPack(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow).
-          oMsDeployAskPack:ShowPack().
-          bThrow# = false.
+          if not valid-object(oMsDeployAskPack) then do:
+            oMsDeployAskPack = panaedra.msroot.mspack.logic.sc_packcfg:NewPack("panaedra.msroot.msdeploy.pack.c_pack_msdeploy_ask").
+            oMsDeployAskPack:LoadPack(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow).
+            oMsDeployAskPack:ShowPack().
+          end.
+          else do:
+            oMsDeployAskPack:ShowPack().
+          end.
           
-          message 123 "we zouden wat moeten zien nu."
-            view-as alert-box.
+          sc_eventbroadcaster:FireEvent(subst("evt@DeployAsk_&1",oMsDeployAskPack:iPackID), oApiProxyException#, output oEventBroadcastData#).
+          
+          if valid-object(oEventBroadcastData#) and oEventBroadcastData#:cReturnData = "DeployAskHandled"
+          then bThrow# = false.
+          
+          catch oError# as Progress.Lang.Error :
+            undo, throw oError#.	
+          end catch.
+          
+          finally:
+            if valid-object(oEventBroadcastData#) then delete object oEventBroadcastData#.
+          end finally.
           
         end.
         
         &endif
-        
         
       end.
       
