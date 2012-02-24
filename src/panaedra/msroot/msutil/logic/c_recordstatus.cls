@@ -61,6 +61,23 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
       
   end constructor.
 
+  constructor public c_recordstatus(
+    input cTableNameIP#    as character,
+    input cSvKeyValuesIP#  as character,
+    input hBufferIP# as handle
+    ):
+    
+    assign   
+      cTableName    = cTableNameIP#
+      cSvKeyValues  = cSvKeyValuesIP#
+      bAvailable    = hBufferIP#:available
+      bLocked       = hBufferIP#:locked
+      bAmbiguous    = hBufferIP#:ambiguous
+      .  
+      
+  end constructor.
+
+
 end class.
 
 /* EOF */ 
