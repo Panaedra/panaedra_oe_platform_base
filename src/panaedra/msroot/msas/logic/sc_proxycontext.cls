@@ -100,9 +100,13 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   method public static void FinallyProxyCall(dataset dsContext /* by ref */, cMirrorIP# as character):
     
-    define variable bEclipseFix# as logical no-undo.
-    define variable bThrow#      as logical no-undo init true.
-    
+    define variable bEclipseFix#         as logical              no-undo.
+    define variable bThrow#              as logical              no-undo init true.
+    define variable oApiProxyException#  as c_apiproxyexception  no-undo.
+    define variable cMessage#            as character            no-undo.
+    define variable cMessageDebug#       as character            no-undo.  
+    define variable oEventBroadcastData# as i_eventbroadcastdata no-undo.
+      
     define buffer b-ttExceptions for ttExceptions.
     
     /* If an exception has occurred locally (bExceptions) or on an AppServer (b-ttExceptions), 
@@ -127,11 +131,6 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
         
       find first b-ttExceptions no-error.
 
-      define variable oApiProxyException#  as c_apiproxyexception  no-undo.
-      define variable cMessage#            as character            no-undo.
-      define variable cMessageDebug#       as character            no-undo.  
-      define variable oEventBroadcastData# as i_eventbroadcastdata no-undo.
-      
       cMessageDebug# = subst("&1 [Api/proxy exception for: '&2' -> '&3']",
         if not avail b-ttExceptions then "Error:" else b-ttExceptions.cError,
         program-name(4), program-name(3)).
@@ -150,9 +149,16 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
           else b-ttExceptions.iError,
         cMessage#, 
         dataset dsContext /* ->not<- by-reference */ ).
-
+      
+      &if false &then
+      message "b-ttExceptions.cError" b-ttExceptions.cError skip
+        "oApiProxyException#:NumMessages" oApiProxyException#:NumMessages skip
+        "oApiProxyException#:GetMessage(1)" oApiProxyException#:GetMessage(1)
+        view-as alert-box.
+      &endif
+      
       if cMessageDebug# > "" then
-        oApiProxyException#:AddMessage(cMessageDebug#, 99909009).
+        oApiProxyException#:AddMessageSuper(cMessageDebug#, 99909009).
       
       if (not sc_environment:bBatchMode) and lookup(string( 
         oApiProxyException#:GetMessageNum(1),"99999999"), 
@@ -191,9 +197,18 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
         
       end.
       
-      if bThrow# then undo, throw oApiProxyException#.
+      if valid-object(oApiProxyException#) then do:
+        if bThrow# then undo, throw oApiProxyException#.
+      end.
+      else
+        /* Shouldn't happen, but just in case */
+        undo, throw new c_panaedraexception(
+          99958770,
+          sc_lang:oEnglish,
+          "Generic api-proxy exception."
+          ).
         
-    end.
+    end. /* there is some kind of exception */
      
   end method. /* FinallyProxyCall */
 

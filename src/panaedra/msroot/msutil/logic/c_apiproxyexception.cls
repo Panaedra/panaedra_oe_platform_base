@@ -16,7 +16,7 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexcept
 
   \*****************************  Include Files ********************************/
   
-  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &class=class}
+{panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &class=class}
   
   /************************  Source control constructor ************************/
   constructor public c_apiproxyexception(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
@@ -64,24 +64,6 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexcept
   end constructor.
 
 
-  constructor public c_apiproxyexception ( iErrorIP# as int , cErrorIP# as char, dataset dsContext append /* Note: no bind or reference here */):
-    
-    super (iErrorIP#, sc_lang:oEnglish, cErrorIP#). 
-    
-    bUsesDataset = true.
-    
-    define buffer b-ttExceptions for ttExceptions.
-
-    do for b-ttExceptions:
-      create b-ttExceptions.
-      assign 
-        b-ttExceptions.iOrder = -100
-        b-ttExceptions.cError = cErrorIP#.
-    end.
-
-  end constructor.
-  
-  
   define public property ApiproxyExceptions as character no-undo
     get():
       
@@ -110,19 +92,44 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexcept
       return cReturn#.
       
     end get.
+    
   
+  constructor public c_apiproxyexception ( iErrorIP# as int , cErrorIP# as char, dataset dsContext append /* Note: no bind or reference here */):
+    
+    super (iErrorIP#, sc_lang:oEnglish, cErrorIP#). 
+    
+    do on error undo, throw:
+    
+      bUsesDataset = true.
+      
+      define buffer b-ttExceptions for ttExceptions.
+  
+      do for b-ttExceptions:
+        create b-ttExceptions.
+        assign 
+          b-ttExceptions.iOrder = -100
+          b-ttExceptions.cError = cErrorIP#.
+        release b-ttExceptions.
+      end.
+      
+      super:AddMessageSuper(ApiproxyExceptions, 99958788).
+      
+      catch ex as Progress.Lang.Error :
+        sc_showexception:ShowException(ex).	
+      end catch.
+      
+    
+    end.
+
+  end constructor.
+
   
   method public override char GetMessage(iErrorIP# as int):
     
     define variable bEclipseFix# as logical no-undo.
     define buffer b-ttExceptions for ttExceptions.
-      
-    if iErrorIP# = 1 and can-find(first b-ttExceptions) then 
-    do:
-      return ApiproxyExceptions.
-    end.
-    else 
-      return super:getMessage(iErrorIP#).
+    
+    return super:GetMessage(iErrorIP#).
       
   end method. /* GetMessage */
 
