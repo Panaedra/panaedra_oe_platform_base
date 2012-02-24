@@ -39,8 +39,14 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployPackageDef{&ttSuff
   field iIDMsDeployPackageDef  as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsDeployPackageDef "  
   field cEnv                   as character   xml-node-type "attribute" 
   field cDeployID              as character   xml-node-type "attribute" 
+  field cWorkdir               as character   xml-node-type "attribute"
+  field cOpsys                 as character   xml-node-type "attribute"
+  field cLayer                 as character   xml-node-type "attribute"
+  field cWindowSystem          as character   xml-node-type "attribute"
   field iRepoVersion           as integer     xml-node-type "attribute" 
+  field cRepoVersion           as character   xml-node-type "attribute" 
   field dtmRepoVersion         as datetime-tz xml-node-type "attribute" 
+  field cSvCleanupDirs         as character   xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsDeployPackageDef is unique primary iIDMsDeployPackageDef
   {&ttExtraIndices}
