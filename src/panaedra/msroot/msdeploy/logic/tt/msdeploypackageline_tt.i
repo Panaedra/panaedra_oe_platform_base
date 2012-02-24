@@ -39,10 +39,20 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployPackageline{&ttSuf
   field iIDMsDeployPackageline  as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsDeployPackageline "  
   field iIDMsDeployPackageDef   as int64   xml-node-type "hidden"   
   field cModuleID               as character   xml-node-type "attribute" 
+  field cSubModuleID            as character   xml-node-type "attribute" 
   field iRepoVersion            as integer     xml-node-type "attribute" 
+  field cRepoVersion            as character   xml-node-type "attribute" 
   field dtmPackageContents      as datetime-tz xml-node-type "attribute" 
   field blobPackageContents     as blob        xml-node-type "attribute"
   field cDestPath               as character   xml-node-type "attribute"
+  /* For future use */
+  field cRepoBranch            as character   xml-node-type "attribute"   
+  field cRepoBookmark          as character   xml-node-type "attribute"   
+  field cRepoTag               as character   xml-node-type "attribute"   
+  field cRepoComment           as character   xml-node-type "attribute"   
+  field cCommand               as character   xml-node-type "attribute"   
+  field cCondition             as character   xml-node-type "attribute"   
+  field cSvCleanupDirs         as character   xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsDeployPackageline   is unique primary iIDMsDeployPackageline
   index iIDDefLine                                 iIDMsDeployPackageDef  iIDMsDeployPackageline

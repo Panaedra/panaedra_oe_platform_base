@@ -43,6 +43,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsDeployModule{&ttSuffix} 
   field iIDMsDeployDef        as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute"  
   /* Implemented features */
   field iRepoVersion          as integer     xml-node-type "attribute" 
+  field cRepoVersion          as character   xml-node-type "attribute" 
   field dtmRepoVersion        as datetime-tz xml-node-type "attribute" 
   field cDestPath             as character   xml-node-type "attribute"
   /* Future features */
