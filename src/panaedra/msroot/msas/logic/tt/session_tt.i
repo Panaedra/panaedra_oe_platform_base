@@ -39,11 +39,20 @@ define {&protected} {&static} temp-table tt{&ttPrefix}Session{&ttSuffix} {&no-un
   field cLayer           as character
   field cAsCallIntention as character
   field cAsCallPhase     as character
+  field dtmAsCallStart   as datetime-tz
+  field dtmAsCallEnd     as datetime-tz
   field cDeployID        as character
   field iDeployVersion   as integer
   field cDeployVersion   as character
   field dtmDeployVersion as datetime-tz
   field cSvParams        as character
+  /* For future use */
+  field iProcessID       as integer
+  field bDebug           as logical
+  field bBatchmode       as logical
+  field dtmSessionStart  as datetime-tz
+  field iBatchNumRows    as integer
+  field cActionGuid      as character
   {&ttExtraFields}
   index cSessionGuid is primary unique cSessionGuid
   {&ttExtraIndices}.

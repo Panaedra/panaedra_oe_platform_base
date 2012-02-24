@@ -39,8 +39,16 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsAsVersion{&ttSuffix} {&n
   field iIDMsAsVersion as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsAsVersion "
   field cDeployID              as character   xml-node-type "attribute" 
   field iRepoVersion           as integer     xml-node-type "attribute" 
+  field cRepoVersion           as character   xml-node-type "attribute"   
   field dtmRepoVersion         as datetime-tz xml-node-type "attribute"  
   field cModuleID              as character   xml-node-type "attribute"   
+  /* For future use */
+  field cRepoBranch            as character   xml-node-type "attribute"   
+  field cRepoBookmark          as character   xml-node-type "attribute"   
+  field cRepoTag               as character   xml-node-type "attribute"   
+  field cRepoComment           as character   xml-node-type "attribute"   
+  field cCommand               as character   xml-node-type "attribute"   
+  field cCondition             as character   xml-node-type "attribute"   
   {&ttExtraFields}
   index iIDMsAsVersion is unique primary iIDMsAsVersion
   {&ttExtraIndices}

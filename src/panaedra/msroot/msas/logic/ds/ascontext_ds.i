@@ -29,6 +29,7 @@ procedure dvcs__panaedra_msroot_msas_logic_ds_ascontext_ds_i: return "$Revision:
 {panaedra/msroot/msutil/logic/tt/validationquestion_tt.i {&*}}
 {panaedra/msroot/msutil/logic/tt/validationreply_tt.i {&*}}
 {panaedra/msroot/msas/logic/tt/msas_bin_tt.i {&*}}
+{panaedra/msroot/msas/logic/tt/msas_clob_tt.i {&*}}
 {panaedra/msroot/msas/logic/tt/msas_version_tt.i {&*}}
 
 &if defined(static) > 0 and defined(reference-only) > 0 &then &undefine reference-only
