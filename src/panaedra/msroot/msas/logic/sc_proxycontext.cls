@@ -40,6 +40,9 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   &if opsys = "win32" and not {&paninui_tty} = true &then
   define public static    variable oMsDeployAskPack as paninui.pack.interfaces.i_pack no-undo.
   &endif
+
+  define public static    property bMsDeployPackIsShown as logical no-undo get.
+  protected set.
   
   
   method public static logical BeginProxyCall(dataset dsContext /* by ref */, cMirrorIP# as character):
@@ -101,7 +104,6 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   method public static void FinallyProxyCall(dataset dsContext /* by ref */, cMirrorIP# as character):
     
     define variable bEclipseFix#         as logical              no-undo.
-    define variable bThrow#              as logical              no-undo init true.
     define variable oApiProxyException#  as c_apiproxyexception  no-undo.
     define variable cMessage#            as character            no-undo.
     define variable cMessageDebug#       as character            no-undo.  
@@ -169,6 +171,8 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
         
         if valid-object(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow) then do on error undo, throw:
           
+          bMsDeployPackIsShown = false.
+          
           if not valid-object(oMsDeployAskPack) then do:
             oMsDeployAskPack = panaedra.msroot.mspack.logic.sc_packcfg:NewPack("panaedra.msroot.msdeploy.pack.c_pack_msdeploy_ask").
             oMsDeployAskPack:LoadPack(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow).
@@ -181,7 +185,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
           sc_eventbroadcaster:FireEvent(subst("evt@DeployAsk_&1",oMsDeployAskPack:iPackID), oApiProxyException#, output oEventBroadcastData#).
           
           if valid-object(oEventBroadcastData#) and oEventBroadcastData#:cReturnData = "DeployAskHandled"
-          then bThrow# = false.
+            then bMsDeployPackIsShown = true.
           
           catch oError# as Progress.Lang.Error :
             undo, throw oError#.	
@@ -198,7 +202,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       end.
       
       if valid-object(oApiProxyException#) then do:
-        if bThrow# then undo, throw oApiProxyException#.
+        undo, throw oApiProxyException#.
       end.
       else
         /* Shouldn't happen, but just in case */
