@@ -117,6 +117,42 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       view-as alert-box title "Panaedra " + string(now,"99-99-99 hh:mm:ss").
   
   end method. /* ShowExceptionImplement */
+  
+  
+  method public static character ExceptionToString(
+    
+    /* Get all info from an exception and put it in a simple string */
+  
+    input ex as Progress.Lang.Error):
+
+    define variable cLastProgram# as character no-undo.
+    define variable cMessage#     as character no-undo.
+    define variable iTell#        as integer   no-undo.
+    
+    assign
+      cLastProgram# = panaedra.msroot.msutil.logic.sc_info:GetCallStack()
+      cLastProgram# = entry(num-entries(cLastProgram#,chr(10)), cLastProgram#, chr(10))
+      cLastProgram# = entry(num-entries(cLastProgram#," ")    , cLastProgram#, " ").
+    
+    if length(cLastProgram#) >= 60 then
+      cLastProgram# = "..." + 
+        substring(cLastProgram#, length(cLastProgram#) - 59).
+    
+    do iTell# = 1 to ex:NumMessages:
+      if iTell# > 1 
+        then cMessage# = cMessage# + chr(10).
+      cMessage# = cMessage# + 
+        ex:GetMessage(iTell#).
+      if index(cMessage#, subst("(&1)", ex:GetMessageNum(iTell#))) = 0
+        then cMessage# = cMessage# + subst(" (&1)", ex:GetMessageNum(iTell#)).
+    end.
+    
+    if ex:CallStack > "" then cMessage# = cMessage# + chr(10) + chr(10) + ex:CallStack.
+    
+    return cMessage#.
+  
+  end method. /* ExceptionToString */
+  
 
   &if opsys <> "unix" and "{&window-system}" <> "tty" &then
   
