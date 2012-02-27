@@ -51,6 +51,54 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
     end.
 
   end method. /* IsoString */
+  
+  
+  method public static character getKeyfields(
+  /*--------------------------------
+    return then Keyfields of a table
+    based on the primairy index.  
+    -------------------------------- */
+   input hBufferIP# as handle 
+  ):
+
+    define variable cReturn#  as char no-undo init "".
+    define variable iVeld#    as int  no-undo.
+    define variable iIndex#   as int  no-undo.
+    define variable cIndex#   as char no-undo init "".
+    define variable bPrimary# as log  no-undo.
+    define variable bUnique#  as log  no-undo.
+  
+    /*-- find the primairy index --*/
+    zoek_index:
+    do while cIndex# <> ? :
+      iIndex# = iIndex# + 1.
+      cIndex# = hBufferIP#:index-information(iIndex#).
+  
+      bUnique# = (entry(2, cIndex#) = "1") no-error.
+      bPrimary# = (entry(3, cIndex#) = "1") no-error.
+  
+      if bUnique# and bPrimary# then
+        leave zoek_index.
+    end. /* do */
+  
+    /*- do we have prim/unique index? -*/
+    if bUnique# and bPrimary# then 
+    do:
+      if valid-handle(hBufferIP#)  
+        then 
+      do iVeld# = 5 to num-entries(cIndex#) by 2 :
+        cReturn# = cReturn# 
+          + min(cReturn#, ",")
+          + entry(iVeld#, cIndex#)
+          .
+      end. /* if */
+    end. /* if */
+    else 
+      cReturn# = "".
+
+   return cReturn#.   /* Function return value. */
+  
+  end method. /* getKeyfields */
 
 end class.
 

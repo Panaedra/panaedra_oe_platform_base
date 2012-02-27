@@ -43,36 +43,42 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
     public get.
     protected set.
 
-  constructor public c_recordstatus(
-    input cTableNameIP#    as character,
-    input cSvKeyValuesIP#  as character,
-    input bAvailableIP#    as logical,
-    input bLockedIP#       as logical,
-    input bAmbiguousIP#    as logical
-    ):
-    
-    assign   
-      cTableName    = cTableNameIP#
-      cSvKeyValues  = cSvKeyValuesIP#
-      bAvailable    = bAvailableIP#
-      bLocked       = bLockedIP#
-      bAmbiguous    = bAmbiguousIP#
-      .  
-      
-  end constructor.
 
   constructor public c_recordstatus(
-    input cTableNameIP#    as character,
-    input cSvKeyValuesIP#  as character,
     input hBufferIP# as handle
     ):
+      
+    define variable cKeyvalues# as character no-undo.
+    define variable iVeld#      as integer   no-undo.
+    define variable cKeyfields# as character no-undo.
+    define variable hField#     as handle    no-undo.
+    define variable cFieldname# as character no-undo.
+    
+    /* build a list of fieldsnames/values of the prim.index
+       and save in property cSvKeyValues */
+    assign
+      cKeyfields# = sc_bufferfield:getKeyfields(hBufferIP#)
+      cSvKeyValues = ""
+      .
+     
+    if hBufferIP#:available then   
+    do iVeld# = 1 to num-entries(cKeyfields#) :
+      assign 
+      cFieldname# = entry(iVeld#, cKeyfields#)
+      hField# = hBufferIP#:buffer-field(cFieldname#)
+      cSvKeyValues = cSvKeyValues
+        + min(cSvKeyValues, ";")
+        + subst("&1=&2", cFieldname#, string(hField#:buffer-value))
+        .   
+    end.  
+    else
+      cSvKeyValues = "not available".
     
     assign   
-      cTableName    = cTableNameIP#
-      cSvKeyValues  = cSvKeyValuesIP#
-      bAvailable    = hBufferIP#:available
-      bLocked       = hBufferIP#:locked
-      bAmbiguous    = hBufferIP#:ambiguous
+      cTableName   = hBufferIP#:table
+      bAvailable   = hBufferIP#:available
+      bLocked      = hBufferIP#:locked
+      bAmbiguous   = hBufferIP#:ambiguous
       .  
       
   end constructor.
