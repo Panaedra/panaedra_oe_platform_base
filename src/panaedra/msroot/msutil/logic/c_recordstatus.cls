@@ -44,6 +44,23 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
     protected set.
 
 
+
+  constructor public c_recordstatus(
+    input hBufferIP# as handle,
+    input cSvKeyvaluesIP# as character
+    ):
+    
+    assign   
+      cTableName   = hBufferIP#:table
+      bAvailable   = hBufferIP#:available
+      bLocked      = hBufferIP#:locked
+      bAmbiguous   = hBufferIP#:ambiguous
+      cSvKeyvalues = cSvKeyvaluesIP#
+      .  
+      
+  end constructor.
+
+
   constructor public c_recordstatus(
     input hBufferIP# as handle
     ):
