@@ -135,7 +135,7 @@ class panaedra.msroot.msutil.logic.sc_path:
   define public static property cLogDirDbg as character no-undo 
     get():
       if not bTtPathInitialized then TtPathInitialize().
-      cLogDir     = FillPathProperty(sc_environment:cEnv, "cLogDir").
+      cLogDir     = FillPathProperty(GetScPathEnv(), "cLogDir").
       return cLogDir.
     end get.
     protected set.
@@ -376,19 +376,19 @@ class panaedra.msroot.msutil.logic.sc_path:
       sc_config:ReadXml(temp-table ttPath:handle,
         /* Note: the getter of cIniDir initializes cIniDir automatically */ 
         cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config").
-      cSysteemDir          = FillPathProperty(sc_environment:cEnv, "cSysteemDir").
-      cLogDir              = FillPathProperty(sc_environment:cEnv, "cLogDir").
-      cLogVoortgangDir     = FillPathProperty(sc_environment:cEnv, "cLogVoortgangDir").
-      cNoSweatDir          = FillPathProperty(sc_environment:cEnv, "cNoSweatDir").
-      c_SRVR_Dir          = FillPathProperty(sc_environment:cEnv, "c_SRVR_Dir").
-      cNonstaticDir        = FillPathProperty(sc_environment:cEnv, "cNonstaticDir").
-      cDeployBinariesDir   = FillPathProperty(sc_environment:cEnv, "cDeployBinariesDir").
-      cDeployTargetRootDir = FillPathProperty(sc_environment:cEnv, "cDeployTargetRootDir").
-      cDataRecoveryDir     = FillPathProperty(sc_environment:cEnv, "cDataRecoveryDir").
-      cDataExchangeDir     = FillPathProperty(sc_environment:cEnv, "cDataExchangeDir").
-      cVanWanDir           = FillPathProperty(sc_environment:cEnv, "cVanWanDir").
-      cNaarWanDir          = FillPathProperty(sc_environment:cEnv, "cNaarWanDir").
-      c_TERM_UNDISCLOSED_queueDir  = FillPathProperty(sc_environment:cEnv, "c_TERM_UNDISCLOSED_queueDir").
+      cSysteemDir          = FillPathProperty(GetScPathEnv(), "cSysteemDir").
+      cLogDir              = FillPathProperty(GetScPathEnv(), "cLogDir").
+      cLogVoortgangDir     = FillPathProperty(GetScPathEnv(), "cLogVoortgangDir").
+      cNoSweatDir          = FillPathProperty(GetScPathEnv(), "cNoSweatDir").
+      c_SRVR_Dir          = FillPathProperty(GetScPathEnv(), "c_SRVR_Dir").
+      cNonstaticDir        = FillPathProperty(GetScPathEnv(), "cNonstaticDir").
+      cDeployBinariesDir   = FillPathProperty(GetScPathEnv(), "cDeployBinariesDir").
+      cDeployTargetRootDir = FillPathProperty(GetScPathEnv(), "cDeployTargetRootDir").
+      cDataRecoveryDir     = FillPathProperty(GetScPathEnv(), "cDataRecoveryDir").
+      cDataExchangeDir     = FillPathProperty(GetScPathEnv(), "cDataExchangeDir").
+      cVanWanDir           = FillPathProperty(GetScPathEnv(), "cVanWanDir").
+      cNaarWanDir          = FillPathProperty(GetScPathEnv(), "cNaarWanDir").
+      c_TERM_UNDISCLOSED_queueDir  = FillPathProperty(GetScPathEnv(), "c_TERM_UNDISCLOSED_queueDir").
     end.
     
   end method. /* TtPathInitialize */
@@ -403,7 +403,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     
     if not bTtPathInitialized then TtPathInitialize(). 
 
-    cReturn# = FillPathProperty(sc_environment:cEnv, cTokenIP#).
+    cReturn# = FillPathProperty(GetScPathEnv(), cTokenIP#).
     
     return cReturn#.
     
@@ -734,13 +734,35 @@ class panaedra.msroot.msutil.logic.sc_path:
 
   end method. /* SplitPutTag */
   
+  
   method public static void DelTree(cDirIP# as character):
+    
     sc_osfile:DeleteAllFilesInDir(cDirIP#,"*",true).
+    
     os-delete value(cDirIP#). 
-    if os-error > 0 then do:
-      os-command silent value(subst('rmdir /Q /S "&1"', cDirIP#)).
+    if os-error > 0 then 
+    do:
+      if opsys = "win32" then
+        os-command silent value(subst('rmdir /Q /S "&1"', cDirIP#)).
     end.
+    
   end method. /* DelTree */
+  
+  
+  method protected static character GetScPathEnv():
+    
+    define variable cReturn# as character no-undo.
+    
+    cReturn# = sc_environment:cEnv.
+    
+    case cReturn#:
+      when "any_env"     then cReturn# = "live".
+      when "tst_any_env" then cReturn# = "tst".
+    end case.
+    
+    return cReturn#.
+    
+  end method. /* GetScPathEnv */
 
 end class.
 
