@@ -47,13 +47,22 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   
   method public static logical BeginProxyCall(dataset dsContext /* by ref */, cMirrorIP# as character):
     
-    define variable iMaxVersion#   as integer     no-undo.
-    define variable dtmMaxVersion# as datetime-tz no-undo.
-    
     /* Remove previous exception messages */
     empty temp-table ttExceptions.
     empty temp-table ttCallStack.
 
+    AddVersionsToDsContext(dataset dsContext by-reference).
+        
+    return true.
+    
+  end method. /* BeginProxyCall */
+
+  
+  method public static void AddVersionsToDsContext(dataset dsContext /* by ref */):
+    
+    define variable iMaxVersion#   as integer     no-undo.
+    define variable dtmMaxVersion# as datetime-tz no-undo.
+    
     /* Read the ttMsDeployVersion file only at the first appserver call of the session. 
        If config changes (install) it's still not valid until reboot of the session */
     if (not can-find(first ttMsDeployVersion)) and
@@ -86,10 +95,8 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       ttMsAsVersion.iRepoVersion   = iMaxVersion#
       ttMsAsVersion.dtmRepoVersion = dtmMaxVersion#
       ttMsAsVersion.cModuleID      = "[From_Environment]".
-        
-    return true.
-    
-  end method. /* BeginProxyCall */
+  
+  end method. /* AddVersionsToDsContext */
 
 
   method public static void ExceptionsProxyCall(oExceptionIP# as Progress.Lang.Error, dataset dsContext /* by ref */, cMirrorIP# as character):
