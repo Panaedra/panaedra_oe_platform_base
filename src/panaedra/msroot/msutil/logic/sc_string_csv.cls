@@ -254,8 +254,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     return bRetValOP#.
 
   end method. /* CsvIndexHit  */
-  
-  
+
+
   method public static character CsvSortList(
     cListIP#  as character, 
     cDelimIP# as character):
@@ -264,16 +264,57 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
        Empty entries are kept.
        Double entries are kept.
     */
+    
+    return CsvSortListImplement(cListIP#, cDelimIP#, false).
+    
+  end method. /* CsvSortList */
+  
+  
+  method public static character CsvSortListUnique(
+    cListIP#  as character, 
+    cDelimIP# as character):
+  
+    /* Sort a list alphabetically.
+       Empty entries are kept.
+       Double entries are deleted.
+    */
+    
+    return CsvSortListImplement(cListIP#, cDelimIP#, true).
+    
+  end method. /* CsvSortListUnique */
+  
+  
+  method protected static character CsvSortListImplement(
+    cListIP#       as character, 
+    cDelimIP#      as character,
+    bMakeUniqueIP# as logical):
+  
+    /* Sort a list alphabetically.
+       Empty entries are kept.
+       Double entries are kept or deleted.
+    */
   
     define variable iTell#   as integer   no-undo.
     define variable cReturn# as character no-undo.
-  
+    
+    define buffer b-ttCsvSortList for ttCsvSortList.
+    
     empty temp-table ttCsvSortList.
   
     do iTell# = 1 to num-entries(cListIP#,cDelimIP#) transaction: /* codeQok#7103 */
       create ttCsvSortList.
       assign 
         ttCsvSortList.cValue = entry(iTell#,cListIP#,cDelimIP#).
+    end.
+    
+    if bMakeUniqueIP# then
+    for each ttCsvSortList on error undo, throw:
+      for each b-ttCsvSortList 
+        where b-ttCsvSortList.cValue = ttCsvSortList.cValue
+        and rowid(b-ttCsvSortList) <> rowid(ttCsvSortList)
+        on error undo, throw:
+        delete b-ttCsvSortList.
+      end.
     end.
   
     for each ttCsvSortList on error undo, throw:
@@ -284,7 +325,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   
     return cReturn#.
   
-  end method. /* CsvSortList */
+  end method. /* CsvSortListImplement */
 
 
   method public static character CsvAddLast(cCsvIP# as character, cNewValueIP# as character):
