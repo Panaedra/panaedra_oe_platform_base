@@ -64,10 +64,10 @@ class panaedra.msroot.msutil.logic.sc_dbtrigrelations:
         assign 
           ttCacheLoadedModules.cModule = cNsGroupdir#.
         
-        cFileName# = "panaedra/" 
+        cFileName# = lc("panaedra/" 
           + (if hBuffTableInfoIP#::cNsSubroot = "(none)" then "" else hBuffTableInfoIP#::cNsSubroot + "/") 
           + hBuffTableInfoIP#::cNsGroupdir + "/logic_val/cfg/"
-          + substitute("&1.&2.datarel_xml", hBuffTableInfoIP#::cNsKey, cNsGroupdir#)
+          + substitute("&1.&2.datarel_xml", hBuffTableInfoIP#::cNsKey, cNsGroupdir#))
           .
 
         sc_config:ReadXml(dataset dsDbRelations:handle,cFileName#, "append").
@@ -98,7 +98,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrigrelations:
                 b-ttMsdrTriggerLink.bHandled = true
                 file-information:file-name   = b-ttMsdrTriggerLink.cPath.
                 
-              sc_config:ReadXml(dataset dsDbRelations:handle, b-ttMsdrTriggerLink.cPath, "append").  
+              sc_config:ReadXml(dataset dsDbRelations:handle, lc(b-ttMsdrTriggerLink.cPath), "append").  
           
             end.
             
