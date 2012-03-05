@@ -201,6 +201,18 @@ class panaedra.msroot.msutil.logic.sc_xml_sax:
     sys__DatasetToXmlFileImplement(hDatasetIP#, cFileIP#, yes).  
       
   end method.  
+  
+  
+  method public static void DbQueryToXmlFile(
+    hQueryIP# as handle, 
+    cFileIP# as character,
+    bWithRootNodeIP# as logical
+  
+    ):
+    
+    sys__DatasetToXmlFileImplement(hQueryIP#, cFileIP#, bWithRootNodeIP#).
+    
+  end method. /* DbQueryToXmlFile */
 
 
   method protected static void sys__DatasetToXmlFileImplement(
@@ -214,7 +226,7 @@ class panaedra.msroot.msutil.logic.sc_xml_sax:
        
     */
     
-    hDatasetIP# as handle, 
+    hDatasetOrQueryIP# as handle, 
     cFileIP# as character,
     bWithRootNodeIP# as logical):
     
@@ -224,6 +236,7 @@ class panaedra.msroot.msutil.logic.sc_xml_sax:
     define variable bHasChilds# as logical no-undo.
     define variable hAttrib#    as handle  no-undo.
     define variable hQuery#     as handle  no-undo.
+    define variable hDataSet#   as handle  no-undo.
     
     create sax-writer  hSax#.
   
@@ -234,28 +247,40 @@ class panaedra.msroot.msutil.logic.sc_xml_sax:
     hSax#:encoding = "utf-8".
   
     hSax#:start-document().
+    
+    if hDatasetOrQueryIP#:type = "dataset"
+      then 
+    do:
+      hDataset# = hDatasetOrQueryIP#.
+      /* Note: 
+         For now, we only support 1 top-buffer query. Can easily be extended. 
+      */
+      hQuery# = hDataset#:top-nav-query(1).
+    end.
+    else if hDatasetOrQueryIP#:type = "query"
+        then hQuery# = hDatasetOrQueryIP#.
   
     if bWithRootNodeIP# then 
     do: 
-      hSax#:start-element(hDatasetIP#:xml-node-name).
+      hSax#:start-element(if valid-handle(hDataset#) then hDataset#:xml-node-name else "ds" + hQuery#:get-buffer-handle(1):name).
   
-      if hDatasetIP#:namespace-uri > "" then 
+      if valid-handle(hDataset#) and hDataset#:namespace-uri > "" then 
       do:
-        hSax#:declare-namespace(hDatasetIP#:namespace-uri, "").
+        hSax#:declare-namespace(hDataset#:namespace-uri, "").
       end.
       
       hSax#:declare-namespace("http://www.w3.org/2001/XMLSchema-instance", "xsi").
     end.
     
-    /* Note: 
-       For now, we only support 1 top-buffer query. Can easily be extended. 
-    */
-    hQuery# = hDatasetIP#:top-nav-query(1).
     hQuery#:query-open().
     
     do while hQuery#:get-next:
       hBuff# = hQuery#:get-buffer-handle(1).
-      bHasChilds# = DatasetBufferHasChildRelation(hDatasetIP#, hBuff#).
+      if valid-handle(hDataset#) then
+        bHasChilds# = DatasetBufferHasChildRelation(hDataset#, hBuff#).
+      else
+        bHasChilds# = hQuery#:num-buffers > 1.
+      
       hSax#:start-element(hBuff#:xml-node-name).
       if not bHasChilds# then 
       do:
@@ -267,12 +292,13 @@ class panaedra.msroot.msutil.logic.sc_xml_sax:
       do iField# = 1 to hBuff#:num-fields:
         WriteSaxBufferField(hSax#, hBuff#:buffer-field(iField#)).
       end.
-      WriteSaxXmlDsrelations(hSax#, hDatasetIP#, hBuff#).
+      if valid-handle(hDataset#) then
+        WriteSaxXmlDsrelations(hSax#, hDataset#, hBuff#).
       hSax#:end-element(hQuery#:get-buffer-handle(1):xml-node-name).
     end.
 
     if bWithRootNodeIP# then
-      hSax#:end-element(hDatasetIP#:xml-node-name).
+      hSax#:end-element( if valid-handle(hDataset#) then hDataset#:xml-node-name else  "ds" + hQuery#:get-buffer-handle(1):name).
     
     hSax#:end-document().
     
