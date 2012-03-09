@@ -154,7 +154,8 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
        of the end user. 
     */
     
-    cError# = subst("see@c_recordstatus|Error: &1 record &2: &3", 
+    cError# = subst("see@c_recordstatus|Error &1: &2 record &3: &4",
+      iErrorIP#, 
       oRecordStatusIP#:cTablename,
       (if oRecordStatusIP#:bLocked then "locked" else if oRecordStatusIP#:bAmbiguous then "ambiguous" else if oRecordStatusIP#:bAvailable then "available" else "not available"), 
       oRecordStatusIP#:cSvKeyValues
