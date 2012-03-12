@@ -35,6 +35,15 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       or (bExpectedValueIP# <> bNewValueIP#) then 
     do:
       
+      LogMessage(subst("env=&1 id=&2, descr=&3, calc=&4, exp=&5",   
+        sc_environment:cEnv,
+        cTestIDIP#,
+        cTestDescIP#,
+        bNewValueIP#,
+        bExpectedValueIP#
+        )
+      ).
+      
       message now "Assert failed." skip
         sc_environment:cEnv skip
         cTestIDIP# skip
@@ -42,6 +51,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         "Calculated:" bNewValueIP# skip
         "Expected:" bExpectedValueIP#
         view-as alert-box.
+        
       
     end.
 
@@ -59,6 +69,15 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       or (cExpectedValueIP# <> ? and cNewValueIP# = ?)
       or (cExpectedValueIP# <> cNewValueIP#) then 
     do:
+      
+      LogMessage(subst("env=&1 id=&2, descr=&3, calc=&4, exp=&5",   
+        sc_environment:cEnv,
+        cTestIDIP#,
+        cTestDescIP#,
+        cNewValueIP#,
+        cExpectedValueIP#
+        )
+      ).
       
       message now "Assert failed." skip
         sc_environment:cEnv skip
@@ -85,6 +104,16 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       or (iExpectedValueIP# <> iNewValueIP#) then 
     do:
       
+      LogMessage(subst("env=&1 id=&2, descr=&3, calc=&4, exp=&5",   
+        sc_environment:cEnv,
+        cTestIDIP#,
+        cTestDescIP#,
+        iNewValueIP#,
+        iExpectedValueIP#
+        )
+      ).
+      
+      
       message now "Assert failed." skip
         sc_environment:cEnv skip
         cTestIDIP# skip
@@ -110,6 +139,16 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       or (fExpectedValueIP# <> fNewValueIP#) then 
     do:
       
+      LogMessage(subst("env=&1 id=&2, descr=&3, calc=&4, exp=&5",   
+        sc_environment:cEnv,
+        cTestIDIP#,
+        cTestDescIP#,
+        fNewValueIP#,
+        fExpectedValueIP#
+        )
+      ).
+      
+      
       message now "Assert failed." skip
         sc_environment:cEnv skip
         cTestIDIP# skip
@@ -134,6 +173,16 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       or (dtExpectedValueIP# <> ? and dtNewValueIP# = ?)
       or (dtExpectedValueIP# <> dtNewValueIP#) then 
     do:
+      
+      LogMessage(subst("env=&1 id=&2, descr=&3, calc=&4, exp=&5",   
+        sc_environment:cEnv,
+        cTestIDIP#,
+        cTestDescIP#,
+        dtNewValueIP#,
+        dtExpectedValueIP#
+        )
+      ).
+      
       
       message now "Assert failed." skip
         sc_environment:cEnv skip
@@ -171,6 +220,21 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       hDatasetOneIP#:write-json("longchar", bJsonOne#, true, "utf-8").  
       hDatasetTwoIP#:write-json("longchar", bJsonTwo#, true, "utf-8").
 
+
+      LogMessage(   
+        subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
+        subst("Assert failed. [Env] &1", sc_environment:cEnv),
+        cTestIDIP#,
+        cTestDescIP#,
+        subst("Calculated: &1", bDatasetsEqual#                                                  ),
+        subst("Expected:   &1", bExpectedEqualIP#                                                ),
+        subst("Dataset One: &1 &2", hDatasetOneIP#:name, hDatasetOneIP#:get-buffer-handle(1):name),
+        subst("Dataset Two: &1 &2", hDatasetTwoIP#:name, hDatasetTwoIP#:get-buffer-handle(1):name),
+        subst("JSON One: &1", string(substring(bJsonOne#,1,90))                                  ),
+        subst("JSON Two: &1", string(substring(bJsonTwo#,1,90))                                  )
+        )
+      ).
+
       panaedra.msroot.msutil.logic.sc_messagebox:MsgBox(
         subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
         subst("Assert failed. [Env] &1", sc_environment:cEnv),
@@ -206,6 +270,25 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       )).
 
   end method. /* OnException */  
+  
+  
+  method public static void Logmessage(
+    input cMessageIP# as character
+    ):
+      
+    define variable cFile# as character no-undo.  
+  
+    cFile# = subst("unittest_&1.log", now).
+    cFile# = replace(cFile# , '/', '').
+    cFile# = replace(cFile# , ':', '').
+    cFile# = replace(cFile# , ',', '').
+    cFile# = replace(cFile# , '+', '').
+    
+    output to value(cFile#) append.
+    put unformatted cMessageIP# skip.
+    output close.
+  
+  end method. /* Logmessage */
 
 end class.
 
