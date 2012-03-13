@@ -23,6 +23,9 @@ class panaedra.msroot.msutil.logic.sc_unittest:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
+  define static temp-table ttFile no-undo
+    field cFullPath as char.
+
   method public static void Assert(
     cTestIDIP# as character, 
     cTestDescIP# as character,
@@ -289,6 +292,29 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     output close.
   
   end method. /* Logmessage */
+
+
+  method public static void RunAllUnittests():
+    
+    def frame frm-ut with no-labels overlay 12 down width 80 centered title "Unit Tests".
+    
+    pause before-hide.
+    
+    sc_osfile:GetFileNamesInDirectory("/ota/_PRODUCT_/amdir_plan", "*_unittest~~.p", yes,  output table ttFile).   
+    sc_osfile:GetFileNamesInDirectory("/ota/_PRODUCT_/_FCMPNY_/prod_plan/s", "*_unittest~~.p", yes,  output table ttFile append).
+    
+    for each ttFile /* codeQok#7105 */
+      on error undo, next
+      on stop  undo, next:
+        
+      display ttFile.cFullPath format "x(76)" with frame frm-ut.
+      down with frame frm-ut.
+      run value(ttFile.cFullPath).
+    end.
+
+    hide frame frm-ut.
+     
+  end method. /* RunAllUnittests */
 
 end class.
 
