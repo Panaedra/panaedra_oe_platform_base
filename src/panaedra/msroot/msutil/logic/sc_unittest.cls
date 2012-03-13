@@ -294,7 +294,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
   end method. /* Logmessage */
 
 
-  method public static void RunAllUnittests():
+  method public static void RunAllUnittestsProdplan():
     
     def frame frm-ut with no-labels overlay 12 down width 80 centered title "Unit Tests".
     
