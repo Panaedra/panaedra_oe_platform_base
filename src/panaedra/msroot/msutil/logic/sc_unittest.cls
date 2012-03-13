@@ -275,8 +275,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       
     define variable cFile# as character no-undo.  
   
-    cFile# = subst("/ota/wrktst/unittest_&1.log", sc_date_timestamp:cTimeStamp_Short_DateAndTime).
-    cFile# = replace(cFile# , '/', '').
+    cFile# = sc_path:cLogVoortgangDir + subst("unittest_&1_&2.log", sc_environment:cEnv, sc_date_timestamp:cTimeStamp_Short_Date).
     
     output to value(cFile#) append.
     put unformatted cMessageIP# skip.
@@ -288,14 +287,15 @@ class panaedra.msroot.msutil.logic.sc_unittest:
   method public static void RunAllUnittests(
     
     /* Run all unit tests that are found in the supplied propath entries */
-    
+  
     cSvSourcedirsIP# as character
     ):
     
     define variable iTell# as integer no-undo.
     
+    empty temp-table ttFile.
+        
     do iTell# = 1 to num-entries(cSvSourcedirsIP#):
-      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_unittest~~.p", yes,  output table ttFile).   
       sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_unittest~~.p", yes,  output table ttFile append).
     end.
     
