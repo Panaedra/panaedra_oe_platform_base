@@ -278,7 +278,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       
     define variable cFile# as character no-undo.  
   
-    cFile# = subst("unittest_&1.log", now).
+    cFile# = subst("/ota/wrktst/unittest_&1.log", now).
     cFile# = replace(cFile# , '/', '').
     cFile# = replace(cFile# , ':', '').
     cFile# = replace(cFile# , ',', '').
