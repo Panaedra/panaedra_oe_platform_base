@@ -55,9 +55,12 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
   define public property bHelpInstance as logical no-undo get. set. 
     
   define protected static temp-table ttEventClient no-undo rcode-information
-    field oClient    as Progress.Lang.Object /* Always i_eventbroadcastclient*/
+    field oClient    as Progress.Lang.Object /* Always i_eventbroadcastclient        */
+    field hProc      as handle               /* For old-style procedure handles only */
     field cEventName as character
-    index cEventName_oClient is primary unique cEventName oClient.
+    index cEventName_oClient is primary unique cEventName oClient
+    index oClient                              oClient
+    index hProc                                hProc.
  
  
   constructor static sc_eventbroadcaster():
@@ -77,7 +80,22 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
         ttEventClient.cEventName = cEventNameIP#.
     end.
     
-  end method. /* SubscribeEvent */  
+  end method. /* SubscribeEvent ; normal route */  
+  
+  
+  method public static void SubscribeEvent(hProcIP# as handle , cEventNameIP# as char):
+    
+    define variable bEclipseFix# as logical no-undo.
+    define buffer ttEventClient for ttEventClient.
+    
+    do for ttEventClient:
+      create ttEventClient.
+      assign 
+        ttEventClient.hProc      = hProcIP#
+        ttEventClient.cEventName = cEventNameIP#.
+    end.
+    
+  end method. /* SubscribeEvent ; by procedure handle */  
   
   
   method public static void UnSubscribeEvent(oClientIP# as i_eventbroadcastclient , cEventNameIP# as char):
@@ -96,7 +114,26 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
       
     end.
     
-  end method. /* UnSubscribeEvent */  
+  end method. /* UnSubscribeEvent ; normal route */  
+
+
+  method public static void UnSubscribeEvent(hProcIP# as handle, cEventNameIP# as char):
+    
+    define variable bEclipseFix# as logical no-undo.
+    define buffer ttEventClient for ttEventClient.
+    
+    do for ttEventClient:
+      
+      find ttEventClient 
+        where ttEventClient.hProc      = hProcIP#
+        and   ttEventClient.cEventName = cEventNameIP#
+        no-error.
+        
+      if avail ttEventClient then delete ttEventClient.
+      
+    end.
+    
+  end method. /* UnSubscribeEvent ; by procedure handle */  
   
   
   method public static void UnSubscribeAllEvents(oClientIP# as i_eventbroadcastclient):
@@ -108,6 +145,7 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
       
       for each ttEventClient 
         where ttEventClient.oClient = oClientIP#
+        and   ttEventClient.hProc   = ?
         on error undo, throw:
         
         delete ttEventClient.
@@ -116,7 +154,28 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
       
     end.
     
-  end method. /* UnSubscribeAllEvents */  
+  end method. /* UnSubscribeAllEvents ; normal route */  
+  
+  
+  method public static void UnSubscribeAllEvents(hProcIP# as handle):
+    
+    define variable bEclipseFix# as logical no-undo.
+    define buffer ttEventClient for ttEventClient.
+    
+    if hProcIP# <> ? then
+    do for ttEventClient:
+      
+      for each ttEventClient 
+        where ttEventClient.hProc = hProcIP#
+        on error undo, throw:
+        
+        delete ttEventClient.
+        
+      end.
+      
+    end.
+    
+  end method. /* UnSubscribeAllEvents ; by procedure handle */  
   
   
   method public static void FireEvent(cEventNameIP# as char):
@@ -194,15 +253,35 @@ class panaedra.msroot.msutil.logic.sc_eventbroadcaster
     do for ttEventClient:
       for each ttEventClient where ttEventClient.cEventName = cEventNameIP#
         on error undo, throw:
-        if not valid-object(ttEventClient.oClient) then do:
-          delete ttEventClient.
-        end.
-        else do:
-          cast(ttEventClient.oClient, i_eventbroadcastclient):OnEventBroadcast(oDataIP#).
-          if oDataIP#:iAbort > 0 then do:
-            return.
+        if ttEventClient.hProc = ? then 
+        do:
+          if not valid-object(ttEventClient.oClient)then 
+          do:
+            delete ttEventClient.
           end.
-        end.
+          else 
+          do:
+            cast(ttEventClient.oClient, i_eventbroadcastclient):OnEventBroadcast(oDataIP#).
+            if oDataIP#:iAbort > 0 then 
+            do:
+              return.
+            end.
+          end.
+        end. /* hProc is not used */
+        else do:
+          if not valid-handle(ttEventClient.hProc) or ttEventClient.hProc:type <> "procedure" then 
+          do:
+            delete ttEventClient.
+          end.
+          else 
+          do:
+            run OnEventBroadcast in ttEventClient.hProc(oDataIP#).
+            if oDataIP#:iAbort > 0 then 
+            do:
+              return.
+            end.
+          end.
+        end. /* hProc is used */
       end.
     end.
 
