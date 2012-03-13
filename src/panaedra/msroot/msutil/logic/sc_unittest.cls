@@ -278,11 +278,8 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       
     define variable cFile# as character no-undo.  
   
-    cFile# = subst("/ota/wrktst/unittest_&1.log", now).
+    cFile# = subst("/ota/wrktst/unittest_&1.log", string(today, "99/99/9999")).
     cFile# = replace(cFile# , '/', '').
-    cFile# = replace(cFile# , ':', '').
-    cFile# = replace(cFile# , ',', '').
-    cFile# = replace(cFile# , '+', '').
     
     output to value(cFile#) append.
     put unformatted cMessageIP# skip.
