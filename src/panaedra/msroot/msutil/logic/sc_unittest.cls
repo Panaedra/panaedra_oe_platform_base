@@ -45,7 +45,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         bNewValueIP#,
         bExpectedValueIP#
         )
-      ).
+        ).
       
       message now "Assert failed." skip
         sc_environment:cEnv skip
@@ -54,7 +54,6 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         "Calculated:" bNewValueIP# skip
         "Expected:" bExpectedValueIP#
         view-as alert-box.
-        
       
     end.
 
@@ -80,7 +79,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         cNewValueIP#,
         cExpectedValueIP#
         )
-      ).
+        ).
       
       message now "Assert failed." skip
         sc_environment:cEnv skip
@@ -114,8 +113,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         iNewValueIP#,
         iExpectedValueIP#
         )
-      ).
-      
+        ).
       
       message now "Assert failed." skip
         sc_environment:cEnv skip
@@ -149,8 +147,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         fNewValueIP#,
         fExpectedValueIP#
         )
-      ).
-      
+        ).
       
       message now "Assert failed." skip
         sc_environment:cEnv skip
@@ -184,8 +181,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         dtNewValueIP#,
         dtExpectedValueIP#
         )
-      ).
-      
+        ).
       
       message now "Assert failed." skip
         sc_environment:cEnv skip
@@ -208,7 +204,9 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     bExpectedEqualIP# as logical
     ):
       
-    define variable bDatasetsEqual# as logical no-undo.  
+    define variable bDatasetsEqual# as logical  no-undo.  
+    define variable clobJsonOne#    as longchar no-undo.  
+    define variable clobJsonTwo#    as longchar no-undo.
     
     bDatasetsEqual# = sc_dataset:DatasetCompare(dataset-handle hDatasetOneIP#, dataset-handle hDatasetTwoIP#). 
     
@@ -217,12 +215,8 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       or (bExpectedEqualIP# <> bDatasetsEqual#) then 
     do:
       
-      define variable bJsonOne# as longchar no-undo.  
-      define variable bJsonTwo# as longchar no-undo.
-    
-      hDatasetOneIP#:write-json("longchar", bJsonOne#, true, "utf-8").  
-      hDatasetTwoIP#:write-json("longchar", bJsonTwo#, true, "utf-8").
-
+      hDatasetOneIP#:write-json("longchar", clobJsonOne#, true, "utf-8").  
+      hDatasetTwoIP#:write-json("longchar", clobJsonTwo#, true, "utf-8").
 
       LogMessage(   
         subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
@@ -233,10 +227,10 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         subst("Expected:   &1", bExpectedEqualIP#                                                ),
         subst("Dataset One: &1 &2", hDatasetOneIP#:name, hDatasetOneIP#:get-buffer-handle(1):name),
         subst("Dataset Two: &1 &2", hDatasetTwoIP#:name, hDatasetTwoIP#:get-buffer-handle(1):name),
-        subst("JSON One: &1", string(substring(bJsonOne#,1,90))                                  ),
-        subst("JSON Two: &1", string(substring(bJsonTwo#,1,90))                                  )
+        subst("JSON One: &1", string(substring(clobJsonOne#,1,90))                               ),
+        subst("JSON Two: &1", string(substring(clobJsonTwo#,1,90))                               )
         )
-      ).
+        ).
 
       panaedra.msroot.msutil.logic.sc_messagebox:MsgBox(
         subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
@@ -247,8 +241,8 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         subst("Expected:   &1", bExpectedEqualIP#                                                ),
         subst("Dataset One: &1 &2", hDatasetOneIP#:name, hDatasetOneIP#:get-buffer-handle(1):name),
         subst("Dataset Two: &1 &2", hDatasetTwoIP#:name, hDatasetTwoIP#:get-buffer-handle(1):name),
-        subst("JSON One: &1", string(substring(bJsonOne#,1,90))                                  ),
-        subst("JSON Two: &1", string(substring(bJsonTwo#,1,90))                                  )
+        subst("JSON One: &1", string(substring(clobJsonOne#,1,90))                               ),
+        subst("JSON Two: &1", string(substring(clobJsonTwo#,1,90))                               )
         )).
 
     end.
@@ -281,7 +275,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       
     define variable cFile# as character no-undo.  
   
-    cFile# = subst("/ota/wrktst/unittest_&1.log", string(today, "99/99/9999")).
+    cFile# = subst("/ota/wrktst/unittest_&1.log", sc_date_timestamp:cTimeStamp_Short_DateAndTime).
     cFile# = replace(cFile# , '/', '').
     
     output to value(cFile#) append.
@@ -291,22 +285,27 @@ class panaedra.msroot.msutil.logic.sc_unittest:
   end method. /* Logmessage */
 
 
-  method public static void RunAllUnittestsProdplan():
+  method public static void RunAllUnittests(
     
-    def frame frm-ut with no-labels overlay 12 down width 80 centered title "Unit Tests".
+    /* Run all unit tests that are found in the supplied propath entries */
     
-    pause before-hide.
+    cSvSourcedirsIP# as character
+    ):
     
-    sc_osfile:GetFileNamesInDirectory("/ota/_PRODUCT_/amdir_plan", "*_unittest~~.p", yes,  output table ttFile).   
-    sc_osfile:GetFileNamesInDirectory("/ota/_PRODUCT_/_FCMPNY_/prod_plan/s", "*_unittest~~.p", yes,  output table ttFile append).
+    define variable iTell# as integer no-undo.
+    
+    do iTell# = 1 to num-entries(cSvSourcedirsIP#):
+      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_unittest~~.p", yes,  output table ttFile).   
+      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_unittest~~.p", yes,  output table ttFile append).
+    end.
     
     for each ttFile /* codeQok#7105 */
       on error undo, next
       on stop  undo, next:
-        
-      display ttFile.cFullPath format "x(76)" with frame frm-ut.
-      down with frame frm-ut.
+
+      sc_eventbroadcaster:FireEvent("evt@unittest@run", ttFile.cFullPath).
       run value(ttFile.cFullPath).
+      
     end.
 
     hide frame frm-ut.
