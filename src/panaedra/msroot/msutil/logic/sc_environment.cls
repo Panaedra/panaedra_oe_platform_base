@@ -79,6 +79,16 @@ class panaedra.msroot.msutil.logic.sc_environment:
     end get.
     protected set.
 
+  define static property cLang as character no-undo 
+    public get:
+      if cLang = "" then 
+      do:
+        cLang = lc(sc_boot:SessionParameter("Lang")).
+      end.
+      return cLang.
+    end get.
+    protected set.
+
   define static property cDeployID as character no-undo 
     public get:
       if cDeployID = "" then 
