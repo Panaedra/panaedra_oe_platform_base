@@ -361,6 +361,47 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
   end method. /* NewID */ 
   
   
+  method public static void SetBufferNameProps(
+    
+    /* 
+    
+      Set standard panaedra name-properties of a temp-table buffer (this method can be extended for db buffers as well).
+      This method is *NOT* needed for a standard panaedra-style defined temp-table.
+      This method can be used for simple "like" temp-tables to quickly set properties like CasedTableName.
+      
+      Example:
+         
+      sc_dbtrig:SetBufferNameProps(
+        buffer b-tt_CCMPNY_selectie:handle, 
+        "Li_CCMPNY_Selectie", /* Cased name                 */
+        "_CCMPNY_selectie",   /* DB Table name, or '(none)' */
+        "l_root",          /* Namespace root             */
+        "li_TERM_UNDISCLOSED_",       /* Namespace groupdir         */
+        "li").             /* Namespace key              */    
+    
+    */
+    
+    hBuffIP#           as handle,
+    cCasedTableNameIP# as character,
+    cTableAliasIP#     as character,
+    cNsSubrootIP#      as character,
+    cNsGroupdirIP#     as character,
+    cNsKeyIP#          as character
+    ):
+      
+    define variable hFirstField# as handle no-undo.
+    
+    hFirstField# = hBuffIP#:buffer-field(1).
+    
+    sc_prop:SetProp(hFirstField#, "CasedTableName", cCasedTableNameIP#).  
+    sc_prop:SetProp(hFirstField#, "TableAlias",     cTableAliasIP#).  
+    sc_prop:SetProp(hFirstField#, "NsSubroot",      cNsSubrootIP#).  
+    sc_prop:SetProp(hFirstField#, "NsGroupdir",     cNsGroupdirIP#).  
+    sc_prop:SetProp(hFirstField#, "NsKey",          cNsKeyIP#).  
+  
+  end method. /* SetBufferNameProps */
+  
+  
   method public static char GetCased(hBuffIP# as handle):
 
     define variable cCased# as character no-undo.
