@@ -43,7 +43,38 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
     public get.
     protected set.
 
+  define property bUpdated as logical no-undo
+    public get.
+    public set.
 
+  define property bCreated as logical no-undo
+    public get.
+    public set.
+
+  define property bChangedByAnotherUser as logical no-undo
+    public get.
+    public set.
+
+
+  define property cSvFieldsChanged as character no-undo
+    public get.
+    public set.
+
+  define property cSvFieldsDirtyReadValue as character no-undo
+    public get.
+    public set.
+
+  define property cSvFieldsEditValue as character no-undo
+    public get.
+    public set.
+
+  define property cSvFieldsUpdatedValue as character no-undo
+    public get.
+    public set.
+
+  define property cSeperatorCsv as character no-undo
+    public get.
+    protected set.
 
   constructor public c_recordstatus(
     input hBufferIP# as handle,
@@ -51,11 +82,12 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
     ):
     
     assign   
-      cTableName   = hBufferIP#:table
-      bAvailable   = hBufferIP#:available
-      bLocked      = hBufferIP#:locked
-      bAmbiguous   = hBufferIP#:ambiguous
-      cSvKeyvalues = cSvKeyvaluesIP#
+      cTableName    = hBufferIP#:table
+      bAvailable    = hBufferIP#:available
+      bLocked       = hBufferIP#:locked
+      bAmbiguous    = hBufferIP#:ambiguous
+      cSvKeyvalues  = cSvKeyvaluesIP#
+      cSeperatorCsv = "|"
       .  
       
   end constructor.
@@ -92,10 +124,11 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
       cSvKeyValues = "not available".
     
     assign   
-      cTableName   = hBufferIP#:table
-      bAvailable   = hBufferIP#:available
-      bLocked      = hBufferIP#:locked
-      bAmbiguous   = hBufferIP#:ambiguous
+      cTableName    = hBufferIP#:table
+      bAvailable    = hBufferIP#:available
+      bLocked       = hBufferIP#:locked
+      bAmbiguous    = hBufferIP#:ambiguous
+      cSeperatorCsv = "|"
       .  
       
   end constructor.
