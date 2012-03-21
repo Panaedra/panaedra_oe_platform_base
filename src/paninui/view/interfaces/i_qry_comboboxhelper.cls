@@ -19,6 +19,7 @@ interface paninui.view.interfaces.i_qry_comboboxhelper
 
   /******************************* $NoKeywords:  $ *****************************/
   method public void      RefreshCsvData(cSsvIP# as character).
+  method public void      RefreshCsvData(cSsvIP# as character,cSeperatorIP# as character, cValueSeperatorIP# as character).
   method public handle    GetBufferHandle().
   method public logical   FindByID(iIdIP# as int64).
   method public character GetDisplayValue().
