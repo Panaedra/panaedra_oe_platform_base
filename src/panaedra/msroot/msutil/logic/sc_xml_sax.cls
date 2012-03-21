@@ -350,12 +350,37 @@ class panaedra.msroot.msutil.logic.sc_xml_sax:
     
     case hFieldIP#:xml-node-type:
       
-      when "attribute" then hSaxIP#:insert-attribute(hFieldIP#:xml-node-name, sc_bufferfield:IsoString(hFieldIP#)).
+      when "attribute" then 
+        InsertAttribute(hSaxIP#, hFieldIP#, sc_bufferfield:IsoString(hFieldIP#), false /* SkipUnknown */, false /* SkipEmpty */).
+      
       when "hidden"    then.
+      
       otherwise hSaxIP#:write-data-element(hFieldIP#:xml-node-name, sc_bufferfield:IsoString(hFieldIP#)).
     end.
-  
+    
   end method. /* WriteSaxBufferField */
+  
+
+  method public static void InsertAttribute(
+    hSaxIP#         as handle, 
+    hFieldIP#       as handle, 
+    cValueIP#       as character, 
+    bSkipUnknownIP# as logical,
+    bSkipEmptyIP#   as logical):
+    
+    if bSkipUnknownIP# and cValueIP# = ? then .
+    else if bSkipEmptyIP# and trim(cValueIP#) = "" then .
+    else
+    do:
+    
+      if cValueIP# = ? then
+        cValueIP# = "".
+        
+      hSaxIP#:insert-attribute(hFieldIP#:xml-node-name, cValueIP#).
+    
+    end.
+    
+  end method. /* InsertAttribute */  
   
   
   method protected static logical DatasetBufferHasChildRelation(hDatasetIP# as handle, hParentBuffIP# as handle):
