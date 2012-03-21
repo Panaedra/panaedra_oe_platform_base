@@ -51,14 +51,9 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
     public get.
     public set.
 
-  define property bOk as logical no-undo
-    public get.
-    public set.
-
   define property bChangedByAnotherUser as logical no-undo
     public get.
     public set.
-
 
   define property cSvFieldsChanged as character no-undo
     public get.
