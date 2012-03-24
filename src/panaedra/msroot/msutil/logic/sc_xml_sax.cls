@@ -346,7 +346,7 @@ class panaedra.msroot.msutil.logic.sc_xml_sax:
   end method. /* WriteSaxXmlDsrelations */
   
   
-  method protected static void WriteSaxBufferField(hSaxIP# as handle, hFieldIP# as handle):
+  method public static void WriteSaxBufferField(hSaxIP# as handle, hFieldIP# as handle):
     
     case hFieldIP#:xml-node-type:
       
@@ -383,7 +383,7 @@ class panaedra.msroot.msutil.logic.sc_xml_sax:
   end method. /* DatasetBufferHasChildRelation */
   
   
-  method protected static handle GetSaxAttributesFromBuffer(hBuffIP# as handle):
+  method public static handle GetSaxAttributesFromBuffer(hBuffIP# as handle):
     
     define variable hAttrib# as handle  no-undo.
     define variable iField#  as integer no-undo.
