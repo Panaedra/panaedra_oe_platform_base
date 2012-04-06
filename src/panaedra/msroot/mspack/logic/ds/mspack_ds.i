@@ -29,6 +29,8 @@ procedure dvcs__panaedra_msroot_mspack_logic_ds_mspack_ds_i: return "$Revision: 
 {panaedra/msroot/mspack/logic/tt/msmdimaster_tt.i               {&*}}
 {panaedra/msroot/mspack/logic/tt/mspreloadpack_tt.i             {&*}}
 {panaedra/msroot/mspack/logic/tt/mspreloads_tt.i                {&*}}
+{panaedra/msroot/mspack/logic/tt/mspackparams_tt.i              {&*}}
+{panaedra/msroot/mspack/logic/tt/mspackparamvalue_tt.i          {&*}}
 {panaedra/msroot/mspack/logic/tt/msscopetable_tt.i              {&*}}
 {panaedra/msroot/mspack/logic/tt/mssubframes_tt.i               {&*} &ttSuffix="Ovly" &xml-node-name-tt="SubFrames.GroupframeOverlay"}
 {panaedra/msroot/mspack/logic/tt/mssubframe_tt.i                {&*} &ttSuffix="Ovly" &xml-node-name-tt="SubFrame"}
@@ -43,6 +45,8 @@ define {&protected} {&static} dataset dsPackConfig
   ttMsMainFrame,
   ttMsPreloads,
   ttMsPreloadPack,
+  ttMsPackParams,
+  ttMsPackParamValue,
   ttMsScopetable,
   ttMsConstructorItems,
   ttMsDatasetConstructorItem,
@@ -58,6 +62,7 @@ define {&protected} {&static} dataset dsPackConfig
   ttMsChildPack
   
   data-relation for ttMsPreloads,          ttMsPreloadPack relation-fields (iIDMsPreloads,iIDMsPreloads) nested
+  data-relation for ttMsPackParams,        ttMsPackParamValue relation-fields (iIDMsPackParams,iIDMsPackParams) nested
   data-relation for ttMsConstructorItems,  ttMsDatasetConstructorItem relation-fields (iIDMsConstructorItems,iIDMsConstructorItems) nested
   data-relation for ttMsControllers,       ttMsDatasetController relation-fields (iIDMsControllers,iIDMsControllers) nested
   data-relation for ttMsLogicObjects,      ttMsFrameLogic relation-fields (iIDMsLogicObjects,iIDMsLogicObjects) nested

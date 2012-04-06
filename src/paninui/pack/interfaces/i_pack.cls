@@ -97,6 +97,8 @@ interface paninui.pack.interfaces.i_pack:
     
   method c_datasetcontroller GetDatasetController(
     dataset-handle hDatasetIP# /* By reference */).
+    
+  method public character GetPackParam(cKeyIP# as character).
   
 end interface.
 
