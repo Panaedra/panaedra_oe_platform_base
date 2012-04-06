@@ -136,38 +136,71 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
       end.
 
       find ttMsMdiMaster no-error.
-      if avail ttMsMdiMaster and ttMsMdiMaster.cDotnetDLL = "" and ttMsMdiMaster.cObject > "" then
+      if avail ttMsMdiMaster 
+        and ttMsMdiMaster.cDotnetDLL = "" /* Meaning: no dotnet, but ABL */ 
+        and ttMsMdiMaster.cObject    > "" 
+        and ttMsMdiMaster.cObject   <> "[none]" then
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsMdiMaster.cObject).
         
       find ttMsMainFrame no-error.
-      if avail ttMsMainFrame and ttMsMainFrame.cDotnetDLL = "" and ttMsMainFrame.cObject > "" then
+      if avail ttMsMainFrame 
+        and ttMsMainFrame.cDotnetDLL = "" 
+        and ttMsMainFrame.cObject    > "" 
+        and ttMsMainFrame.cObject   <> "[none]" then
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsMainFrame.cObject).
 
-      for each ttMsPreloadPack where ttMsPreloadPack.bActive on error undo, throw:
+      for each ttMsPreloadPack 
+        where ttMsPreloadPack.bActive
+        and ttMsPreloadPack.cObject > "" 
+        and ttMsPreloadPack.cObject <> "[none]" on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsPreloadPack.cObject).
       end.
   
-      for each ttMsScopetable where ttMsScopetable.bActive on error undo, throw:
+      for each ttMsScopetable 
+        where ttMsScopetable.bActive 
+        and ttMsScopetable.cObject > ""
+        and ttMsScopetable.cObject <> "[none]"
+        on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsScopetable.cObject).
       end.
   
-      for each ttMsDatasetConstructorItem where ttMsDatasetConstructorItem.bActive on error undo, throw:
+      for each ttMsDatasetConstructorItem 
+        where ttMsDatasetConstructorItem.bActive 
+        and ttMsDatasetConstructorItem.cClass > ""
+        and ttMsDatasetConstructorItem.cClass <> "[none]"
+        on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsDatasetConstructorItem.cClass).
       end.
 
-      for each ttMsDatasetController where ttMsDatasetController.bActive on error undo, throw:
+      for each ttMsDatasetController 
+        where ttMsDatasetController.bActive
+        and ttMsDatasetController.cClass > "" 
+        and ttMsDatasetController.cClass <> "[none]" 
+        on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsDatasetController.cClass).
       end.
 
-      for each ttMsFrameLogic where ttMsFrameLogic.bActive on error undo, throw:
+      for each ttMsFrameLogic 
+        where ttMsFrameLogic.bActive
+        and ttMsFrameLogic.cObject > "" 
+        and ttMsFrameLogic.cObject <> "[none]" 
+        on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsFrameLogic.cObject).
       end.
 
-      for each ttMsSubframePackOvly where ttMsSubframePackOvly.bActive on error undo, throw:
+      for each ttMsSubframePackOvly 
+        where ttMsSubframePackOvly.bActive
+        and ttMsSubframePackOvly.cObject > "" 
+        and ttMsSubframePackOvly.cObject <> "[none]" 
+        on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsSubframePackOvly.cObject).
       end.
   
-      for each ttMsChildPack where ttMsChildPack.bActive on error undo, throw:
+      for each ttMsChildPack 
+        where ttMsChildPack.bActive
+        and   ttMsChildPack.cObject > "" 
+        and   ttMsChildPack.cObject <> "[none]" 
+        on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsChildPack.cObject).
       end.
   
