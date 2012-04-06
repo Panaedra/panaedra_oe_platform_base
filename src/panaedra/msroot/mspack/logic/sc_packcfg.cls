@@ -171,6 +171,14 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsChildPack.cObject).
       end.
   
+      for each ttMsPackParamValue 
+        where ttMsPackParamValue.bActive 
+        and   ttMsPackParamValue.bCompilable
+        and   ttMsPackParamValue.cValue > ""
+        on error undo, throw:
+        cReturn# = cReturn# + chr(10) + ClassToPath(trim(ttMsPackParamValue.cValue)).
+      end.
+  
     end.
     
     return substring(cReturn#,2).
