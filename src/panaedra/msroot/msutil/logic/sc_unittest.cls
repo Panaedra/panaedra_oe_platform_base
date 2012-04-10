@@ -25,6 +25,21 @@ class panaedra.msroot.msutil.logic.sc_unittest:
 
   define static temp-table ttFile no-undo
     field cFullPath as char.
+    
+  method public static void UnittestInit(
+  
+    /* Always run this method once, at the start of the unittest, outside of any transactions */
+    
+    cTestIDIP# as character):
+    
+    if sc_environment:bLiveEnv then
+    undo, throw new c_panaedraexception(
+      99958111,
+      sc_lang:oEnglish,
+      substitute("Running of unit tests in a live environment is never allowed. TestID='&1'", cTestIDIP#)).
+    
+  end method. /* UnittestInit */  
+  
 
   method public static void Assert(
     cTestIDIP# as character, 
