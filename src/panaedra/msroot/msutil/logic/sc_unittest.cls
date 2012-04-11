@@ -25,6 +25,9 @@ class panaedra.msroot.msutil.logic.sc_unittest:
 
   define static temp-table ttFile no-undo
     field cFullPath as char.
+
+  define protected static variable cLogFile as character no-undo.
+
     
   method public static void UnittestInit(
   
@@ -33,10 +36,10 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     cTestIDIP# as character):
     
     if sc_environment:bLiveEnv then
-    undo, throw new c_panaedraexception(
-      99958111,
-      sc_lang:oEnglish,
-      substitute("Running of unit tests in a live environment is never allowed. TestID='&1'", cTestIDIP#)).
+      undo, throw new c_panaedraexception(
+        99958111,
+        sc_lang:oEnglish,
+        substitute("Running of unit tests in a live environment is never allowed. TestID='&1'", cTestIDIP#)).
     
   end method. /* UnittestInit */  
   
@@ -247,7 +250,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         )
         ).
 
-      panaedra.msroot.msutil.logic.sc_messagebox:MsgBox(
+      sc_messagebox:MsgBox(
         subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
         subst("Assert failed. [Env] &1", sc_environment:cEnv),
         cTestIDIP#,
@@ -269,9 +272,10 @@ class panaedra.msroot.msutil.logic.sc_unittest:
   
     cTestIDIP#   as character, 
     oExIP#       as Progress.Lang.Error):
-
-    panaedra.msroot.msutil.logic.sc_messagebox:MsgBox(
-      subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
+      
+    define variable cExceptionMsg# as character no-undo.  
+    
+    cExceptionMsg# = subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
       "Assert failed; exception.", 
       sc_environment:cEnv,
       cTestIDIP#,
@@ -279,24 +283,34 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       oExIP#:GetMessage(2),
       oExIP#:GetMessage(3),
       oExIP#:CallStack     
-      )).
+      ). 
+    
+    LogMessage(cExceptionMsg#).
+    sc_messagebox:MsgBox(cExceptionMsg#).
 
   end method. /* OnException */  
   
   
-  method public static void Logmessage(
+  method public static void LogMessage(
+    
+    /* Write a message to unittest session log */
+  
     input cMessageIP# as character
     ):
       
-    define variable cFile# as character no-undo.  
-  
-    cFile# = sc_path:cLogVoortgangDir + subst("unittest_&1_&2.log", sc_environment:cEnv, sc_date_timestamp:cTimeStamp_Short_Date).
+    if cMessageIP# > "" then 
+    do:
+      
+      if cLogFile = "" then  
+        cLogFile = sc_path:cLogVoortgangDir + subst("unittest_&1_&2.log", sc_environment:cEnv, sc_date_timestamp:cTimeStamp_Short_DateAndTime).
     
-    output to value(cFile#) append.
-    put unformatted cMessageIP# skip.
-    output close.
-  
-  end method. /* Logmessage */
+      output to value(cLogFile) append.
+      put unformatted cMessageIP# skip.
+      output close.
+      
+    end.
+    
+  end method. /* LogMessage */
 
 
   method public static void RunAllUnittests(
@@ -314,17 +328,42 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_unittest~~.p", yes,  output table ttFile append).
     end.
     
-    for each ttFile /* codeQok#7105 */
-      on error undo, next
-      on stop  undo, next:
+    /* Cleanup */
+    for each ttFile on error undo, throw:
+      if ttFile.cFullPath matches "*/eclipsecreate_unittest~~.p" then delete ttFile.
+    end.
+    
+    b_each:
+    for each ttFile on error undo, throw:
+      
+      b_run:
+      do
+        on error  undo, throw
+        on stop   undo b_run, retry b_run
+        on endkey undo b_run, leave b_each:
+          
+        if retry then do:
+          LogMessage("Error: Stop condition encountered").
+          message "Error: Stop condition encountered"
+            view-as alert-box.
+          next b_each.
+        end.  
+  
+        LogMessage(subst("Start: &1 &2",iso-date(now),ttFile.cFullPath)).
+        
+        sc_eventbroadcaster:FireEvent("evt@unittest@run", ttFile.cFullPath).
+        
+        run value(ttFile.cFullPath).
+        
+      end.
 
-      sc_eventbroadcaster:FireEvent("evt@unittest@run", ttFile.cFullPath).
-      run value(ttFile.cFullPath).
+      catch oError# as Progress.Lang.Error :
+        OnException(ttFile.cFullPath, oError#).
+        next b_each.
+      end catch.
       
     end.
 
-    hide frame frm-ut.
-     
   end method. /* RunAllUnittests */
 
 end class.
