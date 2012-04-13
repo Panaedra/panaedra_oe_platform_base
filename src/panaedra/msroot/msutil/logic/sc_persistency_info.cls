@@ -81,6 +81,26 @@ class panaedra.msroot.msutil.logic.sc_persistency_info:
   end method. /* ShowAllPersistentThings */
 
 
+  method public static void AllPersistentThingsToFile(hProcIP# as handle, cHtmlFileIP# as character):
+
+    empty temp-table ttPersistentThings.
+    
+    do on error undo, throw:
+      FillPersistentObjects().
+    end.
+    
+    FillGenericInfo().
+    FillPersistentProcedures().
+    FillBuffers().
+    FillDatasets().
+    FillQueries().
+    FillSourcecontrolRuntimeInfo(hProcIP#).
+
+    sc_html:TempTableToHTML(buffer ttPersistentThings:handle, cHtmlFileIP#).
+    
+  end method. /* AllPersistentThingsToFile */
+
+
   method public static void ShowAllPersistentThingsOverLimit(hProcIP# as handle, iFilesizeIP# as integer):
 
     empty temp-table ttPersistentThings.
