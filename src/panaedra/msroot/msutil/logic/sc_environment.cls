@@ -42,7 +42,14 @@ class panaedra.msroot.msutil.logic.sc_environment:
       return cSessionGuid.
     end get.
     protected set.
-
+    
+  define static property cHostName as character no-undo init ? 
+    public get:
+      if cHostName = ? then cHostName = GetHostName().
+      return cHostName.
+    end get.
+    protected set.
+    
   define static property cSessionGuidRemote as character no-undo 
     public get.
     public set.
@@ -358,7 +365,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     &else
     
-    /* TODO: processid for win32 tty */
+    /* ShouldHave: processid for win32 tty */
     
     &endif /* unix only */
    
