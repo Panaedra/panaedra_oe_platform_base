@@ -36,7 +36,7 @@ procedure dvcs__panaedra_msroot_msmonitor_logic_tt_msmon_icheckdef_tt_i: return 
 &if defined(tt{&ttPrefix}MsMonICheckDef{&ttSuffix}) = 0 &then
 &glob tt{&ttPrefix}MsMonICheckDef{&ttSuffix} true
 define {&protected} {&static} temp-table tt{&ttPrefix}MsMonICheckDef{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
-  field iIDMsMonICheckDef     as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsMonICheckDef "
+  field iIDMsMonICheckDef     as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsMonICheckDef | PersistencyMode=xml-store "
   field cIntegrationCheckName as character
   field dtmFinished           as datetime-tz  
   {&ttExtraFields}
