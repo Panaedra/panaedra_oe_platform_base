@@ -118,7 +118,12 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       /* If message is sent command-line, we strip invalid chars. ShouldHave: postmonitorevent.py must also accept message files */
       if b-ttMsMonFeedbackDef.cMessageFormat="commandline" then 
       do:
-        cMessageIP# = sc_osfile:StripInvalidChars(cMessageIP#, "/~\:" /* Keep spaces */ ).
+        /* Strip dangerous stuff like pipe tokens and quotes. Keep spaces and slashes */ 
+        cMessageIP# = sc_osfile:StripInvalidChars(cMessageIP#, false).
+        if opsys = "unix" then
+          /* Backslashes on the unix command line is asking for trouble. Turn them into forward slashes. */
+          cMessageIP# = replace(cMessageIP#,"~\","/"). 
+        /* Replace carriage returns and line feeds */
         cMessageIP# = replace(trim(replace(replace(cMessageIP#,chr(10)," "),chr(13)," ")),'"',"").
       end.
       cOsCommand# = replace(cOsCommand#,"[:cMessage:]",cMessageIP#).

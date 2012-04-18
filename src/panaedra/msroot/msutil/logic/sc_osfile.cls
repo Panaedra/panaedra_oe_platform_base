@@ -599,7 +599,8 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   end method. /* SafeFileCopyOrMove_Implement */
 
   
-  method public static logical FileExists (
+  method public static logical FileExists(
+  
     input cFilenameIP# as character 
     ):
     
@@ -622,13 +623,35 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     else
       undo, throw new c_panaedraexception(
         99958002,
-        sc_lang:oDutch,
-        substitute("Error, '&1' does not exist", cFileIP#)
+        sc_lang:oEnglish,
+        substitute("File '&1' does not exist", cFileIP#)
         ).
       
     return dtmReturn#.
   
   end method. /* GetFileModDatetime */
+  
+  
+  method public static integer GetFileByteSize(cFileIP# as character):
+    
+    define variable iReturn# as integer no-undo.
+    
+    file-info:file-name = cFileIP#.
+    
+    if file-info:full-pathname > "" then 
+    do:
+      iReturn# = file-info:file-size.
+    end.
+    else
+      undo, throw new c_panaedraexception(
+        99958003,
+        sc_lang:oEnglish,
+        substitute("File '&1' does not exist", cFileIP#)
+        ).
+      
+    return iReturn#.
+  
+  end method. /* GetFileByteSize */
   
 end class.
 

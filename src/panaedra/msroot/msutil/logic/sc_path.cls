@@ -359,8 +359,8 @@ class panaedra.msroot.msutil.logic.sc_path:
         if sc_boot:SessionParameter("Env") <> "live" then cIniDir = "Q:/test/ini/".
         else cIniDir = "P:/live/ini/".
       &else
-        if panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env") <> "live" then cIniDir = "/ota/_PRODUCT_/_FCMPNY_/ini/".
-        else cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".
+        if panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env") <> "live" then cIniDir = "/ota/_PRODUCT_/_FCMPNY_/ini/". /* codeQok#7110 */
+        else cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".                                                                   /* codeQok#7110 */
       &endif
       end.
     end.
@@ -756,13 +756,39 @@ class panaedra.msroot.msutil.logic.sc_path:
     cReturn# = sc_environment:cEnv.
     
     case cReturn#:
-      when "any_env"     then cReturn# = "live".
-      when "tst_any_env" then cReturn# = "tst".
+      when "any_env"     then 
+        cReturn# = "live".
+      when "tst_any_env" then 
+        cReturn# = "tst".
     end case.
     
     return cReturn#.
     
   end method. /* GetScPathEnv */
+  
+  method public static void ReplacePathTokens(
+  
+    /* Replace "[:cSomeDir:]" with the value returned by the corresponding sc_path property  */
+  
+    input-output cPathStringIOP# as character):
+
+    if index(cPathStringIOP#,"[:cSysteemDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cSysteemDir:]"      ,sc_path:cSysteemDir      ).
+    if index(cPathStringIOP#,"[:c_SRVR_Dir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:c_SRVR_Dir:]"      ,sc_path:c_SRVR_Dir      ).
+    if index(cPathStringIOP#,"[:cDataExchangeDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cDataExchangeDir:]" ,sc_path:cDataExchangeDir ).
+    if index(cPathStringIOP#,"[:cDataRecoveryDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cDataRecoveryDir:]" ,sc_path:cDataRecoveryDir ).
+    if index(cPathStringIOP#,"[:cIniDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cIniDir:]"          ,sc_path:cIniDir          ).
+    if index(cPathStringIOP#,"[:cLocalIniDir:]"     ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLocalIniDir:]"     ,sc_path:cLocalIniDir     ).
+    if index(cPathStringIOP#,"[:cLogDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogDir:]"          ,sc_path:cLogDir          ).
+    if index(cPathStringIOP#,"[:cLogVoortgangDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogVoortgangDir:]" ,sc_path:cLogVoortgangDir ).
+    if index(cPathStringIOP#,"[:cNaarWanDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarWanDir:]"      ,sc_path:cNaarWanDir      ).
+    if index(cPathStringIOP#,"[:cNaarWebDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarWebDir:]"      ,sc_path:cNaarWebDir      ).
+    if index(cPathStringIOP#,"[:cNonstaticDir:]"    ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNonstaticDir:]"    ,sc_path:cNonstaticDir    ).
+    if index(cPathStringIOP#,"[:cNoSweatDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNoSweatDir:]"      ,sc_path:cNoSweatDir      ).
+    if index(cPathStringIOP#,"[:cTempDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cTempDir:]"         ,sc_path:cTempDir         ).
+    if index(cPathStringIOP#,"[:cVanWanDir:]"       ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanWanDir:]"       ,sc_path:cVanWanDir       ).
+    if index(cPathStringIOP#,"[:cWorkDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cWorkDir:]"         ,sc_path:cWorkDir         ).
+
+  end method. /* ReplacePathTokens */
 
 end class.
 
