@@ -789,6 +789,21 @@ class panaedra.msroot.msutil.logic.sc_path:
     if index(cPathStringIOP#,"[:cWorkDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cWorkDir:]"         ,sc_path:cWorkDir         ).
 
   end method. /* ReplacePathTokens */
+  
+
+  method public static logical PathExists(
+    
+    /* Check if a path exists */
+    
+    input cPathnameIP# as character):
+    
+    file-info:file-name = cPathnameIP#.
+    
+    return 
+      (file-info:full-pathname <> ?) and 
+      (file-info:file-type matches "*D*").
+        
+  end method. /* PathExists */
 
 end class.
 

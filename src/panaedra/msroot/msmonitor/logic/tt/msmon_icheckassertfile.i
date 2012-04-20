@@ -41,7 +41,9 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsMonICheckAssertFile{&ttS
   field cFullPath                as character   /* Full path to os file. Use tokens like [:cIniDir:] for sc_path parts. */
   field bUseWildcards            as logical     /* Specify if wildcards are used in cFullPath */  
   field dtmModMinimum            as datetime-tz /* Minimum file mod timestamp */
+  field dtmModMaximum            as datetime-tz /* Maximum file mod timestamp */
   field iByteSizeMinimum         as int64       /* Minimum file bytesize */
+  field iByteSizeMaximum         as int64       /* Maximum file bytesize */
   {&ttExtraFields}
   index iIDMsMonICheckAssertFile is unique primary iIDMsMonICheckAssertFile
   {&ttExtraIndices}
