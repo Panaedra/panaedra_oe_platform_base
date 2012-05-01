@@ -16,22 +16,15 @@ class panaedra.msroot.msutil.logic.sc_persistency_info:
                    Very useful for checking if you didn't forget to clean something up.
 
   \*****************************  Include Files ********************************/
-
+  
+  {panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static}
+  
   /************************  Source control constructor ************************/
   constructor public sc_persistency_info(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
-  
-  define protected static temp-table ttPersistentThings no-undo rcode-info
-    field cType              as char
-    field cName              as char
-    field iVersion           as integer
-    field cInstantiatingProc as char
-    field hHandle            as handle
-    field cPrivateData       as character
-    index cType_cName cType cName.
   
   define protected static temp-table ttSourceControl no-undo
     field iOrder    as int 
@@ -83,22 +76,58 @@ class panaedra.msroot.msutil.logic.sc_persistency_info:
 
   method public static void AllPersistentThingsToFile(hProcIP# as handle, cHtmlFileIP# as character):
 
+    AllPersistentThingsToTt_Implement(hProcIP#, true, true).
+
+    sc_html:TempTableToHTML(buffer ttPersistentThings:handle, cHtmlFileIP#).
+    
+  end method. /* AllPersistentThingsToFile */
+  
+
+  method public static void AllPersistentThingsToTt(
+  
+    hProcIP#                     as handle, 
+    bGenericInfoIP#              as logical, 
+    bSourcecontrolRuntimeInfoIP# as logical, 
+    output table ttPersistentThings):
+
+    AllPersistentThingsToTt_Implement(hProcIP#, bGenericInfoIP#, bSourcecontrolRuntimeInfoIP#).
+
+  end method. /* AllPersistentThingsToTt */
+  
+
+  method public static void AllPersistentThingsToTt(
+  
+    output table ttPersistentThings):
+
+    AllPersistentThingsToTt_Implement(?, false, false).
+
+  end method. /* AllPersistentThingsToTt ; compact overload */
+  
+
+  method protected static void AllPersistentThingsToTt_Implement(
+    hProcIP#                     as handle,
+    bGenericInfoIP#              as logical, 
+    bSourcecontrolRuntimeInfoIP# as logical
+    ):
+
     empty temp-table ttPersistentThings.
     
     do on error undo, throw:
       FillPersistentObjects().
     end.
     
-    FillGenericInfo().
+    if bGenericInfoIP# then
+      FillGenericInfo().
+      
     FillPersistentProcedures().
     FillBuffers().
     FillDatasets().
     FillQueries().
-    FillSourcecontrolRuntimeInfo(hProcIP#).
-
-    sc_html:TempTableToHTML(buffer ttPersistentThings:handle, cHtmlFileIP#).
     
-  end method. /* AllPersistentThingsToFile */
+    if bSourcecontrolRuntimeInfoIP# then
+      FillSourcecontrolRuntimeInfo(hProcIP#).
+
+  end method. /* AllPersistentThingsToTt_Implement */
 
 
   method public static void ShowAllPersistentThingsOverLimit(hProcIP# as handle, iFilesizeIP# as integer):
