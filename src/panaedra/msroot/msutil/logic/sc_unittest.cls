@@ -48,6 +48,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
   define protected static variable cLogFile              as character no-undo.
   define protected static variable cPreviousGlobalTestID as character no-undo.
   define protected static variable cCurrentGlobalTestID  as character no-undo.
+  define protected static variable bFirstOfTwo           as logical   no-undo.
   
     
   method public static void UnittestInit(
@@ -57,21 +58,28 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     hUnittestProcIP# as handle,
     cTestIDIP#       as character):
 
-    define variable bFirstTest# as logical no-undo.
+    define variable bFirstOfTwo# as logical no-undo.
     
     if sc_environment:bLiveEnv then
       undo, throw new c_panaedraexception(
         99958111,
         sc_lang:oEnglish,
         substitute("Running of unit tests in a live environment is never allowed. TestID='&1'", cTestIDIP#)).
+
+    /* Assign a value to the global data member */
+    assign
+      /* Check if we are running *this* unittest for the first time */
+      bFirstOfTwo#          = (cPreviousGlobalTestID <> cTestIDIP#)
+      /* Update data members */
+      cPreviousGlobalTestID = (if not bFirstOfTwo# then "" else cCurrentGlobalTestID) /* Clear "previous", otherwise a "third" run is not identified as a "first" */
+      cCurrentGlobalTestID  = cTestIDIP# 
+      bFirstOfTwo           = bFirstOfTwo#
+      . 
     
     /* First register */    
     RegisterUnittest(hUnittestProcIP#,cTestIDIP#).
     
-    /* We are running this unittest for the first time */
-    bFirstTest# = (cPreviousGlobalTestID <> cCurrentGlobalTestID). 
-    
-    if bFirstTest# then 
+    if bFirstOfTwo then 
     do:
       empty temp-table ttPersistentThingsPre.
       empty temp-table ttPersistentThingsPost.
@@ -91,8 +99,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     hUnittestProcIP# as handle,
     cTestIDIP#       as character):
     
-    define variable cFile#      as character no-undo.
-    define variable bFirstTest# as logical   no-undo.
+    define variable cFile# as character no-undo.
     
     define buffer b-ttPersistentThingsPost for ttPersistentThingsPost.
     define buffer b-ttPersistentThingsPre  for ttPersistentThingsPre.
@@ -101,20 +108,14 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     /* Part of file name */
     cFile# = subst("&1_&2_&3",sc_environment:cEnv, sc_osfile:StripInvalidChars(lc(cTestIDIP#),true), sc_date_timestamp:cTimeStamp_Readable_DateAndTime).
     
-    /* We are running this unittest for the first time */
-    bFirstTest# = (cPreviousGlobalTestID <> cCurrentGlobalTestID).
-    
-    /* Clear "previous", otherwise a "third" run is not identified as a "first" */
-    if not bFirstTest# then cPreviousGlobalTestID = "". 
-    
-    if bFirstTest# then 
+    if bFirstOfTwo then 
     do:
       /* The unittest */
       if (not GetLastTestFailed())
         then 
       do:
         /* After first test run: collect "pre" info */
-        sc_persistency_info:AllPersistentThingsToTt(output table b-ttPersistentThingsPre by-reference).
+        sc_persistency_info:AllPersistentThingsToTt(output table ttPersistentThingsPre by-reference).
       end.
     end.
     else 
@@ -123,12 +124,12 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       sc_persistency_info:AllPersistentThingsToTt(output table b-ttPersistentThingsPost by-reference).
     end.
     
-    if not bFirstTest# then
+    if not bFirstOfTwo then
     do:
 
       /* Empty the "Warn" temp-table, which is only used to pass all warning messages to a protected method */
       empty temp-table b-ttPersistentThingsWarn.
-  
+
       /* Compare persistent things pre/post */
       for each b-ttPersistentThingsPost 
         break
@@ -185,7 +186,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       
     end. /* not first test */
 
-    if bFirstTest# then 
+    if bFirstOfTwo then 
     do:
       if (not GetLastTestFailed())
         then
@@ -490,7 +491,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     define variable cMessage# as character no-undo.
     define variable cFile#    as character no-undo.
     
-    define buffer b-ttPersistentThingsPre for ttPersistentThingsPre.
+    define buffer b-ttPersistentThingsPre  for ttPersistentThingsPre.
     define buffer b-ttPersistentThingsPost for ttPersistentThingsPost.
     define buffer b-ttPersistentThingsWarn for ttPersistentThingsWarn.
     
@@ -617,15 +618,8 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     hUnittestProcIP# as handle,
     cTestIDIP#       as character):
   
-    define variable bFirstTest# as logical no-undo.
-    
     define buffer b-ttSessionUnittest for ttSessionUnittest.
 
-    /* Assign a value to the global data member */
-    assign
-      cPreviousGlobalTestID = cCurrentGlobalTestID
-      cCurrentGlobalTestID  = cTestIDIP#. 
-  
     find b-ttSessionUnittest where b-ttSessionUnittest.cTestID = cTestIDIP# no-error.
   
     if not avail b-ttSessionUnittest then 
@@ -636,10 +630,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         .
     end.
 
-    /* We are running this unittest for the first time */
-    bFirstTest# = (cPreviousGlobalTestID <> cCurrentGlobalTestID).
-    
-    if bFirstTest# then
+    if bFirstOfTwo then
       assign 
         b-ttSessionUnittest.dtmLastInit     = now
         b-ttSessionUnittest.dtmLastFinish   = ?
