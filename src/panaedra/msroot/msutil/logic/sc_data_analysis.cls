@@ -1,3 +1,6 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
+
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.sc_data_analysis   : 
@@ -9,8 +12,7 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
      Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
     Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
 
-      Description: Class met static methods voor het analyseren van de 
-                   inhoud van een (temp-)table of (temp-)table buffer.
+      Description: Analyze contents of a (temp-)table or (temp-)table buffer.
 
   \*****************************  Include Files ********************************/
 
@@ -24,20 +26,19 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
 
   method public static logical IsRecordEmpty(
     
-    /* Kijk of een record leeg is; d.w.z. gelijk aan zijn initial values.
+    /* Check for empty record; meaning equal to its initial values.
     */
 
     hBufferIP# as handle):
       
     return IsRecordEmpty(hBufferIP#, "", false).
     
-  end method. /* IsRecordEmpty ; only een buffer handle */
+  end method. /* IsRecordEmpty  */
   
   
   method public static logical IsRecordEmpty(
   
-    /* Kijk of een record leeg is; d.w.z. gelijk aan zijn initial values.
-       Parameter cSvExcludeFieldsIP# : velden om te negeren bij de compare. 
+    /* Check for empty record; meaning equal to its initial values. Ignore certains fields.
     */
 
     hBufferIP#          as handle, 
@@ -50,16 +51,14 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
 
   method public static logical IsRecordEmpty(
   
-    /* Kijk of een record leeg is; d.w.z. gelijk aan zijn initial values.
-       Parameter cSvExcludeFieldsIP# : velden om te negeren bij de compare. 
-       Parameter bTrimIP#            : optioneel trimmen char en longchar 'before compare'. 
+    /* Check for empty record; meaning equal to its initial values. Ignore certains fields, trim char/longchar before compare.
     */
   
     hBufferIP#          as handle, 
     cSvExcludeFieldsIP# as character, 
     bTrimIP#            as logical):
 
-    /* TODO: Extra data-types ondersteunen in IsRecordEmpty
+    /* ShoudHave: Extra data-types ondersteunen in IsRecordEmpty
        Nog inbouwen: 
        - Progress.Lang.Object 
        - com-handle 
@@ -90,25 +89,23 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
       
       if not hBufferIP#:available then bEmpty# = ?.
       else
-      /* Behandel elk veld */
+      /* Walk through fields */
       b_LoopDoorVelden:
       do iFieldNr# = 1 to hBufferIP#:num-fields:
         
         hField# = hBufferIP#:buffer-field(iFieldNr#).
         
-        /* Als dit veld niet bij de excludes hoort */
+        /* Check exclude field */
         if lookup(hField#:name, cSvExcludeFieldsIP#) = 0 then
         do:
           
-          /* Loop elke extent (vaak 0 to 0) door */
+          /* Walk extent (or 0 to 0) */
           do iExtent# = 
             (if hField#:extent = 0 then 0 else 1) to 
             (if hField#:extent = 0 then 0 else hField#:extent):
           
-            /* Onthoud datatype */
             cDataType# = hField#:data-type.
                    
-            /* Behandel elk data-type op zijn eigen manier */
             case cDataType#:
         
               when "character" then
@@ -119,7 +116,7 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
                     (cDataValue# = ? and hField#:initial = ?) 
                     or 
                     (cDataValue# = hField#:initial) then
-                    . /* Is ok, doe niets. */
+                    . /* Ok, no action. */
                   else  
                     bEmpty# = false.
                     
@@ -131,7 +128,7 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
                     (hField#:buffer-value[iExtent#] = ? and int(hField#:initial) = ?) 
                     or
                     hField#:buffer-value[iExtent#] = int(hField#:initial) then
-                    . /* Is ok, doe niets. */
+                    . /* Ok, no action. */
                   else
                     bEmpty# = false.
                     
@@ -143,7 +140,7 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
                     (hField#:buffer-value[iExtent#] = ? and dec(hField#:initial) = ?) 
                     or
                     hField#:buffer-value[iExtent#] = dec(hField#:initial) then
-                    . /* Is ok, doe niets. */
+                    . /* Ok, no action. */
                   else
                     bEmpty# = false.
                     
@@ -151,12 +148,16 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
       
               otherwise 
               do:
-                undo, throw new AppError(subst("Het datatype '&1' wordt (nog) niet ondersteund.", hField#:data-type), 99950080).
-              end. /* otherwise ; onbekend datatype */  
+                undo, throw new c_panaedraexception(
+                  99968211,
+                  sc_lang:oEnglish,
+                  subst("No support for datatype '&1' (yet).", hField#:data-type)).
+                
+              end. /* otherwise ; unknown datatype */  
       
             end case. /* cDataType# */
       
-            /* Als we hebben bepaald dat het record niet leeg is heeft heeft het geen zin om verder te zoeken */
+            /* Stop at first conflict */
             if bEmpty# = false then 
               leave b_LoopDoorVelden.
       
@@ -300,9 +301,15 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
     if bJsonOne# <> bJsonTwo# then return false.  
     
     return true.
+    
+    finally:
+      /* Parameter cleanup */
+      delete object hDatasetOneIP# no-error. /* by-ref/not : no other way than no-error */
+      delete object hDatasetTwoIP# no-error. /* by-ref/not : no other way than no-error */
+    end finally.
 
   end method. /* DatasetCompare */  
 
 end class.
 
-/* EOF */ 
+/* EOF */

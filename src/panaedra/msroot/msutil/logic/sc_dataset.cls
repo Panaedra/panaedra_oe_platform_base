@@ -54,9 +54,15 @@ class panaedra.msroot.msutil.logic.sc_dataset:
     dataset-handle hDatasetTwoIP#):
       
     return sc_data_analysis:DatasetCompare(
-      dataset-handle hDatasetOneIP#, 
-      dataset-handle hDatasetTwoIP#).  
-
+      dataset-handle hDatasetOneIP# by-reference, 
+      dataset-handle hDatasetTwoIP# by-reference).  
+    
+    finally:
+      /* Parameter cleanup */
+      delete object hDatasetOneIP# no-error. /* by-ref/not : no other way than no-error */
+      delete object hDatasetTwoIP# no-error. /* by-ref/not : no other way than no-error */	
+    end finally.
+    
   end method. /* DatasetCompare */
   
   

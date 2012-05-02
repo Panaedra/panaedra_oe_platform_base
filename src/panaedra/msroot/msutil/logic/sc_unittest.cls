@@ -18,11 +18,12 @@ class panaedra.msroot.msutil.logic.sc_unittest:
 {panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Pre}
 {panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Post}
   
-  &glob ttExtraFields           ~
-  field cWarning   as character ~
-  field iInstances as integer
+  &glob ttExtraFields ~
+  field cSvHandles as character xml-node-type "attribute" ~
+  field cWarning   as character xml-node-type "attribute" ~
+  field iInstances as integer   xml-node-type "attribute"
   
-{panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Warn}
+{panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Warn &ttWarnFieldsOnly=true}
   
   &undefine ttExtraFields
 
@@ -144,11 +145,17 @@ class panaedra.msroot.msutil.logic.sc_unittest:
           assign
             b-ttPersistentThingsWarn.cType      = b-ttPersistentThingsPost.cType
             b-ttPersistentThingsWarn.cName      = b-ttPersistentThingsPost.cName
+            b-ttPersistentThingsWarn.cSvHandles = "," /* For easier string replace later on */
             b-ttPersistentThingsWarn.iInstances = 0.
         
         end. /* first-of */
 
         b-ttPersistentThingsWarn.iInstances = b-ttPersistentThingsWarn.iInstances + 1.
+        
+        if b-ttPersistentThingsPost.hHandle <> ? then
+          b-ttPersistentThingsWarn.cSvHandles = 
+            b-ttPersistentThingsWarn.cSvHandles + 
+            trim(string(b-ttPersistentThingsPost.hHandle)) + ",". 
         
         if last-of(b-ttPersistentThingsPost.cName) then 
         do:
@@ -159,8 +166,19 @@ class panaedra.msroot.msutil.logic.sc_unittest:
             on error undo, throw:
               
             b-ttPersistentThingsWarn.iInstances = b-ttPersistentThingsWarn.iInstances - 1.
+
+            if b-ttPersistentThingsPre.hHandle <> ? then 
+            do:
+              /* Remove handle from "warning" list */
+              b-ttPersistentThingsWarn.cSvHandles = replace(
+                b-ttPersistentThingsWarn.cSvHandles, 
+                "," + trim(string(b-ttPersistentThingsPre.hHandle)) + ",", 
+                ",").
+            end. 
             
           end.
+          
+          b-ttPersistentThingsWarn.cSvHandles = trim(b-ttPersistentThingsWarn.cSvHandles,",").
           
         end. /* last-of */
           
@@ -393,7 +411,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     define variable clobJsonOne#    as longchar no-undo.  
     define variable clobJsonTwo#    as longchar no-undo.
     
-    bDatasetsEqual# = sc_dataset:DatasetCompare(dataset-handle hDatasetOneIP#, dataset-handle hDatasetTwoIP#). 
+    bDatasetsEqual# = sc_dataset:DatasetCompare(dataset-handle hDatasetOneIP# by-reference, dataset-handle hDatasetTwoIP# by-reference). 
     
     if (bExpectedEqualIP# = ? and bDatasetsEqual# <> ?)
       or (bExpectedEqualIP# <> ? and bDatasetsEqual# = ?)
@@ -433,6 +451,12 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         )).
 
     end.
+    
+    finally:
+      /* Parameters cleanup */
+      delete object hDatasetOneIP# no-error. /* by-ref/not : no other way than no-error */
+      delete object hDatasetTwoIP# no-error. /* by-ref/not : no other way than no-error */
+    end finally.
     
   end method. /* Assert ; two datasets */
 

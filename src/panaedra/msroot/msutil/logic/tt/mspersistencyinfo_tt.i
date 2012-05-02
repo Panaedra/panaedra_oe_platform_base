@@ -27,8 +27,10 @@ define {&protected} {&static} temp-table ttPersistentThings{&ttSuffix} no-undo {
   field cName              as char      xml-node-type "attribute"
   field iVersion           as integer   xml-node-type "attribute"
   field cInstantiatingProc as char      xml-node-type "attribute"
+  &if defined(ttWarnFieldsOnly) = 0 &then
   field hHandle            as handle    xml-node-type "attribute"
   field cPrivateData       as character xml-node-type "attribute"
+  &endif /* ttWarnFieldsOnly */
   {&ttExtraFields}
   index cType_cName cType cName.
   {&ttExtraIndices}
