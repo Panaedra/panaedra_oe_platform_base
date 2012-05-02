@@ -49,7 +49,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
   define protected static variable cLogFile              as character no-undo.
   define protected static variable cPreviousGlobalTestID as character no-undo.
   define protected static variable cCurrentGlobalTestID  as character no-undo.
-  define protected static variable bFirstOfTwo           as logical   no-undo.
+  define protected static variable bFirstOfTwo           as logical   no-undo. /* If a unittest has finished okay, it's run a second time for memleak check. Stored in bFirstOfTwo. */
   
     
   method public static void UnittestInit(
@@ -192,11 +192,6 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       do: 
         PersistencyWarning(cTestIDIP#).
         empty temp-table ttPersistentThingsWarn.
-      end.
-      else 
-      do:
-        cFile# = subst("&1_&2_&3",sc_environment:cEnv, sc_osfile:StripInvalidChars(lc(cTestIDIP#),true), sc_date_timestamp:cTimeStamp_Readable_DateAndTime).
-        sc_html:TempTableToHTML(buffer b-ttPersistentThingsPost:handle, sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_info.html").
       end.
       
       empty temp-table b-ttPersistentThingsPre.
