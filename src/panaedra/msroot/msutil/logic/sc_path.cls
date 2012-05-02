@@ -223,12 +223,13 @@ class panaedra.msroot.msutil.logic.sc_path:
         if search(cIniFile#) = ? then cIniFile# = subst("&1_CLOUD__&2.ini", sc_path:cIniDir, sc_boot:SessionParameter("Env")).
         if search(cIniFile#) = ? then cIniFile# = subst("&1_CLOUD_.ini", sc_path:cIniDir).
         
+        
         /* Read value from ini file */
         cNaarWebDir# = sc_osfile:GetIniValue(cIniFile#, "Directories" , "NaarWebDir").
 
         if cNaarWebDir# = ? or cNaarWebDir# = "" then 
         do:
-          undo, throw new Progress.Lang.AppError("INI parameters incorrect", 99990584).
+          undo, throw new Progress.Lang.AppError(subst("&1 INI parameters incorrect", cIniFile#), 99990584).
         end.
         
         assign
