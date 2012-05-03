@@ -184,6 +184,8 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     output table for ttFile
     ):
     
+    empty temp-table ttFile.
+    
     GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmFromIP#, dtmToIP#, bRecursiveIP#).
     
   end method. /* Overload: filter on mod-date range */
