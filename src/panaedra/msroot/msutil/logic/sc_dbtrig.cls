@@ -10,6 +10,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
        Programmer: $Author: $
      Date Checkin: $Date: 2010-05-20 15:27:00+02:00 $ 
     Date Modified: $Modtime: 2010-05-20 14:59:25+02:00 $ 
+    
 
       Description: This class is called by db delete and write triggers.
                    
@@ -809,12 +810,9 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     
     finally:
       
-      if valid-handle(hBuffDyn#)    then 
-        delete object hBuffDyn#.
-      if valid-handle(hBuffDynDel#) then 
-        delete object hBuffDynDel#.
-      if valid-handle(hQuery#) then 
-        delete object hQuery#.
+      if valid-handle(hBuffDyn#)    then delete object hBuffDyn#.
+      if valid-handle(hBuffDynDel#) then delete object hBuffDynDel#.
+      if valid-handle(hQuery#)      then delete object hQuery#.
       
     end finally.
   
