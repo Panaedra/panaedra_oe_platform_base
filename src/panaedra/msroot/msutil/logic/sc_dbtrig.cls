@@ -809,8 +809,12 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     
     finally:
       
-      if valid-handle(hBuffDyn#)    then delete object hBuffDyn#.
-      if valid-handle(hBuffDynDel#) then delete object hBuffDynDel#.
+      if valid-handle(hBuffDyn#)    then 
+        delete object hBuffDyn#.
+      if valid-handle(hBuffDynDel#) then 
+        delete object hBuffDynDel#.
+      if valid-handle(hQuery#) then 
+        delete object hQuery#.
       
     end finally.
   
