@@ -52,12 +52,18 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     /* Note on directories: Deletes only empty directories */
     table for ttFile /* by-ref */ ):
     
-    
     define variable oAppError as Progress.Lang.AppError no-undo.
+    define variable cFullPath# as character no-undo.
     
     for each ttFile on error undo, throw:
       
-      os-delete value(ttFile.cFullPath) no-error.
+      cFullPath# = ttFile.cFullPath.
+      
+      &if opsys = "win32" &then
+      cFullPath# = replace(cFullPath#,"/","~\").
+      &endif
+      
+      os-delete value(cFullPath#) no-error.
       
       /* Determine if delete succeeded. Note: os-error isn't reliable here, OE10.2A02 */
       file-info:file-name = ttFile.cFullPath.      
