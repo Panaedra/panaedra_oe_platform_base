@@ -310,25 +310,25 @@ class panaedra.msroot.msutil.logic.sc_persistency_info:
   end method. /* FillPersistentProcedures */
 
 
-  method public static integer IsProcedurePersistent(
-    input hProcIP# as character):
+  method public static integer ProcedureNumInstancesRunning(
+    input cProcIP# as character):
 
-    define variable hProc#                  as handle  no-undo.
-    define variable iProcedureIsPersistent# as integer no-undo.
+    define variable hProc#              as handle  no-undo.
+    define variable iProcedureInstance# as integer no-undo.
     
     hProc# = session:first-procedure.
       
     b_find_proc:
     do while valid-handle(hProc#):
-      if hProc#:file-name = hProcIP# then
-        iProcedureIsPersistent# = iProcedureIsPersistent# + 1.
+      if index(hProc#:file-name,cProcIP#) > 0 then
+        iProcedureInstance# = iProcedureInstance# + 1.
 
       hProc# = hProc#:next-sibling.
     end. /* do while valid */
     
-    return iProcedureIsPersistent#.   
+    return iProcedureInstance#.   
     
-  end method. /* IsProcedurePersistent */
+  end method. /* ProcedureNumInstancesRunning */
   
   
   method protected static void FillBuffers():
