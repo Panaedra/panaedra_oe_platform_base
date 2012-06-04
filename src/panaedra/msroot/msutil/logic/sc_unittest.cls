@@ -190,7 +190,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       
       if can-find(first b-ttPersistentThingsWarn) then 
       do: 
-        PersistencyWarning(cTestIDIP#).
+        PersistencyFeedback(cTestIDIP#).
         empty temp-table ttPersistentThingsWarn.
       end.
       
@@ -225,26 +225,8 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       or (bExpectedValueIP# <> ? and bNewValueIP# = ?)
       or (bExpectedValueIP# <> bNewValueIP#) then 
     do:
-      
       RegisterUnitFail().
-      
-      LogMessage(subst("env=&1 id=&2, descr=&3, calc=&4, exp=&5",   
-        sc_environment:cEnv,
-        cTestIDIP#,
-        cTestDescIP#,
-        bNewValueIP#,
-        bExpectedValueIP#
-        )
-        ).
-      
-      message now "Assert failed." skip
-        sc_environment:cEnv skip
-        cTestIDIP# skip
-        cTestDescIP# skip
-        "Calculated:" bNewValueIP# skip
-        "Expected:" bExpectedValueIP#
-        view-as alert-box.
-      
+      AssertFailFeedback(cTestIDIP#, cTestDescIP#, subst("&1",bNewValueIP#), subst("&1",bExpectedValueIP#), "").
     end.
 
   end method. /* Assert ; logical field */
@@ -261,26 +243,8 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       or (cExpectedValueIP# <> ? and cNewValueIP# = ?)
       or (cExpectedValueIP# <> cNewValueIP#) then 
     do:
-      
       RegisterUnitFail().
-      
-      LogMessage(subst("env=&1 id=&2, descr=&3, calc=&4, exp=&5",   
-        sc_environment:cEnv,
-        cTestIDIP#,
-        cTestDescIP#,
-        cNewValueIP#,
-        cExpectedValueIP#
-        )
-        ).
-      
-      message now "Assert failed." skip
-        sc_environment:cEnv skip
-        cTestIDIP# skip
-        cTestDescIP# skip
-        "Calculated:" cNewValueIP# skip
-        "Expected:" cExpectedValueIP#
-        view-as alert-box.
-      
+      AssertFailFeedback(cTestIDIP#, cTestDescIP#, subst("&1",cNewValueIP#), subst("&1",cExpectedValueIP#), "").
     end.
 
   end method. /* Assert ; character field */
@@ -297,26 +261,8 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       or (iExpectedValueIP# <> ? and iNewValueIP# = ?)
       or (iExpectedValueIP# <> iNewValueIP#) then 
     do:
-      
       RegisterUnitFail().
-
-      LogMessage(subst("env=&1 id=&2, descr=&3, calc=&4, exp=&5",   
-        sc_environment:cEnv,
-        cTestIDIP#,
-        cTestDescIP#,
-        iNewValueIP#,
-        iExpectedValueIP#
-        )
-        ).
-      
-      message now "Assert failed." skip
-        sc_environment:cEnv skip
-        cTestIDIP# skip
-        cTestDescIP# skip
-        "Calculated:" iNewValueIP# skip
-        "Expected:" iExpectedValueIP#
-        view-as alert-box.
-      
+      AssertFailFeedback(cTestIDIP#, cTestDescIP#, subst("&1",iNewValueIP#), subst("&1",iExpectedValueIP#), "").
     end.
 
   end method. /* Assert ; integer field */
@@ -333,26 +279,8 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       or (fExpectedValueIP# <> ? and fNewValueIP# = ?)
       or (fExpectedValueIP# <> fNewValueIP#) then 
     do:
-      
       RegisterUnitFail().
-      
-      LogMessage(subst("env=&1 id=&2, descr=&3, calc=&4, exp=&5",   
-        sc_environment:cEnv,
-        cTestIDIP#,
-        cTestDescIP#,
-        fNewValueIP#,
-        fExpectedValueIP#
-        )
-        ).
-      
-      message now "Assert failed." skip
-        sc_environment:cEnv skip
-        cTestIDIP# skip
-        cTestDescIP# skip
-        "Calculated:" fNewValueIP# skip
-        "Expected:" fExpectedValueIP#
-        view-as alert-box.
-      
+      AssertFailFeedback(cTestIDIP#, cTestDescIP#, subst("&1",fNewValueIP#), subst("&1",fExpectedValueIP#), "").
     end.
 
   end method. /* Assert ; decimal field */
@@ -369,26 +297,8 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       or (dtExpectedValueIP# <> ? and dtNewValueIP# = ?)
       or (dtExpectedValueIP# <> dtNewValueIP#) then 
     do:
-      
       RegisterUnitFail().
-
-      LogMessage(subst("env=&1 id=&2, descr=&3, calc=&4, exp=&5",   
-        sc_environment:cEnv,
-        cTestIDIP#,
-        cTestDescIP#,
-        dtNewValueIP#,
-        dtExpectedValueIP#
-        )
-        ).
-      
-      message now "Assert failed." skip
-        sc_environment:cEnv skip
-        cTestIDIP# skip
-        cTestDescIP# skip
-        "Calculated:" dtNewValueIP# skip
-        "Expected:" dtExpectedValueIP#
-        view-as alert-box.
-      
+      AssertFailFeedback(cTestIDIP#, cTestDescIP#, subst("&1",dtNewValueIP#), subst("&1",dtExpectedValueIP#), "").
     end.
 
   end method. /* Assert ; date field */
@@ -402,9 +312,10 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     bExpectedEqualIP# as logical
     ):
       
-    define variable bDatasetsEqual# as logical  no-undo.  
-    define variable clobJsonOne#    as longchar no-undo.  
-    define variable clobJsonTwo#    as longchar no-undo.
+    define variable bDatasetsEqual# as logical   no-undo.  
+    define variable clobJsonOne#    as longchar  no-undo.  
+    define variable clobJsonTwo#    as longchar  no-undo.
+    define variable cExtraInfo#      as character no-undo.
     
     bDatasetsEqual# = sc_dataset:DatasetCompare(dataset-handle hDatasetOneIP# by-reference, dataset-handle hDatasetTwoIP# by-reference). 
     
@@ -417,33 +328,14 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       
       hDatasetOneIP#:write-json("longchar", clobJsonOne#, true, "utf-8").  
       hDatasetTwoIP#:write-json("longchar", clobJsonTwo#, true, "utf-8").
+      
+      cExtraInfo# = 
+        subst("Dataset One: &1 &2", hDatasetOneIP#:name, hDatasetOneIP#:get-buffer-handle(1):name) +
+        subst("Dataset Two: &1 &2", hDatasetTwoIP#:name, hDatasetTwoIP#:get-buffer-handle(1):name) +
+        subst("JSON One: &1", string(substring(clobJsonOne#,1,90))                               ) +
+        subst("JSON Two: &1", string(substring(clobJsonTwo#,1,90))                               ).
 
-      LogMessage(   
-        subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
-        subst("Assert failed. [Env] &1", sc_environment:cEnv),
-        cTestIDIP#,
-        cTestDescIP#,
-        subst("Calculated: &1", bDatasetsEqual#                                                  ),
-        subst("Expected:   &1", bExpectedEqualIP#                                                ),
-        subst("Dataset One: &1 &2", hDatasetOneIP#:name, hDatasetOneIP#:get-buffer-handle(1):name),
-        subst("Dataset Two: &1 &2", hDatasetTwoIP#:name, hDatasetTwoIP#:get-buffer-handle(1):name),
-        subst("JSON One: &1", string(substring(clobJsonOne#,1,90))                               ),
-        subst("JSON Two: &1", string(substring(clobJsonTwo#,1,90))                               )
-        )
-        ).
-
-      sc_messagebox:MsgBox(
-        subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
-        subst("Assert failed. [Env] &1", sc_environment:cEnv),
-        cTestIDIP#,
-        cTestDescIP#,
-        subst("Calculated: &1", bDatasetsEqual#                                                  ),
-        subst("Expected:   &1", bExpectedEqualIP#                                                ),
-        subst("Dataset One: &1 &2", hDatasetOneIP#:name, hDatasetOneIP#:get-buffer-handle(1):name),
-        subst("Dataset Two: &1 &2", hDatasetTwoIP#:name, hDatasetTwoIP#:get-buffer-handle(1):name),
-        subst("JSON One: &1", string(substring(clobJsonOne#,1,90))                               ),
-        subst("JSON Two: &1", string(substring(clobJsonTwo#,1,90))                               )
-        )).
+      AssertFailFeedback(cTestIDIP#, cTestDescIP#, subst("&1",bDatasetsEqual#), subst("&1",bExpectedEqualIP#), cExtraInfo#).
 
     end.
     
@@ -461,23 +353,9 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     cTestIDIP#   as character, 
     oExIP#       as Progress.Lang.Error):
       
-    define variable cExceptionMsg# as character no-undo.  
-      
-    cExceptionMsg# = subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
-      "Assert failed; exception.", 
-      sc_environment:cEnv,
-      cTestIDIP#,
-      oExIP#:GetMessage(1),
-      oExIP#:GetMessage(2),
-      oExIP#:GetMessage(3),
-      oExIP#:CallStack     
-      ). 
-    
-    LogMessage(cExceptionMsg#).
-    sc_messagebox:MsgBox(cExceptionMsg#).
-
     RegisterUnitFail().
-    
+    ExceptionFeedback(cTestIDIP#, oExIP#,"").
+
   end method. /* OnException */  
   
   
@@ -502,8 +380,67 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     
   end method. /* LogMessage */
 
+  
+  method protected static void AssertFailFeedback(
+    
+    /* Feedback; to user interface and/or log file, to e-mail, or to intranet */
+    
+    input cTestIDIP# as character,
+    input cTestDescIP# as character,
+    input cNewValueIP# as character,
+    input cExpectedValueIP# as character,
+    input cExtraInfoIP# as character
+    ):
 
-  method protected static void PersistencyWarning(
+    LogMessage(subst("env=&1 id=&2, descr=&3, calc=&4, exp=&5, info=&6",   
+      sc_environment:cEnv,
+      cTestIDIP#,
+      cTestDescIP#,
+      cNewValueIP#,
+      cExpectedValueIP#,
+      cExtraInfoIP#
+      )).
+      
+    sc_messagebox:MsgBox(subst("&1 Assert failed. [&2]~n&3 -> &4~nCalculated:&5~nExpected:&6~n&7",
+      now,
+      sc_environment:cEnv,
+      cTestIDIP#,
+      cTestDescIP#,
+      cNewValueIP#,
+      cExpectedValueIP#,
+      cExtraInfoIP#)).
+      
+  end method. /* AssertFailFeedback */
+
+
+  method protected static void ExceptionFeedback(
+    
+    /* Feedback; to user interface and/or log file, to e-mail, or to intranet */
+    
+    input cTestIDIP# as character,
+    input oErrorIP# as Progress.Lang.Error,
+    input cExtraInfoIP# as character
+    ):
+
+    LogMessage(subst("env=&1 id=&2, exception=&3, info=&4",   
+      sc_environment:cEnv,
+      cTestIDIP#,
+      sc_showexception:ExceptionToString(oErrorIP#),
+      cExtraInfoIP#
+      )).
+    
+    sc_messagebox:MsgBox(subst("&1 &2~n&3~n&4~n&5~n&6",
+      now,
+      "Exception encountered.",
+      sc_environment:cEnv,
+      cTestIDIP#,
+      sc_showexception:ExceptionToString(oErrorIP#),
+      cExtraInfoIP#)).
+      
+  end method. /* ExceptionFeedback */
+
+
+  method protected static void PersistencyFeedback(
   
     cTestIDIP# as character):
     
@@ -531,49 +468,20 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     sc_html:TempTableToHTML(buffer b-ttPersistentThingsPost:handle, sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_post.html").
     sc_html:TempTableToHTML(buffer b-ttPersistentThingsWarn:handle, sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_warn.html").
 
-    &if false &then
-    
-    /* Excel doesn't work for this specific temp-table, as of 20120425 */
-    /* Create an excel(xml) file of the temp-table */
-    sc_msoffice_crossplatform:ExcelSaxToXml(
-      (buffer ttPersistentThingsPre:handle), ?,
-      sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_pre.xml",
-      "[UserName] unittest [AutoFilter] yes [Header] yes [ExcelUseDataType] yes"
-      ).
-
-    /* Create an excel(xml) file of the temp-table */
-    sc_msoffice_crossplatform:ExcelSaxToXml(
-      (buffer ttPersistentThingsPost:handle), ?,
-      sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_post.xml",
-      "[UserName] unittest [AutoFilter] yes [Header] yes [ExcelUseDataType] yes"
-      ).
-
-    /* Create an excel(xml) file of the temp-table */
-    sc_msoffice_crossplatform:ExcelSaxToXml(
-      (buffer b-ttPersistentThingsWarn:handle), ?,
-      sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_warn.xml",
-      "[UserName] unittest [AutoFilter] yes [Header] yes [ExcelUseDataType] yes"
-      ).
-      
-    &endif
-    
     LogMessage(subst("env=&1 id=&2, descr=&3, &4",
       sc_environment:cEnv,
       cTestIDIP#,
       "PersistencyWarning",
-      cMessage#
-      )
-      ).
+      cMessage#)).
     
-    panaedra.msroot.msutil.logic.sc_messagebox:MsgBox(
+    sc_messagebox:MsgBox(
       subst("env=&1 id=&2, descr=&3, &4",
       sc_environment:cEnv,
       cTestIDIP#,
       "PersistencyWarning",
-      cMessage#
-      )).
+      cMessage#)).
       
-  end method. /* PersistencyWarning */
+  end method. /* PersistencyFeedback */
 
 
   method public static void RunAllUnittests(
@@ -608,10 +516,11 @@ class panaedra.msroot.msutil.logic.sc_unittest:
           
         if retry then 
         do:
-          LogMessage("Error: Stop condition encountered").
-          message "Error: Stop condition encountered"
-            view-as alert-box.
-          next b_each.
+          undo, throw new c_panaedraexception(
+            99948119,
+            sc_lang:oEnglish,
+            substitute("Error: Stop condition encountered for &1", b-ttFile.cFullPath)
+            ).
         end.  
   
         LogMessage(subst("Start: &1 &2",iso-date(now),b-ttFile.cFullPath)).
