@@ -50,6 +50,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
   define protected static variable cPreviousGlobalTestID as character no-undo.
   define protected static variable cCurrentGlobalTestID  as character no-undo.
   define protected static variable bFirstOfTwo           as logical   no-undo. /* If a unittest has finished okay, it's run a second time for memleak check. Stored in bFirstOfTwo. */
+  define protected static variable bRunOnNonTstOkay      as logical   no-undo.
   
     
   method public static void UnittestInit(
@@ -65,7 +66,28 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       undo, throw new c_panaedraexception(
         99958111,
         sc_lang:oEnglish,
-        substitute("Running of unit tests in a live environment is never allowed. TestID='&1'", cTestIDIP#)).
+        substitute("Running of unit tests in a live environment is NEVER allowed. TestID='&1'", cTestIDIP#)).
+
+    if not sc_environment:cEnv matches "*tst*" then 
+    do:
+      if sc_environment:bBatchMode then
+        undo, throw new c_panaedraexception(
+          99958112,
+          sc_lang:oEnglish,
+          substitute("Unit tests should be run on a *tst* environment. TestID='&1'", cTestIDIP#)).
+      else 
+      do:
+        message 
+          substitute("Unit tests should be run on a *tst* environment. TestID='&1'", cTestIDIP#) skip
+          "Do you want to continue?"
+          view-as alert-box buttons yes-no update bRunOnNonTstOkay.
+        if not bRunOnNonTstOkay then 
+          undo, throw new c_panaedraexception(
+            99958113,
+            sc_lang:oEnglish,
+            substitute("Unit tests should be run on a *tst* environment. TestID='&1'", cTestIDIP#)).
+      end.
+    end.
 
     /* Assign a value to the global data member */
     assign
@@ -315,7 +337,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     define variable bDatasetsEqual# as logical   no-undo.  
     define variable clobJsonOne#    as longchar  no-undo.  
     define variable clobJsonTwo#    as longchar  no-undo.
-    define variable cExtraInfo#      as character no-undo.
+    define variable cExtraInfo#     as character no-undo.
     
     bDatasetsEqual# = sc_dataset:DatasetCompare(dataset-handle hDatasetOneIP# by-reference, dataset-handle hDatasetTwoIP# by-reference). 
     
