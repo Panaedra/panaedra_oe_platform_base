@@ -392,7 +392,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     input cExtraInfoIP# as character
     ):
 
-    LogMessage(subst("env=&1 id=&2, descr=&3, calc=&4, exp=&5, info=&6",   
+    LogMessage(subst("Assert failed. env=&1 id=&2, descr=&3, calc=&4, exp=&5, info=&6",   
       sc_environment:cEnv,
       cTestIDIP#,
       cTestDescIP#,
@@ -422,7 +422,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     input cExtraInfoIP# as character
     ):
 
-    LogMessage(subst("env=&1 id=&2, exception=&3, info=&4",   
+    LogMessage(subst("Exception encountered. env=&1 id=&2, exception=&3, info=&4",   
       sc_environment:cEnv,
       cTestIDIP#,
       sc_showexception:ExceptionToString(oErrorIP#),
@@ -523,7 +523,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
             ).
         end.  
   
-        LogMessage(subst("Start: &1 &2",iso-date(now),b-ttFile.cFullPath)).
+        LogMessage(subst("Start unittest: &1 &2",iso-date(now),b-ttFile.cFullPath)).
         
         sc_eventbroadcaster:FireEvent("evt@unittest@run", b-ttFile.cFullPath).
         
