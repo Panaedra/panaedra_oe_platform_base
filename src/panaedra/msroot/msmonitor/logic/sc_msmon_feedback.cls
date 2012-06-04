@@ -1,3 +1,4 @@
+using panaedra.msroot.msmonitor.interfaces.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
@@ -53,7 +54,11 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     cLocationIP#  as character, 
     cMessageIP#   as character):
     
-    define variable cOsCommand# as character no-undo.
+    define variable cOsCommand#             as character                no-undo.
+    define variable oTempfileBuilderObject# as i_msmon_itempfilebuilder no-undo.
+    define variable cTempFile#              as character                no-undo.
+    define variable cErrorFile#             as character                no-undo.
+    define variable cCmdErrors#             as longchar                 no-undo.
     
     define buffer b-ttMsMonFeedbackDef for ttMsMonFeedbackDef.
     
@@ -110,12 +115,34 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     cOsCommand# = b-ttMsMonFeedbackDef.cOsCommand.
     
     if cOsCommand# > "" then 
-    do:
+    do on error undo, throw:
+
+      assign      
+        b-ttMsMonFeedbackDef.cMessage    = cMessageIP#
+        b-ttMsMonFeedbackDef.cStackTrace = sc_info:GetCallStack()
+        b-ttMsMonFeedbackDef.cUsername   = sc_environment:cUserID
+        b-ttMsMonFeedbackDef.cLocation   = cLocationIP#
+        b-ttMsMonFeedbackDef.cProcessID  = cMonitorIdIP#
+        .
+      
+      /*-- if requested create a tempfile to use with the oscommand --*/
+      if b-ttMsMonFeedbackDef.cTempfileBuilderObject > "" then
+      do:
+        oTempfileBuilderObject# = dynamic-new b-ttMsMonFeedbackDef.cTempfileBuilderObject().
+        cTempFile# = oTempfileBuilderObject#:CreateTempfile(
+          buffer b-ttMsMonFeedbackDef:handle
+          ). 
+        cErrorFile# = cTempfile# + ".err".  
+      end. /* if */
+      
+      
       cOsCommand# = replace(cOsCommand#,"[:cService:]",b-ttMsMonFeedbackDef.cService).
       cOsCommand# = replace(cOsCommand#,"[:cLevel:]",b-ttMsMonFeedbackDef.cLevel).
       cOsCommand# = replace(cOsCommand#,"[:cPart:]",b-ttMsMonFeedbackDef.cPart).
       cOsCommand# = replace(cOsCommand#,"[:cLocation:]",cLocationIP#).
-      /* If message is sent command-line, we strip invalid chars. ShouldHave: postmonitorevent.py must also accept message files */
+      cOsCommand# = replace(cOsCommand#,"[:cTempfile:]",cTempFile#).
+      
+      /* If message is sent command-line, we strip invalid chars. */
       if b-ttMsMonFeedbackDef.cMessageFormat="commandline" then 
       do:
         /* Strip dangerous stuff like pipe tokens and quotes. Keep spaces and slashes */ 
@@ -131,7 +158,33 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       cOsCommand# = replace(cOsCommand#,"[:cEnv:]",sc_environment:cEnv).
       cOsCommand# = replace(cOsCommand#,"[:cEvent:]",cEventIP#).
       
+      /* redirect errors to errorfile, (temp.solution with unix script) */
+      cOsCommand# = subst("/ota/wrktst/rdbo_script_redirect &1 &2", cErrorFile#, cOsCommand#).
+      
       os-command silent value(cOsCommand#).
+      
+      /* handle any errors of the feedback */
+      if sc_osfile:FileExists(cErrorFile#) then
+      do:
+        
+        copy-lob file cErrorFile# to cCmdErrors#.
+        if cCmdErrors# > "" then
+          undo, throw new c_panaedraexception(
+            50466438,
+            sc_lang:oEnglish,
+            substitute("OS command error: '&1'", cCmdErrors#)
+            ).
+        else
+        do:
+          sc_osfile:DeleteFile(cErrorFile#).
+        end.
+      end.
+
+      
+      finally:
+        if valid-object(oTempfileBuilderObject#) then
+          delete object oTempfileBuilderObject#.	
+      end finally.
       
     end.
   

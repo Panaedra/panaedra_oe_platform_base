@@ -12,7 +12,9 @@
 &glob dvcs__panaedra_msroot_msmonitor_logic_tt_msmon_feedbackdef_tt_i yes
 &glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msmonitor_logic_tt_msmon_feedbackdef_tt_i $Revision: 1 $
 &if '{&class}' = '' &then
-procedure dvcs__panaedra_msroot_msmonitor_logic_tt_msmon_feedbackdef_tt_i: return "$Revision: 1 $". end.
+procedure dvcs__panaedra_msroot_msmonitor_logic_tt_msmon_feedbackdef_tt_i: 
+  return "$Revision: 1 $". 
+end.
 &endif
 /******************************* $NoKeywords:  $ *****************************/
 
@@ -36,24 +38,33 @@ procedure dvcs__panaedra_msroot_msmonitor_logic_tt_msmon_feedbackdef_tt_i: retur
 &if defined(ttMsMonFeedbackDef{&ttSuffix}) = 0 &then
 &glob ttMsMonFeedbackDef{&ttSuffix} true
 define {&protected} {&static} temp-table ttMsMonFeedbackDef{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
-  field iIDMsMonFeedbackDef as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsMonFeedbackDef | PersistencyMode=xml-store "
-  field cEvent              as character   xml-node-type "attribute"
-  field cEnv                as character   xml-node-type "attribute" 
-  field cOpsys              as character   xml-node-type "attribute" 
-  field cHostname           as character   xml-node-type "attribute"
-  field cMonitorID          as character   xml-node-type "attribute"
+  field iIDMsMonFeedbackDef    as int64     format "->>>,>>>,>>>,>>9" initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsMonFeedbackDef | PersistencyMode=xml-store "
+  field cEvent                 as character xml-node-type "attribute"
+  field cEnv                   as character xml-node-type "attribute" 
+  field cOpsys                 as character xml-node-type "attribute" 
+  field cHostname              as character xml-node-type "attribute"
+  field cMonitorID             as character xml-node-type "attribute"
   /* service = service,application                      */
   /* part    = service parameter/application module     */
   /* level   = event level: debug/info/warn/error/fatal */
   /* message = description of error condition           */
-  field cService            as character   xml-node-type "attribute"
-  field cPart               as character   xml-node-type "attribute"
-  field cLevel              as character   xml-node-type "attribute" initial "error"
-  field cMessageFormat      as character   xml-node-type "attribute" initial "commandline"
-  field cOsCommand          as character   xml-node-type "attribute"
+  field cService               as character xml-node-type "attribute"
+  field cPart                  as character xml-node-type "attribute"
+  field cLevel                 as character xml-node-type "attribute" initial "error"
+  field cMessage               as character xml-node-type "attribute" 
+  field cMessageFormat         as character xml-node-type "attribute" initial "commandline"
+  field cTempfileBuilderObject as character xml-node-type "attribute" initial ""
+  field cOsCommand             as character xml-node-type "attribute"
+  field cLocation              as character xml-node-type "attribute"
+  field cProcessId             as character xml-node-type "attribute"
+  field cThread                as character xml-node-type "attribute"
+  field cException             as character xml-node-type "attribute"
+  field cStackTrace            as character xml-node-type "attribute"
+  field cUsername              as character xml-node-type "attribute"
+  
   {&ttExtraFields}
-  index iIDMsMonFeedbackDef          is unique iIDMsMonFeedbackDef
-  index cEvent_cEnv_cOpsys_cHost_MID is primary unique cEvent cEnv cOpsys cHostname cMonitorID 
+  index iIDMsMonFeedbackDef is unique                  iIDMsMonFeedbackDef
+  index cEvent_cEnv_cOpsys_cHost_MID is primary unique cEvent              cEnv cOpsys cHostname cMonitorID 
   {&ttExtraIndices}
   .
 
