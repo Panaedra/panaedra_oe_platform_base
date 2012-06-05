@@ -183,6 +183,9 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       if oErrorIP# <> ? then
         b-ttMsMonFeedbackDef.cStackTrace = oErrorIP#:CallStack.  
       
+      if b-ttMsMonFeedbackDef.cStackTrace = "" then
+        b-ttMsMonFeedbackDef.cStackTrace = sc_info:GetCallStack().
+      
       /*-- if requested create a tempfile to use with the oscommand --*/
       if b-ttMsMonFeedbackDef.cTempfileBuilderObject > "" then
       do:
