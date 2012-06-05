@@ -59,7 +59,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
   end method. /* TestDefaultConfig */
 
 
-  method public static void HandleEvent(
+  method public static logical HandleEvent(
     
     /* Handle a monitor event, by config file */
     
@@ -70,7 +70,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     
     ReloadConfig().
     
-    HandleEvent_Implement(
+    return HandleEvent_Implement(
       cEventIP#,    
       cMonitorIdIP#,
       cLocationIP#, 
@@ -82,7 +82,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
   end method. /* HandleEvent ; overload without exception object */
   
     
-  method public static void HandleEvent(
+  method public static logical HandleEvent(
     
     /* Handle a monitor event, by config file */
     
@@ -94,7 +94,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
 
     ReloadConfig().
 
-    HandleEvent_Implement(
+    return HandleEvent_Implement(
       cEventIP#,    
       cMonitorIdIP#,
       cLocationIP#, 
@@ -106,7 +106,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
   end method. /* HandleEvent ; overload with only exception object and no message string */
     
   
-  method public static void HandleEvent(
+  method public static logical HandleEvent(
     
     /* Handle a monitor event, by config file */
     
@@ -117,7 +117,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
 
     ReloadConfig().
 
-    HandleEvent_Implement(
+    return HandleEvent_Implement(
       cEventIP#,    
       cMonitorIdIP#,
       cLocationIP#, 
@@ -129,7 +129,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
   end method. /* HandleEvent ; overload with only exception object and no message string */
   
   
-  method public static void HandleEvent(
+  method public static logical HandleEvent(
     
     /* Handle a monitor event, by config file
        bFailSafeIP#  yes= handle previous a failed event, failover mechanism. */
@@ -143,7 +143,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       
     ReloadConfig().
       
-    HandleEvent_Implement(
+    return HandleEvent_Implement(
       cEventIP#,    
       cMonitorIdIP#,
       cLocationIP#, 
@@ -155,7 +155,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
   end method.    
 
   
-  method protected static void HandleEvent_Implement(
+  method protected static logical HandleEvent_Implement(
     
     /* Handle a monitor event, by config file 
        note:  
@@ -174,6 +174,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     define variable cTempFile#              as character                no-undo.
     define variable cErrorFile#             as character                no-undo.
     define variable cCmdErrors#             as longchar                 no-undo.
+    define variable bReturn#                as logical                  no-undo.
     
     define buffer b-ttMsMonFeedbackDef for ttMsMonFeedbackDef.
     
@@ -220,7 +221,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cMonitorID = "(default)"
           no-error.
     end. /* if bFailSafeIP# = no */
-    else do:
+    else 
+    do:
       find b-ttMsMonFeedbackDef where 
         b-ttMsMonFeedbackDef.cEvent     = cEventIP#                and
         b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
@@ -247,7 +249,13 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         b-ttMsMonFeedbackDef.cMessage   = cMessageIP#
         b-ttMsMonFeedbackDef.cUsername  = sc_environment:cUserID
         b-ttMsMonFeedbackDef.cLocation  = cLocationIP#
-        b-ttMsMonFeedbackDef.cProcessID = cMonitorIdIP#
+        b-ttMsMonFeedbackDef.cProcessID = string(sc_environment:GetProcessID())
+        b-ttMsMonFeedbackDef.cEvent     = cEventIP#
+        b-ttMsMonFeedbackDef.cService   = cMonitorIdIP#
+        b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv
+        b-ttMsMonFeedbackDef.cOpsys     = opsys
+        b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName
+        b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
         .
       
       if oErrorIP# <> ? and (cMessageIP# = ? or cMessageIP# = "") then
@@ -298,6 +306,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       
       /* execute the command to report feedback */
       os-command value(cOsCommand#).
+      bReturn# = yes.
       
       /* handle any errors of the feedback */
       if sc_osfile:FileExists(cErrorFile#) then
@@ -306,6 +315,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         copy-lob file cErrorFile# to cCmdErrors#.
         if cCmdErrors# > "" then  /* any errors while giving feedback? */ 
         do:
+          bReturn# = no.
           
           if bFailSafeIP# = no then /* prevent looping in FailSafe mode */
             /* handle a second even (FailSafe) reporting errors of the first feedback attempt. */
