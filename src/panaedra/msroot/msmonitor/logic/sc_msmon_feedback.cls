@@ -34,17 +34,31 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     /* panaedra.msroot.msmonitor.logic.sc_msmon_feedback:TestDefaultConfig(). */
     
     ):
-  
+    
+    define variable oPanaedraError# as c_panaedraexception no-undo.
+    
+    oPanaedraError# = new c_panaedraexception(
+      99958118,
+      sc_lang:oEnglish,
+      substitute("Test error at time: '&1'~nThis is a message.~n The following text 'A test' could be stripped if cMessageFormat=~"commandline~".", now)
+      ).
+    
     HandleEvent(
       "MyTestEvent",
       "MyTestMonitorID",
       "At some location...",
-      "This is a message.~n The following text 'A test' can be stripped."
+      "",          /* Message, if supplied: overrules exception message           */
+      oPanaedraError# /* Optional exception object, to pass callstack and other info */
       ).
-  
+    
+    finally:
+      if valid-object(oPanaedraError#)
+        then delete object oPanaedraError#.
+    end finally.
+    
   end method. /* TestDefaultConfig */
-  
-  
+
+
   method public static void HandleEvent(
     
     /* Handle a monitor event, by config file */
@@ -53,6 +67,45 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     cMonitorIdIP# as character, 
     cLocationIP#  as character, 
     cMessageIP#   as character):
+    
+    HandleEvent(
+      cEventIP#,    
+      cMonitorIdIP#,
+      cLocationIP#, 
+      cMessageIP#,
+      ?).
+      
+  end method. /* HandleEvent ; overload without exception object */
+    
+  
+  method public static void HandleEvent(
+    
+    /* Handle a monitor event, by config file */
+    
+    cEventIP#     as character, 
+    cMonitorIdIP# as character, 
+    cLocationIP#  as character, 
+    oErrorIP#     as Progress.Lang.Error):
+
+    HandleEvent(
+      cEventIP#,    
+      cMonitorIdIP#,
+      cLocationIP#, 
+      "",
+      oErrorIP#).
+      
+  end method. /* HandleEvent ; overload with only exception object and no message string */
+    
+  
+  method public static void HandleEvent(
+    
+    /* Handle a monitor event, by config file */
+    
+    cEventIP#     as character, 
+    cMonitorIdIP# as character, 
+    cLocationIP#  as character, 
+    cMessageIP#   as character,
+    oErrorIP#     as Progress.Lang.Error):
     
     define variable cOsCommand#             as character                no-undo.
     define variable oTempfileBuilderObject# as i_msmon_itempfilebuilder no-undo.
@@ -118,12 +171,17 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     do on error undo, throw:
 
       assign      
-        b-ttMsMonFeedbackDef.cMessage    = cMessageIP#
-        b-ttMsMonFeedbackDef.cStackTrace = sc_info:GetCallStack()
-        b-ttMsMonFeedbackDef.cUsername   = sc_environment:cUserID
-        b-ttMsMonFeedbackDef.cLocation   = cLocationIP#
-        b-ttMsMonFeedbackDef.cProcessID  = cMonitorIdIP#
+        b-ttMsMonFeedbackDef.cMessage   = cMessageIP#
+        b-ttMsMonFeedbackDef.cUsername  = sc_environment:cUserID
+        b-ttMsMonFeedbackDef.cLocation  = cLocationIP#
+        b-ttMsMonFeedbackDef.cProcessID = cMonitorIdIP#
         .
+      
+      if oErrorIP# <> ? and (cMessageIP# = ? or cMessageIP# = "") then
+        b-ttMsMonFeedbackDef.cMessage    = sc_showexception:ExceptionMsgToString(oErrorIP#).
+      
+      if oErrorIP# <> ? then
+        b-ttMsMonFeedbackDef.cStackTrace = oErrorIP#:CallStack.  
       
       /*-- if requested create a tempfile to use with the oscommand --*/
       if b-ttMsMonFeedbackDef.cTempfileBuilderObject > "" then
@@ -134,7 +192,6 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           ). 
         cErrorFile# = cTempfile# + ".err".  
       end. /* if */
-      
       
       cOsCommand# = replace(cOsCommand#,"[:cService:]",b-ttMsMonFeedbackDef.cService).
       cOsCommand# = replace(cOsCommand#,"[:cLevel:]",b-ttMsMonFeedbackDef.cLevel).
@@ -188,7 +245,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       
     end.
   
-  end method. /* HandleEvent */
+  end method. /* HandleEvent ; overload with all parameters */
   
   
   method public static void ReloadConfig():

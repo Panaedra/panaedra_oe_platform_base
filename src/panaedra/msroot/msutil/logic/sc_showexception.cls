@@ -123,7 +123,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
     /* Get all info from an exception and put it in a simple string */
   
-    input ex as Progress.Lang.Error):
+    input oErrorIP# as Progress.Lang.Error):
 
     define variable cLastProgram# as character no-undo.
     define variable cMessage#     as character no-undo.
@@ -138,20 +138,46 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       cLastProgram# = "..." + 
         substring(cLastProgram#, length(cLastProgram#) - 59).
     
-    do iTell# = 1 to ex:NumMessages:
-      if iTell# > 1 
-        then cMessage# = cMessage# + chr(10).
-      cMessage# = cMessage# + 
-        ex:GetMessage(iTell#).
-      if index(cMessage#, subst("(&1)", ex:GetMessageNum(iTell#))) = 0
-        then cMessage# = cMessage# + subst(" (&1)", ex:GetMessageNum(iTell#)).
-    end.
+    cMessage# = cMessage# + ExceptionMsgToString(oErrorIP#).
     
-    if ex:CallStack > "" then cMessage# = cMessage# + chr(10) + chr(10) + ex:CallStack.
+    if oErrorIP#:CallStack > "" then cMessage# = cMessage# + chr(10) + chr(10) + oErrorIP#:CallStack.
     
     return cMessage#.
   
   end method. /* ExceptionToString */
+  
+  
+  method public static character ExceptionMsgToString(
+    
+    /* Get only "message" info from an exception (omit the callstack) and put it in a simple string */
+  
+    input oErrorIP# as Progress.Lang.Error):
+
+    define variable cLastProgram# as character no-undo.
+    define variable cMessage#     as character no-undo.
+    define variable iTell#        as integer   no-undo.
+    
+    do iTell# = 1 to oErrorIP#:NumMessages on error undo, throw:
+      
+      if iTell# > 1 
+        then cMessage# = cMessage# + chr(10).
+        
+      cMessage# = cMessage# + 
+        oErrorIP#:GetMessage(iTell#).
+        
+      if index(cMessage#, subst("(&1)", oErrorIP#:GetMessageNum(iTell#))) = 0
+        then cMessage# = cMessage# + subst(" (&1)", oErrorIP#:GetMessageNum(iTell#)).
+        
+      catch oError# as Progress.Lang.Error:
+        /* Just to be ultra safe; ensure no unknown value is returned. We are in exception handling here. */
+        cMessage# = "". 
+      end catch.
+      
+    end. /* do iTell# */
+    
+    return cMessage#.
+  
+  end method. /* ExceptionMsgToString */
   
 
   &if opsys <> "unix" and "{&window-system}" <> "tty" &then
