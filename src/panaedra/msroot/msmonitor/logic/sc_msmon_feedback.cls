@@ -90,7 +90,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     cMonitorIdIP# as character, 
     cLocationIP#  as character, 
     cMessageIP#   as character,
-    oErrorIP#     as c_panaedraexception):
+    oErrorIP#     as Progress.Lang.Error):
 
     ReloadConfig().
 
@@ -113,7 +113,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     cEventIP#     as character, 
     cMonitorIdIP# as character, 
     cLocationIP#  as character, 
-    oErrorIP#     as c_panaedraexception):
+    oErrorIP#     as Progress.Lang.Error):
 
     ReloadConfig().
 
@@ -138,7 +138,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     cMonitorIdIP# as character, 
     cLocationIP#  as character, 
     cMessageIP#   as character,
-    oErrorIP#     as c_panaedraexception,
+    oErrorIP#     as Progress.Lang.Error,
     bFailSafeIP#  as logical ):
       
     ReloadConfig().
@@ -166,7 +166,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     cMonitorIdIP# as character, 
     cLocationIP#  as character, 
     cMessageIP#   as character,
-    oErrorIP#     as c_panaedraexception,
+    oErrorIP#     as Progress.Lang.Error,
     bFailSafeIP#  as logical ):
     
     define variable cOsCommand#             as character                no-undo.
