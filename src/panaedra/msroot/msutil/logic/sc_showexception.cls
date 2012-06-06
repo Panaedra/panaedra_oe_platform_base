@@ -28,12 +28,32 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-
   &if opsys <> "unix" and "{&window-system}" <> "tty" &then
   define protected static variable oForm as panaedra.msroot.msutil.view.c_dotnetformshowexception no-undo.
   &endif
+
+
+  method public static void ShowException(
+    
+    /* Default exception handling. Depending on session type and config: to screen, logfile, or posted as a monitor event. */
+    
+    input oErrorIP# as Progress.Lang.Error):
+      
+    ShowExceptionKeepNative(oErrorIP#).  
+    
+  end method. /* ShowException */
+
   
-  method public static void ShowException (input ex as Progress.Lang.Error):
+  method public static void ShowExceptionKeepNative(
+    
+    /* "Keep native" means: 
+       Keep the message inside the session, don't use post monitor event, os-command's, or such.
+       In other words:
+       Force the message to go to the screen (UI clients) or to the default 
+       output stream (Batch clients).
+    */
+    
+    input ex as Progress.Lang.Error):
     
     &if opsys <> "unix" and "{&window-system}" <> "tty" &then
     
@@ -55,7 +75,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
         
         catch oError# as Progress.Lang.Error :
           /* Possible input blocking, just show message. */
-          ShowExceptionImplement(ex).    
+          ShowExceptionKeepNativeImplement(ex).    
         end catch.
         
       end.
@@ -65,7 +85,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     else
       &endif /* Not unix/tty */
     
-      ShowExceptionImplement(ex).
+      ShowExceptionKeepNativeImplement(ex).
     
     
     finally:
@@ -80,10 +100,10 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       &endif /* Not unix/tty */
     end finally.  
     
-  end method. /* ShowException */
+  end method. /* ShowExceptionKeepNative */
   
   
-  method protected static void ShowExceptionImplement(
+  method protected static void ShowExceptionKeepNativeImplement(
     input ex as Progress.Lang.Error):
 
     /* The following code is used on win32 as well as unix */
@@ -116,7 +136,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       cLastProgram#
       view-as alert-box title "Panaedra " + string(now,"99-99-99 hh:mm:ss").
   
-  end method. /* ShowExceptionImplement */
+  end method. /* ShowExceptionKeepNativeImplement */
   
   
   method public static character ExceptionToString(
