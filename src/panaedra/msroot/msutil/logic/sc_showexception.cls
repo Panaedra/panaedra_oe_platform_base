@@ -40,18 +40,18 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
     input oErrorIP# as Progress.Lang.Error):
     
-    define variable bKeepNative#                  as logical          no-undo.
-    define variable bSuccess#                     as logical          no-undo.
-    define variable cEventID#                     as character        no-undo. /* EventID is meant to be used in (for example) url's to link 
+    define variable bKeepNative#                  as logical             no-undo.
+    define variable bSuccess#                     as logical             no-undo.
+    define variable cEventID#                     as character           no-undo. /* EventID is meant to be used in (for example) url's to link 
                                                                                   to documentation. Here we set it to something that is as 
                                                                                   specific as possible. In panaedra exception, the error number 
                                                                                   is (non-forced) unique to the source location, so it's a 
                                                                                   good ID. For SysError's, part of the stack is a better ID. */
-    define variable bUseStackForID#               as logical          no-undo.
+    define variable bUseStackForID#               as logical             no-undo.
     
-    define variable iError#                       as integer          no-undo.
-    define variable cExceptionCallStackLastEntry# as character        no-undo.
-    define variable oPanaedraError#                  as c_panaedraexception no-undo.
+    define variable iError#                       as integer             no-undo.
+    define variable cExceptionCallStackLastEntry# as character           no-undo.
+    define variable oPanaedraError#                  as c_panaedraexception    no-undo.
     
     if sc_environment:bBatchMode then 
     do:
@@ -72,10 +72,11 @@ class panaedra.msroot.msutil.logic.sc_showexception:
         end.
         else
           bUseStackForID# = false.
+
       end.
       else 
         bUseStackForID# = true.
-    
+      
       cExceptionCallStackLastEntry# = ExceptionCallStackLastEntry(oErrorIP#).
     
       if bUseStackForID# then
