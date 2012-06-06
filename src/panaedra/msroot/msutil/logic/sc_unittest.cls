@@ -1,5 +1,6 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
+using panaedra.msroot.msmonitor.logic.*.
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
@@ -422,15 +423,30 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       cExpectedValueIP#,
       cExtraInfoIP#
       )).
-      
-    sc_messagebox:MsgBox(subst("&1 Assert failed. [&2]~n&3 -> &4~nCalculated:&5~nExpected:&6~n&7",
-      now,
-      sc_environment:cEnv,
-      cTestIDIP#,
-      cTestDescIP#,
-      cNewValueIP#,
-      cExpectedValueIP#,
-      cExtraInfoIP#)).
+    
+    if not sc_environment:bBatchMode then 
+    do:
+      sc_messagebox:MsgBox(subst("&1 Assert failed. [&2]~n&3 -> &4~nCalculated:&5~nExpected:&6~n&7",
+        now,
+        sc_environment:cEnv,
+        cTestIDIP#,
+        cTestDescIP#,
+        cNewValueIP#,
+        cExpectedValueIP#,
+        cExtraInfoIP#)).
+    end.
+    else 
+    do:
+      sc_msmon_feedback:HandleEvent(
+        "Unittest Assert Failed",      /* Event */
+        cTestIDIP#,                    /* ID */
+        cTestDescIP#,
+        subst("[Env] &1~nCalculated value: &2~nExpected value: &3~nExtra info: &4", 
+        sc_environment:cEnv, 
+        cNewValueIP#,
+        cExpectedValueIP#,
+        cExtraInfoIP#)).
+    end.
       
   end method. /* AssertFailFeedback */
 
@@ -451,14 +467,27 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       cExtraInfoIP#
       )).
     
-    sc_messagebox:MsgBox(subst("&1 &2~n&3~n&4~n&5~n&6",
-      now,
-      "Exception encountered.",
-      sc_environment:cEnv,
-      cTestIDIP#,
-      sc_showexception:ExceptionToString(oErrorIP#),
-      cExtraInfoIP#)).
-      
+    if not sc_environment:bBatchMode then 
+    do:
+      sc_messagebox:MsgBox(subst("&1 &2~n&3~n&4~n&5~n&6",
+        now,
+        "Exception encountered.",
+        sc_environment:cEnv,
+        cTestIDIP#,
+        sc_showexception:ExceptionToString(oErrorIP#),
+        cExtraInfoIP#)).
+    end.
+    else 
+    do:
+      /* Note: this ShowException will handled by sc_msmon_feedback, because we are in batchmode */
+      sc_showexception:ShowException(
+        subst("Unittest Exception [&1]:~n&2~n&3",
+        sc_environment:cEnv,
+        cTestIDIP#,
+        cExtraInfoIP#),
+        oErrorIP#).
+    end.
+    
   end method. /* ExceptionFeedback */
 
 
@@ -496,12 +525,25 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       "PersistencyWarning",
       cMessage#)).
     
-    sc_messagebox:MsgBox(
-      subst("env=&1 id=&2, descr=&3, &4",
-      sc_environment:cEnv,
-      cTestIDIP#,
-      "PersistencyWarning",
-      cMessage#)).
+    if not sc_environment:bBatchMode then 
+    do:
+      sc_messagebox:MsgBox(
+        subst("env=&1 id=&2, descr=&3, &4",
+        sc_environment:cEnv,
+        cTestIDIP#,
+        "PersistencyWarning",
+        cMessage#)).
+    end.
+    else 
+    do:
+      sc_msmon_feedback:HandleEvent(
+        "Unittest Persistency Warning", /* Event */
+        cTestIDIP#,                     /* ID */
+        sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_warn.html", /* Location */
+        subst("[Env] &1~n&2", 
+        sc_environment:cEnv, 
+        cMessage#)).
+    end.
       
   end method. /* PersistencyFeedback */
 

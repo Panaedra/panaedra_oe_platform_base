@@ -33,25 +33,35 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   define protected static variable oForm as panaedra.msroot.msutil.view.c_dotnetformshowexception no-undo.
   &endif
 
+  method public static void ShowException(
+    
+    /* Default exception handling. Depending on session type and config: to screen, logfile, or (in batchmode) posted as a monitor event. */
+    input oErrorIP# as Progress.Lang.Error):
+      
+    ShowException("",oErrorIP#).
+      
+  end method. /* ShowException, simple overload */
+
 
   method public static void ShowException(
     
     /* Default exception handling. Depending on session type and config: to screen, logfile, or (in batchmode) posted as a monitor event. */
     
-    input oErrorIP# as Progress.Lang.Error):
+    input cExtraMessageIP# as character,
+    input oErrorIP#        as Progress.Lang.Error):
     
-    define variable bKeepNative#                  as logical             no-undo.
-    define variable bSuccess#                     as logical             no-undo.
-    define variable cEventID#                     as character           no-undo. /* EventID is meant to be used in (for example) url's to link 
+    define variable bKeepNative#                  as logical          no-undo.
+    define variable bSuccess#                     as logical          no-undo.
+    define variable cEventID#                     as character        no-undo. /* EventID is meant to be used in (for example) url's to link 
                                                                                   to documentation. Here we set it to something that is as 
                                                                                   specific as possible. In panaedra exception, the error number 
                                                                                   is (non-forced) unique to the source location, so it's a 
                                                                                   good ID. For SysError's, part of the stack is a better ID. */
-    define variable bUseStackForID#               as logical             no-undo.
+    define variable bUseStackForID#               as logical          no-undo.
     
-    define variable iError#                       as integer             no-undo.
-    define variable cExceptionCallStackLastEntry# as character           no-undo.
-    define variable oPanaedraError#                  as c_panaedraexception    no-undo.
+    define variable iError#                       as integer          no-undo.
+    define variable cExceptionCallStackLastEntry# as character        no-undo.
+    define variable oPanaedraError#                  as c_panaedraexception no-undo.
     
     if sc_environment:bBatchMode then 
     do:
@@ -83,15 +93,24 @@ class panaedra.msroot.msutil.logic.sc_showexception:
         cEventID# = cExceptionCallStackLastEntry# + cEventID#.
       else
         cEventID# = subst("Loc_&1",string(iError#,"99999999")) + cEventID#.
+        
+      if cExtraMessageIP# > "" then
+        cExtraMessageIP# = cExtraMessageIP# + "~n".
+      else /* in case of unknown value */
+        cExtraMessageIP# = "".  
+        
+      cExtraMessageIP# = cExtraMessageIP# + sc_showexception:ExceptionMsgToString(oErrorIP#).  
     
       bSuccess# = 
         sc_msmon_feedback:HandleEvent(
         "ShowException",                /* Event */
         cEventID#,                      /* ID */
         cExceptionCallStackLastEntry#,
+        cExtraMessageIP#,
         oErrorIP#).
       if not bSuccess# then 
         bKeepNative# = true.  
+        
     end. /* batchmode */
     
     else /* no batchmode */
@@ -99,10 +118,19 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
     if bKeepNative# then
       /* To screen or default output, no external routes */
-      ShowExceptionKeepNative(oErrorIP#).
+      ShowExceptionKeepNative(cExtraMessageIP#,oErrorIP#).
     
   end method. /* ShowException */
+  
 
+  method public static void ShowExceptionKeepNative(
+    
+    input oErrorIP# as Progress.Lang.Error):
+    
+    ShowExceptionKeepNative("", oErrorIP#).
+      
+  end method. /* ShowExceptionKeepNative ; simple overload */
+  
   
   method public static void ShowExceptionKeepNative(
     
@@ -113,6 +141,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
        output stream (Batch clients).
     */
     
+    input cExtraMessageIP# as character,
     input ex as Progress.Lang.Error):
     
     &if opsys <> "unix" and "{&window-system}" <> "tty" &then
@@ -135,7 +164,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
         
         catch oError# as Progress.Lang.Error :
           /* Possible input blocking, just show message. */
-          ShowExceptionKeepNativeImplement(ex).    
+          ShowExceptionKeepNativeImplement(cExtraMessageIP#,ex).    
         end catch.
         
       end.
@@ -143,9 +172,9 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     end.
     
     else
-      &endif /* Not unix/tty */
+    &endif /* Not unix/tty */
     
-      ShowExceptionKeepNativeImplement(ex).
+      ShowExceptionKeepNativeImplement(cExtraMessageIP#,ex).
     
     
     finally:
@@ -164,6 +193,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
   
   method protected static void ShowExceptionKeepNativeImplement(
+    input cExtraMessageIP# as character,
     input ex as Progress.Lang.Error):
 
     /* The following code is used on win32 as well as unix */
@@ -181,13 +211,15 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       cLastProgram# = "..." + 
         substring(cLastProgram#, length(cLastProgram#) - 59).
     
+    if cExtraMessageIP# > "" then
+      cMessage# = cExtraMessageIP# + chr(10).
+    
     do iTell# = 1 to ex:NumMessages:
-      if iTell# > 1 
-        then cMessage# = cMessage# + chr(10).
       cMessage# = cMessage# + 
         ex:GetMessage(iTell#).
       if index(cMessage#, subst("(&1)", ex:GetMessageNum(iTell#))) = 0
         then cMessage# = cMessage# + subst(" (&1)", ex:GetMessageNum(iTell#)).
+      cMessage# + chr(10).
     end.
     
     message 

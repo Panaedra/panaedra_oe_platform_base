@@ -202,7 +202,19 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
   end method.
 
 
-  method public void ShowException(ex as Progress.Lang.Error):
+  method public void ShowException(
+  
+    ex as Progress.Lang.Error):
+      
+    ShowException("",ex).  
+  
+  end method. /* ShowException ; simple overload */
+
+
+  method public void ShowException(
+  
+    cExtraMessageIP# as character,
+    ex as Progress.Lang.Error):
     
     assign
       this-object:Text = "Panaedra " + string(now, "99-99-9999 hh:mm:ss")
@@ -238,6 +250,10 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
       CallstackToTtAblCallstack(ex).
       /* Call the same method as used by the callback, but now with different (local) temp-tables. */
       CallbackDsContextStrong(table ttAblExceptions, table ttAblCallStack).
+    end.
+    
+    if cExtraMessageIP# > "" then do:
+      tbInfo:Text = subst("&1~n&2",cExtraMessageIP#,tbInfo:Text).
     end.
     
     EclipseTopMost().
