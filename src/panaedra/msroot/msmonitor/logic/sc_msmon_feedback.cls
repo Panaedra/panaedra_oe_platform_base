@@ -324,8 +324,10 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           bReturn# = no.
           
           if bFailSafeIP# = no then /* prevent looping in FailSafe mode */
+          do:
+            
             /* handle a second even (FailSafe) reporting errors of the first feedback attempt. */
-            HandleEvent_Implement (
+            bReturn# = HandleEvent_Implement (
               "FailSafe",    
               cMonitorIdIP#,
               cLocationIP#, 
@@ -333,13 +335,15 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
               oErrorIP#,
               yes /* FailSafe */
               ).
-          else /* the second (FailSafe) event also failed, it stops here, throw an event */
-            undo, throw new c_panaedraexception(
-              50463301,
-              sc_lang:oEnglish,
-              substitute("MsMonFeedback error (FailSafe error loop): &1", cCmdErrors#)
-              ).
               
+            if bReturn# <> yes then /* the second (FailSafe) event also failed, it stops here, throw an event */
+              undo, throw new c_panaedraexception(
+                50463301,
+                sc_lang:oEnglish,
+                substitute("MsMonFeedback error (FailSafe error loop): &1", cCmdErrors#)
+                ).
+                
+          end. /* if */    
         end. /* if */    
         else
           sc_osfile:DeleteFile(cErrorFile#).
