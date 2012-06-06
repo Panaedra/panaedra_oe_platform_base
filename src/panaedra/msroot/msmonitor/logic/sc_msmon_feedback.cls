@@ -34,13 +34,13 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     /* panaedra.msroot.msmonitor.logic.sc_msmon_feedback:TestDefaultConfig(). */
     
     ):
-    
+     
     define variable oPanaedraError# as c_panaedraexception no-undo.
     
     oPanaedraError# = new c_panaedraexception(
       99958118,
       sc_lang:oEnglish,
-      substitute("Test error at time: '&1'~nThis is a message.~n The following text 'A test' could be stripped if cMessageFormat=~"commandline~".", now)
+      substitute("Dit een test van _PPL_UNDISCLOSED_")
       ).
     
     HandleEvent(
@@ -311,8 +311,9 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       cOsCommand# = sc_string_substitute:ExpandOsEnv(cOsCommand#).
       
       /* execute the command to report feedback */
-      os-command value(cOsCommand#).
       bReturn# = yes.
+      os-command value(cOsCommand#).
+      
       
       /* handle any errors of the feedback */
       if sc_osfile:FileExists(cErrorFile#) then
@@ -324,8 +325,10 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           bReturn# = no.
           
           if bFailSafeIP# = no then /* prevent looping in FailSafe mode */
+          do:
+            
             /* handle a second even (FailSafe) reporting errors of the first feedback attempt. */
-            HandleEvent_Implement (
+            bReturn# = HandleEvent_Implement (
               "FailSafe",    
               cMonitorIdIP#,
               cLocationIP#, 
@@ -333,17 +336,21 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
               oErrorIP#,
               yes /* FailSafe */
               ).
-          else /* the second (FailSafe) event also failed, it stops here, throw an event */
-            undo, throw new c_panaedraexception(
-              50463301,
-              sc_lang:oEnglish,
-              substitute("MsMonFeedback error (FailSafe error loop): &1", cCmdErrors#)
-              ).
               
+            if bReturn# <> yes then /* the second (FailSafe) event also failed, it stops here, throw an event */
+              undo, throw new c_panaedraexception(
+                50463301,
+                sc_lang:oEnglish,
+                substitute("MsMonFeedback error (FailSafe error loop): &1", cCmdErrors#)
+                ).
+                
+          end. /* if */    
         end. /* if */    
         else
           sc_osfile:DeleteFile(cErrorFile#).
       end. /* if sc_osfile:FileExists(cErrorFile#) */
+      
+      return bReturn#.
 
       finally:
         if sc_osfile:FileExists(cTempFile#) then
