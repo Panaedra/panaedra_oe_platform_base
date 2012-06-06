@@ -1,5 +1,6 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
+using panaedra.msroot.msmonitor.logic.*.
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
@@ -35,11 +36,69 @@ class panaedra.msroot.msutil.logic.sc_showexception:
 
   method public static void ShowException(
     
-    /* Default exception handling. Depending on session type and config: to screen, logfile, or posted as a monitor event. */
+    /* Default exception handling. Depending on session type and config: to screen, logfile, or (in batchmode) posted as a monitor event. */
     
     input oErrorIP# as Progress.Lang.Error):
-      
-    ShowExceptionKeepNative(oErrorIP#).  
+    
+    define variable bKeepNative#                  as logical          no-undo.
+    define variable bSuccess#                     as logical          no-undo.
+    define variable cEventID#                     as character        no-undo. /* EventID is meant to be used in (for example) url's to link 
+                                                                                  to documentation. Here we set it to something that is as 
+                                                                                  specific as possible. In panaedra exception, the error number 
+                                                                                  is (non-forced) unique to the source location, so it's a 
+                                                                                  good ID. For SysError's, part of the stack is a better ID. */
+    define variable bUseStackForID#               as logical          no-undo.
+    
+    define variable iError#                       as integer          no-undo.
+    define variable cExceptionCallStackLastEntry# as character        no-undo.
+    define variable oPanaedraError#                  as c_panaedraexception no-undo.
+    
+    if sc_environment:bBatchMode then 
+    do:
+
+      iError# = oErrorIP#:GetMessageNum(1).
+    
+      if iError# = 0 or iError# = ? then iError# = 99948192. /* Nothing better to do than give a unique error number */
+    
+      if type-of(oErrorIP#, c_panaedraexception) then 
+      do:
+        oPanaedraError# = cast(oErrorIP#,c_panaedraexception).
+        if valid-object(oPanaedraError#:oRecordStatus) then 
+        do:
+          /* A record status has a table, this is useful in the ID */
+          if oPanaedraError#:oRecordStatus:cTablename > "" then
+            cEventID# = "_" + oPanaedraError#:oRecordStatus:cTablename.
+          bUseStackForID# = false.  
+        end.
+        else
+          bUseStackForID# = false.
+      end.
+      else 
+        bUseStackForID# = true.
+    
+      cExceptionCallStackLastEntry# = ExceptionCallStackLastEntry(oErrorIP#).
+    
+      if bUseStackForID# then
+        cEventID# = cExceptionCallStackLastEntry# + cEventID#.
+      else
+        cEventID# = subst("Loc_&1",string(iError#,"99999999")) + cEventID#.
+    
+      bSuccess# = 
+        sc_msmon_feedback:HandleEvent(
+        "ShowException",                /* Event */
+        cEventID#,                      /* ID */
+        cExceptionCallStackLastEntry#,
+        oErrorIP#).
+      if not bSuccess# then 
+        bKeepNative# = true.  
+    end. /* batchmode */
+    
+    else /* no batchmode */
+      bKeepNative# = true.
+    
+    if bKeepNative# then
+      /* To screen or default output, no external routes */
+      ShowExceptionKeepNative(oErrorIP#).
     
   end method. /* ShowException */
 
@@ -97,7 +156,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
         oForm:Dispose().
       if valid-object(oForm) then 
         delete object oForm.
-      &endif /* Not unix/tty */
+    &endif /* Not unix/tty */
     end finally.  
     
   end method. /* ShowExceptionKeepNative */
@@ -198,6 +257,34 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     return cMessage#.
   
   end method. /* ExceptionMsgToString */
+  
+  
+  method public static character ExceptionCallStackLastEntry(
+    
+    /* This is a method, because behaviour is different between oe10 and oe11+.
+     
+       "Last" means: last called code block just before the exception occurred.
+    */
+    
+    oErrorIP# as Progress.Lang.Error):
+      
+    define variable cReturn# as character no-undo.  
+    
+    if oErrorIP#:CallStack = ? then
+      cReturn# = program-name(3).
+    else
+      cReturn# = trim(entry(
+        &if int(entry(1,proversion,".")) <= 10 &then
+        num-entries(oErrorIP#:CallStack,chr(10))
+        &else
+        1
+        &endif
+        ,oErrorIP#:CallStack,chr(10))).
+      
+    
+    return cReturn#.  
+  
+  end method. /* ExceptionCallStackLastEntry */
   
 
   &if opsys <> "unix" and "{&window-system}" <> "tty" &then
