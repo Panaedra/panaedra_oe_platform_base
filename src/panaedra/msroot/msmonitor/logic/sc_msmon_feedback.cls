@@ -34,13 +34,13 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     /* panaedra.msroot.msmonitor.logic.sc_msmon_feedback:TestDefaultConfig(). */
     
     ):
-    
+     
     define variable oPanaedraError# as c_panaedraexception no-undo.
     
     oPanaedraError# = new c_panaedraexception(
       99958118,
       sc_lang:oEnglish,
-      substitute("Test error at time: '&1'~nThis is a message.~n The following text 'A test' could be stripped if cMessageFormat=~"commandline~".", now)
+      substitute("Dit een test van _PPL_UNDISCLOSED_")
       ).
     
     HandleEvent(
@@ -311,8 +311,9 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       cOsCommand# = sc_string_substitute:ExpandOsEnv(cOsCommand#).
       
       /* execute the command to report feedback */
-      os-command value(cOsCommand#).
       bReturn# = yes.
+      os-command value(cOsCommand#).
+      
       
       /* handle any errors of the feedback */
       if sc_osfile:FileExists(cErrorFile#) then
@@ -348,6 +349,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         else
           sc_osfile:DeleteFile(cErrorFile#).
       end. /* if sc_osfile:FileExists(cErrorFile#) */
+      
+      return bReturn#.
 
       finally:
         if sc_osfile:FileExists(cTempFile#) then
