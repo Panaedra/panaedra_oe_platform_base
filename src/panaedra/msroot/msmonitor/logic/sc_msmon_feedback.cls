@@ -175,6 +175,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     define variable cErrorFile#             as character                no-undo.
     define variable cCmdErrors#             as longchar                 no-undo.
     define variable bReturn#                as logical                  no-undo.
+    define variable oPanaedraApiError#         as c_apiproxyexception      no-undo.
     
     define buffer b-ttMsMonFeedbackDef for ttMsMonFeedbackDef.
     
@@ -263,6 +264,11 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       
       if oErrorIP# <> ? then
         b-ttMsMonFeedbackDef.cStackTrace = oErrorIP#:CallStack.  
+      
+      if oErrorIP# <> ? and type-of(oErrorIP#, c_apiproxyexception) then do:
+        oPanaedraApiError# = cast(oErrorIP#, c_apiproxyexception).
+        b-ttMsMonFeedbackDef.cMessage = b-ttMsMonFeedbackDef.cMessage + subst("~n&1",oPanaedraApiError#:ApiproxyExceptions).
+      end.  
       
       if b-ttMsMonFeedbackDef.cStackTrace = "" then
         b-ttMsMonFeedbackDef.cStackTrace = sc_info:GetCallStack().
