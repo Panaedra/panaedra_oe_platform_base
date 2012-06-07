@@ -253,7 +253,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cLocation  = cLocationIP#
           b-ttMsMonFeedbackDef.cProcessID = string(sc_environment:GetProcessID())
           b-ttMsMonFeedbackDef.cEvent     = cEventIP#
-          b-ttMsMonFeedbackDef.cService   = cMonitorIdIP#
+          b-ttMsMonFeedbackDef.cService   = sc_environment:cEnv
           b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv
           b-ttMsMonFeedbackDef.cOpsys     = opsys
           b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName
