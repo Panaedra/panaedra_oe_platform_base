@@ -33,6 +33,16 @@ class panaedra.msroot.msutil.logic.sc_environment:
   define protected static variable cBootProcedure  as character no-undo.
   define public static    variable bDebugLogAsync  as logical   no-undo.
   define public static    variable oLog            as i_log     no-undo.
+  
+
+  define static property cCodepageNative as character no-undo init ?
+    public get:
+      if cCodepageNative = ? then assign
+          cCodepageNative = (if opsys = "unix" then "ibm850" else "1252").
+      return cCodepageNative.
+    end get.
+    protected set.
+  
     
   define static property cSessionGuid as character no-undo 
     public get:

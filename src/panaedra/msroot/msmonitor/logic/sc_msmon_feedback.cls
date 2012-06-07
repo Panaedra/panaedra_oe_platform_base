@@ -40,7 +40,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     oPanaedraError# = new c_panaedraexception(
       99958118,
       sc_lang:oEnglish,
-      substitute("Dit een test van _PPL_UNDISCLOSED_")
+      substitute("Test error at time: '&1'~nThis is a message.~n The following text 'A test' could be stripped if cMessageFormat=~"commandline~".", now)
       ).
     
     HandleEvent(
@@ -185,184 +185,200 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     /*  # level   = event level: debug/info/warn/error/fatal */
     /*  # message = description of error condition           */
     
-    find b-ttMsMonFeedbackDef where 
-      b-ttMsMonFeedbackDef.cEvent     = cEventIP#                and
-      b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
-      b-ttMsMonFeedbackDef.cOpsys     = opsys                    and
-      b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName and
-      b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
-      no-error.
-    
-    if not avail b-ttMsMonFeedbackDef then
+    do on error undo, throw:
       find b-ttMsMonFeedbackDef where 
-        b-ttMsMonFeedbackDef.cEvent     = cEventIP#            and
-        b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
-        b-ttMsMonFeedbackDef.cOpsys     = opsys                and
-        b-ttMsMonFeedbackDef.cHostname  = "(default)"          and
+        b-ttMsMonFeedbackDef.cEvent     = cEventIP#                and
+        b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
+        b-ttMsMonFeedbackDef.cOpsys     = opsys                    and
+        b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName and
         b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
         no-error.
-  
-    if bFailSafeIP# = no then 
-    do:
+      
       if not avail b-ttMsMonFeedbackDef then
         find b-ttMsMonFeedbackDef where 
-          b-ttMsMonFeedbackDef.cEvent     = "(default)"          and
+          b-ttMsMonFeedbackDef.cEvent     = cEventIP#            and
           b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
           b-ttMsMonFeedbackDef.cOpsys     = opsys                and
           b-ttMsMonFeedbackDef.cHostname  = "(default)"          and
           b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
           no-error.
-  
-      if not avail b-ttMsMonFeedbackDef then
+    
+      if bFailSafeIP# = no then 
+      do:
+        if not avail b-ttMsMonFeedbackDef then
+          find b-ttMsMonFeedbackDef where 
+            b-ttMsMonFeedbackDef.cEvent     = "(default)"          and
+            b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
+            b-ttMsMonFeedbackDef.cOpsys     = opsys                and
+            b-ttMsMonFeedbackDef.cHostname  = "(default)"          and
+            b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
+            no-error.
+    
+        if not avail b-ttMsMonFeedbackDef then
+          find b-ttMsMonFeedbackDef where 
+            b-ttMsMonFeedbackDef.cEvent     = "(default)"          and
+            b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
+            b-ttMsMonFeedbackDef.cOpsys     = opsys                and
+            b-ttMsMonFeedbackDef.cHostname  = "(default)"          and
+            b-ttMsMonFeedbackDef.cMonitorID = "(default)"
+            no-error.
+      end. /* if bFailSafeIP# = no */
+      else 
+      do:
         find b-ttMsMonFeedbackDef where 
-          b-ttMsMonFeedbackDef.cEvent     = "(default)"          and
-          b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
-          b-ttMsMonFeedbackDef.cOpsys     = opsys                and
-          b-ttMsMonFeedbackDef.cHostname  = "(default)"          and
+          b-ttMsMonFeedbackDef.cEvent     = "FailSafe"               and
+          b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
+          b-ttMsMonFeedbackDef.cOpsys     = opsys                    and
+          b-ttMsMonFeedbackDef.cHostname  = "(default)"              and
           b-ttMsMonFeedbackDef.cMonitorID = "(default)"
           no-error.
-    end. /* if bFailSafeIP# = no */
-    else 
-    do:
-      find b-ttMsMonFeedbackDef where 
-        b-ttMsMonFeedbackDef.cEvent     = cEventIP#                and
-        b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
-        b-ttMsMonFeedbackDef.cOpsys     = opsys                    and
-        b-ttMsMonFeedbackDef.cHostname  = "(default)"              and
-        b-ttMsMonFeedbackDef.cMonitorID = "(default)"
-        no-error.
-    end.
-    
-    if not avail b-ttMsMonFeedbackDef then
-      undo, throw new c_panaedraexception(
-        99938299,
-        sc_lang:oEnglish,
-        substitute("No MsMonFeedbackDef configuration found for event '&1', environment '&2', opsys '&3', hostname '&4', monitor ID '&5', message '&6'", 
-        cEventIP#, sc_environment:cEnv, opsys, sc_environment:cHostName, cMonitorIdIP#, cMessageIP#)
-        ).
+      end. /* else */
       
-    cOsCommand# = b-ttMsMonFeedbackDef.cOsCommand.
-    
-    if cOsCommand# > "" then 
-    do on error undo, throw:
-
-      assign      
-        b-ttMsMonFeedbackDef.cMessage   = cMessageIP#
-        b-ttMsMonFeedbackDef.cUsername  = sc_environment:cUserID
-        b-ttMsMonFeedbackDef.cLocation  = cLocationIP#
-        b-ttMsMonFeedbackDef.cProcessID = string(sc_environment:GetProcessID())
-        b-ttMsMonFeedbackDef.cEvent     = cEventIP#
-        b-ttMsMonFeedbackDef.cService   = cMonitorIdIP#
-        b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv
-        b-ttMsMonFeedbackDef.cOpsys     = opsys
-        b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName
-        b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
-        .
-      
-      if oErrorIP# <> ? and (cMessageIP# = ? or cMessageIP# = "") then
-        b-ttMsMonFeedbackDef.cMessage    = sc_showexception:ExceptionMsgToString(oErrorIP#).
-      
-      if oErrorIP# <> ? then
-        b-ttMsMonFeedbackDef.cStackTrace = oErrorIP#:CallStack.  
-      
-      if oErrorIP# <> ? and type-of(oErrorIP#, c_apiproxyexception) then do:
-        oPanaedraApiError# = cast(oErrorIP#, c_apiproxyexception).
-        b-ttMsMonFeedbackDef.cMessage = b-ttMsMonFeedbackDef.cMessage + subst("~n&1",oPanaedraApiError#:ApiproxyExceptions).
-      end.  
-      
-      if b-ttMsMonFeedbackDef.cStackTrace = "" then
-        b-ttMsMonFeedbackDef.cStackTrace = sc_info:GetCallStack().
-      
-      /*-- if requested create a tempfile to use with the oscommand --*/
-      if b-ttMsMonFeedbackDef.cTempfileBuilderObject > "" then
-      do:
-        oTempfileBuilderObject# = dynamic-new b-ttMsMonFeedbackDef.cTempfileBuilderObject().
-        cTempFile# = oTempfileBuilderObject#:CreateTempfile(
-          buffer b-ttMsMonFeedbackDef:handle
-          ). 
-        cErrorFile# = cTempfile# + ".err".  
-      end. /* if */
-      
-      /* replace macros from the config in the commandline */
-      cOsCommand# = replace(cOsCommand#,"[:cService:]",b-ttMsMonFeedbackDef.cService).
-      cOsCommand# = replace(cOsCommand#,"[:cLevel:]",b-ttMsMonFeedbackDef.cLevel).
-      cOsCommand# = replace(cOsCommand#,"[:cPart:]",b-ttMsMonFeedbackDef.cPart).
-      cOsCommand# = replace(cOsCommand#,"[:cLocation:]",cLocationIP#).
-      cOsCommand# = replace(cOsCommand#,"[:cTempfile:]",cTempFile#).
-      cOsCommand# = replace(cOsCommand#,"[:cErrorfile:]",cErrorFile#).
-      
-      /* If message is sent command-line, we strip invalid chars. */
-      if b-ttMsMonFeedbackDef.cMessageFormat="commandline" then 
-      do:
-        /* Strip dangerous stuff like pipe tokens and quotes. Keep spaces and slashes */ 
-        cMessageIP# = sc_osfile:StripInvalidChars(cMessageIP#, false).
-        if opsys = "unix" then
-          /* Backslashes on the unix command line is asking for trouble. Turn them into forward slashes. */
-          cMessageIP# = replace(cMessageIP#,"~\","/"). 
-        /* Replace carriage returns and line feeds */
-        cMessageIP# = replace(trim(replace(replace(cMessageIP#,chr(10)," "),chr(13)," ")),'"',"").
-      end.
-      cOsCommand# = replace(cOsCommand#,"[:cMessage:]",cMessageIP#).
-      cOsCommand# = replace(cOsCommand#,"[:cMonitorID:]",cMonitorIdIP#).
-      cOsCommand# = replace(cOsCommand#,"[:cEnv:]",sc_environment:cEnv).
-      cOsCommand# = replace(cOsCommand#,"[:cEvent:]",cEventIP#).
-      
-      /* expand env.variables in the commandline */
-      cOsCommand# = sc_string_substitute:ExpandOsEnv(cOsCommand#).
-      
-      /* execute the command to report feedback */
-      bReturn# = yes.
-      os-command value(cOsCommand#).
-      
-      
-      /* handle any errors of the feedback */
-      if sc_osfile:FileExists(cErrorFile#) then
-      do:
+      if not avail b-ttMsMonFeedbackDef then
+        undo, throw new c_panaedraexception(
+          99938299,
+          sc_lang:oEnglish,
+          substitute("No MsMonFeedbackDef configuration found for event '&1', environment '&2', opsys '&3', hostname '&4', monitor ID '&5', message '&6'", 
+          cEventIP#, sc_environment:cEnv, opsys, sc_environment:cHostName, cMonitorIdIP#, cMessageIP#)
+          ).
         
-        copy-lob file cErrorFile# to cCmdErrors#.
-        if cCmdErrors# > "" then  /* any errors while giving feedback? */ 
+      cOsCommand# = b-ttMsMonFeedbackDef.cOsCommand.
+      
+      if cOsCommand# > "" then 
+      do on error undo, throw:
+  
+        assign      
+          b-ttMsMonFeedbackDef.cMessage   = cMessageIP#
+          b-ttMsMonFeedbackDef.cUsername  = sc_environment:cUserID
+          b-ttMsMonFeedbackDef.cLocation  = cLocationIP#
+          b-ttMsMonFeedbackDef.cProcessID = string(sc_environment:GetProcessID())
+          b-ttMsMonFeedbackDef.cEvent     = cEventIP#
+          b-ttMsMonFeedbackDef.cService   = cMonitorIdIP#
+          b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv
+          b-ttMsMonFeedbackDef.cOpsys     = opsys
+          b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName
+          b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
+          .
+        
+        if oErrorIP# <> ? and (cMessageIP# = ? or cMessageIP# = "") then
+          b-ttMsMonFeedbackDef.cMessage    = sc_showexception:ExceptionMsgToString(oErrorIP#).
+        
+        if oErrorIP# <> ? then
+          b-ttMsMonFeedbackDef.cStackTrace = oErrorIP#:CallStack.  
+        
+        if oErrorIP# <> ? and type-of(oErrorIP#, c_apiproxyexception) then do:
+          oPanaedraApiError# = cast(oErrorIP#, c_apiproxyexception).
+          b-ttMsMonFeedbackDef.cMessage = b-ttMsMonFeedbackDef.cMessage + subst("~n&1",oPanaedraApiError#:ApiproxyExceptions).
+        end.  
+        
+        if b-ttMsMonFeedbackDef.cStackTrace = "" then
+          b-ttMsMonFeedbackDef.cStackTrace = sc_info:GetCallStack().
+        
+        /*-- if requested create a tempfile to use with the oscommand --*/
+        if b-ttMsMonFeedbackDef.cTempfileBuilderObject > "" then
         do:
-          bReturn# = no.
+          oTempfileBuilderObject# = dynamic-new b-ttMsMonFeedbackDef.cTempfileBuilderObject().
+          cTempFile# = oTempfileBuilderObject#:CreateTempfile(
+            buffer b-ttMsMonFeedbackDef:handle
+            ). 
+          cErrorFile# = cTempfile# + ".err".  
+        end. /* if */
+        
+        /* replace macros from the config in the commandline */
+        cOsCommand# = replace(cOsCommand#,"[:cService:]",b-ttMsMonFeedbackDef.cService).
+        cOsCommand# = replace(cOsCommand#,"[:cLevel:]",b-ttMsMonFeedbackDef.cLevel).
+        cOsCommand# = replace(cOsCommand#,"[:cPart:]",b-ttMsMonFeedbackDef.cPart).
+        cOsCommand# = replace(cOsCommand#,"[:cLocation:]",cLocationIP#).
+        cOsCommand# = replace(cOsCommand#,"[:cTempfile:]",cTempFile#).
+        cOsCommand# = replace(cOsCommand#,"[:cErrorfile:]",cErrorFile#).
+        
+        /* If message is sent command-line, we strip invalid chars. */
+        if b-ttMsMonFeedbackDef.cMessageFormat="commandline" then 
+        do:
+          /* Strip dangerous stuff like pipe tokens and quotes. Keep spaces and slashes */ 
+          cMessageIP# = sc_osfile:StripInvalidChars(cMessageIP#, false).
+          if opsys = "unix" then
+            /* Backslashes on the unix command line is asking for trouble. Turn them into forward slashes. */
+            cMessageIP# = replace(cMessageIP#,"~\","/"). 
+          /* Replace carriage returns and line feeds */
+          cMessageIP# = replace(trim(replace(replace(cMessageIP#,chr(10)," "),chr(13)," ")),'"',"").
+        end.
+        cOsCommand# = replace(cOsCommand#,"[:cMessage:]",cMessageIP#).
+        cOsCommand# = replace(cOsCommand#,"[:cMonitorID:]",cMonitorIdIP#).
+        cOsCommand# = replace(cOsCommand#,"[:cEnv:]",sc_environment:cEnv).
+        cOsCommand# = replace(cOsCommand#,"[:cEvent:]",cEventIP#).
+        
+        /* expand env.variables in the commandline */
+        cOsCommand# = sc_string_substitute:ExpandOsEnv(cOsCommand#).
+        
+        /* execute the command to report feedback */
+        bReturn# = yes.
+        os-command value(cOsCommand#).
+        
+        
+        /* handle any errors of the feedback */
+        if sc_osfile:FileExists(cErrorFile#) then
+        do:
           
-          if bFailSafeIP# = no then /* prevent looping in FailSafe mode */
+          copy-lob file cErrorFile# to cCmdErrors# convert source codepage sc_environment:cCodepageNative.
+          if cCmdErrors# > "" then  /* any errors while giving feedback? */ 
           do:
+            bReturn# = no.
             
-            /* handle a second even (FailSafe) reporting errors of the first feedback attempt. */
-            bReturn# = HandleEvent_Implement (
-              "FailSafe",    
-              cMonitorIdIP#,
-              cLocationIP#, 
-              string(cCmdErrors#),
-              oErrorIP#,
-              yes /* FailSafe */
-              ).
+            if bFailSafeIP# = no then /* prevent looping in FailSafe mode */
+            do:
               
-            if bReturn# <> yes then /* the second (FailSafe) event also failed, it stops here, throw an event */
+              /* handle a second even (FailSafe) reporting errors of the first feedback attempt. */
+              bReturn# = HandleEvent_Implement (
+                "FailSafe",    
+                cMonitorIdIP#,
+                cLocationIP#, 
+                string(cCmdErrors#),
+                oErrorIP#,
+                yes /* FailSafe */
+                ).
+                
+              if bReturn# <> yes then /* the second (FailSafe) event also failed, it stops here, throw an event */
+                undo, throw new c_panaedraexception(
+                  50463301,
+                  sc_lang:oEnglish,
+                  substitute("MsMonFeedback error (FailSafe error loop): &1", cCmdErrors#)
+                  ).
+                  
+            end. /* if */    
+            else
               undo, throw new c_panaedraexception(
-                50463301,
+                50463302,
                 sc_lang:oEnglish,
                 substitute("MsMonFeedback error (FailSafe error loop): &1", cCmdErrors#)
                 ).
-                
+            
           end. /* if */    
-        end. /* if */    
-        else
-          sc_osfile:DeleteFile(cErrorFile#).
-      end. /* if sc_osfile:FileExists(cErrorFile#) */
-      
-      return bReturn#.
-
-      finally:
-        if sc_osfile:FileExists(cTempFile#) then
-          sc_osfile:DeleteFile(cTempFile#). 
+          else
+            sc_osfile:DeleteFile(cErrorFile#).
+        end. /* if sc_osfile:FileExists(cErrorFile#) */
         
-        if valid-object(oTempfileBuilderObject#) then
-          delete object oTempfileBuilderObject#.	
-      end finally.
-      
-    end.
+        return bReturn#.
   
-  end method. /* HandleEvent ; overload with all parameters */
+        finally:
+          if sc_osfile:FileExists(cTempFile#) then
+            sc_osfile:DeleteFile(cTempFile#).
+          
+          if valid-object(oTempfileBuilderObject#) then
+            delete object oTempfileBuilderObject#.  
+        end finally.
+        
+      end. /* if cOsCommand# > "" */
+      
+      /* here we catch the exceptions and present them with a special ShowExceptionKeepNative version
+         to avoid error looping, since at this point we are handling an error on error. */
+      catch oError as Progress.Lang.Error :
+        sc_showexception:ShowExceptionKeepNative(oError).	
+      end catch.
+      
+    end. /* do */
+  
+  end method. /* HandleEvent_Implement */
   
   
   method public static void ReloadConfig():
