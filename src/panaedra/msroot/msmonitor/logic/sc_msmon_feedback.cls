@@ -176,6 +176,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     define variable cCmdErrors#             as longchar                 no-undo.
     define variable bReturn#                as logical                  no-undo.
     define variable oPanaedraApiError#         as c_apiproxyexception      no-undo.
+    define variable bCommandError#          as logical                  no-undo.
     
     define buffer b-ttMsMonFeedbackDef for ttMsMonFeedbackDef.
     
@@ -186,6 +187,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     /*  # message = description of error condition           */
     
     do on error undo, throw:
+      
       find b-ttMsMonFeedbackDef where 
         b-ttMsMonFeedbackDef.cEvent     = cEventIP#                and
         b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
@@ -222,9 +224,11 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             b-ttMsMonFeedbackDef.cHostname  = "(default)"          and
             b-ttMsMonFeedbackDef.cMonitorID = "(default)"
             no-error.
+            
       end. /* if bFailSafeIP# = no */
       else 
       do:
+        
         find b-ttMsMonFeedbackDef where 
           b-ttMsMonFeedbackDef.cEvent     = "FailSafe"               and
           b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
@@ -232,7 +236,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cHostname  = "(default)"              and
           b-ttMsMonFeedbackDef.cMonitorID = "(default)"
           no-error.
-      end. /* else */
+          
+      end. /* Failsafe = yes */
       
       if not avail b-ttMsMonFeedbackDef then
         undo, throw new c_panaedraexception(
@@ -266,7 +271,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         if oErrorIP# <> ? then
           b-ttMsMonFeedbackDef.cStackTrace = oErrorIP#:CallStack.  
         
-        if oErrorIP# <> ? and type-of(oErrorIP#, c_apiproxyexception) then do:
+        if oErrorIP# <> ? and type-of(oErrorIP#, c_apiproxyexception) then 
+        do:
           oPanaedraApiError# = cast(oErrorIP#, c_apiproxyexception).
           b-ttMsMonFeedbackDef.cMessage = b-ttMsMonFeedbackDef.cMessage + subst("~n&1",oPanaedraApiError#:ApiproxyExceptions).
         end.  
@@ -277,11 +283,17 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         /*-- if requested create a tempfile to use with the oscommand --*/
         if b-ttMsMonFeedbackDef.cTempfileBuilderObject > "" then
         do:
+          
           oTempfileBuilderObject# = dynamic-new b-ttMsMonFeedbackDef.cTempfileBuilderObject().
           cTempFile# = oTempfileBuilderObject#:CreateTempfile(
             buffer b-ttMsMonFeedbackDef:handle
-            ). 
-          cErrorFile# = cTempfile# + ".err".  
+            ).
+          
+          if opsys = "win32"
+            then cTempFile# = replace(cTempFile#,"/","~\").  
+             
+          cErrorFile# = cTempfile# + ".err".
+            
         end. /* if */
         
         /* replace macros from the config in the commandline */
@@ -312,20 +324,45 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         cOsCommand# = sc_string_substitute:ExpandOsEnv(cOsCommand#).
         
         /* execute the command to report feedback */
-        bReturn# = yes.
-        os-command value(cOsCommand#).
         
+        if opsys = "win32" and length(cOsCommand#) >= 255 then do:
+          
+          /* Workaround for a very old bug in Windows APIs: _popen() and _wpopen().                                  */
+          /* See: http://stackoverflow.com/questions/682799/what-to-do-with-the-input-line-is-too-long-error-message */
+          /* Even this does not work: cOsCommand# = replace(cOsCommand#,"~"", chr(94) /* circonflexe */ + "~""). */
+          
+          /* Remove double quotes */
+          cOsCommand# = replace(cOsCommand#,"~"", "").
+          
+          /* Put quotes around the whole command */
+          cOsCommand# = subst('"&1"',cOsCommand#).
+          
+          /* Note: if this causes trouble, use a dotnet process object, or a temporary bat file */
+          
+        end.
+        
+        if sc_environment:bBatchMode or session:window-system = "tty" then
+          os-command
+            value(cOsCommand#).
+        else
+          os-command
+            silent
+            value(cOsCommand#).
         
         /* handle any errors of the feedback */
+        bReturn# = true.
         if sc_osfile:FileExists(cErrorFile#) then
         do:
           
+          bCommandError# = true.
+          
           copy-lob file cErrorFile# to cCmdErrors# convert source codepage sc_environment:cCodepageNative.
+          
           if cCmdErrors# > "" then  /* any errors while giving feedback? */ 
           do:
-            bReturn# = no.
+            bReturn# = false.
             
-            if bFailSafeIP# = no then /* prevent looping in FailSafe mode */
+            if bFailSafeIP# = false then /* prevent looping in FailSafe mode */
             do:
               
               /* handle a second even (FailSafe) reporting errors of the first feedback attempt. */
@@ -338,7 +375,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
                 yes /* FailSafe */
                 ).
                 
-              if bReturn# <> yes then /* the second (FailSafe) event also failed, it stops here, throw an event */
+              if bReturn# <> true then /* the second (FailSafe) event also failed, it stops here, throw an event */
                 undo, throw new c_panaedraexception(
                   50463301,
                   sc_lang:oEnglish,
@@ -354,16 +391,20 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
                 ).
             
           end. /* if */    
-          else
-            sc_osfile:DeleteFile(cErrorFile#).
+          
+          if not bCommandError# then
+              sc_osfile:DeleteFile(cErrorFile#)
+                .
         end. /* if sc_osfile:FileExists(cErrorFile#) */
         
         return bReturn#.
   
         finally:
-          if sc_osfile:FileExists(cTempFile#) then
-            sc_osfile:DeleteFile(cTempFile#).
-          
+          if not bCommandError# then 
+          do:
+            if sc_osfile:FileExists(cTempFile#) then
+              sc_osfile:DeleteFile(cTempFile#).
+          end.
           if valid-object(oTempfileBuilderObject#) then
             delete object oTempfileBuilderObject#.  
         end finally.
