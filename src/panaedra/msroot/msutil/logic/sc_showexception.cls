@@ -155,7 +155,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
         oForm = new panaedra.msroot.msutil.view.c_dotnetformshowexception().
         
       /* Fill form data with data from exception. */
-      oForm:ShowException(ex).
+      oForm:ShowException(cExtraMessageIP#,ex).
       
       do on error undo, throw:
         

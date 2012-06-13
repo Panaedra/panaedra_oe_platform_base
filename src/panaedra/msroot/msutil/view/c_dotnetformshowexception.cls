@@ -253,7 +253,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
     end.
     
     if cExtraMessageIP# > "" then do:
-      tbInfo:Text = subst("&1~n&2",cExtraMessageIP#,tbInfo:Text).
+      tbInfo:Text = subst("&1" + chr(13) + chr(10)  + chr(13) + chr(10) + "&2",cExtraMessageIP#,tbInfo:Text).
     end.
     
     EclipseTopMost().
