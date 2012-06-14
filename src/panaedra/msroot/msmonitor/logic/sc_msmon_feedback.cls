@@ -186,6 +186,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     /*  # level   = event level: debug/info/warn/error/fatal */
     /*  # message = description of error condition           */
     
+    /* cEvent cEnv cOpsys cHostname cMonitorID */
+    
     do on error undo, throw:
       
       find b-ttMsMonFeedbackDef where 
@@ -244,7 +246,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           99938299,
           sc_lang:oEnglish,
           substitute("No MsMonFeedbackDef configuration found for event '&1', environment '&2', opsys '&3', hostname '&4', monitor ID '&5', message '&6'", 
-          cEventIP#, sc_environment:cEnv, opsys, sc_environment:cHostName, cMonitorIdIP#, cMessageIP#)
+          (if bFailSafeIP# then "FailSafe" else cEventIP#), sc_environment:cEnv, opsys, sc_environment:cHostName, cMonitorIdIP#, cMessageIP#)
           ).
         
       cOsCommand# = b-ttMsMonFeedbackDef.cOsCommand.
@@ -258,11 +260,10 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cLocation  = cLocationIP#
           b-ttMsMonFeedbackDef.cProcessID = string(sc_environment:GetProcessID())
           b-ttMsMonFeedbackDef.cEvent     = cEventIP#
-          b-ttMsMonFeedbackDef.cService   = sc_environment:cEnv
           b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv
+          b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
           b-ttMsMonFeedbackDef.cOpsys     = opsys
           b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName
-          b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
           .
         
         if oErrorIP# <> ? and (cMessageIP# = ? or cMessageIP# = "") then
