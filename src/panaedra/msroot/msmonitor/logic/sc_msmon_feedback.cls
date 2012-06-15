@@ -28,6 +28,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
   
   define protected static variable dtmLastConfig as datetime-tz no-undo.
   
+  define stream str-out.
+  
   method public static void TestDefaultConfig(
     
     /* Test the default configuration */
@@ -324,29 +326,37 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         
         /* execute the command to report feedback */
         
-        if opsys = "win32" and length(cOsCommand#) >= 255 then do:
-          
-          /* Workaround for a very old bug in Windows APIs: _popen() and _wpopen().                                  */
-          /* See: http://stackoverflow.com/questions/682799/what-to-do-with-the-input-line-is-too-long-error-message */
-          /* Even this does not work: cOsCommand# = replace(cOsCommand#,"~"", chr(94) /* circonflexe */ + "~""). */
-          
-          /* Remove double quotes */
-          cOsCommand# = replace(cOsCommand#,"~"", "").
-          
-          /* Put quotes around the whole command */
-          cOsCommand# = subst('"&1"',cOsCommand#).
-          
-          /* Note: if this causes trouble, use a dotnet process object, or a temporary bat file */
-          
-        end.
+        &if opsys = "win32" &then
+        
+        /* Workaround for a very old bug in Windows APIs: _popen() and _wpopen().                                  */
+        /* See: http://stackoverflow.com/questions/682799/what-to-do-with-the-input-line-is-too-long-error-message */
+        /* Even this does not work: cOsCommand# = replace(cOsCommand#,"~"", chr(94) /* circonflexe */ + "~"").     */
+        
+        define variable cBatFile# as character no-undo.
+        
+        cBatFile# = sc_path:cTempDir + replace(guid,"-",".") + ".bat".
+        
+        output stream str-out to value(cBatFile#).
+        put stream str-out unformatted "@echo off" skip cOsCommand# skip "exit" skip.
+        output stream str-out close.
         
         if sc_environment:bBatchMode or session:window-system = "tty" then
           os-command
-            value(cOsCommand#).
+            value(cBatFile#).
         else
           os-command
             silent
-            value(cOsCommand#).
+            value(cBatFile#).
+        
+        sc_osfile:DeleteFile(cBatFile#).
+
+        &else
+        
+        os-command
+          value(cOsCommand#).
+          
+        &endif
+        
         
         /* handle any errors of the feedback */
         bReturn# = true.
@@ -392,8 +402,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           end. /* if */    
           
           if not bCommandError# then
-              sc_osfile:DeleteFile(cErrorFile#)
-                .
+            sc_osfile:DeleteFile(cErrorFile#)
+              .
         end. /* if sc_osfile:FileExists(cErrorFile#) */
         
         return bReturn#.
