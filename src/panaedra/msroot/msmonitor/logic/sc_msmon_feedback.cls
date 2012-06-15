@@ -388,7 +388,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
                 undo, throw new c_panaedraexception(
                   50463301,
                   sc_lang:oEnglish,
-                  substitute("MsMonFeedback error (FailSafe error loop): &1", cCmdErrors#)
+                  substitute("MsMonFeedback error (FailSafe error loop): &1  message=&2", cCmdErrors#, cMessageIP#)
                   ).
                   
             end. /* if */    
@@ -396,7 +396,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
               undo, throw new c_panaedraexception(
                 50463302,
                 sc_lang:oEnglish,
-                substitute("MsMonFeedback error (FailSafe error loop): &1", cCmdErrors#)
+                  substitute("MsMonFeedback error (FailSafe error loop): &1  message=&2", cCmdErrors#, cMessageIP#)
                 ).
             
           end. /* if */    
