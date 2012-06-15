@@ -28,6 +28,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
   
   define protected static variable dtmLastConfig as datetime-tz no-undo.
   
+  define stream str-in.
   define stream str-out.
   
   method public static void TestDefaultConfig(
@@ -200,6 +201,15 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       
       if not avail b-ttMsMonFeedbackDef then
         find b-ttMsMonFeedbackDef where 
+          b-ttMsMonFeedbackDef.cEvent     = cEventIP#                and
+          b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
+          b-ttMsMonFeedbackDef.cOpsys     = opsys                    and
+          b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName and
+          b-ttMsMonFeedbackDef.cMonitorID = "(default)"
+          no-error.
+    
+      if not avail b-ttMsMonFeedbackDef then
+        find b-ttMsMonFeedbackDef where 
           b-ttMsMonFeedbackDef.cEvent     = cEventIP#            and
           b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
           b-ttMsMonFeedbackDef.cOpsys     = opsys                and
@@ -209,6 +219,25 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     
       if bFailSafeIP# = no then 
       do:
+        
+        if not avail b-ttMsMonFeedbackDef then
+          find b-ttMsMonFeedbackDef where 
+            b-ttMsMonFeedbackDef.cEvent     = "(default)"              and
+            b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
+            b-ttMsMonFeedbackDef.cOpsys     = opsys                    and
+            b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName and
+            b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
+            no-error.
+    
+        if not avail b-ttMsMonFeedbackDef then
+          find b-ttMsMonFeedbackDef where 
+            b-ttMsMonFeedbackDef.cEvent     = "(default)"              and
+            b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
+            b-ttMsMonFeedbackDef.cOpsys     = opsys                    and
+            b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName and
+            b-ttMsMonFeedbackDef.cMonitorID = "(default)"
+            no-error.
+    
         if not avail b-ttMsMonFeedbackDef then
           find b-ttMsMonFeedbackDef where 
             b-ttMsMonFeedbackDef.cEvent     = "(default)"          and
@@ -321,10 +350,17 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         cOsCommand# = replace(cOsCommand#,"[:cEnv:]",sc_environment:cEnv).
         cOsCommand# = replace(cOsCommand#,"[:cEvent:]",cEventIP#).
         
-        /* expand env.variables in the commandline */
+        /* Expand env.variables in the commandline */
         cOsCommand# = sc_string_substitute:ExpandOsEnv(cOsCommand#).
         
-        /* execute the command to report feedback */
+        /* Execute the command to report feedback */
+        
+        /* Give some feedback, sometimes it's hard to debug on (for example) an appserver session. */
+        if sc_environment:bBatchMode then
+          message now "Executing os-command:" cOsCommand#
+            view-as alert-box.
+        
+        define variable cLine#    as character no-undo.
         
         &if opsys = "win32" &then
         
@@ -337,12 +373,28 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         cBatFile# = sc_path:cTempDir + replace(guid,"-",".") + ".bat".
         
         output stream str-out to value(cBatFile#).
-        put stream str-out unformatted "@echo off" skip cOsCommand# skip "exit" skip.
+        put stream str-out unformatted 
+          "@echo off" skip cOsCommand# skip 
+          "exit" skip.
         output stream str-out close.
         
-        if sc_environment:bBatchMode or session:window-system = "tty" then
-          os-command
-            value(cBatFile#).
+        if sc_environment:bBatchMode or session:window-system = "tty" then 
+        do:
+          
+          input stream str-in through value(cBatFile#).
+          b_command:
+          repeat on error undo, throw:
+            import stream str-in unformatted cLine#.
+            message cLine#
+              view-as alert-box.
+            catch oError# as Progress.Lang.Error :
+              sc_showexception:ShowExceptionKeepNative(oError#). /* Keep Native: don't go back to msmon_feedback, keep handling native to the session. */
+              leave b_command.	
+            end catch.
+          end. /* b_command */
+          input stream str-in close.
+          
+        end.
         else
           os-command
             silent
@@ -352,11 +404,16 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
 
         &else
         
+        /* os=unix. 
+           If you need more direct feedback from os-command: 
+           It's possible to use input through like win32 above, 
+           but for now we leave it as it is. 
+        */
+        
         os-command
           value(cOsCommand#).
           
         &endif
-        
         
         /* handle any errors of the feedback */
         bReturn# = true.
@@ -396,7 +453,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
               undo, throw new c_panaedraexception(
                 50463302,
                 sc_lang:oEnglish,
-                  substitute("MsMonFeedback error (FailSafe error loop): &1  message=&2", cCmdErrors#, cMessageIP#)
+                substitute("MsMonFeedback error (FailSafe error loop): &1  message=&2", cCmdErrors#, cMessageIP#)
                 ).
             
           end. /* if */    
