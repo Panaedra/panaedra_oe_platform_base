@@ -186,8 +186,6 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     /*  # level   = event level: debug/info/warn/error/fatal */
     /*  # message = description of error condition           */
     
-    /* cEvent cEnv cOpsys cHostname cMonitorID */
-    
     do on error undo, throw:
       
       find b-ttMsMonFeedbackDef where 
