@@ -101,7 +101,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       cEventIP#,    
       cMonitorIdIP#,
       cLocationIP#, 
-      "",
+      cMessageIP#,
       oErrorIP#,
       no /* FailSafe */
       ).
@@ -150,7 +150,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       cEventIP#,    
       cMonitorIdIP#,
       cLocationIP#, 
-      "",
+      cMessageIP#,
       oErrorIP#,
       no /* FailSafe */
       ).
