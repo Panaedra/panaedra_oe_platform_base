@@ -50,7 +50,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       "MyTestEvent",
       "MyTestMonitorID",
       "At some location...",
-      "",          /* Message, if supplied: overrules exception message           */
+      "This is terribly wrong!",          /* Message, if supplied: overrules exception message           */
       oPanaedraError# /* Optional exception object, to pass callstack and other info */
       ).
     
@@ -436,7 +436,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
                 "FailSafe",    
                 cMonitorIdIP#,
                 cLocationIP#, 
-                subst("&1, original message=&2", string(cCmdErrors#), cMessageIP#),
+                subst("&1, original feedback: event=&2 monitorid=&3 location=&4 message=&4", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#),
                 oErrorIP#,
                 yes /* FailSafe */
                 ).
@@ -445,7 +445,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
                 undo, throw new c_panaedraexception(
                   50463301,
                   sc_lang:oEnglish,
-                  substitute("MsMonFeedback error (FailSafe error loop): &1  message=&2", cCmdErrors#, cMessageIP#)
+                  subst("MsMonFeedback error (FailSafe error loop): &1, original feedback: event=&2 monitorid=&3 location=&4 message=&4", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#)                  
                   ).
                   
             end. /* if */    
@@ -453,7 +453,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
               undo, throw new c_panaedraexception(
                 50463302,
                 sc_lang:oEnglish,
-                substitute("MsMonFeedback error (FailSafe error loop): &1  message=&2", cCmdErrors#, cMessageIP#)
+                  subst("MsMonFeedback error (FailSafe error loop): &1, original feedback: event=&2 monitorid=&3 location=&4 message=&4", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#)                  
                 ).
             
           end. /* if */    
