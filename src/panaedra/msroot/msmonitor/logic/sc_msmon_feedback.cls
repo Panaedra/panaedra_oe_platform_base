@@ -436,7 +436,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
                 "FailSafe",    
                 cMonitorIdIP#,
                 cLocationIP#, 
-                string(cCmdErrors#),
+                subst("&1, original message=&2", string(cCmdErrors#), cMessageIP#),
                 oErrorIP#,
                 yes /* FailSafe */
                 ).
