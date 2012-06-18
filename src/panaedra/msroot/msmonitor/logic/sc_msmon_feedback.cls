@@ -436,7 +436,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
                 "FailSafe",    
                 cMonitorIdIP#,
                 cLocationIP#, 
-                subst("&1, original feedback: event=&2 monitorid=&3 location=&4 message=&4", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#),
+                subst("&1, original feedback: event=&2 monitorid=&3 location=&4 message=&5", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#),
                 oErrorIP#,
                 yes /* FailSafe */
                 ).
@@ -445,7 +445,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
                 undo, throw new c_panaedraexception(
                   50463301,
                   sc_lang:oEnglish,
-                  subst("MsMonFeedback error (FailSafe error loop): &1, original feedback: event=&2 monitorid=&3 location=&4 message=&4", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#)                  
+                  subst("MsMonFeedback error (FailSafe error loop): &1, original feedback: event=&2 monitorid=&3 location=&4 message=&5", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#)                  
                   ).
                   
             end. /* if */    
@@ -453,7 +453,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
               undo, throw new c_panaedraexception(
                 50463302,
                 sc_lang:oEnglish,
-                  subst("MsMonFeedback error (FailSafe error loop): &1, original feedback: event=&2 monitorid=&3 location=&4 message=&4", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#)                  
+                  subst("MsMonFeedback error (FailSafe error loop): &1, original feedback: event=&2 monitorid=&3 location=&4 message=&5", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#)                  
                 ).
             
           end. /* if */    
