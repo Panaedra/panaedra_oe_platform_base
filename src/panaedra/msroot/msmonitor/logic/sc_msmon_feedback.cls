@@ -506,6 +506,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     
     if bReload# then
     do:
+      empty temp-table ttMsMonFeedbackDef.
       sc_config:ReadXml(dataset dsMsMonFeedback:handle,cConfigFile#).
       dtmLastConfig = dtmConfigFile#.
     end.
