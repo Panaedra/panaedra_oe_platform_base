@@ -308,14 +308,14 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     end.
     
     if bMakeUniqueIP# then
-    for each ttCsvSortList on error undo, throw:
-      for each b-ttCsvSortList 
-        where b-ttCsvSortList.cValue = ttCsvSortList.cValue
-        and rowid(b-ttCsvSortList) <> rowid(ttCsvSortList)
-        on error undo, throw:
-        delete b-ttCsvSortList.
+      for each ttCsvSortList on error undo, throw:
+        for each b-ttCsvSortList 
+          where b-ttCsvSortList.cValue = ttCsvSortList.cValue
+          and rowid(b-ttCsvSortList) <> rowid(ttCsvSortList)
+          on error undo, throw:
+          delete b-ttCsvSortList.
+        end.
       end.
-    end.
   
     for each ttCsvSortList on error undo, throw:
       cReturn# = cReturn# + cDelimIP# + ttCsvSortList.cValue.
@@ -330,10 +330,10 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
   method public static character CsvAddLast(cCsvIP# as character, cNewValueIP# as character):
     
-    /* ToDo: decide on comment and annotation standard */
+    /* WouldHave: decide on comment and annotation standard */
     @panaedra.comment.method file
       (nl_desc="
-       Voegt een waarde toe aan een seperated value list, zonder dat er delimiters teveel in komen. ~n &if false &then codeQok#7104 &endif
+       Voegt een waarde toe aan een seperated value list, zonder dat er dubbele entries in komen. ~n &if false &then codeQok#7104 &endif
        "
       ,nl_note="
        In deze overload is de delimiter een komma (~",~") ~n &if false &then codeQok#7104 &endif
@@ -400,62 +400,80 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   end method. /* CsvAddFirst ; any delimiter */
 
 
-  method public static character CsvAddFirstUnique(cCsvIP# as character, cNewValueIP# as character):
+  method public static character CsvAddFirstUnique(cCsvIP# as character, cSvNewValueIP# as character):
     
     /* Adds a value to the front of a seperated value list, without adding too much delimiters.
        Use this overload to use a comma as delimiter. 
     */
     
-    return CsvAddFirstUNique(cCsvIP#, cNewValueIP#, ",").
+    return CsvAddFirstUNique(cCsvIP#, cSvNewValueIP#, ",").
     
-  end method. /* CsvAddFirst ; delimiter = "," */
+  end method. /* CsvAddFirstUnique ; delimiter = "," */
 
 
-  method public static character CsvAddFirstUnique(cCsvIP# as character, cNewValueIP# as character, cDelimiterIP# as character):
+  method public static character CsvAddFirstUnique(cCsvIP# as character, cSvNewValueIP# as character, cDelimiterIP# as character):
     
     /* Adds a value to the front of a seperated value list, without adding too much delimiters.
        Use this overload to supply your own delimiter. 
     */
+
+    define variable cInputEntry# as character no-undo.
+    define variable iTell#       as integer   no-undo.
     
-    define variable cReturn# as character no-undo.
+    define variable cCsv# as character no-undo.
     
-    if lookup(cNewValueIP#, cCsvIP#, cDelimiterIP#) = 0 then 
-      cReturn# = CsvAddFirst(cCsvIP#, cNewValueIP#, cDelimiterIP#).
-    else
-      cReturn# = cCsvIP#.
+    cCsv# = cCsvIP#.
     
-    return cReturn#.
+    do iTell# = 1 to num-entries(cSvNewValueIP#, cDelimiterIP#):
+      
+      cInputEntry# = entry(iTell#,cSvNewValueIP#, cDelimiterIP#).
+
+      if lookup(cInputEntry#, cCsv#, cDelimiterIP#) = 0 then 
+        cCsv# = CsvAddFirst(cCsv#, cInputEntry#, cDelimiterIP#).
+      
+    end. /* walk input entries */
     
-  end method. /* CsvAddFirst ; any delimiter */
+    return cCsv#.
+    
+  end method. /* CsvAddFirstUnique ; any delimiter */
 
   
-  method public static character CsvAddLastUnique(cCsvIP# as character, cNewValueIP# as character):
+  method public static character CsvAddLastUnique(cCsvIP# as character, cSvNewValueIP# as character):
     
     /* Adds a value to the end of a seperated value list, without adding too much delimiters.
        Use this overload to use comma as delimiter. 
     */
     
-    return CsvAddLastUnique(cCsvIP#, cNewValueIP#, ",").
+    return CsvAddLastUnique(cCsvIP#, cSvNewValueIP#, ",").
     
-  end method. /* CsvAddFirst ; delimiter = "," */
+  end method. /* CsvAddLastUnique ; delimiter = "," */
 
 
-  method public static character CsvAddLastUnique(cCsvIP# as character, cNewValueIP# as character, cDelimiterIP# as character):
+  method public static character CsvAddLastUnique(cCsvIP# as character, cSvNewValueIP# as character, cDelimiterIP# as character):
     
-    /* Adds a value to the end of a seperated value list, without adding too much delimiters.
+    /* Adds a value (or a list of values) to the end of a seperated value list, without adding too much delimiters.
        Use this overload to supply your own delimiter. 
     */
     
-    define variable cReturn# as character no-undo.
+    define variable cInputEntry# as character no-undo.
+    define variable iTell#       as integer   no-undo.
     
-    if lookup(cNewValueIP#, cCsvIP#, cDelimiterIP#) = 0 then 
-      cReturn# = CsvAddLast(cCsvIP#, cNewValueIP#, cDelimiterIP#).
-    else
-      cReturn# = cCsvIP#.
+    define variable cCsv# as character no-undo.
     
-    return cReturn#.
+    cCsv# = cCsvIP#.
     
-  end method. /* CsvAddFirst ; any delimiter */
+    do iTell# = 1 to num-entries(cSvNewValueIP#, cDelimiterIP#):
+      
+      cInputEntry# = entry(iTell#,cSvNewValueIP#, cDelimiterIP#).
+
+      if lookup(cInputEntry#, cCsv#, cDelimiterIP#) = 0 then 
+        cCsv# = CsvAddLast(cCsv#, cInputEntry#, cDelimiterIP#).
+      
+    end. /* walk input entries */
+    
+    return cCsv#.
+    
+  end method. /* CsvAddLastUnique ; any delimiter */
   
 end class. 
 
