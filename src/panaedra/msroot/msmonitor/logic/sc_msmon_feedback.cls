@@ -270,13 +270,24 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           
       end. /* Failsafe = yes */
       
-      if not avail b-ttMsMonFeedbackDef then
+      if not avail b-ttMsMonFeedbackDef then 
+      do:
+        
+        /* keep the ds/tt for debugging "No MsMonFeedbackDef configuration found " bug */
+        dataset dsMsMonFeedback:write-xml(
+          "file",
+          subst("&1dsMsMonFeedback_&2.xml", sc_path:cDataExchangeDir, guid),
+          yes,
+          ?
+          ).
+        
         undo, throw new c_panaedraexception(
           99938299,
           sc_lang:oEnglish,
           substitute("No MsMonFeedbackDef configuration found for event '&1', environment '&2', opsys '&3', hostname '&4', monitor ID '&5', message '&6'", 
           (if bFailSafeIP# then "FailSafe" else cEventIP#), sc_environment:cEnv, opsys, sc_environment:cHostName, cMonitorIdIP#, cMessageIP#)
           ).
+      end.    
         
       cOsCommand# = b-ttMsMonFeedbackDef.cOsCommand.
       
