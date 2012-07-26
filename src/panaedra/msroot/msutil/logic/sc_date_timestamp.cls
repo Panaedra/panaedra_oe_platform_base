@@ -230,10 +230,21 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
 
   method public static datetime-tz GetEndOfDay(dtmDay# as datetime-tz):
 
-    return add-interval(add-interval(dtmDay#, 1, "days"), -1, "milliseconds").
+    return add-interval(
+      add-interval(datetime-tz(date(dtmDay#)), +1, "day"),
+      -1,
+      "milliseconds"
+      ).
 
   end method. /* GetEndOfDay */
   
+
+  method public static datetime-tz GetBeginOfDay(dtmDay# as datetime-tz):
+
+    return datetime-tz(date(dtmDay#)).
+
+  end method. /* GetEndOfDay */
+
   
   method public static datetime-tz DatetimeFromString(cFormatIP# as character, cDatetimeIP# as character):
     
