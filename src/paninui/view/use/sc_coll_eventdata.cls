@@ -102,7 +102,7 @@ class paninui.view.use.sc_coll_eventdata
               do:
                 /* With AutoSort, a Sort doesn't fire PositionChanged, since the Position (row) number doesn't have to change (but the record does) */
                 /* Sadly, SortRequest also doesn't fire with the DataGridView... */
-                /* TODO: los probleem met SortRequest op */
+                /* ShouldHave: solve problem regarding SortRequest. */
                 oBindingSourceStrong#:SortRequest:Subscribe(oSingleton:OnEventArgsHandler_SortRequest).
               end.
             end.
@@ -1247,6 +1247,16 @@ class paninui.view.use.sc_coll_eventdata
         if bHandled# then leave b_EachUiEvent.
         
       end. /* b_EachUiEvent */
+      
+      &if int(entry(1,proversion,".")) >= 11 and dec(proversion) >= 11.1 &then 
+      
+      catch oDotNetError# as System.ArgumentOutOfRangeException:
+        /* ShouldHave: this extra catch block should not be necessary, every exception is Progress.Lang.Error. Contact TechSupport */
+        message oDotNetError#:ToString()
+          view-as alert-box.
+      end catch.
+      
+      &endif
       
       catch ex as Progress.Lang.Error:
         /* Catch needed in all .NET events */
