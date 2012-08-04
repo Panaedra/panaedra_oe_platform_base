@@ -788,6 +788,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     if index(cPathStringIOP#,"[:cTempDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cTempDir:]"         ,sc_path:cTempDir         ).
     if index(cPathStringIOP#,"[:cVanWanDir:]"       ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanWanDir:]"       ,sc_path:cVanWanDir       ).
     if index(cPathStringIOP#,"[:cWorkDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cWorkDir:]"         ,sc_path:cWorkDir         ).
+    if index(cPathStringIOP#,"[:bLiveEnv:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:bLiveEnv:]"         ,if sc_environment:bLiveEnv then "live" else "nonlive").
 
   end method. /* ReplacePathTokens */
   
