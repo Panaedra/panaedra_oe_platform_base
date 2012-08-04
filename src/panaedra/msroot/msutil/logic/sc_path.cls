@@ -792,6 +792,37 @@ class panaedra.msroot.msutil.logic.sc_path:
 
   end method. /* ReplacePathTokens */
   
+  
+  method public static character StandardIniFilePath(
+  
+    /* Supply a string like "myfile.ini", and:
+       1) the ini dir is prepended
+       2) the "_live" / "_nonlive" tag is inserted before last dot.
+       
+       If you need more flexibility, do something like:
+       sc_path:ReplacePathTokens("[:cIniDir:]myfile_[:bLiveEnv:].ini"). 
+       This precise input is actually the same as StandardIniFilePath does.
+          
+    */
+    
+    cIniFileIP# as character 
+    ):
+    
+    define variable iIndex# as integer no-undo.
+    
+    iIndex# = r-index(cIniFileIP#,".").
+    
+    if iIndex# = 0 or index(replace(cIniFileIP#,"~\","/"),"/") > 0 then
+      undo, throw new c_panaedraexception(
+        99948922,
+        sc_lang:oEnglish,
+        substitute("Ini file '&1' has no valid name", cIniFileIP#)
+        ).
+    
+    return sc_path:cIniDir + substring(cIniFileIP#,1,iIndex# - 1) + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + substring(cIniFileIP#,iIndex#).     
+  
+  end method. /* StandardIniFilePath */
+  
 
   method public static logical PathExists(
     
