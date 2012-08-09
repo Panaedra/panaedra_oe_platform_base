@@ -45,7 +45,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       sc_lang:oEnglish,
       substitute("Test error at time: '&1'~nThis is a message.~n The following text 'A test' could be stripped if cMessageFormat=~"commandline~".", now)
       ).
-    
+
     HandleEvent(
       "MyTestEvent",
       "MyTestMonitorID",
@@ -53,6 +53,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       "This is terribly wrong!",          /* Message, if supplied: overrules exception message           */
       oPanaedraError# /* Optional exception object, to pass callstack and other info */
       ).
+      
     
     finally:
       if valid-object(oPanaedraError#)
@@ -194,7 +195,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       find b-ttMsMonFeedbackDef where 
         b-ttMsMonFeedbackDef.cEvent     = cEventIP#                and
         b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
-        b-ttMsMonFeedbackDef.cOpsys     = opsys                    and
+        b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)                and
         b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName and
         b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
         no-error.
@@ -203,7 +204,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         find b-ttMsMonFeedbackDef where 
           b-ttMsMonFeedbackDef.cEvent     = cEventIP#                and
           b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
-          b-ttMsMonFeedbackDef.cOpsys     = opsys                    and
+          b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)                and
           b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName and
           b-ttMsMonFeedbackDef.cMonitorID = "(default)"
           no-error.
@@ -212,7 +213,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         find b-ttMsMonFeedbackDef where 
           b-ttMsMonFeedbackDef.cEvent     = cEventIP#            and
           b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
-          b-ttMsMonFeedbackDef.cOpsys     = opsys                and
+          b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)            and
           b-ttMsMonFeedbackDef.cHostname  = "(default)"          and
           b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
           no-error.
@@ -224,7 +225,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           find b-ttMsMonFeedbackDef where 
             b-ttMsMonFeedbackDef.cEvent     = "(default)"              and
             b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
-            b-ttMsMonFeedbackDef.cOpsys     = opsys                    and
+            b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)                and
             b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName and
             b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
             no-error.
@@ -233,7 +234,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           find b-ttMsMonFeedbackDef where 
             b-ttMsMonFeedbackDef.cEvent     = "(default)"              and
             b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
-            b-ttMsMonFeedbackDef.cOpsys     = opsys                    and
+            b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)                and
             b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName and
             b-ttMsMonFeedbackDef.cMonitorID = "(default)"
             no-error.
@@ -242,7 +243,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           find b-ttMsMonFeedbackDef where 
             b-ttMsMonFeedbackDef.cEvent     = "(default)"          and
             b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
-            b-ttMsMonFeedbackDef.cOpsys     = opsys                and
+            b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)            and
             b-ttMsMonFeedbackDef.cHostname  = "(default)"          and
             b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
             no-error.
@@ -251,7 +252,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           find b-ttMsMonFeedbackDef where 
             b-ttMsMonFeedbackDef.cEvent     = "(default)"          and
             b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
-            b-ttMsMonFeedbackDef.cOpsys     = opsys                and
+            b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)            and
             b-ttMsMonFeedbackDef.cHostname  = "(default)"          and
             b-ttMsMonFeedbackDef.cMonitorID = "(default)"
             no-error.
@@ -263,7 +264,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         find b-ttMsMonFeedbackDef where 
           b-ttMsMonFeedbackDef.cEvent     = "FailSafe"               and
           b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
-          b-ttMsMonFeedbackDef.cOpsys     = opsys                    and
+          b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)                and
           b-ttMsMonFeedbackDef.cHostname  = "(default)"              and
           b-ttMsMonFeedbackDef.cMonitorID = "(default)"
           no-error.
@@ -285,7 +286,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           99938299,
           sc_lang:oEnglish,
           substitute("No MsMonFeedbackDef configuration found for event '&1', environment '&2', opsys '&3', hostname '&4', monitor ID '&5', message '&6'", 
-          (if bFailSafeIP# then "FailSafe" else cEventIP#), sc_environment:cEnv, opsys, sc_environment:cHostName, cMonitorIdIP#, cMessageIP#)
+          (if bFailSafeIP# then "FailSafe" else cEventIP#), sc_environment:cEnv, lc(opsys), sc_environment:cHostName, cMonitorIdIP#, cMessageIP#)
           ).
       end.    
         
@@ -302,7 +303,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cEvent     = cEventIP#
           b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv
           b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
-          b-ttMsMonFeedbackDef.cOpsys     = opsys
+          b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)
           b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName
           .
         
