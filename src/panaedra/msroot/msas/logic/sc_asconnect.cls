@@ -11,8 +11,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
      Date Checkin: $Date: 2010-08-18 11:19:02+02:00 $ 
     Date Modified: $Modtime: 2010-08-18 11:04:46+02:00 $ 
 
-      Description: Methods aan te roepen vanaf de client om een 
-                   appserver connectie te maken.
+      Description: Methods to be used client-side as well as server-side for creating an appserver connection server handle.
 
   \*****************************  Include Files ********************************/
 
@@ -27,6 +26,10 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
   define protected static variable oSingleton   as panaedra.msroot.msas.logic.sc_asconnect no-undo.
   
   define static property bOffLine as logical no-undo 
+    public    get.
+    protected set.
+
+  define static property bInitializationError as logical no-undo 
     public    get.
     protected set.
   
@@ -48,88 +51,124 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
   
   method public static void Initialize():
     
-    if oSingleton = ? then oSingleton = new panaedra.msroot.msas.logic.sc_asconnect().
+    do on error undo, throw:
     
-    if sc_environment:bLiveEnv
-      then
-      sc_config:ReadXml(temp-table ttAsConnect:handle, sc_path:cIniDir + "sc_asconnect_live.config").
-    else
-      sc_config:ReadXml(temp-table ttAsConnect:handle, sc_path:cIniDir + "sc_asconnect_nonlive.config").
-    
-  end method. /* Initialize */
+      if oSingleton = ? then oSingleton = new panaedra.msroot.msas.logic.sc_asconnect().
+      
+      if sc_environment:bLiveEnv
+        then
+        sc_config:ReadXml(temp-table ttAsConnect:handle, sc_path:cIniDir + "sc_asconnect_live.config").
+      else
+        sc_config:ReadXml(temp-table ttAsConnect:handle, sc_path:cIniDir + "sc_asconnect_nonlive.config").
 
-
-  method protected static logical ConnectToServer(cEnvIP# as char, cMirrorIP# as char, /* Leeg = default */ cSuffixIP# as char ):
-    
-    if not bInitialized then 
-    do:
-      bInitialized = yes.
-      Initialize().
+      catch oError# as Progress.Lang.Error :
+        assign
+          bInitializationError = true
+          bInitialized         = false.
+        undo, throw oError#.	
+      end catch.
+      
     end.
     
-    find first ttAsConnect 
-      where ttAsConnect.cEnv    = cEnvIP#
-      and   ttAsConnect.cMirror = cMirrorIP#
-      and   ttAsConnect.cSuffix = cSuffixIP#
+  end method. /* Initialize */
+  
+  
+  method public static character GetConnectionString(cEnvIP# as char, cMirrorIP# as char, /* Empty = default */ cSuffixIP# as char ):
+    
+    define variable cReturn# as character no-undo.
+    
+    define buffer b-ttAsConnect for ttAsConnect.
+    
+    find first b-ttAsConnect 
+      where b-ttAsConnect.cEnv    = cEnvIP#
+      and   b-ttAsConnect.cMirror = cMirrorIP#
+      and   b-ttAsConnect.cSuffix = cSuffixIP#
       no-error.
     
-    if not avail ttAsConnect then 
-    do:
+    if avail b-ttAsConnect then do:
+      cReturn# = b-ttAsConnect.cConnect. 
+    end.
       
-      undo, throw new c_apiproxyexception(
-        99909002,
-        subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
-        cEnvIP#,
-        cMirrorIP#,
-        cSuffixIP#,
-        trim(string(sc_environment:bLiveEnv,"_live/_nonlive")))).
-        
-    end. 
-    else 
-    do: /* avail ttAsConnect */
-      
-      /* Als er inline gerunned moet worden, voor b.v. debuggen */
-      if ttAsConnect.cConnect = "[session:handle]" or ttAsConnect.hAppserver = session:handle /* Keep save for intermediate changes */ then
-      do:
-        ttAsConnect.hAppserver = session:handle.
-      end.
-      
-      /* Appserver connect with actual appserver */  
-      else
-      do on error undo, throw:
+    return cReturn#.
+  
+  end method. /* GetConnectionString */
+  
 
-        if not valid-handle(ttAsConnect.hAppserver) then
-          create server ttAsConnect.hAppserver.
-          
-        sc_prop:SetProp(ttAsConnect.hAppserver,"AsConnectString",ttAsConnect.cConnect).  
-        
-        /* Note: Take extra care with :connected() method. 
-           Exception is hidden for a loooong time and thrown at close of the session.
-           10.2A02 TW
-        */
-        if not ttAsConnect.hAppserver:connected() then
-          ttAsConnect.hAppserver:connect(ttAsConnect.cConnect) no-error.
-          
-        /* Note: Take extra care with :connected() method. 
-           Exception is hidden for a loooong time and thrown at close of the session.
-           10.2A02 TW
-        */
-        if error-status:num-messages = 0 and ttAsConnect.hAppserver:connected() then 
-          return true.
-        else undo, throw new c_apiproxyexception(
-            99909001,
-            subst("AppServer connection '&1' failed.~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'~n~n&5", 
-            ttAsConnect.cConnect, 
-            ttAsConnect.cEnv,
-            ttAsConnect.cMirror,
-            ttAsConnect.cSuffix,
-            error-status:get-message(1))).
-          
-      end. /* Appserver connect with actual appserver */ 
-
-    end. /* avail ttAsConnect */
+  method protected static logical ConnectToServer(cEnvIP# as char, cMirrorIP# as char, /* Empty = default */ cSuffixIP# as char ):
     
-    return true.
+    do on error undo, throw:
+    
+      if not bInitialized then
+      do on error undo, throw:
+        bInitialized = yes.
+        Initialize().
+      end.
+    
+      find first ttAsConnect 
+        where ttAsConnect.cEnv    = cEnvIP#
+        and   ttAsConnect.cMirror = cMirrorIP#
+        and   ttAsConnect.cSuffix = cSuffixIP#
+        no-error.
+    
+      if not avail ttAsConnect then 
+      do:
+      
+        undo, throw new c_apiproxyexception(
+          99909002,
+          subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+          cEnvIP#,
+          cMirrorIP#,
+          cSuffixIP#,
+          trim(string(sc_environment:bLiveEnv,"_live/_nonlive")))).
+        
+      end. 
+      else 
+      do: /* avail ttAsConnect */
+      
+        /* If something has to be run inline, inside the current session */
+        if ttAsConnect.cConnect = "[session:handle]" or ttAsConnect.hAppserver = session:handle /* Keep save for intermediate changes */ then
+        do:
+          ttAsConnect.hAppserver = session:handle.
+        end.
+      
+        /* Appserver connect (a real one) */  
+        else
+        do on error undo, throw:
+
+          if not valid-handle(ttAsConnect.hAppserver) then
+            create server ttAsConnect.hAppserver.
+          
+          sc_prop:SetProp(ttAsConnect.hAppserver,"AsConnectString",ttAsConnect.cConnect).  
+        
+          /* Note: Take extra care with :connected() method. 
+             Exception is hidden for a loooong time and thrown at close of the session.
+             10.2A02 TW
+          */
+          if not ttAsConnect.hAppserver:connected() then
+            ttAsConnect.hAppserver:connect(ttAsConnect.cConnect) no-error.
+          
+          /* Note: Take extra care with :connected() method. 
+             Exception is hidden for a loooong time and thrown at close of the session.
+             10.2A02 TW
+          */
+          if error-status:num-messages = 0 and ttAsConnect.hAppserver:connected() then 
+            return true.
+          else undo, throw new c_apiproxyexception(
+              99909001,
+              subst("AppServer connection '&1' failed.~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'~n~n&5", 
+              ttAsConnect.cConnect, 
+              ttAsConnect.cEnv,
+              ttAsConnect.cMirror,
+              ttAsConnect.cSuffix,
+              error-status:get-message(1))).
+          
+        end. /* Appserver connect with actual appserver */ 
+
+      end. /* avail ttAsConnect */
+    
+      return true.
+    
+    end. /* on error */
     
   end method. /* ConnectToServer */
 
@@ -216,42 +255,46 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
     
     define variable hReturn# as handle no-undo.
     
-    if not bInitialized then 
-    do:
-      bInitialized = yes.
-      Initialize().
-    end.
-
-    find ttAsConnect where ttAsConnect.cEnv = cEnvIP#
-      and ttAsConnect.cMirror = cMirrorIP#
-      and ttAsConnect.cSuffix = cSuffixIP#
-      no-error.
-        
-    if not avail ttAsConnect then 
-      undo, throw new c_apiproxyexception(
-        99909002,
-        subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
-        cEnvIP#,
-        cMirrorIP#,
-        cSuffixIP#,
-        trim(string(sc_environment:bLiveEnv,"_live/_nonlive")))).
-
-    if ttAsConnect.hAppserver <> session:handle then 
-    do:
-      if not valid-handle(ttAsConnect.hAppserver) 
-        then ConnectToServer(cEnvIP#, cMirrorIP#, cSuffixIP#).
-      /* Note: Take extra care with :connected() method. 
-         Exception is hidden for a loooong time and thrown at close of the session.
-         10.2A02 TW
-      */
-      else if not ttAsConnect.hAppserver:connected() 
-          then ConnectToServer(cEnvIP#, cMirrorIP#, cSuffixIP#).
-    end.
-      
-    hReturn# = ttAsConnect.hAppserver.
+    do on error undo, throw:
     
-    return hReturn#.
+      if not bInitialized then 
+      do on error undo, throw:
+        bInitialized = yes.
+        Initialize().
+      end.
 
+      find ttAsConnect where ttAsConnect.cEnv = cEnvIP#
+        and ttAsConnect.cMirror = cMirrorIP#
+        and ttAsConnect.cSuffix = cSuffixIP#
+        no-error.
+        
+      if not avail ttAsConnect then 
+        undo, throw new c_apiproxyexception(
+          99909002,
+          subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+          cEnvIP#,
+          cMirrorIP#,
+          cSuffixIP#,
+          trim(string(sc_environment:bLiveEnv,"_live/_nonlive")))).
+
+      if ttAsConnect.hAppserver <> session:handle then 
+      do:
+        if not valid-handle(ttAsConnect.hAppserver) 
+          then ConnectToServer(cEnvIP#, cMirrorIP#, cSuffixIP#).
+        /* Note: Take extra care with :connected() method. 
+           Exception is hidden for a loooong time and thrown at close of the session.
+           10.2A02 TW
+        */
+        else if not ttAsConnect.hAppserver:connected() 
+            then ConnectToServer(cEnvIP#, cMirrorIP#, cSuffixIP#).
+      end.
+      
+      hReturn# = ttAsConnect.hAppserver.
+    
+      return hReturn#.
+      
+    end.
+    
   end method. /* _sys_GetAppServer */
   
   

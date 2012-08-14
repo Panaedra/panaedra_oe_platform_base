@@ -35,7 +35,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected static variable hDsContext       as handle                         no-undo.
-  define public static    variable bExceptions      as logical                        no-undo.
+  define public    static variable bExceptions      as logical                        no-undo.
   
   &if opsys = "win32" and not {&paninui_tty} = true &then
   define public static    variable oMsDeployAskPack as paninui.pack.interfaces.i_pack no-undo.
@@ -103,7 +103,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     
     bExceptions = true.
     
-    sc_exception:FillTtExceptionTtCallstack(oExceptionIP#, dataset dsContext by-reference, cMirrorIP#).
+    sc_exception:FillTtExceptionTtCallstack(oExceptionIP#, dataset dsContext by-reference, subst("[Mirror] &1 ", cMirrorIP#)).
     
   end method. /* ExceptionsProxyCall */
 
@@ -115,6 +115,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     define variable cMessage#            as character            no-undo.
     define variable cMessageDebug#       as character            no-undo.  
     define variable oEventBroadcastData# as i_eventbroadcastdata no-undo.
+    define variable cConnectionString#   as character no-undo.
       
     define buffer b-ttExceptions for ttExceptions.
     
@@ -123,18 +124,32 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     if bExceptions or can-find(first b-ttExceptions) then 
     do:
       
+      do on error undo, throw:
+        
+        cConnectionString# = sc_asconnect:GetConnectionString(
+          sc_environment:cEnv,
+          cMirrorIP#,
+          sc_asconnect:GetSuffix()).
+        
+        catch oErrorPrevent# as Progress.Lang.Error :
+          cConnectionString# = "Unable to retrieve".
+        end catch.
+        
+      end.
+      
       find first b-ttExceptions no-error.
       
       /* If an exception has occurred in the proxy itself */
       if not avail b-ttExceptions then
-        sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, cMirrorIP#).
+        sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, subst("[Mirror] &1 [CallStackLine] :MIRROR: ~"&1~" :AS-CONNECT-STRING: ~"&2~" ", cMirrorIP#, cConnectionString#)).
       else
       /* If an exception has occurred on an appserver, append callstack */
       do:
-        if sc_boot:SessionParameter("UiMode") <> "AppServer"
+        if sc_boot:SessionParameter("UiMode") <> "AppServer" 
+          and not sc_asconnect:bInitializationError
           and sc_asconnect:GetAppserver(cMirrorIP#) <> session:handle then
         do:
-          sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, cMirrorIP#).
+          sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, subst("[Mirror] &1 [CallStackLine] :MIRROR: ~"&1~" :AS-CONNECT-STRING: ~"&2~" ", cMirrorIP#, cConnectionString#)).
         end. /* if sc_boot:SessionParameter("UiMode") <> "AppServer" */   
       end. /* else do */    
         
