@@ -1,3 +1,7 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
+using panaedra.msroot.msas.logic.*.
+
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.sc_exception: 
@@ -9,11 +13,10 @@ class panaedra.msroot.msutil.logic.sc_exception:
      Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
     Date Modified: $Modtime: 2010-01-27 19:53:29+01:00 $ 
 
-      Description: defineer speciale gebeurtenissen bij gekozen exceptions.
+      Description: Generic exception functionality with support for serializing (for appserver boundaries).
 
   \*****************************  Include Files ********************************/
-/*  {def/_PRODUCT_.i &class=class}*/
-  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &reference-only=reference-only &class=class}
+{panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &reference-only=reference-only &class=class}
   
   /************************  Source control constructor ************************/
   constructor public sc_exception(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
@@ -35,8 +38,8 @@ class panaedra.msroot.msutil.logic.sc_exception:
   
   method public static integer ErrorNumberRating():
     
-    /* De overload zonder parameters kijkt naar de error-status system handle.
-       Geeft unknown value terug bij 0 errors, zodat je bv "if rating <= 10" kunt doen.
+    /* This overload without parameters looks at the error-status system handle.
+       Returns unknown value at 0 errors, so "if rating <= 10" coding is possible.
      */
      
     if error-status:num-messages = 0 then return ?.
@@ -47,8 +50,8 @@ class panaedra.msroot.msutil.logic.sc_exception:
   
   method public static integer ErrorNumberRating(ex as Progress.Lang.Error):
     
-    /* De overload via een exception kijkt naar de 1e error in de exception.
-       Geeft unknown value terug bij 0 errors, zodat je bv "if rating <= 10" kunt doen.
+    /* Looks at the first error in the exception
+       Returns unknown value at 0 errors, so "if rating <= 10" coding is possible.
      */
      
     if ex:NumMessages = 0 then return ?.
@@ -59,8 +62,8 @@ class panaedra.msroot.msutil.logic.sc_exception:
   
   method public static integer ErrorNumberRating(iErrorIP# as integer):
    
-    /* deze method geeft foutmeldingen een rating, van 1 tot 30, op dit moment opgedeeld in 10 20 en 30.
-       10 = hoog (default), 20 = middel en 30 = laag (zoals verkeerde dataconversie) */
+    /* Give a rating to error codes, rating 1 to 30, at the moment only 10 20 30.
+       10 = high (default), 20 = medium and 30 = low (like invalid character) */
     
     define variable cHostname# as character no-undo.   
        
@@ -80,14 +83,14 @@ class panaedra.msroot.msutil.logic.sc_exception:
       when 5729 then /* Incompatible datatypes found during runtime conversion. (5729) */
         return 30. 
            
-      /* Nog niet bekende */
+      /* Unknown errors */
       otherwise 
       do:
-        /* Log de foutmelding _PPL_UNDISCLOSED_ en process id zodat we eventueel dit bestand kunnen uitbreiden. */
-        cHostname# = panaedra.msroot.msutil.logic.sc_environment:GetHostName().   
+        /* Log hostname and rating info. */
+        cHostname# = sc_environment:GetHostName().   
            
-        output stream str-log to value(panaedra.msroot.msutil.logic.sc_path:cLogDir + "sc_exception_rating.log") unbuffered append.
-        put stream str-log unformatted substitute("User: &1, PID: &2, Errornum: &3. Error number is not rated, modify source: sc_exception.cls.", cHostname#, panaedra.msroot.msutil.logic.sc_environment:GetProcessID(), iErrorIP#) skip.
+        output stream str-log to value(sc_path:cLogDir + "sc_exception_rating.log") unbuffered append.
+        put stream str-log unformatted substitute("User: &1, PID: &2, Errornum: &3. Error number is not rated, modify source: sc_exception.cls.", cHostname#, sc_environment:GetProcessID(), iErrorIP#) skip.
         put stream str-log unformatted substitute("Calling procedure: &1, &2", program-name(2), iso-date(now)) skip.
         output stream str-log close.
            
@@ -99,21 +102,34 @@ class panaedra.msroot.msutil.logic.sc_exception:
   end method. /* ErrorNumberRating */
   
 
-  method public static void FillTtExceptionTtCallstack(oExceptionIP as Progress.Lang.Error, dataset dsContext /* by ref */, cMirrorIP# as character):
+  method public static void FillTtExceptionTtCallstack(oExceptionIP# as Progress.Lang.Error, dataset dsContext /* by ref */, cExtraErrorInfoIP# as character):
     
-    define variable iNumErrorPS# as integer no-undo.
+    define variable iNumErrorPS#    as integer   no-undo.
+    define variable cMirror#        as character no-undo.
+    define variable cCallstackLine# as character no-undo.
     
     define buffer b-ttExceptions for ttExceptions.
     define buffer b-ttCallstack  for ttCallstack.
+
+    cCallstackLine# = sc_string_csv:GetParam(cExtraErrorInfoIP#,"CallStackLine").
+    if cCallstackLine# = ? then cCallstackLine# = "".
     
-    if valid-object(oExceptionIP) then
+    if cCallstackLine# > "" then 
     do:
-      /* Vul de Callstack (alle betrokken programma's) */
-      if oExceptionIP:CallStack > "" then 
-      /* oftewel: -errorstack staat aan */
+      create b-ttCallstack.
+      b-ttCallStack.cCallStack = subst("&1",cCallstackLine#).
+      release b-ttCallStack.
+    end.
+    
+    if valid-object(oExceptionIP#) then
+    do:
+      
+      /* Fill the Callstack (alle involved methods) */
+      if oExceptionIP#:CallStack > "" then 
+      /* meaning: -errorstack is active */
       do:
         create b-ttCallstack.
-        b-ttCallStack.cCallStack = replace(oExceptionIP:CallStack, 
+        b-ttCallStack.cCallStack = replace(oExceptionIP#:CallStack, 
           ":IMPLICIT", ":IMPLICIT (AppServer Boundary on ~"" +
           &if opsys = "unix" &then
           "unix"  +
@@ -121,23 +137,23 @@ class panaedra.msroot.msutil.logic.sc_exception:
           "win32" +
           &endif 
           "~" ~"" + 
-          panaedra.msroot.msas.logic.sc_asconnect:GetAppserverID() + "~")").
+          sc_asconnect:GetAppserverID() + "~")").
         release b-ttCallStack.
       end.
       else 
       do:
-        /* We hebben dan niet de callstack van waar de fout is opgetreden, maar wel via welke api de appserver is benaderd. */
+        /* We might not know the full callstack, maar we do know which api was called. */
         create b-ttCallstack.
-        b-ttCallStack.cCallStack = panaedra.msroot.msutil.logic.sc_info:GetCallStack().
+        b-ttCallStack.cCallStack = sc_info:GetCallStack().
         release b-ttCallStack.
       end.
       
-      /* Vul alle excepties */
-      do iNumErrorPS# = 1 to oExceptionIP:NumMessages:
+      /* Fill all exceptions */
+      do iNumErrorPS# = 1 to oExceptionIP#:NumMessages:
         create b-ttExceptions.
         b-ttExceptions.iOrder = iNumErrorPS#.
-        b-ttExceptions.iError = oExceptionIP:getMessageNum(iNumErrorPS#).
-        b-ttExceptions.cError = oExceptionIP:getMessage(iNumErrorPS#).
+        b-ttExceptions.iError = oExceptionIP#:getMessageNum(iNumErrorPS#).
+        b-ttExceptions.cError = oExceptionIP#:getMessage(iNumErrorPS#).
       end.
     end. /* Valid exception object */
     
@@ -151,21 +167,27 @@ class panaedra.msroot.msutil.logic.sc_exception:
     
     if not can-find(first b-ttCallstack) then
     do:
-      /* We hebben dan niet de callstack van waar de fout is opgetreden, maar wel via welke api de appserver is benaderd. */
+      /* We might not know the full callstack, maar we do know which api was called. */
       create b-ttCallstack.
-      b-ttCallStack.cCallStack = panaedra.msroot.msutil.logic.sc_info:GetCallStack().
+      b-ttCallStack.cCallStack = sc_info:GetCallStack().
       release b-ttCallStack.
     end.
         
-    if panaedra.msroot.msutil.logic.sc_boot:SessionParameter("UiMode") <> "AppServer"
-      and panaedra.msroot.msas.logic.sc_asconnect:GetAppserver(cMirrorIP#) <> session:handle then
+    if sc_boot:SessionParameter("UiMode") <> "AppServer" then 
     do:
-      /* Dit regelt het laatste ontbrekende stukje callstack */
-      create b-ttCallstack.
-      b-ttCallStack.cCallStack = panaedra.msroot.msutil.logic.sc_info:GetCallStack().
-      release b-ttCallStack.
-    end.        
-        
+      
+      cMirror# = sc_string_csv:GetParam(cExtraErrorInfoIP#,"Mirror").
+      
+      if cMirror# > "" and sc_asconnect:GetAppserver(cMirror#) <> session:handle then
+      do:
+        /* This adds a final missing piece to the callstack */
+        create b-ttCallstack.
+        b-ttCallStack.cCallStack = sc_info:GetCallStack().
+        release b-ttCallStack.
+      end.
+              
+    end.
+      
   end method. /* FillTtExceptionTtCallstack */
 
 
@@ -225,7 +247,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
 
   method protected static Progress.Lang.Error ReThrowImplement (oExceptionIP# as Progress.Lang.Error, cArrayMsgIP# as character extent):
     
-    /* Kan gebruikt worden voor rethrow van een binnenkomende exception */
+    /* Can be used for rethrow */
     
     define variable oReturn# as Progress.Lang.AppError no-undo.
     define variable iTell#   as integer                no-undo.
