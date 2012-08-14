@@ -53,6 +53,13 @@ class panaedra.msroot.msutil.logic.sc_environment:
     end get.
     protected set.
     
+  define static property cSessionGuidShort as character no-undo init ?
+    public get:
+      if cSessionGuidShort = ? then cSessionGuidShort = substring(cSessionGuid,15,18).
+      return cSessionGuidShort.
+    end get.
+    protected set.
+    
   define static property cHostName as character no-undo init ? 
     public get:
       if cHostName = ? then cHostName = GetHostName().
@@ -64,6 +71,13 @@ class panaedra.msroot.msutil.logic.sc_environment:
     public get.
     public set.
   
+  define static property cIpAdres as character no-undo init ?
+    public get:
+      if cIpAdres = ? then cIpAdres = GetIpAdres().
+      return cIpAdres.
+    end get.
+    protected set.
+       
   define static property cUserID as character no-undo 
     public get:
       define variable cDefaultUser# as character no-undo.
@@ -674,6 +688,67 @@ class panaedra.msroot.msutil.logic.sc_environment:
       
   end method. /* IsIdeRunning */  
 
+  
+  method protected static character GetIpAdres():
+    
+    define variable cLine#                     as character no-undo.
+    define variable cIpAdres#                  as character no-undo.
+    define variable iTell#                     as integer   no-undo.
+    define variable bLocalAreaConnectionFound# as logical   no-undo.
+    define variable bDefaultGatewayFound#      as logical   no-undo.
+
+    &if opsys = "win32" &then 
+      
+    /* ShouldHave: use .net when possible to determine ip adress of session host */
+      
+    input through value("ipconfig") no-echo.
+    
+    b_read_file:
+    repeat on error undo, throw:
+      
+      import unformatted cLine#.
+      
+      if cLine# matches ("*Local Area Connection:*") then 
+        bLocalAreaConnectionFound# = yes.
+        
+      if trim(cLine#) begins "IP Address" 
+        or trim(cLine#) begins "IP-adres"     /* For dutch OS versions codeQok#7104 */
+        or trim(cLine#) begins "IPv4 Address"
+        or trim(cLine#) begins "IPv4-adres"   /* For dutch OS versions codeQok#7104 */
+        then 
+      do:
+        cIpAdres# = cLine#.
+        if bLocalAreaConnectionFound# then 
+          leave b_read_file.
+      end.
+      
+      if   trim(cLine#) begins "Default Gateway"
+        or trim(cLine#) begins "Standaardgateway" /* For dutch OS versions codeQok#7104 */
+        then 
+      do:
+        if num-entries(cLine#,":") > 1 and trim(entry(2,cLine#,":")) > "" and cIpAdres# > "" then 
+        do:
+          /* When we have Default Gateway we assume this ipaddress is the right one */
+          leave b_read_file.
+        end.
+      end.
+    end. /* repeat */
+    
+    input close.
+    
+    cIpAdres# = trim(entry(1,substring(cIpAdres#,index(cIpAdres#,":") + 1),"(")).
+    &else
+    
+    input through value("resolv") no-echo.
+    import unformatted cIpAdres#.
+    input close.
+    
+    &endif
+    
+    return cIpAdres#.
+    
+  end method. /* GetIpAdres */
+  
 end class.
 
 /* EOF */
