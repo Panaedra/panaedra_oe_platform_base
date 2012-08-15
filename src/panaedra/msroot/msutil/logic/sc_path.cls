@@ -824,6 +824,40 @@ class panaedra.msroot.msutil.logic.sc_path:
   end method. /* StandardIniFilePath */
   
 
+  method public static character StandardIniDynFilePath(
+  
+    /* Supply a string like "myfile.dynamic.ini", and:
+       1) the ini dir is prepended
+       2) the "_live" / "_nonlive" tag is inserted before last dot.
+       
+       If you need more flexibility, do something like:
+       sc_path:ReplacePathTokens("[:cIniDir:]myfile_[:cEnv:].dynamic.ini").
+       Watch out: 
+       This precise input is a little bit different than the output from 
+       this method; 'live' tags are empty in the return value of this method.
+          
+    */
+    
+    cIniFileIP# as character 
+    ):
+    
+    define variable iIndex# as integer no-undo.
+    
+    iIndex# = r-index(cIniFileIP#,".").
+    iIndex# = r-index(cIniFileIP#,".",iIndex# - 1).
+    
+    if iIndex# = 0 or index(replace(cIniFileIP#,"~\","/"),"/") > 0 then
+      undo, throw new c_panaedraexception(
+        99948923,
+        sc_lang:oEnglish,
+        substitute("Ini (dynamic!) file '&1' has no valid name", cIniFileIP#)
+        ).
+    
+    return sc_path:cIniDir + substring(cIniFileIP#,1,iIndex# - 1) + (if sc_environment:bLiveEnv then "" else subst("_&1", lc(sc_environment:cEnv))) + substring(cIniFileIP#,iIndex#).     
+  
+  end method. /* StandardIniDynFilePath */
+
+
   method public static logical PathExists(
     
     /* Check if a path exists */
