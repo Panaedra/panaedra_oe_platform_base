@@ -828,7 +828,7 @@ class panaedra.msroot.msutil.logic.sc_path:
   
     /* Supply a string like "myfile.dynamic.ini", and:
        1) the ini dir is prepended
-       2) the "_live" / "_nonlive" tag is inserted before last dot.
+       2) Only in a *non-live* environment: a "_[:cEnv:]" tag is inserted before ".dynamic.ini".
        
        If you need more flexibility, do something like:
        sc_path:ReplacePathTokens("[:cIniDir:]myfile_[:cEnv:].dynamic.ini").
@@ -844,9 +844,9 @@ class panaedra.msroot.msutil.logic.sc_path:
     define variable iIndex# as integer no-undo.
     
     iIndex# = r-index(cIniFileIP#,".").
-    iIndex# = r-index(cIniFileIP#,".",iIndex# - 1).
+    iIndex# = r-index(cIniFileIP#,".",iIndex# - 1) no-error.
     
-    if iIndex# = 0 or index(replace(cIniFileIP#,"~\","/"),"/") > 0 then
+    if iIndex# = ? or iIndex# = 0 or index(replace(cIniFileIP#,"~\","/"),"/") > 0 then
       undo, throw new c_panaedraexception(
         99948923,
         sc_lang:oEnglish,
