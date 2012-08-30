@@ -197,7 +197,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
           
           if not valid-object(oMsDeployAskPack) then do:
             oMsDeployAskPack = panaedra.msroot.mspack.logic.sc_packcfg:NewPack("panaedra.msroot.msdeploy.pack.c_pack_msdeploy_ask").
-            oMsDeployAskPack:LoadPack(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow).
+            oMsDeployAskPack:LoadPack(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow, ? /* Directly on mdi */).
             oMsDeployAskPack:ShowPack().
           end.
           else do:

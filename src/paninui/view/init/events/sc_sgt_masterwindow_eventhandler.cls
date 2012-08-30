@@ -66,7 +66,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
       else
         oInitialPack = dynamic-new cInitialPack(cInitialPackCfg).
       
-      if valid-object(oInitialPack) then oInitialPack:LoadPack(oMdiWindow).
+      if valid-object(oInitialPack) then oInitialPack:LoadPack(oMdiWindow, ? /* no parent frame, directly on mdi */).
     
       cast(sender,System.Windows.Forms.Form):Load:Unsubscribe(this-object:MdiOnLoad).
 
@@ -105,7 +105,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
           oInitialPack = dynamic-new cInitialPack().
         else
           oInitialPack = dynamic-new cInitialPack(cInitialPackCfg).
-        if valid-object(oInitialPack) then oInitialPack:LoadPack(oMdiWindow).
+        if valid-object(oInitialPack) then oInitialPack:LoadPack(oMdiWindow, ? /* no parent frame, directly on mdi */).
       end.
     end.
     

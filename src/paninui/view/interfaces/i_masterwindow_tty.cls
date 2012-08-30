@@ -23,7 +23,8 @@ interface paninui.view.interfaces.i_masterwindow_tty:
   define property oUiFrameWorkSpace as i_uiframe_tty no-undo get.
   define property bIsShown          as logical       no-undo get.
   
-  method public void AddFrameToMainContainer (oFrmlgIP# as i_uiframe_tty).
+  method public void AddFrameToMainContainer (oFrmIP# as i_uiframe_tty).
+  method public void AddSubframeToWidget(oWdgParentIP# as System.Object, oFrmChildIP# as i_uiframe_tty).
   method public void SetStatusBarInfo (cLocationIP# as character, cMessageIP# as character).
 
 end interface.
