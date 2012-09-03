@@ -200,7 +200,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
         no-error.
       
-      if not avail b-ttMsMonFeedbackDef then
+      if not available b-ttMsMonFeedbackDef then
         find b-ttMsMonFeedbackDef where 
           b-ttMsMonFeedbackDef.cEvent     = cEventIP#                and
           b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
@@ -209,7 +209,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cMonitorID = "(default)"
           no-error.
     
-      if not avail b-ttMsMonFeedbackDef then
+      if not available b-ttMsMonFeedbackDef then
         find b-ttMsMonFeedbackDef where 
           b-ttMsMonFeedbackDef.cEvent     = cEventIP#            and
           b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
@@ -221,7 +221,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       if bFailSafeIP# = no then 
       do:
         
-        if not avail b-ttMsMonFeedbackDef then
+        if not available b-ttMsMonFeedbackDef then
           find b-ttMsMonFeedbackDef where 
             b-ttMsMonFeedbackDef.cEvent     = "(default)"              and
             b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
@@ -230,7 +230,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
             no-error.
     
-        if not avail b-ttMsMonFeedbackDef then
+        if not available b-ttMsMonFeedbackDef then
           find b-ttMsMonFeedbackDef where 
             b-ttMsMonFeedbackDef.cEvent     = "(default)"              and
             b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
@@ -239,7 +239,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             b-ttMsMonFeedbackDef.cMonitorID = "(default)"
             no-error.
     
-        if not avail b-ttMsMonFeedbackDef then
+        if not available b-ttMsMonFeedbackDef then
           find b-ttMsMonFeedbackDef where 
             b-ttMsMonFeedbackDef.cEvent     = "(default)"          and
             b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
@@ -248,8 +248,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
             no-error.
     
-        if not avail b-ttMsMonFeedbackDef then
-          find b-ttMsMonFeedbackDef where 
+        if not available b-ttMsMonFeedbackDef then
+          find first b-ttMsMonFeedbackDef where    /* hier find first uit pure wanhoop waarom soms geen config gevonden .... */ 
             b-ttMsMonFeedbackDef.cEvent     = "(default)"          and
             b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
             b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)            and
@@ -271,7 +271,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           
       end. /* Failsafe = yes */
       
-      if not avail b-ttMsMonFeedbackDef then 
+      if not available b-ttMsMonFeedbackDef then 
       do:
         
         /* keep the ds/tt for debugging "No MsMonFeedbackDef configuration found " bug */
