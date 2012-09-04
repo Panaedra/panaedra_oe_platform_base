@@ -181,6 +181,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     define variable bReturn#                as logical                  no-undo.
     define variable oPanaedraApiError#         as c_apiproxyexception      no-undo.
     define variable bCommandError#          as logical                  no-undo.
+    define variable bAmbiguous#             as logical                  no-undo.
     
     define buffer b-ttMsMonFeedbackDef for ttMsMonFeedbackDef.
     
@@ -200,6 +201,9 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
         no-error.
       
+      if not bAmbiguous# then
+        bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
+      
       if not available b-ttMsMonFeedbackDef then
         find b-ttMsMonFeedbackDef where 
           b-ttMsMonFeedbackDef.cEvent     = cEventIP#                and
@@ -208,6 +212,9 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName and
           b-ttMsMonFeedbackDef.cMonitorID = "(default)"
           no-error.
+
+      if not bAmbiguous# then
+        bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
     
       if not available b-ttMsMonFeedbackDef then
         find b-ttMsMonFeedbackDef where 
@@ -217,6 +224,9 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cHostname  = "(default)"          and
           b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
           no-error.
+
+      if not bAmbiguous# then
+        bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
     
       if bFailSafeIP# = no then 
       do:
@@ -229,6 +239,9 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName and
             b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
             no-error.
+
+        if not bAmbiguous# then
+          bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
     
         if not available b-ttMsMonFeedbackDef then
           find b-ttMsMonFeedbackDef where 
@@ -238,6 +251,9 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName and
             b-ttMsMonFeedbackDef.cMonitorID = "(default)"
             no-error.
+
+        if not bAmbiguous# then
+          bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
     
         if not available b-ttMsMonFeedbackDef then
           find b-ttMsMonFeedbackDef where 
@@ -248,15 +264,21 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
             no-error.
     
+        if not bAmbiguous# then
+          bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
+    
         if not available b-ttMsMonFeedbackDef then
-          find first b-ttMsMonFeedbackDef where    /* hier find first uit pure wanhoop waarom soms geen config gevonden .... */ 
+          find first b-ttMsMonFeedbackDef where 
             b-ttMsMonFeedbackDef.cEvent     = "(default)"          and
             b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
             b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)            and
             b-ttMsMonFeedbackDef.cHostname  = "(default)"          and
             b-ttMsMonFeedbackDef.cMonitorID = "(default)"
             no-error.
-            
+      
+        if not bAmbiguous# then
+          bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
+             
       end. /* if bFailSafeIP# = no */
       else 
       do:
@@ -268,6 +290,9 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cHostname  = "(default)"              and
           b-ttMsMonFeedbackDef.cMonitorID = "(default)"
           no-error.
+
+        if not bAmbiguous# then
+          bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
           
       end. /* Failsafe = yes */
       
@@ -285,8 +310,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         undo, throw new c_panaedraexception(
           99938299,
           sc_lang:oEnglish,
-          substitute("No MsMonFeedbackDef configuration found for event '&1', environment '&2', opsys '&3', hostname '&4', monitor ID '&5', message '&6'", 
-          (if bFailSafeIP# then "FailSafe" else cEventIP#), sc_environment:cEnv, lc(opsys), sc_environment:cHostName, cMonitorIdIP#, cMessageIP#)
+          substitute("No MsMonFeedbackDef configuration found for event '&1', environment '&2', opsys '&3', hostname '&4', monitor ID '&5', message '&6', ambiguous '&7'", 
+          (if bFailSafeIP# then "FailSafe" else cEventIP#), sc_environment:cEnv, lc(opsys), sc_environment:cHostName, cMonitorIdIP#, cMessageIP#, bAmbiguous#)
           ).
       end.    
         
