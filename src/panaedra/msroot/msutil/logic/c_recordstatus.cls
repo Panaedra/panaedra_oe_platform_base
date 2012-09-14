@@ -96,33 +96,11 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
     input hBufferIP# as handle
     ):
       
-    define variable cKeyvalues# as character no-undo.
-    define variable iVeld#      as integer   no-undo.
-    define variable cKeyfields# as character no-undo.
-    define variable hField#     as handle    no-undo.
-    define variable cFieldname# as character no-undo.
-    
     /* build a list of fieldsnames/values of the prim.index
        and save in property cSvKeyValues */
-    assign
-      cKeyfields# = sc_bufferfield:getKeyfields(hBufferIP#)
-      cSvKeyValues = ""
-      .
-     
-    if hBufferIP#:available then   
-    do iVeld# = 1 to num-entries(cKeyfields#) :
-      assign 
-      cFieldname# = entry(iVeld#, cKeyfields#)
-      hField# = hBufferIP#:buffer-field(cFieldname#)
-      cSvKeyValues = cSvKeyValues
-        + min(cSvKeyValues, ";")
-        + subst("&1=&2", cFieldname#, string(hField#:buffer-value))
-        .   
-    end.  
-    else
-      cSvKeyValues = "not available".
     
     assign   
+      cSvKeyValues  = sc_bufferfield:getKeyfieldValues(hBufferIP#, ";")
       cTableName    = hBufferIP#:table
       bAvailable    = hBufferIP#:available
       bLocked       = hBufferIP#:locked

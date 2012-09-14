@@ -33,20 +33,24 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
       
       when "date" or
       when "datetime" or
-      when "datetime-tz" then return iso-date(hFieldIP#:buffer-value).
+      when "datetime-tz" then 
+        return iso-date(hFieldIP#:buffer-value).
 
-      when "decimal" then do:
-        if session:numeric-format = "european" then do:
-          cRepl# = substitute("&1",hFieldIP#:buffer-value).
-          cRepl# = replace(cRepl#,".",chr(4)).
-          cRepl# = replace(cRepl#,",",".").
-          cRepl# = replace(cRepl#,chr(4),",").
-          return cRepl#.
+      when "decimal" then 
+        do:
+          if session:numeric-format = "european" then 
+          do:
+            cRepl# = substitute("&1",hFieldIP#:buffer-value).
+            cRepl# = replace(cRepl#,".",chr(4)).
+            cRepl# = replace(cRepl#,",",".").
+            cRepl# = replace(cRepl#,chr(4),",").
+            return cRepl#.
+          end.
+          else return substitute("&1",hFieldIP#:buffer-value).
         end.
-        else return substitute("&1",hFieldIP#:buffer-value).
-      end.
       
-      otherwise return substitute("&1",hFieldIP#:buffer-value).
+      otherwise 
+      return substitute("&1",hFieldIP#:buffer-value).
       
     end.
 
@@ -54,12 +58,12 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
   
   
   method public static character getKeyfields(
-  /*--------------------------------
-    return then Keyfields of a table
-    based on the primairy index.  
-    -------------------------------- */
-   input hBufferIP# as handle 
-  ):
+    /*--------------------------------
+      return then Keyfields of a table
+      based on the primairy index.  
+      -------------------------------- */
+    input hBufferIP# as handle 
+    ):
 
     define variable cReturn#  as char no-undo init "".
     define variable iVeld#    as int  no-undo.
@@ -96,9 +100,43 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
     else 
       cReturn# = "".
 
-   return cReturn#.   /* Function return value. */
+    return cReturn#.   /* Function return value. */
   
   end method. /* getKeyfields */
+  
+  
+  method public static character GetKeyFieldValues(
+    input hBufferIP# as handle,
+    input cSeparatorCharIP# as character
+    ):
+      
+    define variable cKeyfields#   as character no-undo.
+    define variable cSvKeyValues# as character no-undo.  
+    define variable iField#       as integer   no-undo.
+    define variable hField#       as handle    no-undo.
+    define variable cFieldname#   as character no-undo.
+      
+    assign
+      cKeyfields#   = getKeyfields(hBufferIP#)
+      cSvKeyValues# = ""
+      .
+     
+    if hBufferIP#:available then   
+    do iField# = 1 to num-entries(cKeyfields#) :
+      assign 
+        cFieldname#   = entry(iField#, cKeyfields#)
+        hField#       = hBufferIP#:buffer-field(cFieldname#)
+        cSvKeyValues# = cSvKeyValues#
+        + min(cSvKeyValues#, cSeparatorCharIP#)
+        + subst("&1=&2", cFieldname#, string(hField#:buffer-value))
+        .   
+    end.  
+    else
+      cSvKeyValues# = "not available".
+      
+    return cSvKeyValues#.     
+  
+  end method. /* GetKeyFieldValues */
 
 end class.
 
