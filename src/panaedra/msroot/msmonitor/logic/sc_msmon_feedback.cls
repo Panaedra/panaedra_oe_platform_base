@@ -335,8 +335,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         if oErrorIP# <> ? and (cMessageIP# = ? or cMessageIP# = "") then
           b-ttMsMonFeedbackDef.cMessage    = sc_showexception:ExceptionMsgToString(oErrorIP#).
         
-        if oErrorIP# <> ? then
-          b-ttMsMonFeedbackDef.cStackTrace = oErrorIP#:CallStack.  
+        if oErrorIP# <> ? then b-ttMsMonFeedbackDef.cStackTrace = oErrorIP#:CallStack.
         
         if oErrorIP# <> ? and type-of(oErrorIP#, c_apiproxyexception) then 
         do:
@@ -344,8 +343,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cMessage = b-ttMsMonFeedbackDef.cMessage + subst("~n&1",oPanaedraApiError#:ApiproxyExceptions).
         end.  
         
-        if b-ttMsMonFeedbackDef.cStackTrace = "" then
-          b-ttMsMonFeedbackDef.cStackTrace = sc_info:GetCallStack().
+        if b-ttMsMonFeedbackDef.cStackTrace > "" then.
+        else b-ttMsMonFeedbackDef.cStackTrace = sc_info:GetCallStack().
         
         /*-- if requested create a tempfile to use with the oscommand --*/
         if b-ttMsMonFeedbackDef.cTempfileBuilderObject > "" then
@@ -490,7 +489,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
               undo, throw new c_panaedraexception(
                 50463302,
                 sc_lang:oEnglish,
-                  subst("MsMonFeedback error (FailSafe error loop): &1, original feedback: event=&2 monitorid=&3 location=&4 message=&5", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#)                  
+                subst("MsMonFeedback error (FailSafe error loop): &1, original feedback: event=&2 monitorid=&3 location=&4 message=&5", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#)                  
                 ).
             
           end. /* if */    
@@ -523,6 +522,26 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     end. /* do */
   
   end method. /* HandleEvent_Implement */
+  
+  
+  method public static void HandleMissingData(
+    
+    /* Generic handling of "xxx not available" */
+  
+    input  iErrorIP#       as integer,
+    input  cLocationID#    as character,
+    input  hBuffIP#        as handle,
+    input  cSvKeyValuesIP# as character
+    ):
+      
+    HandleEvent(
+      "MissingData", /* Event */
+      hBuffIP#:name, /* ID    */
+      cLocationID#,  /* Location*/
+      new c_panaedraexception(iErrorIP#, sc_lang:oAny,
+      new c_recordstatus(hBuffIP#,cSvKeyValuesIP#))).
+             
+  end method. /* HandleMissingData */
   
   
   method public static void ReloadConfig():
