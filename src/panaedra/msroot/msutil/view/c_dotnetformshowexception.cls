@@ -1,3 +1,6 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
+
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
 &if opsys = "win32" and not "{&window-system}" = "tty" &then
@@ -298,7 +301,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
       if ex:CallStack > "" then 
         ttAblCallStack.cCallStack = ex:CallStack.
       else 
-        ttAblCallStack.cCallStack = panaedra.msroot.msutil.logic.sc_info:GetCallStack().
+        ttAblCallStack.cCallStack = sc_exception:GetCallStack().
         
     end.
     

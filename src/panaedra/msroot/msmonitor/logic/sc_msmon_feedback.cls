@@ -344,7 +344,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         end.  
         
         if b-ttMsMonFeedbackDef.cStackTrace > "" then.
-        else b-ttMsMonFeedbackDef.cStackTrace = sc_info:GetCallStack().
+        else b-ttMsMonFeedbackDef.cStackTrace = sc_exception:GetCallStack().
         
         /*-- if requested create a tempfile to use with the oscommand --*/
         if b-ttMsMonFeedbackDef.cTempfileBuilderObject > "" then

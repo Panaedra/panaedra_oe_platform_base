@@ -144,7 +144,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
       do:
         /* We might not know the full callstack, maar we do know which api was called. */
         create b-ttCallstack.
-        b-ttCallStack.cCallStack = sc_info:GetCallStack().
+        b-ttCallStack.cCallStack = GetCallStack().
         release b-ttCallStack.
       end.
       
@@ -169,7 +169,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
     do:
       /* We might not know the full callstack, maar we do know which api was called. */
       create b-ttCallstack.
-      b-ttCallStack.cCallStack = sc_info:GetCallStack().
+      b-ttCallStack.cCallStack = GetCallStack().
       release b-ttCallStack.
     end.
         
@@ -182,7 +182,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
       do:
         /* This adds a final missing piece to the callstack */
         create b-ttCallstack.
-        b-ttCallStack.cCallStack = sc_info:GetCallStack().
+        b-ttCallStack.cCallStack = GetCallStack().
         release b-ttCallStack.
       end.
               
@@ -279,6 +279,43 @@ class panaedra.msroot.msutil.logic.sc_exception:
     return oReturn#.
     
   end method. /* ReThrowImplement */  
+  
+
+  method public static character GetCallStack():
+
+    define variable iProgramNo#    as integer   no-undo.
+    define variable cCallStack#    as character no-undo.
+    define variable cProgramStack# as character no-undo.
+
+    /* Program 1 is skipped, it's this class itself */
+    iProgramNo# = 2.
+    
+    /* Look for known runs */
+    do while program-name(iProgramNo#) > ""
+      and program-name(iProgramNo#) <> "adecomm/_runcode.p":
+      
+      /* Exclude routine framework calls. */
+      if not (program-name(iProgramNo#) = "ShowException tool.panaedra.msroot.msutil.logic.sc_showexception"
+        or program-name(iProgramNo#) = "ShowException panaedra.msroot.msutil.view.c_dotnetformshowexception") then
+      do:
+        cProgramStack# = cProgramStack# + "," + program-name(iProgramNo#).
+      end.
+      
+      iProgramNo# = iProgramNo# + 1. 
+      
+    end.
+    
+    /* Collate the call stack, must recent on top */
+    do iProgramNo# = 1 to num-entries(cProgramStack#):
+      cCallStack# = cCallStack# + chr(13) + chr(10) + entry(iProgramNo#, cProgramStack#).
+    end.      
+    
+    /* Cleanup */
+    cCallStack# = trim(cCallStack#, chr(13) + chr(10)).
+    
+    return cCallStack#.
+
+  end method. /* GetCallStack */
 
 
 end class.

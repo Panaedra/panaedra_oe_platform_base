@@ -203,7 +203,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     define variable iTell#        as integer   no-undo.
     
     assign
-      cLastProgram# = panaedra.msroot.msutil.logic.sc_info:GetCallStack()
+      cLastProgram# = sc_exception:GetCallStack()
       cLastProgram# = entry(num-entries(cLastProgram#,chr(10)), cLastProgram#, chr(10))
       cLastProgram# = entry(num-entries(cLastProgram#," ")    , cLastProgram#, " ").
     
@@ -242,7 +242,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     define variable iTell#        as integer   no-undo.
     
     assign
-      cLastProgram# = panaedra.msroot.msutil.logic.sc_info:GetCallStack()
+      cLastProgram# = sc_exception:GetCallStack()
       cLastProgram# = entry(num-entries(cLastProgram#,chr(10)), cLastProgram#, chr(10))
       cLastProgram# = entry(num-entries(cLastProgram#," ")    , cLastProgram#, " ").
     
