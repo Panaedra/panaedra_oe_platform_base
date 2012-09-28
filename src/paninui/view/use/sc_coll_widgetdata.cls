@@ -519,7 +519,7 @@ class paninui.view.use.sc_coll_widgetdata
           cWidgetTypeIP#,
           hBuffOrQueryIP#,
           cDataRefIP#)
-          , sc_info:GetCallStack()).
+          , sc_exception:GetCallStack()).
         
     end.
     
@@ -591,7 +591,7 @@ class paninui.view.use.sc_coll_widgetdata
         iPackIdIP#,     
         cWidgetTypeIP#,
         cDataRefIP#)
-        , sc_info:GetCallStack()).
+        , sc_exception:GetCallStack()).
     
   end method. /* GetWidget : only by type (or any type) and name */
   
