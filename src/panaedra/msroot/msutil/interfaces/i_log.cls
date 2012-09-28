@@ -44,6 +44,7 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   
   /* Methods used to support WriteStatusFormatted */  
   method public void AddStatusColumn(input cLabelIP#    as character,input cFormatIP#   as character,input cDatatypeIP# as character).
+  method public void AddStatusColumn(input hBUfferIP# as handle).
   method public void ClearStatuscolumns().
     
   /* At this moment a total of 8 columns is supported, expand if necessary */
