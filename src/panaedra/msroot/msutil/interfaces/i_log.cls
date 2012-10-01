@@ -42,12 +42,15 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   method public void WriteStatusLn(cMessage# as character).
   method public void WriteStatusEmptyLn().
   
-  /* Methods used to support WriteStatusFormatted */  
+  /* new:  formatted with columns with buffer/query */
+  method public void WriteStatusHeader(input hBUfferIP# as handle).
+  method public void WriteStatusLn(input hBufferIP# as handle).
+  
+  /* Methods used to support formatted with columns  */  
   method public void AddStatusColumn(input cLabelIP#    as character,input cFormatIP#   as character,input cDatatypeIP# as character).
-  method public void AddStatusColumns(input hBUfferIP# as handle).
   method public void ClearStatuscolumns().
     
-  /* At this moment a total of 8 columns is supported, expand if necessary */
+  /* old:  At this moment a total of 8 columns is supported, expand if necessary */
   method public void WriteStatusFormatted(cVar1# as char).
   method public void WriteStatusFormatted(cVar1# as char,cVar2# as char).
   method public void WriteStatusFormatted(cVar1# as char,cVar2# as char,cVar3# as char).
@@ -56,7 +59,6 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   method public void WriteStatusFormatted(cVar1# as char,cVar2# as char,cVar3# as char,cVar4# as char,cVar5# as char,cVar6# as char).
   method public void WriteStatusFormatted(cVar1# as char,cVar2# as char,cVar3# as char,cVar4# as char,cVar5# as char,cVar6# as char,cVar7# as char).
   method public void WriteStatusFormatted(cVar1# as char,cVar2# as char,cVar3# as char,cVar4# as char,cVar5# as char,cVar6# as char,cVar7# as char,cVar8# as char).
-  method public void WriteStatusFormattedWithBuffer(input hBufferIP# as handle).
 
   /* write a error message */
   method public void WriteError(cMessage# as character).
