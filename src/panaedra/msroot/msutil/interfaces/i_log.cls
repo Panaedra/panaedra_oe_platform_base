@@ -42,9 +42,11 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   method public void WriteStatusLn(cMessage# as character).
   method public void WriteStatusEmptyLn().
   
-  /* new:  formatted with columns with buffer/query */
-  method public void WriteStatusHeader(input hBUfferIP# as handle).
-  method public void WriteStatusLn(input hBufferIP# as handle).
+  /* formatted with columns with buffer/query , field-handles possible */
+  method public void WriteStatusInit(hBufferReportIP# as handle).
+  method public void WriteStatusInit(hQueryIP# as handle, hBufferReportIP# as handle).
+  method public void WriteStatusHeader(hBufferReportIP# as handle).
+  method public void WriteStatusLn(hBufferReportIP# as handle).
   
   /* Methods used to support formatted with columns  */  
   method public void AddStatusColumn(input cLabelIP#    as character,input cFormatIP#   as character,input cDatatypeIP# as character).
