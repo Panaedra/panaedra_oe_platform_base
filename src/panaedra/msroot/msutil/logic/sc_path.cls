@@ -531,6 +531,13 @@ class panaedra.msroot.msutil.logic.sc_path:
 
   method public static character Full2PartialPath (cFullPathIP# as character):
     
+    return Full2PartialPath(cFullPathIP#, false).
+    
+  end method. /* Full2PartialPath ; simple overload */
+  
+
+  method public static character Full2PartialPath(cFullPathIP# as character, bReturnFullPathWhenFailedIP# as logical):
+    
     /*------------------------------------------------------------------------------
       Purpose:  Translate a full file path to a partial path with subdirectories
                 relative to (an entry in) the propath.
@@ -614,7 +621,10 @@ class panaedra.msroot.msutil.logic.sc_path:
       end.
 
     end.
-
+    
+    if bReturnFullPathWhenFailedIP# and (cReturn# = ? or cReturn# = "") 
+      then cReturn# = cFullPathIP#.
+    
     return cReturn#.
     
   end method. /* Full2PartialPath */
