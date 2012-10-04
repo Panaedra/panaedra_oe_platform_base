@@ -2,7 +2,9 @@ using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
-class panaedra.msroot.msutil.logic.sc_osfile:
+class panaedra.msroot.msutil.logic.sc_osfile
+  implements 
+  i_eventbroadcastclient:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_osfile.cls $ 
@@ -24,12 +26,37 @@ class panaedra.msroot.msutil.logic.sc_osfile:
 
   define stream s-alg-in.
   define stream s-alg-out.
+  define stream s-del-in.
+  define stream s-del-out.
 
   define protected static temp-table ttFile no-undo rcode-info
     field cFullPath as character.
 
   define protected static temp-table ttTempFile no-undo rcode-info
     field cFullPath as char.
+
+  define protected static temp-table ttFileExpire no-undo rcode-info
+    field cFullPath as char.
+
+  define protected static temp-table ttLineExpire no-undo rcode-info
+    field cFullPath as char
+    field dtmExpire as datetime-tz
+    index dtmExpire dtmExpire.
+
+  define protected static variable oSingleton as sc_osfile no-undo.
+
+  constructor protected sc_osfile():
+    
+    sc_eventbroadcaster:SubscribeEvent(this-object,"evt@SessionClose").
+         
+  end constructor.
+
+
+  destructor sc_osfile():
+    
+    sc_eventbroadcaster:UnSubscribeAllEvents(this-object).
+    
+  end destructor.
 
 
   method public static void DeleteAllFilesInDir(
@@ -52,7 +79,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     /* Note on directories: Deletes only empty directories */
     table for ttFile /* by-ref */ ):
     
-    define variable oAppError  as Progress.Lang.AppError no-undo.
+    define variable oAppError# as Progress.Lang.AppError no-undo.
     define variable cFullPath# as character              no-undo.
     
     for each ttFile on error undo, throw:
@@ -69,14 +96,14 @@ class panaedra.msroot.msutil.logic.sc_osfile:
       file-info:file-name = ttFile.cFullPath.      
       if file-info:full-pathname <> ? then 
       do:
-        if oAppError = ? then oAppError = new Progress.Lang.AppError("Some files couldn't be deleted",99950938).
-        oAppError:AddMessage(subst("&1 os-error &2", ttFile.cFullPath, os-error), 99950939).
+        if oAppError# = ? then oAppError# = new Progress.Lang.AppError("Some files couldn't be deleted",99950938).
+        oAppError#:AddMessage(subst("&1 os-error &2", ttFile.cFullPath, os-error), 99950939).
       end.
       
     end. /* For each ttFile */  
     
-    if oAppError <> ? then 
-      undo, throw oAppError.
+    if oAppError# <> ? then 
+      undo, throw oAppError#.
             
   end method. /* DeleteFiles */
   
@@ -292,6 +319,8 @@ class panaedra.msroot.msutil.logic.sc_osfile:
   method public static void RegisterTempFile( 
     /* If you have your own temp file that can't be deleted immediately, register it with this method.
        At the end of the session, it will be removed (if it isn't locked by another process).
+       
+       Important note: consider using DeleteFileExpire, that approach is cross-session and more robust.
     */
      
     cFullPathIP# as char ):
@@ -702,6 +731,125 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     return iReturn#.
   
   end method. /* GetFileByteSize */
+  
+  
+  method public static void FileDeleteExpire(
+    
+    /* Mark a file to delete after the supplied datetime expires.
+       Filename is written (full-path) to export file "expire_*.d" in "cLocalIniDir/sysref/del/".
+       Deletion of files is (if in use) retried in subsequent sessions.
+       
+       At session-close, delete is attempted.
+       If succesfull (or file is missing), record line of tempfile is deleted.
+       
+       If not succesfull, record line stays.
+       On next session-close (other session with same cLocalIniDir), delete is attempted again.
+       
+       Details:
+       ========
+       
+       Concurrency is handled like this:
+       
+       FileDeleteExpire always writes to "expire_YYYYMMDD_hhmmssfff_<sessionguid>_lock.d".
+       Timestamp in filename is "now", not dtmExpireIP#.
+       The cumulative file is renamed with current "now" on each write.
+       (dtmExpireIP# is inside file, first entry per line)
+       
+       At session-close, the session tries to delete its own temporary files.
+       If (partly) unsuccessfull, the _lock part is stripped from the filename.
+       All files of other sessions, older than 10 seconds, without _lock part, are also processed.
+       
+       In final catch (unexpected errors), the _lock part of this session's own file is stripped (with empty sub-catch).
+       
+     */
+     
+    cFileNameIP# as character,    /* example:  /mypath/myfile , or C:\MyPath\myfile.tmp */
+    dtmExpireIP# as datetime-tz): /* example:  add-interval(now, 5, "minutes")          */
+    
+    undo, throw new c_panaedraexception(
+      99948188,
+      sc_lang:oEnglish,
+      "Not implemented yet." /* ShouldHave: 20121004 - implement FileDeleteExpire */
+      ).
+    
+    &if false &then
+    
+    define variable cMyGuid#      as character   no-undo.
+    define variable cMyGuidMatch# as character   no-undo.
+    define variable cFullPath#    as character   no-undo.
+    define variable dtmExpire#    as datetime-tz no-undo.
+    
+    if oSingleton = ? then
+      oSingleton = new sc_osfile(). /* Subscribe ourselves to sessionclose broadcasted event */
+    
+    empty temp-table ttFileExpire.
+    
+    sc_osfile:GetFileNamesInDirectory(
+      sc_path:cLocalIniDir + "sysref/del/", 
+      "expire_*~~.d", 
+      false, 
+      output table ttFileExpire by-reference).
+    
+    assign
+      cMyGuid#      = sc_environment:cSessionGuidShort
+      cMyGuidMatch# = subst("expire_*&1*~~.d", cMyGuid#).
+    
+    /* Collect my own temp-files */
+    b_each_ttFileExpire:
+    for each ttFileExpire on error undo, throw:
+      
+      if ttFileExpire.cFullPath matches cMyGuidMatch# then 
+      do:
+        
+        input stream s-del-in from value(ttFileExpire.cFullPath) convert source "1252". 
+        
+        repeat on error undo, throw:
+          import stream s-del-in dtmExpire# cFullPath#.
+          create ttLineExpire.
+          assign
+            ttLineExpire.cFullPath = cFullPath# 
+            ttLineExpire.dtmExpire = dtmExpire#.
+          release ttLineExpire. 
+        end.
+        
+        input stream s-del-in close.
+        
+        leave b_each_ttFileExpire.
+         
+      end.
+      
+    end. /* b_each_ttFileExpire ; Collect my own temp-files*/
+    
+    &endif
+    
+  end method. /* FileDeleteExpire */
+  
+  
+  method protected static void FileDeleteExpireSessionClose(
+  
+    /* Comment: see FileDeleteExpire */
+    
+    ):
+  
+  end method. /* FileDeleteExpireSessionClose */
+
+
+  method public void OnEventBroadcast(
+	
+    oBroadcastDataIP# as i_eventbroadcastdata):
+		
+    case oBroadcastDataIP#:cEventName:
+      
+      when "evt@SessionClose" then 
+        do:
+          FileDeleteExpireSessionClose().
+          if valid-object(oSingleton) then 
+            delete object oSingleton. /* Note: we could let the GC handle this, no preference yet. */
+        end.
+      
+    end case.
+
+  end method. /* OnEventBroadcast */
   
 end class.
 
