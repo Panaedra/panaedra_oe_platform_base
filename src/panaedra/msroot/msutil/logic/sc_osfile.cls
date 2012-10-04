@@ -52,8 +52,8 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     /* Note on directories: Deletes only empty directories */
     table for ttFile /* by-ref */ ):
     
-    define variable oAppError as Progress.Lang.AppError no-undo.
-    define variable cFullPath# as character no-undo.
+    define variable oAppError  as Progress.Lang.AppError no-undo.
+    define variable cFullPath# as character              no-undo.
     
     for each ttFile on error undo, throw:
       
@@ -241,8 +241,9 @@ class panaedra.msroot.msutil.logic.sc_osfile:
               ttFile.cFullPath = cLine#[2].
           end.
         end.
-        else do:
-        if cMatchesIP# = ? or cMatchesIP# = "" or entry(num-entries(cLine#[2],"/"),cLine#[2],"/") matches cMatchesIP# then 
+        else 
+        do:
+          if cMatchesIP# = ? or cMatchesIP# = "" or entry(num-entries(cLine#[2],"/"),cLine#[2],"/") matches cMatchesIP# then 
           do:
             create ttFile.
             assign 
@@ -429,7 +430,8 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     if file-info:full-pathname = ? then 
     do:
       output stream s-alg-out to value(cIniIP#).
-      put stream s-alg-out unformatted "[" cSectionIP# "]" skip.
+      put stream s-alg-out unformatted 
+        "[" cSectionIP# "]" skip.
       put stream s-alg-out unformatted     cVarIP# "=" cValueIP# skip.
       output stream s-alg-out close.
       return yes.
@@ -541,7 +543,7 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     input bAppendIP#   as logical
     ):
     
-    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,false).
+    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,false,false).
     
   end method. /* SafeFileMove */
   
@@ -556,9 +558,24 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     input bAppendIP#   as logical
     ):
     
-    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,true).
+    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,true,false).
     
   end method. /* SafeFileMove */
+  
+  
+  method public static integer SafeFileMoveThrow(
+
+    /* Copy file from cFileFromIP# to cFileToIP# and use CorrectFileRights,
+       returns error number when error occured */
+
+    input cFileFromIP# as character,
+    input cFileToIP#   as character,
+    input bAppendIP#   as logical
+    ):
+    
+    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,true,true).
+    
+  end method. /* SafeFileMoveThrow */
   
   
   method protected static integer SafeFileCopyOrMove_Implement(
@@ -566,10 +583,11 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     /* Copy file from cFileFromIP# to cFileToIP# and use CorrectFileRights,
        returns error number when error occured */
 
-    input cFileFromIP# as character,
-    input cFileToIP#   as character,
-    input bAppendIP#   as logical,
-    input bMoveIP#     as logical
+    input cFileFromIP#    as character,
+    input cFileToIP#      as character,
+    input bAppendIP#      as logical,
+    input bMoveIP#        as logical,
+    input bThowOnErrorIP# as logical
     ):
 
     define variable iErrorNrOP# as integer no-undo initial 0.
@@ -584,6 +602,18 @@ class panaedra.msroot.msutil.logic.sc_osfile:
     if os-error <> 0 then
     do:
       iErrorNrOP# = 50370.
+      
+      if bThowOnErrorIP# then
+        undo, throw new c_panaedraexception(
+          28241214,
+          sc_lang:oEnglish,
+          subst("Error with &1 &2 to &3, os-error: &4",
+          if bMoveIP# then "moving" else "copying",
+          cFileFromIP#,
+          cFileToIP#,
+          os-error)
+          ).
+            
     end.
     else  
     /* If copy succeeded */
@@ -597,6 +627,18 @@ class panaedra.msroot.msutil.logic.sc_osfile:
         if os-error <> 0 then
         do:
           iErrorNrOP# = 50371.
+          
+          if bThowOnErrorIP# then
+            undo, throw new c_panaedraexception(
+              28241214,
+              sc_lang:oEnglish,
+              subst("Error with &1 &2 to &3, os-error: &4",
+              if bMoveIP# then "moving" else "copying",
+              cFileFromIP#,
+              cFileToIP#,
+              os-error)
+              ).
+          
         end.
       end. /* bMove# */
         
