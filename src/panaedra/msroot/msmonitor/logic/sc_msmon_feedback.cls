@@ -109,7 +109,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       
   end method. /* HandleEvent ; overload with only exception object and no message string */
     
-  
+      
   method public static logical HandleEvent(
     
     /* Handle a monitor event, by config file */
@@ -325,15 +325,15 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cUsername  = sc_environment:cUserID
           b-ttMsMonFeedbackDef.cLocation  = cLocationIP#
           b-ttMsMonFeedbackDef.cProcessID = string(sc_environment:GetProcessID())
-          b-ttMsMonFeedbackDef.cEvent     = cEventIP#
           b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv
-          b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
           b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)
           b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName
+          b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
+          b-ttMsMonFeedbackDef.cEvent     = cEventIP#
           .
         
-        if oErrorIP# <> ? and (cMessageIP# = ? or cMessageIP# = "") then
-          b-ttMsMonFeedbackDef.cMessage    = sc_showexception:ExceptionMsgToString(oErrorIP#).
+        if oErrorIP# <> ? then
+          b-ttMsMonFeedbackDef.cMessage    = subst("&1&2&3",b-ttMsMonFeedbackDef.cMessage,if  b-ttMsMonFeedbackDef.cMessage = "" then "" else "~n",sc_showexception:ExceptionMsgToString(oErrorIP#)).
         
         if oErrorIP# <> ? then b-ttMsMonFeedbackDef.cStackTrace = oErrorIP#:CallStack.
         
@@ -546,27 +546,9 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
   
   method public static void ReloadConfig():
     
-    define variable cConfigFile#   as character   no-undo.
-    define variable dtmConfigFile# as datetime-tz no-undo.
-    define variable bReload#       as logical     no-undo.
+    empty temp-table ttMsMonFeedbackDef.
+    sc_config:ReadXml(dataset dsMsMonFeedback:handle,sc_path:StandardIniFilePath("sc_msmon_feedback.config")).
     
-    assign
-      cConfigFile#   = sc_path:cIniDir + subst("sc_msmon_feedback_&1.config", if sc_environment:bLiveEnv then "live" else "nonlive")
-      dtmConfigFile# = sc_osfile:GetFileModDatetime(cConfigFile#).
-    
-    if dtmLastConfig = ? 
-      then bReload# = true.
-    
-    if (not bReload#) and (dtmLastConfig <> dtmConfigFile#)
-      then bReload# = true.
-    
-    if bReload# then
-    do:
-      empty temp-table ttMsMonFeedbackDef.
-      sc_config:ReadXml(dataset dsMsMonFeedback:handle,cConfigFile#).
-      dtmLastConfig = dtmConfigFile#.
-    end.
-  
   end method. /* ReloadConfig */
   
 end class.
