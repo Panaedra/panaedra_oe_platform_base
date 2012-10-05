@@ -499,6 +499,15 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
               .
         end. /* if sc_osfile:FileExists(cErrorFile#) */
         
+        /* If this is a non-live chui session */
+        if not sc_environment:bBatchMode and not sc_environment:bLiveEnv then
+        do:
+          /* Put message on screen as wel, makes for better testing */
+          {panaedra/msroot/msutil/logic/sc_messagebox_msg.i
+            &condition=TstEnvUiDbg
+            &msg=b-ttMsMonFeedbackDef.cMessage}
+        end.
+
         return bReturn#.
   
         finally:
