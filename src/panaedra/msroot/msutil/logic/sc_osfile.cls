@@ -577,6 +577,21 @@ class panaedra.msroot.msutil.logic.sc_osfile
   end method. /* SafeFileMove */
   
   
+  method public static integer SafeFileCopyThrow(
+
+    /* Copy file from cFileFromIP# to cFileToIP# and use CorrectFileRights,
+       returns error number when error occured */
+
+    input cFileFromIP# as character,
+    input cFileToIP#   as character,
+    input bAppendIP#   as logical
+    ):
+    
+    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,false,true).
+    
+  end method. /* SafeFileCopyThrow */
+  
+  
   method public static integer SafeFileMove(
 
     /* Copy file from cFileFromIP# to cFileToIP# and use CorrectFileRights,
