@@ -54,6 +54,8 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   method public void WriteException(oExepctionIP# as Progress.Lang.Error).
   method public void WriteException(oExepctionIP# as Progress.Lang.Error,cExtraTextIP# as character).
   
+  method public void WriteMissingData(hBufferIP# as handle,  cSvKeyValuesIP# as character).
+  
   /* signal the end of the logging */
   method public void Dispose(). 
   

@@ -866,6 +866,25 @@ class panaedra.msroot.msutil.logic.sc_osfile
 
   end method. /* OnEventBroadcast */
   
+  
+  method public static void FlipFileToWin(
+    input cInputfileIP# as character
+    ):
+      
+    if opsys = "unix" then 
+    do:
+      os-command silent value( "flip -mb " + cInputfileIP#).
+      pause 1 no-message.
+    end.
+    else
+      undo, throw new c_panaedraexception(
+        50458932,
+        sc_lang:oEnglish,
+        substitute("Not implemented yet")
+        ).
+  
+  end method. /* FlipFileToWin */
+  
 end class.
 
 /* EOF */ 
