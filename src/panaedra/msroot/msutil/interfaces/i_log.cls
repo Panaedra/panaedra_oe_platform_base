@@ -46,7 +46,7 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   method public void WriteStatusInit(hBufferReportIP# as handle).
   method public void WriteStatusInit(hQueryIP# as handle, hBufferReportIP# as handle).
   method public void WriteStatusHeader(hBufferReportIP# as handle).
-  method public void WriteStatusLn(hBufferReportIP# as handle).
+  method public void WriteStatusLnBuf(hBufferReportIP# as handle).
   
   /* write a error message */
   method public void WriteError(cMessage# as character).
