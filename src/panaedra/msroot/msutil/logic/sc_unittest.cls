@@ -4,7 +4,9 @@ using panaedra.msroot.msmonitor.logic.*.
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
-class panaedra.msroot.msutil.logic.sc_unittest: 
+class panaedra.msroot.msutil.logic.sc_unittest
+  implements
+  i_unittest_param: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive:  $ 
@@ -16,15 +18,15 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       Description: Unit Test functionality
 
   \*****************************  Include Files ********************************/
-{panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Pre}
-{panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Post}
+  {panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Pre}
+  {panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Post}
   
   &glob ttExtraFields ~
   field cSvHandles as character xml-node-type "attribute" ~
   field cWarning   as character xml-node-type "attribute" ~
   field iInstances as integer   xml-node-type "attribute"
   
-{panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Warn &ttWarnFieldsOnly=true}
+  {panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Warn &ttWarnFieldsOnly=true}
   
   &undefine ttExtraFields
 
@@ -42,24 +44,55 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     field cTestID         as character
     field bLastTestFailed as logical
     field hLastTestProc   as handle
+    field oLastTestClass  as Progress.Lang.Object
     field cLastTestProc   as character
     field dtmLastInit     as datetime-tz
     field dtmLastFinish   as datetime-tz
     index cTestID is primary unique cTestID.
 
-  define protected static variable cLogFile              as character no-undo.
-  define protected static variable cPreviousGlobalTestID as character no-undo.
-  define protected static variable cCurrentGlobalTestID  as character no-undo.
-  define protected static variable bFirstOfTwo           as logical   no-undo. /* If a unittest has finished okay, it's run a second time for memleak check. Stored in bFirstOfTwo. */
-  define protected static variable bRunOnNonTstOkay      as logical   no-undo.
+  define protected static variable oSingleton            as sc_unittest no-undo.
+  define protected static variable cLogFile              as character   no-undo.
+  define protected static variable cPreviousGlobalTestID as character   no-undo.
+  define protected static variable cCurrentGlobalTestID  as character   no-undo.
+  define protected static variable bFirstOfTwo           as logical     no-undo. /* If a unittest has finished okay, it's run a second time for memleak check. Stored in bFirstOfTwo. */
+  define protected static variable bRunOnNonTstOkay      as logical     no-undo.
   
+  constructor protected sc_unittest():
     
+  end constructor.
+    
+
   method public static void UnittestInit(
   
     /* Always run this method once, at the start of the unittest, outside of any transactions */
     
     hUnittestProcIP# as handle,
     cTestIDIP#       as character):
+    
+    UnittestInit(hUnittestProcIP#,?,cTestIDIP#).
+      
+  end method. /* UnittestInit | procedure handle */
+     
+    
+  method public static void UnittestInit(
+  
+    /* Always run this method once, at the start of the unittest, outside of any transactions */
+    
+    oUnittestClassIP#   as i_unittest_client,
+    cTestIDIP# as character):
+    
+    UnittestInit(?,oUnittestClassIP#,cTestIDIP#).
+      
+  end method. /* UnittestInit | object */
+     
+    
+  method protected static void UnittestInit(
+  
+    /* Always run this method once, at the start of the unittest, outside of any transactions */
+    
+    hUnittestProcIP#  as handle,
+    oUnittestClassIP# as i_unittest_client,
+    cTestIDIP#        as character):
 
     define variable bFirstOfTwo# as logical no-undo.
     
@@ -101,7 +134,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       . 
     
     /* First register */    
-    RegisterUnittest(hUnittestProcIP#,cTestIDIP#).
+    RegisterUnittest(hUnittestProcIP#,oUnittestClassIP#,cTestIDIP#).
     
     if bFirstOfTwo then 
     do:
@@ -117,11 +150,30 @@ class panaedra.msroot.msutil.logic.sc_unittest:
   
 
   method public static void UnittestFinish(
+    oUnittestClassIP# as i_unittest_client,
+    cTestIDIP#        as character):
+    
+    UnittestFinish(?,oUnittestClassIP#,cTestIDIP#).
+    
+  end method. /* UnittestFinish | object */
+  
+  
+  method public static void UnittestFinish(
+    hUnittestProcIP#  as handle,
+    cTestIDIP#        as character):
+  
+    UnittestFinish(hUnittestProcIP#,?,cTestIDIP#).
+    
+  end method. /* UnittestFinish | procedure */
+  
+  
+  method public static void UnittestFinish(
   
     /* Always run this method once, at the end of the unittest, after cleanup of handles/objects, outside of any transactions */
     
-    hUnittestProcIP# as handle,
-    cTestIDIP#       as character):
+    hUnittestProcIP#  as handle,
+    oUnittestClassIP# as i_unittest_client,
+    cTestIDIP#        as character):
     
     define variable cFile# as character no-undo.
     
@@ -555,13 +607,23 @@ class panaedra.msroot.msutil.logic.sc_unittest:
     cSvSourcedirsIP# as character
     ):
     
-    define variable iTell# as integer no-undo.
-    define buffer b-ttFile for ttFile.
+    define variable iTell#           as integer           no-undo.
+    define variable oUnittestClient# as i_unittest_client no-undo.
+    define variable cSvUnittests#    as character         no-undo.
     
+    define buffer b-ttFile            for ttFile.
+    define buffer b-ttSessionUnittest for ttSessionUnittest.
+
+    /* Needed for special unittest constructor in c_*_unittests.cls */
+    if not valid-object(oSingleton) then
+      oSingleton = new sc_unittest(). 
+
     empty temp-table ttFile.
-        
+    
+    /* Collect all unittests */    
     do iTell# = 1 to num-entries(cSvSourcedirsIP#):
       sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_unittest~~.p", yes,  output table ttFile append).
+      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_unittests~~.cls", yes,  output table ttFile append).
     end.
     
     /* Cleanup */
@@ -569,6 +631,7 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       if b-ttFile.cFullPath matches "*/eclipsecreate_unittest~~.p" then delete b-ttFile.
     end.
     
+    /* Walk trough each unittest file */
     b_each:
     for each b-ttFile on error undo, throw:
       
@@ -590,8 +653,20 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         LogMessage(subst("Start unittest: &1 &2",iso-date(now),b-ttFile.cFullPath)).
         
         sc_eventbroadcaster:FireEvent("evt@unittest@run", b-ttFile.cFullPath).
-        
-        run value(b-ttFile.cFullPath).
+
+        if b-ttFile.cFullPath matches "*~~.cls" then
+        do:
+          /* If the unittest is a class, get the relative class name and create an object from it */
+          oUnittestClient# = dynamic-new(sc_path:SplitGetClassName(sc_path:Full2PartialPath(b-ttFile.cFullPath)) /* en .cls er af */) (oSingleton).
+          
+          /* Get a lists of all units in this class */
+          oUnittestClient#:GetUnittests(output cSvUnittests#).
+          
+          /* Run alle unittests in this class */
+          RunUnittestsInClass(oUnittestClient#, cSvUnittests#).
+        end.
+        else
+          run value(b-ttFile.cFullPath).
         
       end.
 
@@ -601,14 +676,51 @@ class panaedra.msroot.msutil.logic.sc_unittest:
       end catch.
       
     end.
-
+    
+    
+    finally:
+      
+      /* Cleanup each unittest object */  
+      for each b-ttSessionUnittest 
+        where b-ttSessionUnittest.oLastTestClass > ?
+        on error undo, throw:
+            
+        if valid-object (b-ttSessionUnittest.oLastTestClass) then
+          delete object b-ttSessionUnittest.oLastTestClass.
+            
+      end. /* each ttSessionUnittest */
+           
+    end. /* finally */
+        
   end method. /* RunAllUnittests */
+  
+  
+  method protected static void RunUnittestsInClass(
+    oUnittestClientIP# as i_unittest_client,
+    cSvUnittestsIP#  as character):
+    
+    define variable iTell#  as integer   no-undo.
+    define variable cEntry# as character no-undo.
+    
+    /* Walk trough each unit */
+    do iTell# = 1 to num-entries(cSvUnittestsIP#):
+      cEntry# = entry(iTell#,cSvUnittestsIP#).
+      
+      if cEntry# > "" then 
+      do:
+        oUnittestClientIP#:ExecuteUnittest(cEntry#).
+      end.
+      
+    end. /* iTell# = 1 to num-entries(cSvUnittestsIP#) */ 
+  
+  end method. /* RunUnittestsInClass */
   
   
   method protected static void RegisterUnittest(
   
-    hUnittestProcIP# as handle,
-    cTestIDIP#       as character):
+    hUnittestProcIP#  as handle,
+    oUnittestClassIP# as i_unittest_client,
+    cTestIDIP#        as character):
   
     define buffer b-ttSessionUnittest for ttSessionUnittest.
 
@@ -630,8 +742,11 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         .
     
     assign 
-      b-ttSessionUnittest.hLastTestProc = hUnittestProcIP#
-      b-ttSessionUnittest.cLastTestProc = b-ttSessionUnittest.hLastTestProc:file-name
+      b-ttSessionUnittest.hLastTestProc  = hUnittestProcIP#
+      b-ttSessionUnittest.oLastTestClass = oUnittestClassIP#
+      b-ttSessionUnittest.cLastTestProc  = if hUnittestProcIP# <> ? 
+        then b-ttSessionUnittest.hLastTestProc:file-name 
+        else b-ttSessionUnittest.oLastTestClass:tostring()
       .
   
   end method. /* RegisterUnittest */
@@ -686,8 +801,11 @@ class panaedra.msroot.msutil.logic.sc_unittest:
         sc_lang:oEnglish,
         substitute("ttSessionUnittest not found with '&1'", cCurrentGlobalTestID)
         ).
-
-    run value(b-ttSessionUnittest.cLastTestProc).
+    
+    if b-ttSessionUnittest.oLastTestClass <> ? then
+      cast(b-ttSessionUnittest.oLastTestClass,i_unittest_client):ExecuteUnittest(b-ttSessionUnittest.cTestID).
+    else
+      run value(b-ttSessionUnittest.cLastTestProc).
   
   end method. /* RunLastTestAgain */
 
