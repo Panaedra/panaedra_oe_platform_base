@@ -182,6 +182,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     define variable oPanaedraApiError#         as c_apiproxyexception      no-undo.
     define variable bCommandError#          as logical                  no-undo.
     define variable bAmbiguous#             as logical                  no-undo.
+    define variable oInnerException#        as Progress.Lang.Error      no-undo.
     
     define buffer b-ttMsMonFeedbackDef for ttMsMonFeedbackDef.
     
@@ -332,16 +333,36 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cEvent     = cEventIP#
           .
         
+        /* If an Exception is supplied... */
         if oErrorIP# <> ? then
-          b-ttMsMonFeedbackDef.cMessage    = subst("&1&2&3",b-ttMsMonFeedbackDef.cMessage,if  b-ttMsMonFeedbackDef.cMessage = "" then "" else "~n",sc_showexception:ExceptionMsgToString(oErrorIP#)).
-        
-        if oErrorIP# <> ? then b-ttMsMonFeedbackDef.cStackTrace = oErrorIP#:CallStack.
-        
-        if oErrorIP# <> ? and type-of(oErrorIP#, c_apiproxyexception) then 
         do:
-          oPanaedraApiError# = cast(oErrorIP#, c_apiproxyexception).
-          b-ttMsMonFeedbackDef.cMessage = b-ttMsMonFeedbackDef.cMessage + subst("~n&1",oPanaedraApiError#:ApiproxyExceptions).
-        end.  
+          
+          assign
+            b-ttMsMonFeedbackDef.cMessage    = subst("&1&2&3",b-ttMsMonFeedbackDef.cMessage,if  b-ttMsMonFeedbackDef.cMessage = "" then "" else "~n",sc_showexception:ExceptionMsgToString(oErrorIP#)).
+            b-ttMsMonFeedbackDef.cStackTrace = oErrorIP#:CallStack.
+        
+          if type-of(oErrorIP#, c_apiproxyexception) then 
+          do:
+            oPanaedraApiError# = cast(oErrorIP#, c_apiproxyexception).
+            b-ttMsMonFeedbackDef.cMessage = b-ttMsMonFeedbackDef.cMessage + subst("~n&1",oPanaedraApiError#:ApiproxyExceptions).
+          end.  
+          
+          /* We have an exception with an inner exception */
+          if type-of(oErrorIP#, c_panaedraexception) and cast(oErrorIP#,c_panaedraexception):oInnerException <> ? then
+          do:
+            oInnerException# = cast(oErrorIP#,c_panaedraexception):oInnerException.
+            
+            /* Display inner exception's message and callstack in exception */
+            b-ttMsMonFeedbackDef.cException = subst("&1~n~n&2",
+              sc_showexception:ExceptionMsgToString(oInnerException#),
+              oInnerException#:CallStack
+              ).
+                
+          end.
+        
+        end. /* oErrorIP# <> ? */
+        
+         
         
         if b-ttMsMonFeedbackDef.cStackTrace > "" then.
         else b-ttMsMonFeedbackDef.cStackTrace = sc_exception:GetCallStack().

@@ -53,6 +53,10 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     public    get.
     protected set.
 
+  define property oInnerException as Progress.Lang.Error no-undo 
+    public    get.
+    protected set.
+
   constructor public c_panaedraexception(
     iErrorIP# as integer, 
     oDutchIP# as i_language_dutch,
@@ -97,6 +101,56 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     end catch.
     
   end constructor.
+
+
+  constructor public c_panaedraexception(
+    iErrorIP#          as integer, 
+    oDutchIP#          as i_language_dutch,
+    cErrorIP#          as character,
+    oInnerExceptionIP# as Progress.Lang.Error):
+    
+    /* Note: 11.0A progress bug: 
+       in inheriting classes like c_apiproxyexception, the super with parameters does not work.
+       Splitting in two statements works around this issue. 
+       */    
+    super().
+    this-object:AddMessage(cErrorIP#, iErrorIP#).
+    _sys_AddMessage(iErrorIP#,cErrorIP#).
+    oInnerException = oInnerExceptionIP#.
+    
+    cLang = "Dutch":u.
+    
+  end constructor. /* Language with innerexception */
+
+
+  constructor public c_panaedraexception(
+    iErrorIP# as integer, 
+    oEnglishIP# as i_language_english,
+    cErrorIP# as character,
+    oInnerExceptionIP# as Progress.Lang.Error):
+    
+    /* Note: 11.0A progress bug: 
+       in inheriting classes like c_apiproxyexception, the super with parameters does not work.
+       Splitting in two statements works around this issue. 
+       */    
+    super().
+    this-object:AddMessage(cErrorIP#, iErrorIP#).
+    _sys_AddMessage(iErrorIP#,cErrorIP#).
+    oInnerException = oInnerExceptionIP#.
+    
+    &if false &then    
+    message cErrorIP# "added to c_panaedraexception" "with number" iErrorIP# skip
+      this-object:NumMessages
+      view-as alert-box.
+    &endif
+    
+    cLang = "English":u.
+    
+    catch ex as Progress.Lang.Error :
+      sc_showexception:ShowException(ex).	
+    end catch.
+    
+  end constructor. /* Language with innerexception */
 
 
   constructor public c_panaedraexception(
@@ -168,6 +222,7 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
       cLang = "Any":u.
     
   end constructor.
+  
   
   method public void AddMessageSuper(cErrorMessageIP#  as character,iMessageNumberIP# as integer):
     
