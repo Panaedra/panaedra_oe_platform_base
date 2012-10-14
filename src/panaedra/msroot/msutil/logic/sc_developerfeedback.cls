@@ -64,7 +64,7 @@ class panaedra.msroot.msutil.logic.sc_developerfeedback:
     if valid-object(oExIP#) then 
     do:
       
-      cReturn# = cReturn# + chr(10) + oExIP#:GetMessage(1) + subst(" (&1)",oExIP#:GetClass():TypeName).
+      cReturn# = cReturn# + chr(10) + sc_showexception:ExceptionMsgToString(oExIP#) + subst(" (&1)",oExIP#:GetClass():TypeName).
       
       do iTell# = 1 to num-entries(oExIP#:CallStack):
         cReturn# = cReturn# + chr(10) + entry(iTell#,oExIP#:CallStack).

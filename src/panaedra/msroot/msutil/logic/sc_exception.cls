@@ -152,9 +152,11 @@ class panaedra.msroot.msutil.logic.sc_exception:
       do iNumErrorPS# = 1 to oExceptionIP#:NumMessages:
         create b-ttExceptions.
         b-ttExceptions.iOrder = iNumErrorPS#.
-        b-ttExceptions.iError = oExceptionIP#:getMessageNum(iNumErrorPS#).
-        b-ttExceptions.cError = oExceptionIP#:getMessage(iNumErrorPS#).
+        b-ttExceptions.iError = oExceptionIP#:GetMessageNum(iNumErrorPS#).
+        b-ttExceptions.cError = oExceptionIP#:GetMessage(iNumErrorPS#).
       end.
+      
+      /* todo: oInnerException */
     end. /* Valid exception object */
     
     if not can-find(first b-ttExceptions) then
@@ -266,9 +268,9 @@ class panaedra.msroot.msutil.logic.sc_exception:
        
     end case.
     
-    cMsg# = cMsg# + subst("~n&1", oExceptionIP#:GetMessage(1)).
+    cMsg# = cMsg# + subst("~n&1", sc_showexception:ExceptionMsgToString(oExceptionIP#)).
     
-    oReturn# = new Progress.Lang.AppError(cMsg#, oExceptionIP#:GetMessageNum(1)).
+    oReturn# = new Progress.Lang.AppError(cMsg#, oExceptionIP#:GetMessageNum(1)). 
     
     do iTell# = 2 to oExceptionIP#:NumMessages:
       oReturn#:AddMessage(oExceptionIP#:GetMessage(iTell#),oExceptionIP#:GetMessageNum(iTell#)).

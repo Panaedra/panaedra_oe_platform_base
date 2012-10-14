@@ -29,7 +29,7 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
   /******************************* $NoKeywords:  $ *****************************/
   
   /* The temp-table b-ttExceptionLine is built in to work around a progress bug in (at least) oe11.0 and earlier.
-     super:GetMessage(1) gives a weird incompatible datatype error, when called from an inherited exception like c_apiproxyexception 
+     super:GetMessage(i) gives a weird incompatible datatype error, when called from an inherited exception like c_apiproxyexception 
   */
   
   define protected temp-table ttExceptionLine no-undo

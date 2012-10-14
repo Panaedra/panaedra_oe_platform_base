@@ -21,7 +21,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
 
   \*****************************  Include Files ********************************/
   
-  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &class=class}
+{panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &class=class}
   
   define protected temp-table ttAblExceptions no-undo like ttExceptions.
   define protected temp-table ttAblCallStack no-undo like ttCallStack.
@@ -217,7 +217,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
   method public void ShowException(
   
     cExtraMessageIP# as character,
-    ex as Progress.Lang.Error):
+    oErrorIP#        as Progress.Lang.Error):
     
     assign
       this-object:Text = "Panaedra " + string(now, "99-99-9999 hh:mm:ss")
@@ -227,12 +227,12 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
     empty temp-table ttAblExceptions.
     empty temp-table ttAblCallstack.
     
-    if type-of(ex, panaedra.msroot.msutil.logic.c_apiproxyexception) then 
+    if type-of(oErrorIP#, c_apiproxyexception) then 
     do:
       
-      def var oApiProxyException# as panaedra.msroot.msutil.logic.c_apiproxyexception no-undo.
+      def var oApiProxyException# as c_apiproxyexception no-undo.
       
-      oApiProxyException# = cast(ex, panaedra.msroot.msutil.logic.c_apiproxyexception).
+      oApiProxyException# = cast(oErrorIP#, c_apiproxyexception).
       
       /* Check if dsContext is used
          (api/proxy)*/
@@ -241,21 +241,22 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
         oApiProxyException#:GetDsContext(this-object).
       else
       do:
-        ExceptionToTtAblException(ex).
-        CallstackToTtAblCallstack(ex).
+        ExceptionToTtAblException(oErrorIP#).
+        CallstackToTtAblCallstack(oErrorIP#).
         /* Call the same method as used by the callback, but now with different (local) temp-tables. */
         CallbackDsContextStrong(table ttAblExceptions, table ttAblCallStack).
       end.    
     end.
     else 
     do:
-      ExceptionToTtAblException(ex).
-      CallstackToTtAblCallstack(ex).
+      ExceptionToTtAblException(oErrorIP#).
+      CallstackToTtAblCallstack(oErrorIP#).
       /* Call the same method as used by the callback, but now with different (local) temp-tables. */
       CallbackDsContextStrong(table ttAblExceptions, table ttAblCallStack).
     end.
     
-    if cExtraMessageIP# > "" then do:
+    if cExtraMessageIP# > "" then 
+    do:
       tbInfo:Text = subst("&1" + chr(13) + chr(10)  + chr(13) + chr(10) + "&2",cExtraMessageIP#,tbInfo:Text).
     end.
     
@@ -267,42 +268,65 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
   method protected void EclipseTopMost():
 
     if    (not this-object:TopMost) 
-      and (panaedra.msroot.msutil.logic.sc_environment:IsIdeRunning()) 
+      and (sc_environment:IsIdeRunning()) 
       then 
       this-object:TopMost = true.
     
   end method. /* EclipseTopMost */
   
   
-  method protected void ExceptionToTtAblException(ex as Progress.Lang.Error):
+  method protected void ExceptionToTtAblException(oErrorIP# as Progress.Lang.Error):
     
-    define variable iTell# as integer no-undo.
+    define variable iTell#           as integer          no-undo.
+    define variable oPanaedraException# as c_panaedraexception no-undo.
+    
     define buffer ttAblExceptions for ttAblExceptions.
     
-    do for ttAblExceptions iTell# = 1 to ex:NumMessages:
+    do for ttAblExceptions iTell# = 1 to oErrorIP#:NumMessages:
       create ttAblExceptions.
-      ttAblExceptions.cError = ex:GetMessage(iTell#).
-      if index(ttAblExceptions.cError, subst("(&1)", ex:GetMessageNum(iTell#))) = 0
-        then ttAblExceptions.cError = ttAblExceptions.cError + subst(" (&1)", ex:GetMessageNum(iTell#)).
+      ttAblExceptions.cError = oErrorIP#:GetMessage(iTell#).
+      if index(ttAblExceptions.cError, subst("(&1)", oErrorIP#:GetMessageNum(iTell#))) = 0
+        then ttAblExceptions.cError = ttAblExceptions.cError + subst(" (&1)", oErrorIP#:GetMessageNum(iTell#)).
+    end.
+    
+    if type-of(oErrorIP#, c_panaedraexception) then 
+    do:
+      oPanaedraException# = cast(oErrorIP#, c_panaedraexception).
+      if valid-object(oPanaedraException#:oInnerException) then 
+      do for ttAblExceptions iTell# = 1 to oPanaedraException#:oInnerException:NumMessages:
+        create ttAblExceptions.
+        ttAblExceptions.cError = oPanaedraException#:oInnerException:GetMessage(iTell#).
+        if index(ttAblExceptions.cError, subst("(&1)", oPanaedraException#:oInnerException:GetMessageNum(iTell#))) = 0
+          then ttAblExceptions.cError = ttAblExceptions.cError + subst(" (&1)", oPanaedraException#:oInnerException:GetMessageNum(iTell#)).
+      end.
     end.
     
   end method. /* ExceptionToTtAblException */
   
   
-  method protected void CallstackToTtAblCallstack(ex as Progress.Lang.Error):
+  method protected void CallstackToTtAblCallstack(oErrorIP# as Progress.Lang.Error):
     
-    define variable bEclipseFix# as logical no-undo.  
-    define buffer ttAblCallStack for ttAblCallStack.
+    define variable bEclipseFix#     as logical          no-undo.  
+    define variable oPanaedraException# as c_panaedraexception no-undo.
     
-    do for ttAblCallStack:
+    define buffer b-ttAblCallStack for ttAblCallStack.
     
-      create ttAblCallStack.
-      
-      if ex:CallStack > "" then 
-        ttAblCallStack.cCallStack = ex:CallStack.
+    do for b-ttAblCallStack:
+      create b-ttAblCallStack.
+      if oErrorIP#:CallStack > "" then 
+        b-ttAblCallStack.cCallStack = oErrorIP#:CallStack.
       else 
-        ttAblCallStack.cCallStack = sc_exception:GetCallStack().
-        
+        b-ttAblCallStack.cCallStack = sc_exception:GetCallStack().
+
+      if type-of(oErrorIP#, c_panaedraexception) then 
+      do:
+        oPanaedraException# = cast(oErrorIP#, c_panaedraexception).
+        if valid-object(oPanaedraException#:oInnerException) then 
+        do:
+          if oPanaedraException#:oInnerException:CallStack > "" then 
+            b-ttAblCallStack.cCallStack = b-ttAblCallStack.cCallStack + "~n:INNER-CALLSTACK:~n" + oPanaedraException#:oInnerException:CallStack.
+        end.
+      end.
     end.
     
   end method. /* CallstackToTtAblCallstack */
@@ -349,8 +373,8 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
     if avail ttCallStack and ttCallStack.cCallStack > "" then
       tbInfo:Text = tbInfo:Text + entry(num-entries(ttCallStack.cCallStack,chr(10)),ttCallStack.cCallStack,chr(10)) + chr(13) + chr(10) + chr(13) + chr(10).
     
-      /* Adjust order of complete callstack  */
-      open query hQuery# for each b-ttCallStack.
+    /* Adjust order of complete callstack  */
+    open query hQuery# for each b-ttCallStack.
     get last hQuery#.
     
     /* Fill "Details" textbox with complete stack */

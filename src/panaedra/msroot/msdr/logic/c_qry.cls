@@ -275,7 +275,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
           hQueryIP#:query-prepare(cPrep#).
           if bQueryOpenIP# then oQryIP#:QueryOpen().
           catch e as Progress.Lang.Error:
-            undo, throw new panaedra.msroot.msutil.logic.c_apiproxyexception(999500007,substitute("Query where '&1' is invalid.~n&2~n&3", cWhereIP#, cPrep#, e:GetMessage(1))).
+            undo, throw new panaedra.msroot.msutil.logic.c_apiproxyexception(999500007,substitute("Query where '&1' is invalid.~n&2~n&3", cWhereIP#, cPrep#, sc_showexception:ExceptionMsgToString(e))).
           end catch.
         end.
       end.
@@ -336,7 +336,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
         do on error undo, throw:
           hQueryIP#:query-prepare(cPrep#).
           catch e as Progress.Lang.Error:
-            undo, throw new panaedra.msroot.msutil.logic.c_apiproxyexception(999500008,substitute("Query by '&1' is invalid.~n&2~n&3", cByIP#, cPrep#, e:GetMessage(1))).
+            undo, throw new panaedra.msroot.msutil.logic.c_apiproxyexception(999500008,substitute("Query by '&1' is invalid.~n&2~n&3", cByIP#, cPrep#, sc_showexception:ExceptionMsgToString(e))).
           end catch.
         end.
       end.

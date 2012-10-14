@@ -177,7 +177,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       &if false &then
       message "b-ttExceptions.cError" b-ttExceptions.cError skip
         "oApiProxyException#:NumMessages" oApiProxyException#:NumMessages skip
-        "oApiProxyException#:GetMessage(1)" oApiProxyException#:GetMessage(1)
+        "sc_showexception:ExceptionMsgToString" sc_showexception:ExceptionMsgToString(oApiProxyException#)
         view-as alert-box.
       &endif
       

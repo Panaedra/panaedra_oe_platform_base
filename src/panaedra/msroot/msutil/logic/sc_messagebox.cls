@@ -304,7 +304,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
       then cProgramName# = substring(cProgramName#, length(cProgramName#) - 39).
 
     MsgBox(
-    subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
+      subst("&1~n&2~n&3~n&4~n&5~n&6~n&7~n&8~n&9~n",
       cProgramName# ,
       cMsgIP#[1]    ,
       if extent(cMsgIP#) < 2 or cMsgIP#[2] = "" then "" else cMsgIP#[2] + "~n" ,
@@ -315,7 +315,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
       if extent(cMsgIP#) < 7 or cMsgIP#[7] = "" then "" else cMsgIP#[7] + "~n" ,
       if extent(cMsgIP#) < 8 or cMsgIP#[8] = "" then "" else cMsgIP#[8] + "~n" +
       if extent(cMsgIP#) < 9 or cMsgIP#[9] = "" then "" else cMsgIP#[9]
-    )).
+      )).
 
     &else
 
@@ -504,6 +504,54 @@ class panaedra.msroot.msutil.logic.sc_messagebox
     end finally.
     
   end method. /* OnClose */
+  
+  
+  method public static character MessageToDisplayableMessage(
+  
+    /* If a message with long words is displayed in a CHUI messagebox, Progress gives errors.
+       MessageToDisplayableMessage strips short all undisplayable words.
+       The end of words (normally class names) are considered most significant.
+       Only has an effect on CHUI / TTY.
+      */
+    
+    cMessageIP# as character):
+      
+    define variable cMsg#    as character no-undo.
+    define variable cMsgOut# as character no-undo.
+    define variable cWord#   as character no-undo.
+    define variable iTell#   as integer   no-undo.
+    
+    if session:window-system = "tty"
+      and 
+      (not session:batch-mode) /* We want the "technical" batch-mode here, not the one from sc_environment. */
+      then 
+    do:
+
+      cMsg# = substring(cMessageIP#,1,400).
+
+      do iTell# = 1 to num-entries(cMsg#," "):
+  
+        cWord# = entry(iTell#,cMsg#," ").
+  
+        /* If message is to long we'll add extra linebreaks */
+        if length(cWord#) > 75 then
+        do:
+          cWord# = "~n" + substring(cWord#, length(cWord#) - 75).
+        end. /* length(cLine#) > 60 */  
+  
+        cMsgOut# = cMsgOut# + " " + cWord#.
+  
+      end. /* iTell# = 1 to num-entries(cMsg#," ") */
+
+      cMsgOut# = substring(cMsgOut#,2). /* Strip first space that was added. */
+    
+    end.
+    else 
+      cMsgOut# = cMessageIP#.
+    
+    return cMsgOut#.
+    
+  end method. /* MessageToDisplayableMessage */
 
 end class.
 
