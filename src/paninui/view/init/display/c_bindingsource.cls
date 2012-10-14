@@ -132,7 +132,7 @@ class paninui.view.init.display.c_bindingsource
         undo, throw new Progress.Lang.AppError(subst(
           "Error in s_bindingsource constructor:i_bindingsourcetype_buffer '&1'~n&2",
           this-object:ToString(),
-          ex:GetMessage(1)),
+          sc_showexception:ExceptionMsgToString(ex)),
           ex:GetMessageNum(1)).
       end catch.
 

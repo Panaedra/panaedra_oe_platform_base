@@ -69,7 +69,7 @@ class paninui.view.use.display.sc_displaydata   :
           oBindingSourceStrong#  = new c_bindingsource(sc_bindingsourcetype:i_Buffer, oBufIP#:hBuffer)
           oBufIP#:oBindingSource = oBindingSourceStrong#.
         catch e as Progress.Lang.Error :
-          undo, throw new Progress.Lang.AppError(subst("Error in sc_displaydata:DisplayData of a GroupFrame with Buffer '&1'~n&2", oBufIP#:ToString(), e:GetMessage(1)), e:GetMessageNum(1)).
+          undo, throw new Progress.Lang.AppError(subst("Error in sc_displaydata:DisplayData of a GroupFrame with Buffer '&1'~n&2", oBufIP#:ToString(), sc_showexception:ExceptionMsgToString(e)), e:GetMessageNum(1)).
         end catch.
       end.
 
