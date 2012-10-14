@@ -602,6 +602,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         end. /* if sc_osfile:FileExists(cErrorFile#) */
         
         /* If this is a non-live chui session */
+        &if false &then
+        /* To decide: this does not seem wanted anymore now we have the DevIP route. */
         if session:window-system = "tty" and (not sc_environment:bBatchMode) and (not sc_environment:bLiveEnv) then
         do:
           /* Put message on screen as wel, makes for better testing */
@@ -609,6 +611,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             &condition=TstEnvUiDbg
             &msg=b-ttMsMonFeedbackDefCopy.cMessage}
         end.
+        &endif
         
         finally:
           if not bCommandError# then 
