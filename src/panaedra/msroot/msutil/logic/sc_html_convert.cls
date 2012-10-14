@@ -190,7 +190,7 @@ class panaedra.msroot.msutil.logic.sc_html_convert   :
     
     define variable cFile# as character no-undo.
     
-    cFile# = sc_path:cIniDir + subst("sc_html_convert_&1.config",session:cpinternal).
+    cFile# = sc_path:cIniDir + subst("sc_html_convert_&1.config", lc(session:cpinternal)).
     
     if search(cFile#) = ? then 
     do:
