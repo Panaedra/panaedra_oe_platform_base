@@ -316,7 +316,78 @@ class panaedra.msroot.msutil.logic.sc_exception:
     return cCallStack#.
 
   end method. /* GetCallStack */
+  
+  
+  method public static logical IsWrapped(
+    
+    /* Call this method to see if you need to wrap this exception to clarify it, for sc_msmon_feedback for example */
+    
+    oExceptionIP# as Progress.Lang.Error):
+      
+    return 
+      type-of(oExceptionIP#, c_panaedraexception) 
+      and 
+      (cast(oExceptionIP#,c_panaedraexception):cCategoryEvent > "" 
+      or 
+      valid-object(cast(oExceptionIP#,c_panaedraexception):oInnerException)).
+      
+  end method. /* IsWrapped */
+  
+  
+  method public static Progress.Lang.Error ReThrow(
+    
+    /* Rethrow a message if not already wrapped (if wrapped: just pass through) */
+  
+    iErrorIP#          as integer, 
+    oInnerExceptionIP# as Progress.Lang.Error,
+    cCategoryEventIP#  as character,
+    oDutchIP#          as i_language_dutch,
+    cErrorMsgIP#       as character
+    ):
+    
+    define variable oReturn# as Progress.Lang.Error no-undo.
 
+    if sc_exception:IsWrapped(oInnerExceptionIP#) then oReturn# = oInnerExceptionIP#.
+    else 
+      oReturn# = new c_panaedraexception(
+        iErrorIP#,
+        oInnerExceptionIP#,
+        cCategoryEventIP#,
+        sc_lang:oDutch,
+        cErrorMsgIP#
+        ).
+     
+    return oReturn#.
+    
+  end method. /* ReThrow ; dutch */
+
+
+  method public static Progress.Lang.Error ReThrow(
+    
+    /* Rethrow a message if not already wrapped (if wrapped: just pass through) */
+  
+    iErrorIP#          as integer, 
+    oInnerExceptionIP# as Progress.Lang.Error,
+    cCategoryEventIP#  as character,
+    oDutchIP#          as i_language_english,
+    cErrorMsgIP#       as character
+    ):
+    
+    define variable oReturn# as Progress.Lang.Error no-undo.
+
+    if sc_exception:IsWrapped(oInnerExceptionIP#) then oReturn# = oInnerExceptionIP#.
+    else 
+      oReturn# = new c_panaedraexception(
+        iErrorIP#,
+        oInnerExceptionIP#,
+        cCategoryEventIP#,
+        sc_lang:oEnglish,
+        cErrorMsgIP#
+        ).
+     
+    return oReturn#.
+    
+  end method. /* ReThrow ; english */
 
 end class.
 

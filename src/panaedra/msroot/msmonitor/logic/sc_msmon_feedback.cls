@@ -18,6 +18,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
   \*****************************  Include Files ********************************/
   
 {panaedra/msroot/msmonitor/logic/ds/msmon_feedback_ds.i &class=class &static=static &protected=protected}
+  {panaedra/msroot/msmonitor/logic/tt/msmon_feedbackdef_tt.i &class=class &static=static &protected=protected &ttSuffix=Copy}
+{panaedra/msroot/msutil/logic/ds/msdevip_ds.i &class=class &static=static &protected=protected}
   
   /************************  Source control constructor ************************/
   constructor public sc_msmon_feedback(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
@@ -25,8 +27,6 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
-  
-  define protected static variable dtmLastConfig as datetime-tz no-undo.
   
   define stream str-in.
   define stream str-out.
@@ -50,8 +50,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       "MyTestEvent",
       "MyTestMonitorID",
       "At some location...",
-      "This is terribly wrong!",          /* Message, if supplied: overrules exception message           */
-      oPanaedraError# /* Optional exception object, to pass callstack and other info */
+      "This is just a MsMonFeedback test!",  /* Message, if supplied: overrules exception message           */
+      oPanaedraError#                           /* Optional exception object, to pass callstack and other info */
       ).
       
     
@@ -79,8 +79,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       cMonitorIdIP#,
       cLocationIP#, 
       cMessageIP#,
-      ?,
-      no /* FailSafe */
+      ?
       ).
       
   end method. /* HandleEvent ; overload without exception object */
@@ -103,8 +102,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       cMonitorIdIP#,
       cLocationIP#, 
       cMessageIP#,
-      oErrorIP#,
-      no /* FailSafe */
+      oErrorIP#
       ).
       
   end method. /* HandleEvent ; overload with only exception object and no message string */
@@ -126,39 +124,37 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       cMonitorIdIP#,
       cLocationIP#, 
       "",
-      oErrorIP#,
-      no /* FailSafe */
+      oErrorIP#
       ).
       
   end method. /* HandleEvent ; overload with only exception object and no message string */
   
-  
-  method public static logical HandleEvent(
-    
-    /* Handle a monitor event, by config file
-       bFailSafeIP#  yes= handle previous a failed event, failover mechanism. */
-    
-    cEventIP#     as character, 
-    cMonitorIdIP# as character, 
-    cLocationIP#  as character, 
-    cMessageIP#   as character,
-    oErrorIP#     as Progress.Lang.Error,
-    bFailSafeIP#  as logical ):
-      
-    ReloadConfig().
-      
-    return HandleEvent_Implement(
-      cEventIP#,    
-      cMonitorIdIP#,
-      cLocationIP#, 
-      cMessageIP#,
-      oErrorIP#,
-      no /* FailSafe */
-      ).
-      
-  end method.    
+  /* Why allow failsafe from outside??? It's not passed through anyhow, don't see the point of this method. 14-10-2012 tw */  
+  /*  method public static logical HandleEvent(                                     */
+  /*                                                                                */
+  /*    /* Handle a monitor event, by config file                                   */
+  /*       bFailSafeIP#  yes= handle previous a failed event, failover mechanism. */*/
+  /*                                                                                */
+  /*    cEventIP#     as character,                                                 */
+  /*    cMonitorIdIP# as character,                                                 */
+  /*    cLocationIP#  as character,                                                 */
+  /*    cMessageIP#   as character,                                                 */
+  /*    oErrorIP#     as Progress.Lang.Error,                                       */
+  /*    bFailSafeIP#  as logical ):                                                 */
+  /*                                                                                */
+  /*    ReloadConfig().                                                             */
+  /*                                                                                */
+  /*    return HandleEvent_Implement(                                               */
+  /*      cEventIP#,                                                                */
+  /*      cMonitorIdIP#,                                                            */
+  /*      cLocationIP#,                                                             */
+  /*      cMessageIP#,                                                              */
+  /*      oErrorIP#,                                                                */
+  /*      no /* FailSafe */                                                         */
+  /*      ).                                                                        */
+  /*                                                                                */
+  /*  end method.                                                                   */
 
-  
   method protected static logical HandleEvent_Implement(
     
     /* Handle a monitor event, by config file 
@@ -166,12 +162,59 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
        use ReloadConfig() before using this overload.
     */
     
-    cEventIP#     as character, 
-    cMonitorIdIP# as character, 
-    cLocationIP#  as character, 
-    cMessageIP#   as character,
-    oErrorIP#     as Progress.Lang.Error,
-    bFailSafeIP#  as logical ):
+    cEventIP#       as character, 
+    cMonitorIdIP#   as character, 
+    cLocationIP#    as character, 
+    cMessageIP#     as character,
+    oErrorIP#       as Progress.Lang.Error):
+    
+    define variable cDevIp#   as character no-undo.
+    define variable bHandled# as logical   no-undo.
+    
+    define buffer b-ttMsDevIp for ttMsDevIp.
+    
+    cDevIp# = sc_boot:SessionParameter("DevIP").
+      
+    if cDevIp# > "" then 
+    do:
+      cDevIp# = sc_string_substitute:ExpandOsEnv(cDevIp#).
+      empty temp-table ttMsDevIp.
+      sc_config:ReadXml(dataset dsMsDevIp:handle,sc_path:StandardIniFilePath("sc_msdevip.config")).
+      find b-ttMsDevIp where b-ttMsDevIp.iIDShortIP = int(cDevIp#) no-error.
+      if avail b-ttMsDevIp and b-ttMsDevIp.cFullIpAddress > "" then 
+      do:
+        bHandled# = HandleEvent_ImplementSub(cEventIP#,      
+          cMonitorIdIP#  ,
+          cLocationIP#   ,
+          cMessageIP#    ,
+          oErrorIP#      ,
+          subst("Override:DevIP= [cDevIp] &1 [cFullIpAddress] &2",cDevIp#,b-ttMsDevIp.cFullIpAddress)).
+      end.
+    end.
+    
+    if not bHandled# then return HandleEvent_ImplementSub(cEventIP#,      
+        cMonitorIdIP#  ,
+        cLocationIP#   ,
+        cMessageIP#    ,
+        oErrorIP#      ,
+        "").
+      
+  end method. /* HandleEvent_Implement */
+  
+  
+  method protected static logical HandleEvent_ImplementSub(
+    
+    /* Handle a monitor event, by config file 
+       note:  
+       use ReloadConfig() before using this overload.
+    */
+    
+    cEventIP#       as character, 
+    cMonitorIdIP#   as character, 
+    cLocationIP#    as character, 
+    cMessageIP#     as character,
+    oErrorIP#       as Progress.Lang.Error,
+    cSpecialModeIP# as character):
     
     define variable cOsCommand#             as character                no-undo.
     define variable oTempfileBuilderObject# as i_msmon_itempfilebuilder no-undo.
@@ -181,10 +224,11 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     define variable bReturn#                as logical                  no-undo.
     define variable oPanaedraApiError#         as c_apiproxyexception      no-undo.
     define variable bCommandError#          as logical                  no-undo.
-    define variable bAmbiguous#             as logical                  no-undo.
     define variable oInnerException#        as Progress.Lang.Error      no-undo.
     
-    define buffer b-ttMsMonFeedbackDef for ttMsMonFeedbackDef.
+    define buffer b-ttMsMonFeedbackDef     for ttMsMonFeedbackDef.
+    define buffer b-ttMsMonFeedbackDefCopy for ttMsMonFeedbackDefCopy.
+    
     
     /*  (service, part, level, location, message):           */
     /*  # service = service,dienst,application               */
@@ -202,9 +246,6 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
         no-error.
       
-      if not bAmbiguous# then
-        bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
-      
       if not available b-ttMsMonFeedbackDef then
         find b-ttMsMonFeedbackDef where 
           b-ttMsMonFeedbackDef.cEvent     = cEventIP#                and
@@ -214,9 +255,6 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cMonitorID = "(default)"
           no-error.
 
-      if not bAmbiguous# then
-        bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
-    
       if not available b-ttMsMonFeedbackDef then
         find b-ttMsMonFeedbackDef where 
           b-ttMsMonFeedbackDef.cEvent     = cEventIP#            and
@@ -226,10 +264,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
           no-error.
 
-      if not bAmbiguous# then
-        bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
-    
-      if bFailSafeIP# = no then 
+      if cSpecialModeIP# = "" then 
       do:
         
         if not available b-ttMsMonFeedbackDef then
@@ -241,9 +276,6 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
             no-error.
 
-        if not bAmbiguous# then
-          bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
-    
         if not available b-ttMsMonFeedbackDef then
           find b-ttMsMonFeedbackDef where 
             b-ttMsMonFeedbackDef.cEvent     = "(default)"              and
@@ -253,9 +285,6 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             b-ttMsMonFeedbackDef.cMonitorID = "(default)"
             no-error.
 
-        if not bAmbiguous# then
-          bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
-    
         if not available b-ttMsMonFeedbackDef then
           find b-ttMsMonFeedbackDef where 
             b-ttMsMonFeedbackDef.cEvent     = "(default)"          and
@@ -264,9 +293,6 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             b-ttMsMonFeedbackDef.cHostname  = "(default)"          and
             b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
             no-error.
-    
-        if not bAmbiguous# then
-          bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
     
         if not available b-ttMsMonFeedbackDef then
           find first b-ttMsMonFeedbackDef where 
@@ -277,25 +303,46 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             b-ttMsMonFeedbackDef.cMonitorID = "(default)"
             no-error.
       
-        if not bAmbiguous# then
-          bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
-             
-      end. /* if bFailSafeIP# = no */
+      end. /* if cSpecialModeIP# = "" */
       else 
       do:
         
-        find b-ttMsMonFeedbackDef where 
-          b-ttMsMonFeedbackDef.cEvent     = "FailSafe"               and
-          b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
-          b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)                and
-          b-ttMsMonFeedbackDef.cHostname  = "(default)"              and
-          b-ttMsMonFeedbackDef.cMonitorID = "(default)"
-          no-error.
-
-        if not bAmbiguous# then
-          bAmbiguous# = ambiguous (b-ttMsMonFeedbackDef).
+        if cSpecialModeIP# = "FAILSAFE" then 
+        do:
+        
+          find b-ttMsMonFeedbackDef where 
+            b-ttMsMonFeedbackDef.cEvent     = "FailSafe"               and
+            b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv      and
+            b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)                and
+            b-ttMsMonFeedbackDef.cHostname  = "(default)"              and
+            b-ttMsMonFeedbackDef.cMonitorID = "(default)"
+            no-error.
+            
+        end. /* cSpecialModeIP# = "FAILSAFE" */
+        else 
+        do:
+          if cSpecialModeIP# begins "Override:DevIP=" then 
+          do:
+            
+            find b-ttMsMonFeedbackDef where 
+              b-ttMsMonFeedbackDef.cEvent     = "Overrule:DevIP"  and
+              b-ttMsMonFeedbackDef.cEnv       = "[Any]"           and
+              b-ttMsMonFeedbackDef.cOpsys     = "[Any]"           
+              no-error.
+            
+          end.
+          else 
+          do:
+            undo, throw new c_panaedraexception(
+              99938726,
+              sc_lang:oEnglish,
+              substitute("Incorrecct program flow: cSpecialModeIP#='&1'", cSpecialModeIP#)
+              ).
+            
+          end.
+        end.
           
-      end. /* Failsafe = yes */
+      end. /* cSpecialModeIP# > "" */
       
       if not available b-ttMsMonFeedbackDef then 
       do:
@@ -311,26 +358,29 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         undo, throw new c_panaedraexception(
           99938299,
           sc_lang:oEnglish,
-          substitute("No MsMonFeedbackDef configuration found for event '&1', environment '&2', opsys '&3', hostname '&4', monitor ID '&5', message '&6', ambiguous '&7'", 
-          (if bFailSafeIP# then "FailSafe" else cEventIP#), sc_environment:cEnv, lc(opsys), sc_environment:cHostName, cMonitorIdIP#, cMessageIP#, bAmbiguous#)
+          substitute("No MsMonFeedbackDef configuration found for event '&1', environment '&2', opsys '&3', hostname '&4', monitor ID '&5', message '&6'", 
+          (if cSpecialModeIP# = "FAILSAFE" then "FailSafe" else cEventIP#), sc_environment:cEnv, lc(opsys), sc_environment:cHostName, cMonitorIdIP#, cMessageIP#)
           ).
-      end.    
-        
+      end.
+      
       cOsCommand# = b-ttMsMonFeedbackDef.cOsCommand.
       
-      if cOsCommand# > "" then 
+      if cOsCommand# > "" or b-ttMsMonFeedbackDef.cMessageDispatchObject > "" then 
       do on error undo, throw:
+        
+        create b-ttMsMonFeedbackDefCopy.
+        buffer-copy b-ttMsMonFeedbackDef to b-ttMsMonFeedbackDefCopy.
   
         assign      
-          b-ttMsMonFeedbackDef.cMessage   = cMessageIP#
-          b-ttMsMonFeedbackDef.cUsername  = sc_environment:cUserID
-          b-ttMsMonFeedbackDef.cLocation  = cLocationIP#
-          b-ttMsMonFeedbackDef.cProcessID = string(sc_environment:GetProcessID())
-          b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv
-          b-ttMsMonFeedbackDef.cOpsys     = lc(opsys)
-          b-ttMsMonFeedbackDef.cHostname  = sc_environment:cHostName
-          b-ttMsMonFeedbackDef.cMonitorID = cMonitorIdIP#
-          b-ttMsMonFeedbackDef.cEvent     = cEventIP#
+          b-ttMsMonFeedbackDefCopy.cMessage            = cMessageIP#
+          b-ttMsMonFeedbackDefCopy.cUsername           = sc_environment:cUserID
+          b-ttMsMonFeedbackDefCopy.cLocation           = cLocationIP#
+          b-ttMsMonFeedbackDefCopy.cProcessID          = string(sc_environment:GetProcessID())
+          b-ttMsMonFeedbackDefCopy.cEnv                = sc_environment:cEnv
+          b-ttMsMonFeedbackDefCopy.cOpsys              = lc(opsys)
+          b-ttMsMonFeedbackDefCopy.cHostname           = sc_environment:cHostName
+          b-ttMsMonFeedbackDefCopy.cMonitorID          = cMonitorIdIP#
+          b-ttMsMonFeedbackDefCopy.cEvent              = cEventIP#
           .
         
         /* If an Exception is supplied... */
@@ -338,13 +388,13 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         do:
           
           assign
-            b-ttMsMonFeedbackDef.cMessage    = subst("&1&2&3",b-ttMsMonFeedbackDef.cMessage,if  b-ttMsMonFeedbackDef.cMessage = "" then "" else "~n",sc_showexception:ExceptionMsgToString(oErrorIP#)).
-            b-ttMsMonFeedbackDef.cStackTrace = oErrorIP#:CallStack.
+            b-ttMsMonFeedbackDefCopy.cMessage = subst("&1&2&3",b-ttMsMonFeedbackDefCopy.cMessage,if  b-ttMsMonFeedbackDefCopy.cMessage = "" then "" else "~n",sc_showexception:ExceptionMsgToString(oErrorIP#)).
+          b-ttMsMonFeedbackDefCopy.cStackTrace = oErrorIP#:CallStack.
         
           if type-of(oErrorIP#, c_apiproxyexception) then 
           do:
             oPanaedraApiError# = cast(oErrorIP#, c_apiproxyexception).
-            b-ttMsMonFeedbackDef.cMessage = b-ttMsMonFeedbackDef.cMessage + subst("~n&1",oPanaedraApiError#:ApiproxyExceptions).
+            b-ttMsMonFeedbackDefCopy.cMessage = b-ttMsMonFeedbackDefCopy.cMessage + subst("~n&1",oPanaedraApiError#:ApiproxyExceptions).
           end.  
           
           /* We have an exception with an inner exception */
@@ -353,7 +403,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             oInnerException# = cast(oErrorIP#,c_panaedraexception):oInnerException.
             
             /* Display inner exception's message and callstack in exception */
-            b-ttMsMonFeedbackDef.cException = subst("&1~n~n&2",
+            b-ttMsMonFeedbackDefCopy.cException = subst("&1~n~n&2",
               sc_showexception:ExceptionMsgToString(oInnerException#),
               oInnerException#:CallStack
               ).
@@ -362,10 +412,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         
         end. /* oErrorIP# <> ? */
         
-         
-        
-        if b-ttMsMonFeedbackDef.cStackTrace > "" then.
-        else b-ttMsMonFeedbackDef.cStackTrace = sc_exception:GetCallStack().
+        if b-ttMsMonFeedbackDefCopy.cStackTrace > "" then.
+        else b-ttMsMonFeedbackDefCopy.cStackTrace = sc_exception:GetCallStack().
         
         /*-- if requested create a tempfile to use with the oscommand --*/
         if b-ttMsMonFeedbackDef.cTempfileBuilderObject > "" then
@@ -373,7 +421,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           
           oTempfileBuilderObject# = dynamic-new b-ttMsMonFeedbackDef.cTempfileBuilderObject().
           cTempFile# = oTempfileBuilderObject#:CreateTempfile(
-            buffer b-ttMsMonFeedbackDef:handle
+            buffer b-ttMsMonFeedbackDefCopy:handle
             ).
           
           if opsys = "win32"
@@ -383,98 +431,131 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             
         end. /* if */
         
-        /* replace macros from the config in the commandline */
-        cOsCommand# = replace(cOsCommand#,"[:cService:]",b-ttMsMonFeedbackDef.cService).
-        cOsCommand# = replace(cOsCommand#,"[:cLevel:]",b-ttMsMonFeedbackDef.cLevel).
-        cOsCommand# = replace(cOsCommand#,"[:cPart:]",b-ttMsMonFeedbackDef.cPart).
-        cOsCommand# = replace(cOsCommand#,"[:cLocation:]",cLocationIP#).
-        cOsCommand# = replace(cOsCommand#,"[:cTempfile:]",cTempFile#).
-        cOsCommand# = replace(cOsCommand#,"[:cErrorfile:]",cErrorFile#).
         
-        /* If message is sent command-line, we strip invalid chars. */
-        if b-ttMsMonFeedbackDef.cMessageFormat="commandline" then 
+        if cOsCommand# > "" then 
         do:
-          /* Strip dangerous stuff like pipe tokens and quotes. Keep spaces and slashes */ 
-          cMessageIP# = sc_osfile:StripInvalidChars(cMessageIP#, false).
-          if opsys = "unix" then
-            /* Backslashes on the unix command line is asking for trouble. Turn them into forward slashes. */
-            cMessageIP# = replace(cMessageIP#,"~\","/"). 
-          /* Replace carriage returns and line feeds */
-          cMessageIP# = replace(trim(replace(replace(cMessageIP#,chr(10)," "),chr(13)," ")),'"',"").
-        end.
-        cOsCommand# = replace(cOsCommand#,"[:cMessage:]",cMessageIP#).
-        cOsCommand# = replace(cOsCommand#,"[:cMonitorID:]",cMonitorIdIP#).
-        cOsCommand# = replace(cOsCommand#,"[:cEnv:]",sc_environment:cEnv).
-        cOsCommand# = replace(cOsCommand#,"[:cEvent:]",cEventIP#).
+          
+          /* replace macros from the config in the commandline */
+          cOsCommand# = replace(cOsCommand#,"[:cService:]",b-ttMsMonFeedbackDef.cService).
+          cOsCommand# = replace(cOsCommand#,"[:cLevel:]",b-ttMsMonFeedbackDef.cLevel).
+          cOsCommand# = replace(cOsCommand#,"[:cPart:]",b-ttMsMonFeedbackDef.cPart).
+          cOsCommand# = replace(cOsCommand#,"[:cLocation:]",cLocationIP#).
+          cOsCommand# = replace(cOsCommand#,"[:cTempfile:]",cTempFile#).
+          cOsCommand# = replace(cOsCommand#,"[:cErrorfile:]",cErrorFile#).
         
-        /* Expand env.variables in the commandline */
-        cOsCommand# = sc_string_substitute:ExpandOsEnv(cOsCommand#).
+          /* If message is sent command-line, we strip invalid chars. */
+          if b-ttMsMonFeedbackDef.cMessageFormat="commandline" then 
+          do:
+            /* Strip dangerous stuff like pipe tokens and quotes. Keep spaces and slashes */ 
+            cMessageIP# = sc_osfile:StripInvalidChars(cMessageIP#, false).
+            if opsys = "unix" then
+              /* Backslashes on the unix command line is asking for trouble. Turn them into forward slashes. */
+              cMessageIP# = replace(cMessageIP#,"~\","/"). 
+            /* Replace carriage returns and line feeds */
+            cMessageIP# = replace(trim(replace(replace(cMessageIP#,chr(10)," "),chr(13)," ")),'"',"").
+          end.
+          cOsCommand# = replace(cOsCommand#,"[:cMessage:]",cMessageIP#).
+          cOsCommand# = replace(cOsCommand#,"[:cMonitorID:]",cMonitorIdIP#).
+          cOsCommand# = replace(cOsCommand#,"[:cEnv:]",sc_environment:cEnv).
+          cOsCommand# = replace(cOsCommand#,"[:cEvent:]",cEventIP#).
         
-        /* Execute the command to report feedback */
+          /* Expand env.variables in the commandline */
+          cOsCommand# = sc_string_substitute:ExpandOsEnv(cOsCommand#).
         
-        /* Give some feedback, sometimes it's hard to debug on (for example) an appserver session. */
-        if sc_environment:bBatchMode then
-          message now "Executing os-command:" cOsCommand#
-            view-as alert-box.
+          /* Execute the command to report feedback */
         
-        define variable cLine#    as character no-undo.
+          /* Give some feedback, sometimes it's hard to debug on (for example) an appserver session. */
+          if sc_environment:bBatchMode then
+            message now "Executing os-command:" cOsCommand#
+              view-as alert-box.
+        
+          define variable cLine#    as character no-undo.
         
         &if opsys = "win32" &then
         
-        /* Workaround for a very old bug in Windows APIs: _popen() and _wpopen().                                  */
-        /* See: http://stackoverflow.com/questions/682799/what-to-do-with-the-input-line-is-too-long-error-message */
-        /* Even this does not work: cOsCommand# = replace(cOsCommand#,"~"", chr(94) /* circonflexe */ + "~"").     */
+          /* Workaround for a very old bug in Windows APIs: _popen() and _wpopen().                                  */
+          /* See: http://stackoverflow.com/questions/682799/what-to-do-with-the-input-line-is-too-long-error-message */
+          /* Even this does not work: cOsCommand# = replace(cOsCommand#,"~"", chr(94) /* circonflexe */ + "~"").     */
         
-        define variable cBatFile# as character no-undo.
+          define variable cBatFile# as character no-undo.
         
-        cBatFile# = sc_path:cTempDir + replace(guid,"-",".") + ".bat".
+          cBatFile# = sc_path:cTempDir + replace(guid,"-",".") + ".bat".
         
-        output stream str-out to value(cBatFile#).
-        put stream str-out unformatted 
-          "@echo off" skip cOsCommand# skip 
-          "exit" skip.
-        output stream str-out close.
+          output stream str-out to value(cBatFile#).
+          put stream str-out unformatted 
+            "@echo off" skip cOsCommand# skip 
+            "exit" skip.
+          output stream str-out close.
         
-        if sc_environment:bBatchMode or session:window-system = "tty" then 
-        do:
+          if sc_environment:bBatchMode or session:window-system = "tty" then 
+          do:
           
-          input stream str-in through value(cBatFile#).
-          b_command:
-          repeat on error undo, throw:
-            import stream str-in unformatted cLine#.
-            message cLine#
-              view-as alert-box.
-            catch oError# as Progress.Lang.Error :
-              sc_showexception:ShowExceptionKeepNative(oError#). /* Keep Native: don't go back to msmon_feedback, keep handling native to the session. */
-              leave b_command.	
-            end catch.
-          end. /* b_command */
-          input stream str-in close.
+            input stream str-in through value(cBatFile#).
+            b_command:
+            repeat on error undo, throw:
+              import stream str-in unformatted cLine#.
+              message cLine#
+                view-as alert-box.
+              catch oError# as Progress.Lang.Error :
+                sc_showexception:ShowExceptionKeepNative(oError#). /* Keep Native: don't go back to msmon_feedback, keep handling native to the session. */
+                leave b_command.	
+              end catch.
+            end. /* b_command */
+            input stream str-in close.
           
-        end.
-        else
-          os-command
-            silent
-            value(cBatFile#).
+          end.
+          else
+            os-command
+              silent
+              value(cBatFile#).
         
-        sc_osfile:DeleteFile(cBatFile#).
+          sc_osfile:DeleteFile(cBatFile#).
 
         &else
         
-        /* os=unix. 
-           If you need more direct feedback from os-command: 
-           It's possible to use input through like win32 above, 
-           but for now we leave it as it is. 
-        */
+          /* os=unix. 
+             If you need more direct feedback from os-command: 
+             It's possible to use input through like win32 above, 
+             but for now we leave it as it is. 
+          */
         
-        os-command
-          value(cOsCommand#).
+          os-command
+            value(cOsCommand#).
           
         &endif
         
+        end.
+        else 
+        do: /* cOsCommand# is empty, so use b-ttMsMonFeedbackDef.cMessageDispatchObject */
+          
+          define variable oDispatchObject# as panaedra.msroot.msmonitor.interfaces.i_msmon_idispatch no-undo.
+          define variable bOkay#           as logical                                             no-undo.
+          
+          oDispatchObject# = dynamic-new(b-ttMsMonFeedbackDef.cMessageDispatchObject) ().
+          
+          bOkay# = oDispatchObject#:DispatchFeedbackMessage(
+            buffer b-ttMsMonFeedbackDefCopy:handle,
+            substring(cSpecialModeIP#,length("Override:DevIp=") + 1),
+            cTempFile#,
+            cErrorFile#,
+            cMonitorIdIP#,
+            cMessageIP#,
+            cEventIP#,
+            cLocationIP#).
+            
+          if bOkay# = ? or bOkay# = false then assign
+              bCommandError# = true
+              bReturn#       = false.  
+            
+          delete object oDispatchObject#.  
+           
+        end.
+        
         /* handle any errors of the feedback */
-        bReturn# = true.
-        if sc_osfile:FileExists(cErrorFile#) then
+        if not bCommandError# then
+          bReturn# = true.
+          
+        if (not bCommandError# /* something already has gone wrong */) and sc_osfile:FileExists(cErrorFile#) then
         do:
           
           bCommandError# = true.
@@ -485,17 +566,17 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           do:
             bReturn# = false.
             
-            if bFailSafeIP# = false then /* prevent looping in FailSafe mode */
+            if cSpecialModeIP# = "" then /* prevent looping in FailSafe mode */
             do:
               
               /* handle a second even (FailSafe) reporting errors of the first feedback attempt. */
-              bReturn# = HandleEvent_Implement (
+              bReturn# = HandleEvent_ImplementSub (
                 "FailSafe",    
                 cMonitorIdIP#,
                 cLocationIP#, 
                 subst("&1, original feedback: event=&2 monitorid=&3 location=&4 message=&5", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#),
                 oErrorIP#,
-                yes /* FailSafe */
+                "FAILSAFE" /* cSpecialModeIP# */
                 ).
                 
               if bReturn# <> true then /* the second (FailSafe) event also failed, it stops here, throw an event */
@@ -521,16 +602,14 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         end. /* if sc_osfile:FileExists(cErrorFile#) */
         
         /* If this is a non-live chui session */
-        if not sc_environment:bBatchMode and not sc_environment:bLiveEnv then
+        if session:window-system = "tty" and (not sc_environment:bBatchMode) and (not sc_environment:bLiveEnv) then
         do:
           /* Put message on screen as wel, makes for better testing */
           {panaedra/msroot/msutil/logic/sc_messagebox_msg.i
             &condition=TstEnvUiDbg
-            &msg=b-ttMsMonFeedbackDef.cMessage}
+            &msg=b-ttMsMonFeedbackDefCopy.cMessage}
         end.
-
-        return bReturn#.
-  
+        
         finally:
           if not bCommandError# then 
           do:
@@ -541,17 +620,22 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             delete object oTempfileBuilderObject#.  
         end finally.
         
-      end. /* if cOsCommand# > "" */
+      end. /* if cOsCommand# > "" or b-ttMsMonFeedbackDef.cMessageDispatchObject > "" */
+      else
+        bReturn# = false.
       
+      if avail b-ttMsMonFeedbackDefCopy then delete b-ttMsMonFeedbackDefCopy.
+      return bReturn#.
+  
       /* here we catch the exceptions and present them with a special ShowExceptionKeepNative version
          to avoid error looping, since at this point we are handling an error on error. */
-      catch oError as Progress.Lang.Error :
-        sc_showexception:ShowExceptionKeepNative(oError).	
+      catch oError# as Progress.Lang.Error :
+        sc_showexception:ShowExceptionKeepNative(oError#).	
       end catch.
       
     end. /* do */
   
-  end method. /* HandleEvent_Implement */
+  end method. /* HandleEvent_ImplementSub */
   
   
   method public static void HandleMissingData(

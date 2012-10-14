@@ -136,6 +136,54 @@ class panaedra.msroot.msutil.logic.sc_html_convert   :
     return cReturn#.
     
   end method. /* ConvertFromHtml */
+  
+  
+  method public static character ConvertFromUrl(
+    
+    /* Convert URL's and URI's to a normal string */
+    
+    cToDecodeIP# as character):
+
+    define variable cReturn# as character no-undo.
+    
+    assign
+      cReturn# = cToDecodeIP#
+      cReturn# = replace(cReturn#,"%20"," ")
+      cReturn# = replace(cReturn#,"%22",'"')
+      cReturn# = replace(cReturn#,"%23","#")
+      cReturn# = replace(cReturn#,"%24","$")
+      cReturn# = replace(cReturn#,"%26","&")
+      cReturn# = replace(cReturn#,"%27","'")
+      cReturn# = replace(cReturn#,"%25","%") /* Keep last! */
+      .
+      
+    return cReturn#.   
+  
+  end method. /* ConvertFromUrl */
+  
+  
+  method public static character ConvertToUrl(
+
+    /* Convert a string to be used in URL's and URI's */
+  
+    cToEncodeIP# as character):
+      
+    define variable cReturn# as character no-undo.
+    
+    assign
+      cReturn# = cToEncodeIP#
+      cReturn# = replace(cReturn#,"%","%25") /* Keep first! */
+      cReturn# = replace(cReturn#," ","%20")
+      cReturn# = replace(cReturn#,'"',"%22")
+      cReturn# = replace(cReturn#,"#","%23")
+      cReturn# = replace(cReturn#,"$","%24")
+      cReturn# = replace(cReturn#,"&","%26")
+      cReturn# = replace(cReturn#,"'","%27")
+      .
+      
+    return cReturn#.   
+
+  end method. /* ConvertToUrl */
 
 
   method public static void ReloadConfigFile():

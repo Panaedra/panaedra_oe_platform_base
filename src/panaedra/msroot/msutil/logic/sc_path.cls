@@ -135,7 +135,7 @@ class panaedra.msroot.msutil.logic.sc_path:
   define public static property cLogDirDbg as character no-undo 
     get():
       if not bTtPathInitialized then TtPathInitialize().
-      cLogDir     = FillPathProperty(GetScPathEnv(), "cLogDir").
+      cLogDir     = FillPathProperty(GetScPathEnv(), "cLogDir", opsys).
       return cLogDir.
     end get.
     protected set.
@@ -377,19 +377,19 @@ class panaedra.msroot.msutil.logic.sc_path:
       sc_config:ReadXml(temp-table ttPath:handle,
         /* Note: the getter of cIniDir initializes cIniDir automatically */ 
         cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config").
-      cSysteemDir          = FillPathProperty(GetScPathEnv(), "cSysteemDir").
-      cLogDir              = FillPathProperty(GetScPathEnv(), "cLogDir").
-      cLogVoortgangDir     = FillPathProperty(GetScPathEnv(), "cLogVoortgangDir").
-      cNoSweatDir          = FillPathProperty(GetScPathEnv(), "cNoSweatDir").
-      c_SRVR_Dir          = FillPathProperty(GetScPathEnv(), "c_SRVR_Dir").
-      cNonstaticDir        = FillPathProperty(GetScPathEnv(), "cNonstaticDir").
-      cDeployBinariesDir   = FillPathProperty(GetScPathEnv(), "cDeployBinariesDir").
-      cDeployTargetRootDir = FillPathProperty(GetScPathEnv(), "cDeployTargetRootDir").
-      cDataRecoveryDir     = FillPathProperty(GetScPathEnv(), "cDataRecoveryDir").
-      cDataExchangeDir     = FillPathProperty(GetScPathEnv(), "cDataExchangeDir").
-      cVanWanDir           = FillPathProperty(GetScPathEnv(), "cVanWanDir").
-      cNaarWanDir          = FillPathProperty(GetScPathEnv(), "cNaarWanDir").
-      c_TERM_UNDISCLOSED_queueDir  = FillPathProperty(GetScPathEnv(), "c_TERM_UNDISCLOSED_queueDir").
+      cSysteemDir          = FillPathProperty(GetScPathEnv(), "cSysteemDir",opsys).
+      cLogDir              = FillPathProperty(GetScPathEnv(), "cLogDir",opsys).
+      cLogVoortgangDir     = FillPathProperty(GetScPathEnv(), "cLogVoortgangDir",opsys).
+      cNoSweatDir          = FillPathProperty(GetScPathEnv(), "cNoSweatDir",opsys).
+      c_SRVR_Dir          = FillPathProperty(GetScPathEnv(), "c_SRVR_Dir",opsys).
+      cNonstaticDir        = FillPathProperty(GetScPathEnv(), "cNonstaticDir",opsys).
+      cDeployBinariesDir   = FillPathProperty(GetScPathEnv(), "cDeployBinariesDir",opsys).
+      cDeployTargetRootDir = FillPathProperty(GetScPathEnv(), "cDeployTargetRootDir",opsys).
+      cDataRecoveryDir     = FillPathProperty(GetScPathEnv(), "cDataRecoveryDir",opsys).
+      cDataExchangeDir     = FillPathProperty(GetScPathEnv(), "cDataExchangeDir",opsys).
+      cVanWanDir           = FillPathProperty(GetScPathEnv(), "cVanWanDir",opsys).
+      cNaarWanDir          = FillPathProperty(GetScPathEnv(), "cNaarWanDir",opsys).
+      c_TERM_UNDISCLOSED_queueDir  = FillPathProperty(GetScPathEnv(), "c_TERM_UNDISCLOSED_queueDir",opsys).
     end.
     
   end method. /* TtPathInitialize */
@@ -404,7 +404,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     
     if not bTtPathInitialized then TtPathInitialize(). 
 
-    cReturn# = FillPathProperty(GetScPathEnv(), cTokenIP#).
+    cReturn# = FillPathProperty(GetScPathEnv(), cTokenIP#, opsys).
     
     return cReturn#.
     
@@ -420,14 +420,30 @@ class panaedra.msroot.msutil.logic.sc_path:
     
     if not bTtPathInitialized then TtPathInitialize(). 
 
-    cReturn# = FillPathProperty(cEnvIP#, cTokenIP#).
+    cReturn# = FillPathProperty(cEnvIP#, cTokenIP#, opsys).
     
     return cReturn#.
     
-  end method. /* GetDir */
+  end method. /* GetDirOfOtherEnv */
   
   
-  method protected static character FillPathProperty(cEnvIP# as character, cTokenIP# as character):
+  method public static character GetDirOfOtherEnv(cEnvIP# as character, cTokenIP# as character, cOpsysIP# as character):
+    
+    /* Use to get paths from the config file,
+       for any environment.
+     */
+    define variable cReturn# as character no-undo.
+    
+    if not bTtPathInitialized then TtPathInitialize(). 
+
+    cReturn# = FillPathProperty(cEnvIP#, cTokenIP#, cOpsysIP#).
+    
+    return cReturn#.
+    
+  end method. /* GetDirOfOtherEnv */
+  
+  
+  method protected static character FillPathProperty(cEnvIP# as character, cTokenIP# as character, cOpsysIP# as character):
 
     define variable cHostName#     as character no-undo.
     define variable cDefaultOpsys# as character no-undo.
@@ -435,7 +451,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     define buffer b-ttPath for ttPath.
     
     cHostName#     = panaedra.msroot.msutil.logic.sc_environment:GetHostName().
-    cDefaultOpsys# = subst("default_&1",opsys).
+    cDefaultOpsys# = subst("default_&1", cOpsysIP#).
     
     find first b-ttPath 
       where b-ttPath.cEnv      = cEnvIP# 

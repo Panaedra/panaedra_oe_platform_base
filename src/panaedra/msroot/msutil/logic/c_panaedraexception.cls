@@ -55,7 +55,16 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
 
   define property oInnerException as Progress.Lang.Error no-undo 
     public    get.
-    protected set.
+    public    set.
+
+  define property cCategoryEvent as character no-undo 
+    public    get.
+    public    set.
+
+
+  define property cCategoryEventID as character no-undo 
+    public    get.
+    public    set.
 
   constructor public c_panaedraexception(
     iErrorIP# as integer, 
@@ -105,49 +114,50 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
 
   constructor public c_panaedraexception(
     iErrorIP#          as integer, 
+    oInnerExceptionIP# as Progress.Lang.Error,
+    cCategoryEventIP#  as character,
     oDutchIP#          as i_language_dutch,
-    cErrorIP#          as character,
-    oInnerExceptionIP# as Progress.Lang.Error):
+    cErrorMsgIP#       as character):
     
     /* Note: 11.0A progress bug: 
        in inheriting classes like c_apiproxyexception, the super with parameters does not work.
        Splitting in two statements works around this issue. 
        */    
     super().
-    this-object:AddMessage(cErrorIP#, iErrorIP#).
-    _sys_AddMessage(iErrorIP#,cErrorIP#).
-    oInnerException = oInnerExceptionIP#.
+    this-object:AddMessage(cErrorMsgIP#, iErrorIP#).
+    _sys_AddMessage(iErrorIP#,cErrorMsgIP#).
     
-    cLang = "Dutch":u.
+    assign
+      oInnerException = oInnerExceptionIP#
+      cCategoryEvent  = cCategoryEventIP#
+      cLang           = "Dutch":u.
     
   end constructor. /* Language with innerexception */
 
 
   constructor public c_panaedraexception(
-    iErrorIP# as integer, 
-    oEnglishIP# as i_language_english,
-    cErrorIP# as character,
-    oInnerExceptionIP# as Progress.Lang.Error):
+    iErrorIP#          as integer,
+    oInnerExceptionIP# as Progress.Lang.Error,
+    cCategoryEventIP#  as character,
+    oEnglishIP#        as i_language_english,
+    cErrorMsgIP#       as character
+    ):
     
     /* Note: 11.0A progress bug: 
        in inheriting classes like c_apiproxyexception, the super with parameters does not work.
        Splitting in two statements works around this issue. 
        */    
     super().
-    this-object:AddMessage(cErrorIP#, iErrorIP#).
-    _sys_AddMessage(iErrorIP#,cErrorIP#).
-    oInnerException = oInnerExceptionIP#.
+    this-object:AddMessage(cErrorMsgIP#, iErrorIP#).
+    _sys_AddMessage(iErrorIP#,cErrorMsgIP#).
     
-    &if false &then    
-    message cErrorIP# "added to c_panaedraexception" "with number" iErrorIP# skip
-      this-object:NumMessages
-      view-as alert-box.
-    &endif
+    assign
+      oInnerException = oInnerExceptionIP#
+      cCategoryEvent  = cCategoryEventIP#
+      cLang           = "English":u.
     
-    cLang = "English":u.
-    
-    catch ex as Progress.Lang.Error :
-      sc_showexception:ShowException(ex).	
+    catch oError# as Progress.Lang.Error :
+      sc_showexception:ShowException(oError#).	
     end catch.
     
   end constructor. /* Language with innerexception */

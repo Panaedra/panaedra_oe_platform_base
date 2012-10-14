@@ -11,12 +11,9 @@
 &if "{&dvcs__panaedra_msroot_msmonitor_logic_tt_msmon_feedbackdef_tt_i}" = "" &then
 &glob dvcs__panaedra_msroot_msmonitor_logic_tt_msmon_feedbackdef_tt_i yes
 &glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msmonitor_logic_tt_msmon_feedbackdef_tt_i $Revision: 1 $
-&if '{&class}' = '' &then
-procedure dvcs__panaedra_msroot_msmonitor_logic_tt_msmon_feedbackdef_tt_i: 
-  return "$Revision: 1 $". 
-end.
-&endif
+
 /******************************* $NoKeywords:  $ *****************************/
+&endif /* {&dvcs__panaedra_msroot_msmonitor_logic_tt_msmon_feedbackdef_tt_i} */
 
 &if defined(static) > 0 and defined(reference-only) > 0 &then &undefine reference-only
 &endif
@@ -53,8 +50,9 @@ define {&protected} {&static} temp-table ttMsMonFeedbackDef{&ttSuffix} {&no-undo
   field cLevel                 as character xml-node-type "attribute" initial "error"
   field cMessage               as character xml-node-type "attribute" 
   field cMessageFormat         as character xml-node-type "attribute" initial "commandline"
-  field cTempfileBuilderObject as character xml-node-type "attribute" initial ""
-  field cOsCommand             as character xml-node-type "attribute"
+  field cTempfileBuilderObject as character xml-node-type "attribute"
+  field cMessageDispatchObject as character xml-node-type "attribute" /* use cMessageDispatchObject *or* cOsCommand */
+  field cOsCommand             as character xml-node-type "attribute" /* use cMessageDispatchObject *or* cOsCommand */
   field cLocation              as character xml-node-type "attribute"
   field cProcessId             as character xml-node-type "attribute"
   field cThread                as character xml-node-type "attribute"
@@ -63,13 +61,13 @@ define {&protected} {&static} temp-table ttMsMonFeedbackDef{&ttSuffix} {&no-undo
   field cUsername              as character xml-node-type "attribute"
   
   {&ttExtraFields}
+  &if not "{&ttSuffix}" matches "*Copy" &then
   index iIDMsMonFeedbackDef is unique                  iIDMsMonFeedbackDef
   index cEvent_cEnv_cOpsys_cHost_MID is primary unique cEvent              cEnv cOpsys cHostname cMonitorID 
+  &endif
   {&ttExtraIndices}
   .
 
 &endif
-
-&endif /* {&dvcs__panaedra_msroot_msmonitor_logic_tt_msmon_feedbackdef_tt_i} */
 
 /* EOF : panaedra/msroot/msmonitor/logic/tt/msmon_feedbackdef_tt.i */
