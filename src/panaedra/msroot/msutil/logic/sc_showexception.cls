@@ -65,7 +65,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
     if sc_environment:bBatchMode then 
     do:
-
+      
       iError# = oErrorIP#:GetMessageNum(1).
     
       if iError# = 0 or iError# = ? then iError# = 99948192. /* Nothing better to do than give a unique error number */
@@ -172,7 +172,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     end.
     
     else
-    &endif /* Not unix/tty */
+      &endif /* Not unix/tty */
     
       ShowExceptionKeepNativeImplement(cExtraMessageIP#,ex).
     
@@ -194,7 +194,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
   method protected static void ShowExceptionKeepNativeImplement(
     input cExtraMessageIP# as character,
-    input ex as Progress.Lang.Error):
+    input oErrorIP# as Progress.Lang.Error):
 
     /* The following code is used on win32 as well as unix */
     
@@ -214,18 +214,14 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     if cExtraMessageIP# > "" then
       cMessage# = cExtraMessageIP# + chr(10).
     
-    do iTell# = 1 to ex:NumMessages:
-      cMessage# = cMessage# + 
-        ex:GetMessage(iTell#).
-      if index(cMessage#, subst("(&1)", ex:GetMessageNum(iTell#))) = 0
-        then cMessage# = cMessage# + subst(" (&1)", ex:GetMessageNum(iTell#)).
-      cMessage# + chr(10).
-    end.
+    cMessage# = cMessage# + sc_showexception:ExceptionMsgToString(oErrorIP#).
     
     message 
-      cMessage#        skip
-      ex:CallStack     skip
-      cLastProgram#
+      sc_messagebox:MessageToDisplayableMessage(
+      subst("&1~n&2~n&3",
+      cMessage#,
+      oErrorIP#:CallStack,
+      cLastProgram#))
       view-as alert-box title "Panaedra " + string(now,"99-99-99 hh:mm:ss").
   
   end method. /* ShowExceptionKeepNativeImplement */
@@ -265,6 +261,36 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
     input oErrorIP# as Progress.Lang.Error):
 
+    define variable cMessage#        as character        no-undo.
+    define variable cMessageInner#   as character        no-undo.
+    
+    define variable oPanaedraException# as c_panaedraexception no-undo.
+    
+    cMessage# = ExceptionMsgToStringSub(oErrorIP#).
+    
+    if type-of(oErrorIP#, c_panaedraexception) then 
+    do:
+      oPanaedraException# = cast(oErrorIP#, c_panaedraexception).
+      if valid-object(oPanaedraException#:oInnerException)
+        then 
+      do:
+        cMessageInner# = ExceptionMsgToStringSub(oPanaedraException#:oInnerException).
+        if cMessageInner# > "" then
+          cMessage# = subst("&1~n&2",cMessage#,cMessageInner#).
+      end.
+    end.
+    
+    return cMessage#.
+  
+  end method. /* ExceptionMsgToString */
+  
+
+  method protected static character ExceptionMsgToStringSub(
+    
+    /* Get only "message" info from an exception (omit the callstack) and put it in a simple string */
+  
+    input oErrorIP# as Progress.Lang.Error):
+
     define variable cLastProgram# as character no-undo.
     define variable cMessage#     as character no-undo.
     define variable iTell#        as integer   no-undo.
@@ -289,7 +315,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
     return cMessage#.
   
-  end method. /* ExceptionMsgToString */
+  end method. /* ExceptionMsgToStringSub */
   
   
   method public static character ExceptionCallStackLastEntry(
