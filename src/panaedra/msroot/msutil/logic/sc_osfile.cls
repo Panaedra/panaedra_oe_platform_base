@@ -97,7 +97,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
       if file-info:full-pathname <> ? then 
       do:
         if oAppError# = ? then oAppError# = new Progress.Lang.AppError("Some files couldn't be deleted",99950938).
-        oAppError#:AddMessage(subst("&1 os-error &2", ttFile.cFullPath, os-error), 99950939).
+        oAppError#:AddMessage(subst("&1 os-error &2 &3", ttFile.cFullPath, os-error, OsErrorDescription(os-error)), 99950939).
       end.
       
     end. /* For each ttFile */  
@@ -651,11 +651,13 @@ class panaedra.msroot.msutil.logic.sc_osfile
         undo, throw new c_panaedraexception(
           28241214,
           sc_lang:oEnglish,
-          subst("Error with &1 &2 to &3, os-error: &4",
+          subst("Error with &1 &2 to &3, os-error: &4 &5",
           if bMoveIP# then "moving" else "copying",
           cFileFromIP#,
           cFileToIP#,
-          os-error)
+          os-error,
+          OsErrorDescription(os-error)
+          )
           ).
             
     end.
@@ -676,11 +678,12 @@ class panaedra.msroot.msutil.logic.sc_osfile
             undo, throw new c_panaedraexception(
               28241214,
               sc_lang:oEnglish,
-              subst("Error with &1 &2 to &3, os-error: &4",
+              subst("Error with &1 &2 to &3, os-error: &4 &5",
               if bMoveIP# then "moving" else "copying",
               cFileFromIP#,
               cFileToIP#,
-              os-error)
+              os-error,
+              OsErrorDescription(os-error))
               ).
           
         end.
@@ -884,6 +887,63 @@ class panaedra.msroot.msutil.logic.sc_osfile
         ).
   
   end method. /* FlipFileToWin */
+  
+  
+  method public static character OsErrorDescription(
+    iOsErrorIP# as integer
+    ):
+      
+    define variable cReturn# as character no-undo.  
+      
+    case iOsErrorIP#:
+      when 0 then
+        cReturn# = "no error".
+      when 1 then
+        cReturn# = "not owner".
+      when 2 then
+        cReturn# = "no such file or directory".
+      when 3 then
+        cReturn# = "interrupted system call".
+      when 4 then
+        cReturn# = "I/O error".
+      when 5 then
+        cReturn# = "bad file number".
+      when 6 then
+        cReturn# = "no more processes".
+      when 7 then
+        cReturn# = "not enough core memory".
+      when 8 then
+        cReturn# = "permission denied".
+      when 9 then
+        cReturn# = "bad address".
+      when 10 then
+        cReturn# = "file exists".
+      when 11 then
+        cReturn# = "no such device".
+      when 12 then
+        cReturn# = "not a directory".
+      when 13 then
+        cReturn# = "is a directory".
+      when 14 then
+        cReturn# = "file table overflow".
+      when 15 then
+        cReturn# = "too many open files".
+      when 16 then
+        cReturn# = "file too large".
+      when 17 then
+        cReturn# = "no space left on device".
+      when 18 then
+        cReturn# = "directory not empty".
+      when 999 then
+        cReturn# = "unmapped error (abl default)".
+      otherwise
+      cReturn# = subst("unmapped error &1", iOsErrorIP#).
+      
+    end case.
+
+    return cReturn#. 
+  
+  end method. /* OsErrorDescription */
   
 end class.
 
