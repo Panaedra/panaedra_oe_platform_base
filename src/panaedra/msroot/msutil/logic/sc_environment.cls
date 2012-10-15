@@ -6,7 +6,7 @@ using panaedra.msroot.msdeploy.logic.*.
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
 
-class panaedra.msroot.msutil.logic.sc_environment: 
+class panaedra.msroot.msutil.logic.sc_environment:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_environment.cls $ 
@@ -18,7 +18,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
       Description: Get session and environment information, like pid (process id).
 
   \*****************************  Include Files ********************************/
-
+{panaedra/msroot/msutil/logic/ds/msenvironment_ds.i &class=class &protected=protected &static=static}
 
   /************************  Source control constructor ************************/
   constructor public sc_environment(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
@@ -696,11 +696,43 @@ class panaedra.msroot.msutil.logic.sc_environment:
     define variable iTell#                     as integer   no-undo.
     define variable bLocalAreaConnectionFound# as logical   no-undo.
     define variable bDefaultGatewayFound#      as logical   no-undo.
-
+    
+    define buffer b-ttMsIpDetection for ttMsIpDetection.
+    
     &if opsys = "win32" &then 
+    
+    define variable oHostEntry#  as System.Net.IPHostEntry         no-undo.
+    define variable oIpAddress#  as System.Net.IPAddress           no-undo.
+    define variable oEnumerator# as System.Collections.IEnumerator no-undo.
+    define variable cLocalIp#    as character                      no-undo.
+    define variable cIpAddress#  as character                      no-undo.
+    define variable iIpAddress#  as integer                        no-undo.
+    
+    if not can-find(first b-ttMsIpDetection) then
+      sc_config:ReadXml(dataset dsMsEnvironment:handle,sc_path:StandardIniFilePath("sc_environment.config")).
       
-    /* ShouldHave: use .net when possible to determine ip adress of session host */
-      
+    find b-ttMsIpDetection where b-ttMsIpDetection.cOpsys = opsys.
+    
+    assign
+      oHostEntry#  = System.Net.Dns:GetHostEntry(System.Net.Dns:GetHostName())
+      oEnumerator# = oHostEntry#:AddressList:GetEnumerator().
+
+    do while oEnumerator#:MoveNext():
+      if type-of(oEnumerator#:Current, System.Net.IPAddress) then 
+      do:
+        oIpAddress# = cast(oEnumerator#:Current, System.Net.IPAddress).
+        if oIpAddress#:AddressFamily:ToString()  = "InterNetwork" 
+          and 
+          oIpAddress#:ToString() begins b-ttMsIpDetection.cPreferredIpV4Prefix
+          then
+          cIpAdres# = oIpAddress#:ToString().
+      end.
+    end.
+    
+    if cIpAdres# = "" then cIpAdres# = "127.0.0.1".
+    
+    &if false &then /* Old-style windows, not dotnet */
+    
     input through value("ipconfig") no-echo.
     
     b_read_file:
@@ -737,6 +769,9 @@ class panaedra.msroot.msutil.logic.sc_environment:
     input close.
     
     cIpAdres# = trim(entry(1,substring(cIpAdres#,index(cIpAdres#,":") + 1),"(")).
+    
+    &endif /* Old-style windows, not dotnet */
+    
     &else
     
     input through value("resolv") no-echo.
