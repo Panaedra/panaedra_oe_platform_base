@@ -95,6 +95,18 @@ class panaedra.msroot.msutil.logic.sc_environment:
         sc_proxycontext:EmptyDefaultDsContext().
       cUserID = cInputIP#.
     end set.
+
+
+  define static property cOsUserID as character no-undo /* Operating User ID, not session User ID */ initial ?
+    public get:
+      if cOsUserID = ? then 
+      do:
+        cOsUserID = sc_string_substitute:ExpandOsEnv(if opsys = "unix" then "%LOGIN%" else "%USERNAME%").
+      end.
+      return cOsUserID.
+    end get.
+    protected set.
+  
   
   define static property dtmStarted as datetime-tz no-undo 
     public get.
