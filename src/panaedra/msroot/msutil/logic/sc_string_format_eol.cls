@@ -76,7 +76,7 @@ class panaedra.msroot.msutil.logic.sc_string_format_eol:
     /* Remove start marker and return*/
     return trim(cReturn#).
     
-  end method. /* CleanupEolAndTrimPerLineImplement */
+  end method. /* CleanupEolAndTrimPerLine */
 
 
   method public static character CleanupEolAndTrimPerLine(
@@ -131,7 +131,7 @@ class panaedra.msroot.msutil.logic.sc_string_format_eol:
     /* Remove start marker and return*/
     return trim(cReturn#).
     
-  end method. /* CleanupEolAndTrimPerLineImplement */
+  end method. /* CleanupEolAndTrimPerLine */
 
 
   method public static longchar CorrectEndOfLine(
@@ -258,7 +258,7 @@ class panaedra.msroot.msutil.logic.sc_string_format_eol:
     &if opsys = "unix" &then
     cReturn# = CorrectEndOfLine(sc_stringtype_endofline:oInternal, cInputIP#).
     &else
-    cReturn# = CorrectEndOfLine(sc_stringtype_endofline:oInternal /* TODO: dit moet oWindows zijn, maar dan compileert het niet. 10.2A02 Progress bug? */, cInputIP#).
+    cReturn# = CorrectEndOfLine(sc_stringtype_endofline:oInternal /* ShouldHave: this has to be oWindows, but it does not compile. 10.2A02 Progress bug? */, cInputIP#).
     &endif
     
     return replace(cReturn#,chr(10), chr(13)).
@@ -456,6 +456,48 @@ class panaedra.msroot.msutil.logic.sc_string_format_eol:
 
   end method. /* CorrectEndOfLine ; character + osfile */
 
+  
+  method public static character RemoveEndOfLinesAndCleanup(
+    
+    /* Remove all end of lines in a multi-line string, cleans up the lines, and replaces EOL for space character. */
+  
+    cInputIP# as character
+    ):
+      
+    define variable cReturn# as character no-undo.
+    
+    /* First a few simple checks */
+    if cInputIP# = ? then return cInputIP#.
+    
+    assign
+      cReturn# = CleanupEolAndTrimPerLine(cInputIP#)
+      cReturn# = replace(cReturn# ,chr(10)," ").
+      
+    return cReturn#.  
+      
+  end method. /* RemoveEndOfLinesAndCleanup ; character */
+  
+
+  method public static longchar RemoveEndOfLinesAndCleanup(
+    
+    /* Remove all end of lines in a multi-line string, cleans up the lines, and replaces EOL for space character. */
+  
+    cInputIP# as longchar
+    ):
+      
+    define variable cReturn# as longchar no-undo.
+    
+    /* First a few simple checks */
+    if cInputIP# = ? then return cInputIP#.
+    
+    assign
+      cReturn# = CleanupEolAndTrimPerLine(cInputIP#)
+      cReturn# = replace(cReturn# ,chr(10)," ").
+      
+    return cReturn#.  
+      
+  end method. /* RemoveEndOfLinesAndCleanup ; longchar */
+  
 
   method public static void PutStream(hStreamIP# as handle, oOsFileOVID# as i_stringtype_endofline_osfile, cInputIP# as longchar):
     
@@ -468,7 +510,7 @@ class panaedra.msroot.msutil.logic.sc_string_format_eol:
        
     */
     
-    define variable iTell#  as integer   no-undo.
+    define variable iTell#  as integer  no-undo.
     define variable cLocal# as longchar no-undo.
     
     cLocal# = CorrectEndOfLine(sc_stringtype_endofline:oInternal, cInputIP#).
