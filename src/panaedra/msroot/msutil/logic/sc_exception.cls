@@ -156,7 +156,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
         b-ttExceptions.cError = oExceptionIP#:GetMessage(iNumErrorPS#).
       end.
       
-      /* todo: oInnerException */
+    /* ShouldHave: oInnerException */
     end. /* Valid exception object */
     
     if not can-find(first b-ttExceptions) then
@@ -376,7 +376,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
     ):
     
     define variable oReturn# as Progress.Lang.Error no-undo.
-
+    
     if sc_exception:IsWrapped(oInnerExceptionIP#) then oReturn# = oInnerExceptionIP#.
     else 
       oReturn# = new c_panaedraexception(

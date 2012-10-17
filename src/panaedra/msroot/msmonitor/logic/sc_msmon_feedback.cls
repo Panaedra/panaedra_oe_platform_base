@@ -4,14 +4,14 @@ using panaedra.msroot.msutil.interfaces.*.
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
-class panaedra.msroot.msmonitor.logic.sc_msmon_feedback: 
+class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive:  $ 
           Version: $Revision:  $ 
        Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+     Date Checkin: $Date:  $  
+    Date Modified: $Modtime:  $
 
       Description: Send feedback from monitoring processes to developers/sysadmins/users
 

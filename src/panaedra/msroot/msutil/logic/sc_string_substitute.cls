@@ -1,3 +1,6 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
+
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.sc_string_substitute: 
@@ -39,23 +42,34 @@ class panaedra.msroot.msutil.logic.sc_string_substitute:
     iIndex# = index(cInputIP#,'$').
     
     if iIndex# > 0 then 
-    do:
+    do on error undo, throw:
     
+      b_walkdollar:
       do while iIndex# > 0:
       
         assign
-          iEnd#   = index(cInputIP#,'~}', iIndex#)
+          iEnd#   = index(cInputIP#,'~}', iIndex#).
+          
+        if ((iIndex# + 2) <= 0) or ((iEnd# - iIndex# - 2) <= 0) then leave b_walkdollar. /* This can happen if string ends with (literal) dollar sign */
+          
+        assign
           cOsEnv# = os-getenv(substring(cInputIP#, iIndex# + 2, iEnd# - iIndex# - 2)).
         
         if cOsEnv# = ? then 
           cOsEnv# = substring(cInputIP#, iIndex# + 2, iEnd# - iIndex# - 2).
         
+        if (iIndex# <= 0 ) or ((iEnd# - iIndex# + 1) <= 0) then leave b_walkdollar.  /* This can happen if string ends with (literal) dollar sign */
+        
         substring(cInputIP#, iIndex#, iEnd# - iIndex# + 1) = cOsEnv#.
       
         iIndex# = index(cInputIP#,'$').
-      
+       
       end.
-    
+      
+      catch oError# as Progress.Lang.Error:
+        /* Nothing to do. Extra safety, this happened once during an exceptional error flow, hiding original error. */
+      end catch.
+     
     end. /* dollar sign found */
     else 
     do:
@@ -64,7 +78,7 @@ class panaedra.msroot.msutil.logic.sc_string_substitute:
       
       if iIndexStart# > 0 then
       b_search_dollar: 
-      do:
+      do on error undo, throw:
         
         do while iIndexStart# > 0:
           
@@ -79,13 +93,17 @@ class panaedra.msroot.msutil.logic.sc_string_substitute:
 
             if cOsEnv# > "" then 
               substring(cInputIP#, iIndexStart#, iIndexEnd# - iIndexStart# + 1) = cOsEnv#.
-            
+           
             assign
               iIndexStart# = index(cInputIP#,'%',iIndexEnd# + 1).
-              iIndexEnd#   = 0.
+            iIndexEnd#   = 0.
           end.
           
         end.
+        
+        catch oError# as Progress.Lang.Error:
+          /* Nothing to do. Extra safety, this happened once during an exceptional error flow, hiding original error. */
+        end catch.
         
       end.
       
@@ -97,4 +115,4 @@ class panaedra.msroot.msutil.logic.sc_string_substitute:
 
 end class.
 
-/* EOF */ 
+/* EOF */
