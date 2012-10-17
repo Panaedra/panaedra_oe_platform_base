@@ -325,10 +325,17 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           do:
             
             find b-ttMsMonFeedbackDef where 
-              b-ttMsMonFeedbackDef.cEvent     = "Overrule:DevIP"  and
-              b-ttMsMonFeedbackDef.cEnv       = "[Any]"           and
+              b-ttMsMonFeedbackDef.cEvent     = "Overrule:DevIP"     and
+              b-ttMsMonFeedbackDef.cEnv       = sc_environment:cEnv  and
               b-ttMsMonFeedbackDef.cOpsys     = "[Any]"           
               no-error.
+              
+            if not avail b-ttMsMonFeedbackDef then
+              find b-ttMsMonFeedbackDef where 
+                b-ttMsMonFeedbackDef.cEvent     = "Overrule:DevIP"  and
+                b-ttMsMonFeedbackDef.cEnv       = "[Any]"           and
+                b-ttMsMonFeedbackDef.cOpsys     = "[Any]"           
+                no-error.
             
           end.
           else 
@@ -372,15 +379,15 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         buffer-copy b-ttMsMonFeedbackDef to b-ttMsMonFeedbackDefCopy.
   
         assign      
-          b-ttMsMonFeedbackDefCopy.cMessage            = cMessageIP#
-          b-ttMsMonFeedbackDefCopy.cUsername           = sc_environment:cUserID
-          b-ttMsMonFeedbackDefCopy.cLocation           = cLocationIP#
-          b-ttMsMonFeedbackDefCopy.cProcessID          = string(sc_environment:GetProcessID())
-          b-ttMsMonFeedbackDefCopy.cEnv                = sc_environment:cEnv
-          b-ttMsMonFeedbackDefCopy.cOpsys              = lc(opsys)
-          b-ttMsMonFeedbackDefCopy.cHostname           = sc_environment:cHostName
-          b-ttMsMonFeedbackDefCopy.cMonitorID          = cMonitorIdIP#
-          b-ttMsMonFeedbackDefCopy.cEvent              = cEventIP#
+          b-ttMsMonFeedbackDefCopy.cMessage   = cMessageIP#
+          b-ttMsMonFeedbackDefCopy.cUsername  = sc_environment:cUserID
+          b-ttMsMonFeedbackDefCopy.cLocation  = cLocationIP#
+          b-ttMsMonFeedbackDefCopy.cProcessID = string(sc_environment:GetProcessID())
+          b-ttMsMonFeedbackDefCopy.cEnv       = sc_environment:cEnv
+          b-ttMsMonFeedbackDefCopy.cOpsys     = lc(opsys)
+          b-ttMsMonFeedbackDefCopy.cHostname  = sc_environment:cHostName
+          b-ttMsMonFeedbackDefCopy.cMonitorID = cMonitorIdIP#
+          b-ttMsMonFeedbackDefCopy.cEvent     = cEventIP#
           .
         
         /* If an Exception is supplied... */
@@ -430,7 +437,6 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           cErrorFile# = cTempfile# + ".err".
             
         end. /* if */
-        
         
         if cOsCommand# > "" then 
         do:
@@ -607,7 +613,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         if session:window-system = "tty" and (not sc_environment:bBatchMode) and (not sc_environment:bLiveEnv) then
         do:
           /* Put message on screen as wel, makes for better testing */
-          {panaedra/msroot/msutil/logic/sc_messagebox_msg.i
+        {panaedra/msroot/msutil/logic/sc_messagebox_msg.i
             &condition=TstEnvUiDbg
             &msg=b-ttMsMonFeedbackDefCopy.cMessage}
         end.
