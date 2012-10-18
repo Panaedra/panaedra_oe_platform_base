@@ -22,6 +22,13 @@ class panaedra.msroot.msutil.logic.sc_config:
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
+  
+  define protected static temp-table ttConfigFileName no-undo
+    field cConfigFileName as character
+    field cFullpath       as character
+    field bUseXconfig     as logical
+    index cConfigFileName cConfigFileName.
+  
 
   define protected static property rawConfigKey as raw no-undo
   
@@ -157,6 +164,7 @@ class panaedra.msroot.msutil.logic.sc_config:
   
   end method. /* DecryptXConfigToMemptr */
   
+  
   method public static void ReadXml(
   
     /* Use to read a .config file. 
@@ -168,7 +176,8 @@ class panaedra.msroot.msutil.logic.sc_config:
     
     ReadXml(hTtOrDsIP#, cFileIP#, "empty").
     
-  end method.
+  end method. /* ReadXml ; simple overload with "empty" */
+  
   
   method public static void ReadXml(
   
@@ -176,42 +185,25 @@ class panaedra.msroot.msutil.logic.sc_config:
        If a .xconfig file (also) exists, it takes the most recent file.
      */
     
-    hTtOrDsIP# as handle,
-    cFileIP# as character,
+    hTtOrDsIP#   as handle,
+    cFileIP#     as character,
     cReadmodeIP# as character):
     
-    define variable cXconfigfile# as character   no-undo.
-    define variable dtmConfig#    as datetime-tz no-undo.
-    define variable dtmXconfig#   as datetime-tz no-undo.
-    define variable bUseXconfig#  as logical     no-undo.
-    define variable mConfig#      as memptr      no-undo.
+    define variable cConfigFilepath# as character no-undo.
+    define variable bUseXconfig#     as logical   no-undo.
+    define variable mConfig#         as memptr    no-undo.
     
-    cXconfigfile# = sc_path:SplitGetFileDir(cFileIP#)
-      + sc_path:SplitGetFileName(cFileIP#)
-      + ".xconfig".
-      
-    if search(cXconfigfile#) <> ? then 
-    do:
-      if search(cFileIP#) = ? 
-        then bUseXconfig# = true.
-      else 
-      do:
-        assign
-          dtmConfig#  = sc_osfile:GetFileModDatetime(cFileIP#)
-          dtmXconfig# = sc_osfile:GetFileModDatetime(cXconfigfile#).
-        if dtmXconfig# > dtmConfig# 
-          then bUseXconfig# = true.
-      end.
-      if bUseXconfig# then
-        mConfig# = DecryptXConfigToMemptr(cXconfigfile#).
-    end.  
+    cConfigFilepath# = GetConfigOsfilename(cFileIP#, output bUseXconfig#).
+    
+    if bUseXconfig# then
+      mConfig# = DecryptXConfigToMemptr(cConfigFilepath#).
     
     /* Mind no-error and throw in next statements when editing */
     if bUseXconfig# then
       hTtOrDsIP#:read-xml("memptr", mConfig#, cReadmodeIP#, ?, false) no-error.
     else 
     do:
-      file-info:file-name = cFileIP#.
+      file-info:file-name = cConfigFilepath#.
       hTtOrDsIP#:read-xml("file", file-info:full-pathname, cReadmodeIP#, ?, false) no-error.
     end.
     
@@ -219,10 +211,9 @@ class panaedra.msroot.msutil.logic.sc_config:
       undo, throw new c_panaedraexception(
         99942219,
         sc_lang:oEnglish,
-        substitute("Error: Config file '&1' / '&2' (search:'&3') could not be read.~n&4", 
-        cFileIP#,
-        cXconfigfile#,
-        search(if bUseXconfig# then cXconfigfile# else cFileIP#),
+        substitute("Error: Config file '&1' (search:'&2') could not be read.~n&3", 
+        cConfigFilepath#,
+        search(cConfigFilepath#),
         error-status:get-message(1)
         )).
         
@@ -232,8 +223,85 @@ class panaedra.msroot.msutil.logic.sc_config:
     end finally.   
     
   end method. /* ReadXml */
+
+
+  method public static character GetConfigOsfilename(
+
+    /* Use to get the filename of a .config file. 
+       If a .xconfig file (also) exists, it takes the most recent file.
+     */
+
+    cFileIP# as character):
+      
+    define variable bUseXconfig# as logical no-undo. 
+    
+    return GetConfigOsfilename(cFileIP#, output bUseXconfig#). 
+      
+  end method. /* GetConfigOsfilename ; simple overload */
   
   
+  method public static character GetConfigOsfilename(
+
+    /* Use to get the filename of a .config file. 
+       If a .xconfig file (also) exists, it takes the most recent file.
+     */
+
+    cFileIP# as character,
+    output bUseXconfigOP# as logical):
+
+    define variable cXconfigfile# as character   no-undo.
+    define variable dtmConfig#    as datetime-tz no-undo.
+    define variable dtmXconfig#   as datetime-tz no-undo.
+    
+    define buffer b-ttConfigFileName for ttConfigFileName.
+    
+    find first b-ttConfigFileName
+      where b-ttConfigFileName.cConfigFileName = cFileIP#
+      no-error.
+      
+    if not avail b-ttConfigFileName then 
+    do:
+      
+      /* Create caching temp-table record */
+      create b-ttConfigFileName.
+      assign 
+        b-ttConfigFileName.cConfigFileName = cFileIP#.
+      
+      /* Use sc_path to get xconfig path from a config path */
+      cXconfigfile# = sc_path:SplitGetFileDir(cFileIP#)
+        + sc_path:SplitGetFileName(cFileIP#)
+        + ".xconfig".
+      
+      if search(cXconfigfile#) <> ? then 
+      do:
+        if search(cFileIP#) = ? 
+          then bUseXconfigOP# = true.
+        else 
+        do:
+          assign /* If both .config and .xconfig exist, take the latest */
+            dtmConfig#  = sc_osfile:GetFileModDatetime(cFileIP#)
+            dtmXconfig# = sc_osfile:GetFileModDatetime(cXconfigfile#).
+          if dtmXconfig# > dtmConfig# 
+            then bUseXconfigOP# = true.
+        end.
+      end.
+      
+      /* Save everything to tt record */
+      assign 
+        b-ttConfigFileName.bUseXconfig = bUseXconfigOP#
+        b-ttConfigFileName.cFullpath   = (if bUseXconfigOP# then cXconfigfile# else cFileIP#).
+        
+    end.
+    
+    /* Return data: all from tt record */
+    assign
+      bUseXconfigOP# = b-ttConfigFileName.bUseXconfig.
+      
+    return b-ttConfigFileName.cFullpath.
+   
+  end method. /* GetConfigOsfilename */
+
+    
   method public static logical FileExists(cFileIP# as character):
 
     define variable cXconfigfile# as character no-undo.

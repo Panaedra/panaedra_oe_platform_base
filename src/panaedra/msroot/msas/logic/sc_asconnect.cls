@@ -22,8 +22,9 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  define protected static variable bInitialized as logical                              no-undo.
-  define protected static variable oSingleton   as panaedra.msroot.msas.logic.sc_asconnect no-undo.
+  define protected static variable bInitialized  as logical                              no-undo.
+  define protected static variable oSingleton    as panaedra.msroot.msas.logic.sc_asconnect no-undo.
+  define protected static variable dtmLastConfig as datetime-tz                          no-undo.
   
   define static property bOffLine as logical no-undo 
     public    get.
@@ -55,11 +56,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
     
       if oSingleton = ? then oSingleton = new panaedra.msroot.msas.logic.sc_asconnect().
       
-      if sc_environment:bLiveEnv
-        then
-        sc_config:ReadXml(temp-table ttAsConnect:handle, sc_path:cIniDir + "sc_asconnect_live.config").
-      else
-        sc_config:ReadXml(temp-table ttAsConnect:handle, sc_path:cIniDir + "sc_asconnect_nonlive.config").
+      ReloadConfig().
 
       catch oError# as Progress.Lang.Error :
         assign
@@ -85,7 +82,8 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       and   b-ttAsConnect.cSuffix = cSuffixIP#
       no-error.
     
-    if avail b-ttAsConnect then do:
+    if avail b-ttAsConnect then 
+    do:
       cReturn# = b-ttAsConnect.cConnect. 
     end.
       
@@ -99,10 +97,10 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
     do on error undo, throw:
     
       if not bInitialized then
-      do on error undo, throw:
-        bInitialized = yes.
-        Initialize().
-      end.
+        undo, throw new c_panaedraexception(
+          99968912,
+          sc_lang:oEnglish,
+          "Incorrect program flow").
     
       find first ttAsConnect 
         where ttAsConnect.cEnv    = cEnvIP#
@@ -115,7 +113,8 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       
         undo, throw new c_apiproxyexception(
           99909002,
-          subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+          subst("Error: AppServer configuration on &1 (sc_asconnect&4.config) has no entry for:~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'",
+          (if true then "" else ""),
           cEnvIP#,
           cMirrorIP#,
           cSuffixIP#,
@@ -262,6 +261,8 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
         bInitialized = yes.
         Initialize().
       end.
+      else
+        ReloadConfig().
 
       find ttAsConnect where ttAsConnect.cEnv = cEnvIP#
         and ttAsConnect.cMirror = cMirrorIP#
@@ -271,7 +272,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       if not avail ttAsConnect then 
         undo, throw new c_apiproxyexception(
           99909002,
-          subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+          subst("Error: AppServer configuration on &1 (sc_asconnect&4.config) has no entry for:~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'", 
           cEnvIP#,
           cMirrorIP#,
           cSuffixIP#,
@@ -297,6 +298,31 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
     
   end method. /* _sys_GetAppServer */
   
+  
+  method protected static void ReloadConfig():
+    
+    define variable cConfigFile#   as character   no-undo.
+    define variable dtmConfigFile# as datetime-tz no-undo.
+    define variable bReload#       as logical     no-undo.
+    
+    assign
+      cConfigFile#   = sc_config:GetConfigOsfilename(sc_path:StandardIniFilePath("sc_asconnect.config"))
+      dtmConfigFile# = sc_osfile:GetFileModDatetime(cConfigFile#).
+    
+    if dtmLastConfig = ?
+      then bReload# = true.
+
+    if (not bReload#) and (dtmLastConfig <> dtmConfigFile#)
+      then bReload# = true.
+
+    if bReload# then
+    do:
+      sc_config:ReadXml(temp-table ttAsConnect:handle, cConfigFile#).
+      dtmLastConfig = dtmConfigFile#.
+    end.
+  
+  end method. /* ReloadConfig */
+
   
   method public static char GetSuffix ():
     
