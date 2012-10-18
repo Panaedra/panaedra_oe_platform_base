@@ -170,7 +170,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
 
   method public static datetime TimezoneInterval(
     input iMillisecondsIP# as int64):
-      
+    
     return TimezoneInterval(0,0,iMillisecondsIP#).
   
   end method. /* TimezoneInterval */
@@ -223,7 +223,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   method public static datetime-tz DateTimeNowMinusDelta(
     dtmDateIP# as datetime):
 
-    return TimezoneInterval(0, 0, datetime-tz(now) - dtmDateIP# ).
+    return TimezoneInterval(0, 0, datetime-tz(now) - datetime-tz(dtmDateIP#) ).
     
   end method. /* DateTimeNowMinusDelta */
 
