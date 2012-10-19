@@ -111,10 +111,11 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       if not avail ttAsConnect then 
       do:
       
-        undo, throw new c_apiproxyexception(
+        undo, throw new c_panaedraexception(
           99909002,
-          subst("Error: AppServer configuration on &1 (sc_asconnect&4.config) has no entry for:~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'",
-          (if true then "" else ""),
+          sc_lang:oEnglish,
+          subst("Error: AppServer configuration on &1 (sc_asconnect&5.config) has no entry for:~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'",
+          sc_path:cIniDir,
           cEnvIP#,
           cMirrorIP#,
           cSuffixIP#,
@@ -190,9 +191,11 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       if not avail ttAsConnect then 
       do:
       
-        undo, throw new c_apiproxyexception(
+        undo, throw new c_panaedraexception(
           99909002,
-          subst("Error: AppServer configuration (sc_asconnect&4.config) has no entry for:~nEnv: '&1'~nMirror: '&2'~nSuffix: '&3'", 
+          sc_lang:oEnglish,
+          subst("Error: AppServer configuration on &1 (sc_asconnect&5.config) has no entry for:~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'",
+          sc_path:cIniDir,
           sc_environment:cEnv,
           cMirrorIP#,
           cSuffix#,
