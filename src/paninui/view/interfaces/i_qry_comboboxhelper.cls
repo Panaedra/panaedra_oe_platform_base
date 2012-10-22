@@ -24,12 +24,15 @@ interface paninui.view.interfaces.i_qry_comboboxhelper
   method public logical   FindByID(iIdIP# as int64).
   method public character GetDisplayValue().
   method public logical   BufferAvailable().
+  method public logical   RepositionByValue(input cValueIP# as character).
   
   /* i_qry methods: */
   method public logical QueryOpen().
   method public logical QueryOpenAndReposition().
   method public void QueryClose().
   method public void UiRefreshAll().
+  method public handle GetBuffer(iBufferIP# as integer).
+  method public logical QueryRepositionToBuffers().
   
 end interface.
 
