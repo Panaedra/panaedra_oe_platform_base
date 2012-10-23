@@ -228,10 +228,10 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   end method. /* DateTimeNowMinusDelta */
 
 
-  method public static datetime-tz GetEndOfDay(dtmDay# as datetime-tz):
+  method public static datetime-tz GetEndOfDay(dtmDayIP# as datetime-tz):
 
     return add-interval(
-      add-interval(datetime-tz(date(dtmDay#)), +1, "day"),
+      add-interval(datetime-tz(date(dtmDayIP#)), +1, "day"),
       -1,
       "milliseconds"
       ).
@@ -239,9 +239,9 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   end method. /* GetEndOfDay */
   
 
-  method public static datetime-tz GetBeginOfDay(dtmDay# as datetime-tz):
+  method public static datetime-tz GetBeginOfDay(dtmDayIP# as datetime-tz):
 
-    return datetime-tz(date(dtmDay#)).
+    return datetime-tz(date(dtmDayIP#)).
 
   end method. /* GetEndOfDay */
 
@@ -263,7 +263,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
         
       otherwise
       undo, throw new c_panaedraexception(
-        44429103,
+        99909103,
         sc_lang:oEnglish,
         subst("Unsupported DatetimeDeltaFromString format: '&1'", cFormatIP#)
         ).
