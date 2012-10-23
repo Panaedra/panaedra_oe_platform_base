@@ -13,7 +13,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
 
       Description: Date and time timestamp functionality
       
-                   TODO: some of these methods should be moved to the newer class sc_datetime.cls.
+                   Shouldhave: some of these methods should be moved to the newer class sc_datetime.cls.
 
   \*****************************  Include Files ********************************/
 
@@ -46,7 +46,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   define public static variable iMsInMinute as int64 no-undo init 60000.  
     
 
-  /* TODO: function in class moet weg */
+  /* Shouldhave: function in class has gotta go */
   function englishAbvDate returns character(dtWhenIP# as date) in super.
 
   method public static character EnglishAbvDate(dtmWhenIP# as datetime-tz):
@@ -186,7 +186,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   end method. /* TimezoneInterval */
   
   
-  define public static property dtDeltaNull as date
+  define public static property dtDeltaNull as date no-undo
     get:
       return 1/1/0001.
     end get.
@@ -246,6 +246,30 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   end method. /* GetEndOfDay */
 
   
+  method public static datetime DatetimeDeltaFromString(cFormatIP# as character, cDatetimeIP# as character):
+    
+    define variable dtmReturn# as datetime no-undo.
+    define variable iDtm#      as integer  no-undo extent 8.
+    
+    case cFormatIP#:
+      
+      when "iso-date"    /* Normal ABL conversion also supported */ 
+      then 
+        do:
+          IsoDatetimeExplodeToInts(cDatetimeIP#, output iDtm#).
+          dtmReturn# = datetime(iDtm#[2],iDtm#[3],iDtm#[1],iDtm#[4],iDtm#[5],iDtm#[6],iDtm#[7]).
+          return dtmReturn#.
+        end.
+        
+      otherwise 
+      undo, throw 
+        new Progress.Lang.AppError(subst("Unsupported DatetimeFromString format: '&1'", cFormatIP#), 9990311).
+        
+    end. /* case cFormatIP# */
+    
+  end method. /* DatetimeDeltaFromString */
+    
+    
   method public static datetime-tz DatetimeFromString(cFormatIP# as character, cDatetimeIP# as character):
     
     define variable dtmReturn# as datetime-tz no-undo.
