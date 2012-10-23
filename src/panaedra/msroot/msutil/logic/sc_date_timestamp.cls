@@ -261,10 +261,13 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
           return dtmReturn#.
         end.
         
-      otherwise 
-      undo, throw 
-        new Progress.Lang.AppError(subst("Unsupported DatetimeFromString format: '&1'", cFormatIP#), 9990311).
-        
+      otherwise
+      undo, throw new c_panaedraexception(
+        44429103,
+        sc_lang:oEnglish,
+        subst("Unsupported DatetimeDeltaFromString format: '&1'", cFormatIP#)
+        ).
+      
     end. /* case cFormatIP# */
     
   end method. /* DatetimeDeltaFromString */
