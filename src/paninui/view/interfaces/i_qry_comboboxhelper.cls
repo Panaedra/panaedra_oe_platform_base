@@ -32,8 +32,7 @@ interface paninui.view.interfaces.i_qry_comboboxhelper
   method public logical QueryOpenAndReposition().
   method public void QueryClose().
   method public void UiRefreshAll().
-  method public handle GetBuffer(iBufferIP# as integer).
-  method public logical QueryRepositionToBuffers().
+  method public handle GetBuffer().
   
 end interface.
 
