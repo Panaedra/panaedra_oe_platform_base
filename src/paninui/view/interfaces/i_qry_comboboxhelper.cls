@@ -25,6 +25,7 @@ interface paninui.view.interfaces.i_qry_comboboxhelper
   method public character GetDisplayValue().
   method public logical   BufferAvailable().
   method public logical   RepositionByValue(input cValueIP# as character).
+  method public character GetValue().
   
   /* i_qry methods: */
   method public logical QueryOpen().
