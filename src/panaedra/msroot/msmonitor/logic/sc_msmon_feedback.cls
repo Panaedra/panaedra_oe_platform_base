@@ -420,7 +420,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         end. /* oErrorIP# <> ? */
         
         if b-ttMsMonFeedbackDefCopy.cStackTrace > "" then.
-        else b-ttMsMonFeedbackDefCopy.cStackTrace = sc_exception:GetCallStack().
+        else b-ttMsMonFeedbackDefCopy.cStackTrace = sc_showexception:GetSessionCallStack().
         
         /*-- if requested create a tempfile to use with the oscommand --*/
         if b-ttMsMonFeedbackDef.cTempfileBuilderObject > "" then
