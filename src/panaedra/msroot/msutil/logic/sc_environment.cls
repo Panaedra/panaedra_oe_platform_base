@@ -71,6 +71,16 @@ class panaedra.msroot.msutil.logic.sc_environment:
     public get.
     public set.
   
+  define static property cSessionParameterString as character no-undo init ? 
+    public get:
+      if cSessionParameterString = ? then 
+      do:
+        cSessionParameterString = sc_string_substitute:ExpandOsEnv(if sc_boot:cBootSessionParameter > "" then sc_boot:cBootSessionParameter else session:parameter).
+      end.
+      return cSessionParameterString.
+    end get.
+    protected set.
+  
   define static property cIpAdres as character no-undo init ?
     public get:
       if cIpAdres = ? then cIpAdres = GetIpAdres().
