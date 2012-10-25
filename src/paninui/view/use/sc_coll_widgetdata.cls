@@ -56,7 +56,7 @@ class paninui.view.use.sc_coll_widgetdata
     
   method public static int64 FrameAdd (oPackIP# as i_pack, oUiFrameIP# as {&i_uiframe}):
     
-    /* TODO: perhaps use the overload with LinkFrameName (which was implemented when subframes were implemented) */
+    /* Shouldhave: perhaps use the overload with LinkFrameName (which was implemented when subframes were implemented) */
     FrameAdd (oPackIP#, oUiFrameIP#, "Initial").
     
   end method.
@@ -519,7 +519,7 @@ class paninui.view.use.sc_coll_widgetdata
           cWidgetTypeIP#,
           hBuffOrQueryIP#,
           cDataRefIP#)
-          , sc_exception:GetCallStack()).
+          , sc_showexception:GetSessionCallStack()).
         
     end.
     
@@ -559,7 +559,7 @@ class paninui.view.use.sc_coll_widgetdata
       
       cLinkName# = cDataRefIP#.
       
-      /* TODO: screen design follows two standards, with and without tt. Choose plz. (!) */
+      /* Shouldhave: screen design follows two standards, with and without tt. Choose plz. (!) */
       /*      if cLinkName# begins "tt" then cLinkName# = substring(cLinkName#,3).*/
       
       if cWidgetTypeIP# = "any" then
@@ -591,7 +591,7 @@ class paninui.view.use.sc_coll_widgetdata
         iPackIdIP#,     
         cWidgetTypeIP#,
         cDataRefIP#)
-        , sc_exception:GetCallStack()).
+        , sc_showexception:GetSessionCallStack()).
     
   end method. /* GetWidget : only by type (or any type) and name */
   
@@ -874,7 +874,7 @@ class paninui.view.use.sc_coll_widgetdata
 
   method public void OnEventBroadcast(oBroadcastDataIP# as i_eventbroadcastdata):
     
-    /* TODO: widgets opruimen / ontkoppelen voordat bindingsource wordt opgeruimd. */
+    /* Shouldhave: widgets opruimen / ontkoppelen voordat bindingsource wordt opgeruimd. */
     
     case oBroadcastDataIP#:cEventName:
       

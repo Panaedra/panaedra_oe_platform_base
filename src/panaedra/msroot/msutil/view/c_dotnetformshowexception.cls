@@ -316,7 +316,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
       if oErrorIP#:CallStack > "" then 
         b-ttAblCallStack.cCallStack = oErrorIP#:CallStack.
       else 
-        b-ttAblCallStack.cCallStack = sc_exception:GetCallStack().
+        b-ttAblCallStack.cCallStack = sc_showexception:GetSessionCallStack().
 
       if type-of(oErrorIP#, c_panaedraexception) then 
       do:
