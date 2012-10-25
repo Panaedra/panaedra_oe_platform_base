@@ -9,7 +9,7 @@ using System.*.
 using System.Windows.Forms.*.
 &endif
 
-class panaedra.msroot.msutil.logic.sc_showexception: 
+class panaedra.msroot.msutil.logic.sc_showexception:
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_showexception.cls $ 
@@ -220,7 +220,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       sc_messagebox:MessageToDisplayableMessage(
       subst("&1~n&2~n&3",
       cMessage#,
-      oErrorIP#:CallStack,
+      GetCallStack(oErrorIP#),
       cLastProgram#))
       view-as alert-box title "Panaedra " + string(now,"99-99-99 hh:mm:ss").
   
@@ -247,7 +247,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       cLastProgram# = "..." + 
         substring(cLastProgram#, length(cLastProgram#) - 59).
     
-    cMessage# = cMessage# + ExceptionMsgToString(oErrorIP#) + " ~n[Callstack] " + GetCallstack(oErrorIP#).
+    cMessage# = cMessage# + ExceptionMsgToString(oErrorIP#) + " ~n[Callstack] " + GetCallstack(oErrorIP#). /* codeQok#7120 */
           
     return cMessage#.
   
@@ -256,7 +256,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
   method public static character ExceptionMsgToString(
     
-    /* Get only "message" info from an exception (omit the callstack) and put it in a simple string */
+    /* Get only "message" info from an exception (omit the callstack) and put it in a simple string codeQok#7120 */
   
     input oErrorIP# as Progress.Lang.Error):
 
@@ -287,7 +287,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
 
   method protected static character ExceptionMsgToStringSub(
     
-    /* Get only "message" info from an exception (omit the callstack) and put it in a simple string */
+    /* Get only "message" info from an exception (omit the callstack) and put it in a simple string codeQok#7120 */
   
     input oErrorIP# as Progress.Lang.Error):
 
@@ -329,16 +329,16 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       
     define variable cReturn# as character no-undo.  
     
-    if oErrorIP#:CallStack = ? then
+    if oErrorIP#:CallStack = ? then /* codeQok#7120 */
       cReturn# = program-name(3).
     else
       cReturn# = trim(entry(
         &if int(entry(1,proversion,".")) <= 10 &then
-        num-entries(oErrorIP#:CallStack,chr(10))
+        num-entries(oErrorIP#:CallStack,chr(10)) /* codeQok#7120 */
         &else
         1
         &endif
-        ,oErrorIP#:CallStack,chr(10))).
+        ,oErrorIP#:CallStack,chr(10))). /* codeQok#7120 */
       
     
     return cReturn#.  
@@ -348,7 +348,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
   method public static character GetCallStack(
     
-    /* Uses apiproxyexception to give back extended callstack
+    /* Uses apiproxyexception to give back extended callstack    codeQok#7120
        wich has appserver bounderies */
        
     oExceptionIP# as Progress.Lang.Error
@@ -376,7 +376,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       hQuery#:query-open.
       hQuery#:get-last.   
 
-      /* Invert callstack order */
+      /* Invert callstack order codeQok#7120 */
       do while not hQuery#:query-off-end:
         cCallstack# = cCallstack# + replace(hBuff#::cCallStack, chr(10), chr(13) + chr(10)) + chr(13) + chr(10). 
         hQuery#:get-prev.
@@ -389,8 +389,8 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     end. /* oApiproxyexception# */  
     else
     do:
-      if oExceptionIP#:CallStack > "" then 
-        cCallstack# = oExceptionIP#:CallStack.
+      if oExceptionIP#:CallStack > "" then /* codeQok#7120 */ 
+        cCallstack# = oExceptionIP#:CallStack. /* codeQok#7120 */
       else  
         cCallstack# = GetSessionCallStack().
     end.    

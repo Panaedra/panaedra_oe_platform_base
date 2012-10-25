@@ -124,12 +124,12 @@ class panaedra.msroot.msutil.logic.sc_exception:
     if valid-object(oExceptionIP#) then
     do:
       
-      /* Fill the Callstack (alle involved methods) */
-      if oExceptionIP#:CallStack > "" then 
-      /* meaning: -errorstack is active */
+      /* Fill the Callstack (alle involved methods) codeQok#7120 */
+      if oExceptionIP#:CallStack > "" then  /* codeQok#7120 */
+      /* meaning: -errorstack is active AND a real "throw" has taken place */
       do:
         create b-ttCallstack.
-        b-ttCallStack.cCallStack = replace(oExceptionIP#:CallStack, 
+        b-ttCallStack.cCallStack = replace(oExceptionIP#:CallStack, /* codeQok#7120 */
           ":IMPLICIT", ":IMPLICIT (AppServer Boundary on ~"" +
           &if opsys = "unix" &then
           "unix"  +
@@ -142,7 +142,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
       end.
       else 
       do:
-        /* We might not know the full callstack, maar we do know which api was called. */
+        /* We might not know the full callstack, maar we do know which api was called. codeQok#7120 */
         create b-ttCallstack.
         b-ttCallStack.cCallStack = sc_showexception:GetSessionCallStack().
         release b-ttCallStack.
@@ -169,7 +169,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
     
     if not can-find(first b-ttCallstack) then
     do:
-      /* We might not know the full callstack, maar we do know which api was called. */
+      /* We might not know the full callstack, maar we do know which api was called. codeQok#7120 */
       create b-ttCallstack.
       b-ttCallStack.cCallStack = sc_showexception:GetSessionCallStack().
       release b-ttCallStack.
@@ -182,7 +182,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
       
       if cMirror# > "" and sc_asconnect:GetAppserver(cMirror#) <> session:handle then
       do:
-        /* This adds a final missing piece to the callstack */
+        /* This adds a final missing piece to the callstack codeQok#7120 */
         create b-ttCallstack.
         b-ttCallStack.cCallStack = sc_showexception:GetSessionCallStack().
         release b-ttCallStack.
@@ -276,7 +276,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
       oReturn#:AddMessage(oExceptionIP#:GetMessage(iTell#),oExceptionIP#:GetMessageNum(iTell#)).
     end.
 
-    if oExceptionIP#:CallStack > "" then oReturn#:AddMessage(oExceptionIP#:CallStack,99950005).
+    if oExceptionIP#:CallStack > "" then oReturn#:AddMessage(oExceptionIP#:CallStack,99950005). /* codeQok#7120 */
     
     return oReturn#.
     
