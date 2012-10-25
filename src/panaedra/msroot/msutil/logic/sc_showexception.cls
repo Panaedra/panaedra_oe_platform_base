@@ -203,7 +203,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     define variable iTell#        as integer   no-undo.
     
     assign
-      cLastProgram# = sc_exception:GetCallStack()
+      cLastProgram# = GetSessionCallStack()
       cLastProgram# = entry(num-entries(cLastProgram#,chr(10)), cLastProgram#, chr(10))
       cLastProgram# = entry(num-entries(cLastProgram#," ")    , cLastProgram#, " ").
     
@@ -233,12 +233,13 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
     input oErrorIP# as Progress.Lang.Error):
 
-    define variable cLastProgram# as character no-undo.
-    define variable cMessage#     as character no-undo.
-    define variable iTell#        as integer   no-undo.
+    define variable cLastProgram#       as character           no-undo.
+    define variable cMessage#           as character           no-undo.
+    define variable iTell#              as integer             no-undo.
+    define variable oApiProxyException# as c_apiproxyexception no-undo.
     
     assign
-      cLastProgram# = sc_exception:GetCallStack()
+      cLastProgram# = GetSessionCallStack()
       cLastProgram# = entry(num-entries(cLastProgram#,chr(10)), cLastProgram#, chr(10))
       cLastProgram# = entry(num-entries(cLastProgram#," ")    , cLastProgram#, " ").
     
@@ -246,10 +247,8 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       cLastProgram# = "..." + 
         substring(cLastProgram#, length(cLastProgram#) - 59).
     
-    cMessage# = cMessage# + ExceptionMsgToString(oErrorIP#).
-    
-    if oErrorIP#:CallStack > "" then cMessage# = cMessage# + chr(10) + chr(10) + oErrorIP#:CallStack.
-    
+    cMessage# = cMessage# + ExceptionMsgToString(oErrorIP#) + " ~n[Callstack] " + GetCallstack(oErrorIP#).
+          
     return cMessage#.
   
   end method. /* ExceptionToString */
@@ -261,10 +260,11 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
     input oErrorIP# as Progress.Lang.Error):
 
-    define variable cMessage#        as character        no-undo.
-    define variable cMessageInner#   as character        no-undo.
+    define variable cMessage#           as character           no-undo.
+    define variable cMessageInner#      as character           no-undo.
     
-    define variable oPanaedraException# as c_panaedraexception no-undo.
+    define variable oPanaedraException#    as c_panaedraexception    no-undo.
+    define variable oApiProxyException# as c_apiproxyexception no-undo.
     
     cMessage# = ExceptionMsgToStringSub(oErrorIP#).
     
@@ -344,8 +344,99 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     return cReturn#.  
   
   end method. /* ExceptionCallStackLastEntry */
-  
 
+  
+  method public static character GetCallStack(
+    
+    /* Uses apiproxyexception to give back extended callstack
+       wich has appserver bounderies */
+       
+    oExceptionIP# as Progress.Lang.Error
+    ):
+    
+    define variable hDscontext#         as handle              no-undo.
+    define variable hTtCallstack#       as handle              no-undo.
+    define variable cCallstack#         as character           no-undo.
+    define variable oApiproxyexception# as c_apiproxyexception no-undo.
+    define variable hQuery#             as handle              no-undo.
+    define variable hBuff#              as handle              no-undo.
+     
+    if type-of(oExceptionIP#,c_apiproxyexception) then
+    do on error undo, throw:
+      
+      assign
+        oApiproxyexception# = cast(oExceptionIP#,c_apiproxyexception)
+        hDscontext#         = oApiproxyexception#:GetDsContextHandle()
+        hTtCallstack#       = hDscontext#:get-buffer-handle("ttCallStack"):table-handle
+        hBuff#              = hTtCallstack#:default-buffer-handle.
+      
+      create query hQuery#.
+      hQuery#:set-buffers(hBuff#).
+      hQuery#:query-prepare(subst("for each &1 no-lock",hBuff#:name)).
+      hQuery#:query-open.
+      hQuery#:get-last.   
+
+      /* Invert callstack order */
+      do while not hQuery#:query-off-end:
+        cCallstack# = cCallstack# + replace(hBuff#::cCallStack, chr(10), chr(13) + chr(10)) + chr(13) + chr(10). 
+        hQuery#:get-prev.
+      end. /* do while */
+
+      finally:
+        delete object hQuery#.	
+      end finally.
+            
+    end. /* oApiproxyexception# */  
+    else
+    do:
+      if oExceptionIP#:CallStack > "" then 
+        cCallstack# = oExceptionIP#:CallStack.
+      else  
+        cCallstack# = GetSessionCallStack().
+    end.    
+     
+    return cCallstack#. 
+       
+  end method. /* GetCallStack ; apiproxyexception */
+  
+    
+  method public static character GetSessionCallStack():
+
+    define variable iProgramNo#    as integer   no-undo.
+    define variable cCallStack#    as character no-undo.
+    define variable cProgramStack# as character no-undo.
+
+    /* Program 1 is skipped, it's this class itself */
+    iProgramNo# = 2.
+    
+    /* Look for known runs */
+    do while program-name(iProgramNo#) > ""
+      and program-name(iProgramNo#) <> "adecomm/_runcode.p":
+      
+      /* Exclude routine framework calls. */
+      if not (program-name(iProgramNo#) = "ShowException tool.panaedra.msroot.msutil.logic.sc_showexception"
+        or program-name(iProgramNo#) = "ShowException panaedra.msroot.msutil.view.c_dotnetformshowexception") then
+      do:
+        cProgramStack# = cProgramStack# + "," + program-name(iProgramNo#).
+      end.
+      
+      iProgramNo# = iProgramNo# + 1. 
+      
+    end.
+    
+    /* Collate the call stack, must recent on top */
+    do iProgramNo# = 1 to num-entries(cProgramStack#):
+      cCallStack# = cCallStack# + chr(13) + chr(10) + entry(iProgramNo#, cProgramStack#).
+    end.      
+    
+    /* Cleanup */
+    cCallStack# = trim(cCallStack#, chr(13) + chr(10)).
+    
+    return cCallStack#.
+
+  end method. /* GetSessionCallStack */
+  
+  
   &if opsys <> "unix" and "{&window-system}" <> "tty" &then
   
   method protected static void ShowFormSafe():

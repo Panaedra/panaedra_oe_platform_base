@@ -146,6 +146,11 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexcept
   end method. /* GetDsContext */  
 
 
+  method public handle GetDsContextHandle():
+    return dataset dsContext:handle.
+  end method. /* GetDsContextHandle */
+  
+  
   method public void GetExceptionTables(output table ttExceptions, output table ttCallstack):
     
     /* No logic necessary */    

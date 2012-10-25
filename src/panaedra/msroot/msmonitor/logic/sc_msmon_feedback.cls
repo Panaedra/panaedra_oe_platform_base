@@ -222,7 +222,6 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     define variable cErrorFile#             as character                no-undo.
     define variable cCmdErrors#             as longchar                 no-undo.
     define variable bReturn#                as logical                  no-undo.
-    define variable oPanaedraApiError#         as c_apiproxyexception      no-undo.
     define variable bCommandError#          as logical                  no-undo.
     define variable oInnerException#        as Progress.Lang.Error      no-undo.
     
@@ -396,24 +395,14 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           
           assign
             b-ttMsMonFeedbackDefCopy.cMessage = subst("&1&2&3",b-ttMsMonFeedbackDefCopy.cMessage,if  b-ttMsMonFeedbackDefCopy.cMessage = "" then "" else "~n",sc_showexception:ExceptionMsgToString(oErrorIP#)).
-          b-ttMsMonFeedbackDefCopy.cStackTrace = oErrorIP#:CallStack.
-        
-          if type-of(oErrorIP#, c_apiproxyexception) then 
-          do:
-            oPanaedraApiError# = cast(oErrorIP#, c_apiproxyexception).
-            b-ttMsMonFeedbackDefCopy.cMessage = b-ttMsMonFeedbackDefCopy.cMessage + subst("~n&1",oPanaedraApiError#:ApiproxyExceptions).
-          end.  
+          b-ttMsMonFeedbackDefCopy.cStackTrace = sc_string_format_eol:CleanupEolAndTrimPerLine(sc_showexception:GetCallStack(oErrorIP#)).
           
           /* We have an exception with an inner exception */
           if type-of(oErrorIP#, c_panaedraexception) and cast(oErrorIP#,c_panaedraexception):oInnerException <> ? then
           do:
             oInnerException# = cast(oErrorIP#,c_panaedraexception):oInnerException.
-            
             /* Display inner exception's message and callstack in exception */
-            b-ttMsMonFeedbackDefCopy.cException = subst("&1~n~n&2",
-              sc_showexception:ExceptionMsgToString(oInnerException#),
-              oInnerException#:CallStack
-              ).
+            b-ttMsMonFeedbackDefCopy.cException = sc_showexception:ExceptionToString(oInnerException#).
                 
           end.
         
