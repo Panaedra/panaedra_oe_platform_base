@@ -274,7 +274,11 @@ class panaedra.msroot.msutil.logic.sc_config:
       
       if search(cXconfigfile#) <> ? then 
       do:
-        if search(cFileIP#) = ? 
+        if
+          /* The normal config (input parameter) is not found */ 
+          search(cFileIP#) = ? 
+          /* Unless the input parameter *is* the xconfig file */
+          or (cXconfigfile# = cFileIP#)
           then bUseXconfigOP# = true.
         else 
         do:
@@ -296,7 +300,7 @@ class panaedra.msroot.msutil.logic.sc_config:
     /* Return data: all from tt record */
     assign
       bUseXconfigOP# = b-ttConfigFileName.bUseXconfig.
-      
+
     return b-ttConfigFileName.cFullpath.
    
   end method. /* GetConfigOsfilename */
