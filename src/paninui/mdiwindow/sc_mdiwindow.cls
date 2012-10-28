@@ -54,11 +54,17 @@ class paninui.mdiwindow.sc_mdiwindow:
       cMdiNew# = file-info:full-pathname.
 
       if cMdiNew# <> ? then 
-      do:
+      do on error undo, throw:
+        
         oAssembly# =
           System.Reflection.Assembly:LoadFile(cMdiNew#).
         if oAssembly# <> ? then
           oMdiNew# = cast(oAssembly#:CreateInstance(cMdiClassNameIP#), i_masterwindow).
+        
+        catch oDotnetErrorIP# as System.Exception:
+          sc_showexception:ShowException(cMdiNew#, oDotnetErrorIP#).
+        end catch.
+        
       end.
     
     end.
@@ -67,13 +73,13 @@ class paninui.mdiwindow.sc_mdiwindow:
     
     oForm# = cast(cast(oMdiNew#,Progress.Lang.Object), System.Windows.Forms.Form).
     
-    /* TODO: SetAliases doesn't really belong here. */
+    /* ShouldHave: SetAliases doesn't really belong here. */
     if lookup(sc_boot:SessionParameter("Layer"),"all,db,db_r,db_u") > 0 then
       panaedra.msroot.msas.logic.sc_dbconnect:SetAliases().
 
     paninui.view.use.sc_coll_eventdata:Initialize().
     
-    /* TODO: Support for multiple MDI windows in one session */
+    /* ShouldHave: Support for multiple MDI windows in one session */
     if oFirstMdiWindow = ? then oFirstMdiWindow = oMdiNew#.
     paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow        = oMdiNew#.
 

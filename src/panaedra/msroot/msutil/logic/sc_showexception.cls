@@ -45,6 +45,17 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   &if opsys <> "unix" &then
   method public static void ShowException(
     
+    /* See comment in complete overload below. */
+    
+    input oDotnetErrorIP# as System.Exception):
+      
+    ShowException("", oDotnetErrorIP#).
+    
+  end method. /* ShowException; dotnet exception */
+  
+    
+  method public static void ShowException(
+    
     /* Default exception handling for DOTNET errors. 
        Since oe11.1, dotnet exceptions can't be handled transparently anymore, probably a progress bug.
        Example error:
@@ -52,7 +63,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
        Workaround:
        Implement an extra catch block for System.Exception, and call this overload.
     */
-    
+    input cExtraMessageIP# as character,
     input oDotnetErrorIP# as System.Exception):
     
     define variable oReflectionError# as System.Reflection.ReflectionTypeLoadException no-undo.
@@ -77,13 +88,14 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       
     end.
     
-    ShowException(new c_panaedraexception(
-        99917228,
-        sc_lang:oEnglish,
-        substitute("Dotnet exception:~n&1~n~nDotnet callstack:~n&2", cMessage#, cCallStack#) /* codeQok#7120 */
-        )).
+    ShowException(cExtraMessageIP#, 
+      new c_panaedraexception(
+      99917228,
+      sc_lang:oEnglish,
+      substitute("Dotnet exception:~n&1~n~nDotnet callstack:~n&2", cMessage#, cCallStack#) /* codeQok#7120 */
+      )).
 
-  end method. /* ShowException, dotnet overload */
+  end method. /* ShowException; message + dotnet exception */
   &endif /* opsys <> unix */
 
 
