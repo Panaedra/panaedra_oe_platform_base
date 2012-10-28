@@ -42,6 +42,50 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       
   end method. /* ShowException, simple overload */
 
+  &if opsys <> "unix" &then
+  method public static void ShowException(
+    
+    /* Default exception handling for DOTNET errors. 
+       Since oe11.1, dotnet exceptions can't be handled transparently anymore, probably a progress bug.
+       Example error:
+       A variable of class 'System.Reflection.ReflectionTypeLoadException' cannot be assigned to a variable of class 'Progress.Lang.Error'. (13448)
+       Workaround:
+       Implement an extra catch block for System.Exception, and call this overload.
+    */
+    
+    input oDotnetErrorIP# as System.Exception):
+    
+    define variable oReflectionError# as System.Reflection.ReflectionTypeLoadException no-undo.
+    
+    define variable cMessage#         as character                                     no-undo.
+    define variable cCallStack#       as character                                     no-undo.
+    
+    cMessage# = subst("&1", oDotnetErrorIP#:ToString()).
+    cCallStack# = oDotnetErrorIP#:CallStack. /* codeQok#7120 */
+    
+    if type-of(oDotnetErrorIP#, System.Reflection.ReflectionTypeLoadException) then 
+    do:
+      
+      oReflectionError# = cast(oDotnetErrorIP#, System.Reflection.ReflectionTypeLoadException).
+      
+      do on error undo, throw:
+        cMessage# = subst("&1~n~n&2",oReflectionError#:ToString(), cast(oReflectionError#:LoaderExceptions:GetValue(0),System.Exception):Message).
+        catch oExtraSafe# as Progress.Lang.Error:
+          cMessage# = subst("&1", oReflectionError#:ToString()).
+        end catch.
+      end.
+      
+    end.
+    
+    ShowException(new c_panaedraexception(
+        99917228,
+        sc_lang:oEnglish,
+        substitute("Dotnet exception:~n&1~n~nDotnet callstack:~n&2", cMessage#, cCallStack#) /* codeQok#7120 */
+        )).
+
+  end method. /* ShowException, dotnet overload */
+  &endif /* opsys <> unix */
+
 
   method public static void ShowException(
     
