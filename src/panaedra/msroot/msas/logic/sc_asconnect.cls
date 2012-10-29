@@ -46,6 +46,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
   constructor protected sc_asconnect():
     
     sc_eventbroadcaster:SubscribeEvent(this-object, "evt@OfflineStatusChange").
+    sc_eventbroadcaster:SubscribeEvent(this-object, "evt@SessionClose").
 
   end constructor.
 
@@ -231,6 +232,28 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
     
   end method. /* DisconnectServer */
   
+  
+  method public static void DisconnectAllServers(
+  
+    /* Disconnect all appserver and webserver connections, without error feedback.
+       To be used on session close.
+    */
+    
+    ):
+
+    define variable hServer#     as handle no-undo.
+    define variable hServerNext# as handle no-undo.
+
+    hServer# = session:first-server.
+    do while valid-handle(hServer#):
+      hServerNext# = hServer#:next-sibling.
+      if hServer#:connected() then hServer#:disconnect() no-error.
+      delete object hServer# no-error.  
+      hServer# = hServerNext#.
+    end.
+    
+  end method. /* DisconnectAllServers */
+  
 
   method public static handle GetAppServer(input cMirrorIP# as char):
     
@@ -382,8 +405,12 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
           when "OffLine" then 
             bOffLine = true.
         end case.
+      
+      when "evt@SessionClose" then do:
+        DisconnectAllServers().
+      end.  
      
-    end case.
+    end case. /* oBroadcastDataIP#:cEventName */
     
   end method. /* OnEventBroadcast */
 
