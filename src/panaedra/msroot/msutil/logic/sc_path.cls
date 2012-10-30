@@ -817,6 +817,49 @@ class panaedra.msroot.msutil.logic.sc_path:
     if index(cPathStringIOP#,"[:bLiveEnv:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:bLiveEnv:]"         ,if sc_environment:bLiveEnv then "live" else "nonlive").
 
   end method. /* ReplacePathTokens */
+
+
+  method public static void ReplacePathTokensOfOtherEnv(
+  
+    /* Replace "[:cSomeDir:]" with the value returned by the corresponding sc_path property, of other environment or opsys.  */
+    input        cEnvIP#         as character, 
+    input-output cPathStringIOP# as character):
+      
+    ReplacePathTokensOfOtherEnv(
+      cEnvIP#,
+      opsys,
+      input-output cPathStringIOP#).
+      
+  end method. /* ReplacePathTokensOfOtherEnv ; simple overload */
+  
+
+  method public static void ReplacePathTokensOfOtherEnv(
+  
+    /* Replace "[:cSomeDir:]" with the value returned by the corresponding sc_path property, of other environment or opsys.  */
+    input        cEnvIP#         as character, 
+    input        cOpsysIP#       as character,
+    input-output cPathStringIOP# as character):
+      
+    if index(cPathStringIOP#,"[:cSysteemDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cSysteemDir:]"      ,GetDirOfOtherEnv(cEnvIP#,"cSysteemDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:c_SRVR_Dir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:c_SRVR_Dir:]"      ,GetDirOfOtherEnv(cEnvIP#,"c_SRVR_Dir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cDataExchangeDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cDataExchangeDir:]" ,GetDirOfOtherEnv(cEnvIP#,"cDataExchangeDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cDataRecoveryDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cDataRecoveryDir:]" ,GetDirOfOtherEnv(cEnvIP#,"cDataRecoveryDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cIniDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cIniDir:]"          ,GetDirOfOtherEnv(cEnvIP#,"cIniDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cLocalIniDir:]"     ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLocalIniDir:]"     ,GetDirOfOtherEnv(cEnvIP#,"cLocalIniDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cLogDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogDir:]"          ,GetDirOfOtherEnv(cEnvIP#,"cLogDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cLogVoortgangDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogVoortgangDir:]" ,GetDirOfOtherEnv(cEnvIP#,"cLogVoortgangDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cNaarWanDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarWanDir:]"      ,GetDirOfOtherEnv(cEnvIP#,"cNaarWanDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cNaarWebDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarWebDir:]"      ,GetDirOfOtherEnv(cEnvIP#,"cNaarWebDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cNonstaticDir:]"    ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNonstaticDir:]"    ,GetDirOfOtherEnv(cEnvIP#,"cNonstaticDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cNoSweatDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNoSweatDir:]"      ,GetDirOfOtherEnv(cEnvIP#,"cNoSweatDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cTempDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cTempDir:]"         ,GetDirOfOtherEnv(cEnvIP#,"cTempDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cVanWanDir:]"       ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanWanDir:]"       ,GetDirOfOtherEnv(cEnvIP#,"cVanWanDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cWorkDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cWorkDir:]"         ,GetDirOfOtherEnv(cEnvIP#,"cWorkDir",cOpsysIP#)).
+    
+    /* This token is always taken from it's own session */
+    if index(cPathStringIOP#,"[:bLiveEnv:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:bLiveEnv:]"         ,if sc_environment:bLiveEnv then "live" else "nonlive").
+
+  end method. /* ReplacePathTokensOfOtherEnv */
   
   
   method public static character StandardIniFilePath(
