@@ -69,7 +69,16 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     index cTable_cType is primary unique cTable cType 
     . 
   
-
+  define protected static temp-table ttDbLogicLocations no-undo
+    field cNamespace   as character
+    field cClass       as character            init "<none>"
+    field cMethodName  as character
+    field oDbTrigClass as Progress.Lang.Object
+    field oParamList   as Progress.Lang.Object
+    index cNamespace is primary unique cNamespace 
+    . 
+  
+  
   method public static logical OnWriteOrCreate (hBuffIP# as handle):
     
     /* Use the overload handle,handle,handle from db triggers.
@@ -199,6 +208,13 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
       
       SetKeyFields(hBuffInput#, cCased#).
       
+      if hBuffIP#:table-handle = ? /* real db table */
+        then 
+      do:
+        if ExecuteDbLogic(buffer b-ttTableInfo:handle, hBuffInput#, hBuffOldIP#, "wri") then.
+        else return false.
+      end.
+      
       if ExecuteLogic(buffer b-ttTableInfo:handle, hBuffInput#, hBuffOldIP#, "wri") then.
       else return false.
       
@@ -241,8 +257,16 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
       do:
         undo, throw new Progress.Lang.AppError(subst("Error on delete of '&1'", cCased#), 123002).
       end.
-      
-      if not ExecuteLogic(buffer b-ttTableInfo:handle, hBuffIP#,?,"del") then return false.
+
+      if hBuffIP#:table-handle = ? /* real db table */
+        then 
+      do:
+        if ExecuteDbLogic(buffer b-ttTableInfo:handle, hBuffIP#,?,"del") then return false.
+        else return false.
+      end.
+            
+      if ExecuteLogic(buffer b-ttTableInfo:handle, hBuffIP#,?,"del") then.
+      else return false.
       
       sc_dbtrigrelations:GetDbtrigRelations(buffer b-ttTableInfo:handle, output hBuffTable#, output hBuffRel#).
        
@@ -573,6 +597,138 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
 
   end method. /* DebugShowTtCacheLogic */  
   
+  
+  method protected static logical ExecuteDbLogic(
+    hBuffTableInfoIP# as handle, 
+    hBuffIP#          as handle, 
+    hBuffOldIP#       as handle, 
+    cTypeIP#          as char):
+    
+    define variable cNsKey#            as character                   no-undo.
+    define variable oTriggerLogicData# as c_triggerlogicdata          no-undo.
+    define variable oDbTrigClass#      as Progress.Lang.Class         no-undo.
+    define variable oParamList#        as Progress.Lang.ParameterList no-undo.
+    define variable bDbTrigOkay#       as logical                     no-undo.
+    
+    define buffer b-ttDbLogicLocations for ttDbLogicLocations.
+    define buffer b-ttTableInfo        for ttTableInfo.
+    
+    if hBuffTableInfoIP# <> ? and hBuffTableInfoIP#:available 
+      then 
+      find first b-ttTableInfo where rowid(b-ttTableInfo) = hBuffTableInfoIP#:rowid.
+    
+    else 
+    do:
+      if hBuffIP#:table-handle <> ? then 
+        GetTtInfo(buffer b-ttTableInfo, hBuffIP#).
+      else 
+        GetDbInfo(buffer b-ttTableInfo, hBuffIP#).
+    end.
+    
+    cNsKey# = b-ttTableInfo.cNsKey.
+        
+    do for b-ttDbLogicLocations:
+    
+      find first 
+        b-ttDbLogicLocations where 
+        b-ttDbLogicLocations.cNamespace = cNsKey#
+        no-error.
+      
+      if not avail b-ttDbLogicLocations then 
+      do:
+        
+        /* Write and delete trigger logic */
+        create b-ttDbLogicLocations.
+        assign 
+          b-ttDbLogicLocations.cNamespace = cNsKey#.
+      
+        file-info:file-name = 
+          "panaedra/" 
+          + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
+          + b-ttTableInfo.cNsGroupdir + "/db_u/" +
+          subst("sc_&1_onwriteordelete_u.cls",cNsKey#).
+        if file-info:full-pathname = ? then 
+        do:
+          file-info:file-name = 
+            "panaedra/" 
+            + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
+            + b-ttTableInfo.cNsGroupdir  + "/db_u/" +
+            subst("sc_&1_onwriteordelete_u.r",cNsKey#).
+        end.
+        if file-info:full-pathname <> ? then 
+        do:
+          b-ttDbLogicLocations.cClass = replace(file-info:file-name,"~\","/").
+          entry(num-entries(b-ttDbLogicLocations.cClass,"."),b-ttDbLogicLocations.cClass,".") = "".
+          b-ttDbLogicLocations.cClass = right-trim(b-ttDbLogicLocations.cClass,". ").
+          b-ttDbLogicLocations.cClass = replace(b-ttDbLogicLocations.cClass,"/",".").
+          b-ttDbLogicLocations.cMethodName = subst("DbTrig_&1", b-ttTableInfo.cCased).
+        end.
+                
+      end. /* If not avail ; initialization, searching propath only once */  
+      
+      if b-ttDbLogicLocations.cClass <> "<none>" then 
+      do:
+
+        if not valid-object(oTriggerLogicData#) then
+          oTriggerLogicData# = new panaedra.msroot.msutil.logic.c_triggerlogicdata().
+        
+        if not valid-object(b-ttDbLogicLocations.oDbTrigClass) then 
+        do:
+          oDbTrigClass# = Progress.Lang.Class:GetClass(b-ttDbLogicLocations.cClass).
+          b-ttDbLogicLocations.oDbTrigClass = oDbTrigClass#.
+        end.
+        else
+          oDbTrigClass# = cast(b-ttDbLogicLocations.oDbTrigClass, Progress.Lang.Class).
+
+        if not valid-object(b-ttDbLogicLocations.oParamList) then 
+        do:
+          oParamList# = new Progress.Lang.ParameterList(5).
+          b-ttDbLogicLocations.oParamList = oParamList#.
+        end.
+        else
+          oParamList# = cast(b-ttDbLogicLocations.oParamList, Progress.Lang.ParameterList).
+
+        oParamList#:SetParameter(1,"character","input",cTypeIP#).
+        oParamList#:SetParameter(2,"CLASS panaedra.msroot.msutil.logic.c_triggerlogicdata","input",oTriggerLogicData#).
+        oParamList#:SetParameter(3,"handle","input",hBuffIP#).
+        oParamList#:SetParameter(4,"handle","input",hBuffOldIP#).
+        oParamList#:SetParameter(5,"logical","output",bDbTrigOkay#).
+        
+        oDbTrigClass#:Invoke(b-ttDbLogicLocations.cMethodName, oParamList#).
+
+        oTriggerLogicData#:_sys_SetBuffers(hBuffIP#, hBuffOldIP#).
+
+        if bDbTrigOkay# then.
+        else
+        do:
+          /* ShouldHave: Later we can collect all data, but for now (proof of concept fase) only the first error is thrown. */
+          if oTriggerLogicData#:_sys_HasErrorText() then 
+            undo, throw new c_panaedraexception(
+              9992731,
+              sc_lang:oEnglish,
+              substitute("DB logic error &1: '&2'",
+              oTriggerLogicData#:_sys_FirstErrorNum(), 
+              TriggerLogicErrorToString(hBuffIP#, hBuffOldIP#, oTriggerLogicData#:_sys_FirstErrorText()))
+              ).
+          else 
+            undo, throw new c_panaedraexception(
+              9992732,
+              sc_lang:oEnglish,
+              subst("A DB logic error has occurred for '&1'.", hBuffIP#:name)
+              ).
+        end.
+      end.
+
+    end. /* strong scoping of tt */
+        
+    return true.
+    
+    finally:
+      if valid-object(oTriggerLogicData#) then delete object oTriggerLogicData#.
+    end finally.
+  
+  end method. /* ExecuteDbLogic */
+  
 
   method protected static logical ExecuteLogic (hBuffTableInfoIP# as handle, hBuffIP# as handle, hBuffOldIP# as handle, cTypeIP# as char):
 
@@ -612,7 +768,8 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
       
       if not avail b-ttCacheLogicLocations then 
       do:
-      
+        
+        /* Validation logic */
         create b-ttCacheLogicLocations.
         assign 
           b-ttCacheLogicLocations.cTable = cTable#
@@ -639,6 +796,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
           b-ttCacheLogicLocations.cLogicVal = replace(b-ttCacheLogicLocations.cLogicVal,"/",".").
         end.
         
+        /* Calculation logic */
         file-info:file-name = 
           "panaedra/" 
           + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
@@ -725,6 +883,18 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
 
   method public static void DisplayTriggerLogicError (hBuffIP# as handle, hBuffOldIP# as handle, cErrorIP# as char):
     
+    define variable cMessage# as character no-undo.
+    
+    cMessage# = TriggerLogicErrorToString(hBuffIP#, hBuffOldIP#, cErrorIP#).
+    
+    sc_messagebox:Show(sc_messageboxtype:Simple, cMessage#). 
+    
+  end method. /* DisplayTriggerLogicError */
+  
+  
+  method protected static character TriggerLogicErrorToString(
+    hBuffIP# as handle, hBuffOldIP# as handle, cErrorIP# as char):
+
     define variable cFieldNames#  as character no-undo extent 9.
     define variable cFieldValues# as character no-undo extent 9.
     define variable iIndex#       as integer   no-undo.
@@ -733,6 +903,8 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     
     define variable cFields#      as character no-undo.
     define variable cOldValue#    as character no-undo.
+    
+    define variable cReturn#      as character no-undo.
     
     iIndex# = r-index(cErrorIP#,"[",length(cErrorIP#)).
     
@@ -755,14 +927,16 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
             then cFieldValues#[iTell#] = cOldValue# + " -> " + cFieldValues#[iTell#].
         end. 
       end.
-    end.
+    end.  
     
-    sc_messagebox:Show(sc_messageboxtype:Simple, subst(cErrorIP#, 
+    cReturn# = subst(cErrorIP#, 
       cFieldValues#[1], cFieldValues#[2], cFieldValues#[3], cFieldValues#[4], 
       cFieldValues#[5], cFieldValues#[6], cFieldValues#[7], cFieldValues#[8], 
-      cFieldValues#[9])).
+      cFieldValues#[9]).
     
-  end method. /* DisplayTriggerLogicError */
+    return cReturn#.
+    
+  end method. /* TriggerLogicErrorToString */
 
 
   method public static void SetDtmExpire(

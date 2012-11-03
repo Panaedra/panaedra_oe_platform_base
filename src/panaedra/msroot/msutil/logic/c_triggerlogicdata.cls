@@ -13,7 +13,7 @@ class panaedra.msroot.msutil.logic.c_triggerlogicdata:
 
   \*****************************  Include Files ********************************/
   
-  {panaedra/msroot/msutil/logic/tt/c_triggerlogicdata_tt.i &class=class &protected=protected}
+{panaedra/msroot/msutil/logic/tt/c_triggerlogicdata_tt.i &class=class &protected=protected}
   
   /************************  Source control constructor ************************/
   constructor public c_triggerlogicdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
@@ -30,8 +30,6 @@ class panaedra.msroot.msutil.logic.c_triggerlogicdata:
   
   
   method public void FieldError (iErrorIP# as int, cErrorIP# as char ):
-    
-    define variable bEclipseFix# as logical no-undo.
     
     define buffer b-ttTriggerLogicData for ttTriggerLogicData.
     define buffer b_ttTriggerLogicData for ttTriggerLogicData.
@@ -50,8 +48,6 @@ class panaedra.msroot.msutil.logic.c_triggerlogicdata:
 
   method public void FieldWarning (iErrorIP# as int, cErrorIP# as char ):
     
-    define variable bEclipseFix# as logical no-undo.
-    
     define buffer b-ttTriggerLogicData for ttTriggerLogicData.
     define buffer b_ttTriggerLogicData for ttTriggerLogicData.
     
@@ -68,8 +64,6 @@ class panaedra.msroot.msutil.logic.c_triggerlogicdata:
   
 
   method public void FieldConfirmation (iErrorIP# as int, cErrorIP# as char ):
-    
-    define variable bEclipseFix# as logical no-undo.
     
     define buffer b-ttTriggerLogicData for ttTriggerLogicData.
     define buffer b_ttTriggerLogicData for ttTriggerLogicData.
@@ -88,8 +82,6 @@ class panaedra.msroot.msutil.logic.c_triggerlogicdata:
 
   method public void _sys_SetBuffers (hBuffIP# as handle, hBuffOldIP# as handle):
     
-    define variable bEclipseFix# as logical no-undo.
-    
     define buffer b-ttTriggerLogicData for ttTriggerLogicData. 
     
     for each b-ttTriggerLogicData where not b-ttTriggerLogicData.bBuffersAreSet
@@ -105,8 +97,6 @@ class panaedra.msroot.msutil.logic.c_triggerlogicdata:
 
   method public logical _sys_HasErrorText ():
     
-    define variable bEclipseFix# as logical no-undo.
-    
     define buffer b-ttTriggerLogicData for ttTriggerLogicData.
     
     return can-find(first b-ttTriggerLogicData where b-ttTriggerLogicData.cError > ""). 
@@ -116,13 +106,22 @@ class panaedra.msroot.msutil.logic.c_triggerlogicdata:
   
   method public character _sys_FirstErrorText ():
     
-    define variable bEclipseFix# as logical no-undo.
-    
     define buffer b-ttTriggerLogicData for ttTriggerLogicData.
     
     find first b-ttTriggerLogicData where b-ttTriggerLogicData.cError > "".
     
     return b-ttTriggerLogicData.cError. 
+    
+  end method. /* _sys_FirstErrorText */
+  
+
+  method public integer _sys_FirstErrorNum ():
+    
+    define buffer b-ttTriggerLogicData for ttTriggerLogicData.
+    
+    find first b-ttTriggerLogicData where b-ttTriggerLogicData.cError > "".
+    
+    return b-ttTriggerLogicData.iError. 
     
   end method. /* _sys_FirstErrorText */
   
