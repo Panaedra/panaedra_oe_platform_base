@@ -261,7 +261,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
       if hBuffIP#:table-handle = ? /* real db table */
         then 
       do:
-        if ExecuteDbLogic(buffer b-ttTableInfo:handle, hBuffIP#,?,"del") then return false.
+        if ExecuteDbLogic(buffer b-ttTableInfo:handle, hBuffIP#,?,"del") then.
         else return false.
       end.
             
