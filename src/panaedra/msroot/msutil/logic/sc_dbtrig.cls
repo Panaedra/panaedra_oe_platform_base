@@ -71,15 +71,15 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     . 
   
   define protected static temp-table ttDbLogicLocations no-undo
-    field cNamespace   as character
-    field cClass       as character            init "<none>"
-    field cMethodName  as character
-    field oDbTrigClass as Progress.Lang.Object
-    field oParamList   as Progress.Lang.Object
-    index cNamespace is primary unique cNamespace 
+    field cNamespace       as character
+    field cNsDatabaseGroup as character
+    field cClass           as character            init "<none>"
+    field cMethodName      as character
+    field oDbTrigClass     as Progress.Lang.Object
+    field oParamList       as Progress.Lang.Object
+    index cNamespace_DbGroup is primary unique cNamespace cNsDatabaseGroup 
     . 
-  
-  
+
   method public static logical OnWriteOrCreate (hBuffIP# as handle):
     
     /* Use the overload handle,handle,handle from db triggers.
@@ -636,7 +636,8 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     
       find first 
         b-ttDbLogicLocations where 
-        b-ttDbLogicLocations.cNamespace = cNsKey#
+        b-ttDbLogicLocations.cNamespace = cNsKey# and
+        b-ttDbLogicLocations.cNsDatabaseGroup = cNsDatabaseGroup#
         no-error.
       
       if not avail b-ttDbLogicLocations then 
@@ -645,7 +646,8 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
         /* Write and delete trigger logic */
         create b-ttDbLogicLocations.
         assign 
-          b-ttDbLogicLocations.cNamespace = cNsKey#.
+          b-ttDbLogicLocations.cNamespace       = cNsKey#
+          b-ttDbLogicLocations.cNsDatabaseGroup = cNsDatabaseGroup#.
       
         file-info:file-name = 
           "panaedra/" 
@@ -654,11 +656,11 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
           subst("sc_&1_&2onwriteordelete_u.cls",cNsKey#, (if cNsDatabaseGroup# > "" then cNsDatabaseGroup# + "_" else "")).
         if file-info:full-pathname = ? then 
         do:
-        file-info:file-name = 
-          "panaedra/" 
-          + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
-          + b-ttTableInfo.cNsGroupdir + "/db_u/" +
-          subst("sc_&1_&2onwriteordelete_u.r",cNsKey#, (if cNsDatabaseGroup# > "" then cNsDatabaseGroup# + "_" else "")).
+          file-info:file-name = 
+            "panaedra/" 
+            + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
+            + b-ttTableInfo.cNsGroupdir + "/db_u/" +
+            subst("sc_&1_&2onwriteordelete_u.r",cNsKey#, (if cNsDatabaseGroup# > "" then cNsDatabaseGroup# + "_" else "")).
         end.
         if file-info:full-pathname <> ? then 
         do:
