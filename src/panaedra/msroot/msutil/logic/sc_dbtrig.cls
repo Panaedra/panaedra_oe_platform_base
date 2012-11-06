@@ -48,6 +48,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     field cNsSubroot       as character
     field cNsGroupdir      as character
     field cNsKey           as character
+    field cNsDatabaseGroup as character /* namespace database group (4th entry in database table description) can be used for tables that reside in a different database, that must have its own onwriteordelete static trigger class (sc_*_onwriteordelete_u.cls) */
     field cNsPath          as character
     field cPersistencyMode as character
     index cCased is primary        cCased
@@ -536,6 +537,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
         b-ttTableInfo.cNsPath          = entry(1,b-ttTableInfo.cDescription,"/")
         b-ttTableInfo.cCased           = entry(2,b-ttTableInfo.cDescription,"/")
         b-ttTableInfo.cNsKey           = entry(3,b-ttTableInfo.cDescription,"/")
+        b-ttTableInfo.cNsDatabaseGroup = (if num-entries(b-ttTableInfo.cDescription,"/") < 4 then "" else trim(entry(4,b-ttTableInfo.cDescription,"/")))
         b-ttTableInfo.cNsSubroot       = entry(1,b-ttTableInfo.cNsPath,".")
         b-ttTableInfo.cNsGroupdir      = entry(2,b-ttTableInfo.cNsPath,".")
         b-ttTableInfo.cPersistencyMode = "oe-database"
@@ -605,6 +607,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     cTypeIP#          as char):
     
     define variable cNsKey#            as character                   no-undo.
+    define variable cNsDatabaseGroup#  as character                   no-undo.
     define variable oTriggerLogicData# as c_triggerlogicdata          no-undo.
     define variable oDbTrigClass#      as Progress.Lang.Class         no-undo.
     define variable oParamList#        as Progress.Lang.ParameterList no-undo.
@@ -625,7 +628,9 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
         GetDbInfo(buffer b-ttTableInfo, hBuffIP#).
     end.
     
-    cNsKey# = b-ttTableInfo.cNsKey.
+    assign
+      cNsKey#           = b-ttTableInfo.cNsKey
+      cNsDatabaseGroup# = b-ttTableInfo.cNsDatabaseGroup.
         
     do for b-ttDbLogicLocations:
     
@@ -646,14 +651,14 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
           "panaedra/" 
           + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
           + b-ttTableInfo.cNsGroupdir + "/db_u/" +
-          subst("sc_&1_onwriteordelete_u.cls",cNsKey#).
+          subst("sc_&1_&2onwriteordelete_u.cls",cNsKey#, (if cNsDatabaseGroup# > "" then cNsDatabaseGroup# + "_" else "")).
         if file-info:full-pathname = ? then 
         do:
-          file-info:file-name = 
-            "panaedra/" 
-            + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
-            + b-ttTableInfo.cNsGroupdir  + "/db_u/" +
-            subst("sc_&1_onwriteordelete_u.r",cNsKey#).
+        file-info:file-name = 
+          "panaedra/" 
+          + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
+          + b-ttTableInfo.cNsGroupdir + "/db_u/" +
+          subst("sc_&1_&2onwriteordelete_u.r",cNsKey#, (if cNsDatabaseGroup# > "" then cNsDatabaseGroup# + "_" else "")).
         end.
         if file-info:full-pathname <> ? then 
         do:
