@@ -419,15 +419,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
 
     &else /* win32 gui */
     
-    define variable iReturn#  as integer                    no-undo.
-    define variable oCurProc# as System.Diagnostics.Process no-undo.
-    
-    /* Use .NET Runtime */
-    oCurProc# = System.Diagnostics.Process:GetCurrentProcess().
-    iReturn# = oCurProc#:Id. 
-    /* oCurProc#:Dispose(). Don't know for sure if this is needed/better here */
-    
-    return iReturn#.
+    return sc_msprocess_win32:GetProcessID().
     
     &endif
     
@@ -626,26 +618,9 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     &else /* non unix */
     
-    &if {&paninui_tty} &then
-
-      /*      return sc_win32:GetCommandLine().*/
-            
-      /* Not functional yet */ 
-                 
-      /*    define variable cReturn#  as character no-undo.                             */
-      /*    define variable oCurProc# as System.Diagnostics.Process no-undo.            */
-      /*                                                                                */
-      /*    /* Use .NET Runtime */                                                      */
-      /*    oCurProc# = System.Diagnostics.Process:GetCurrentProcess().                 */
-      /*                                                                                */
-      /*    cReturn# = string(oCurProc#:StartInfo:WorkingDirectory).                    */
-      /*    /* oCurProc#:Dispose(). Don't know for sure if this is needed/better here */*/
-      /*                                                                                */
-      /*    return cReturn#.                                                            */
+    return sc_msprocess_win32:GetCommandLine().
     
-    &endif /* paninui_tty */
-    
-  &endif /* non unix */
+    &endif /* non unix */
     
   end method. /* GetCommandLine */
 
