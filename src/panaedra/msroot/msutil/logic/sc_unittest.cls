@@ -18,15 +18,15 @@ class panaedra.msroot.msutil.logic.sc_unittest
       Description: Unit Test functionality
 
   \*****************************  Include Files ********************************/
-  {panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Pre}
-  {panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Post}
+{panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Pre}
+{panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Post}
   
   &glob ttExtraFields ~
   field cSvHandles as character xml-node-type "attribute" ~
   field cWarning   as character xml-node-type "attribute" ~
   field iInstances as integer   xml-node-type "attribute"
   
-  {panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Warn &ttWarnFieldsOnly=true}
+{panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static &ttSuffix=Warn &ttWarnFieldsOnly=true}
   
   &undefine ttExtraFields
 
@@ -608,8 +608,6 @@ class panaedra.msroot.msutil.logic.sc_unittest
     ):
     
     define variable iTell#           as integer           no-undo.
-    define variable oUnittestClient# as i_unittest_client no-undo.
-    define variable cSvUnittests#    as character         no-undo.
     
     define buffer b-ttFile            for ttFile.
     define buffer b-ttSessionUnittest for ttSessionUnittest.
@@ -649,24 +647,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
             substitute("Error: Stop condition encountered for &1", b-ttFile.cFullPath)
             ).
         end.  
-  
-        LogMessage(subst("Start unittest: &1 &2",iso-date(now),b-ttFile.cFullPath)).
         
-        sc_eventbroadcaster:FireEvent("evt@unittest@run", b-ttFile.cFullPath).
-
-        if b-ttFile.cFullPath matches "*~~.cls" then
-        do:
-          /* If the unittest is a class, get the relative class name and create an object from it */
-          oUnittestClient# = dynamic-new(sc_path:SplitGetClassName(sc_path:Full2PartialPath(b-ttFile.cFullPath)) /* en .cls er af */) (oSingleton).
-          
-          /* Get a lists of all units in this class */
-          oUnittestClient#:GetUnittests(output cSvUnittests#).
-          
-          /* Run alle unittests in this class */
-          RunUnittestsInClass(oUnittestClient#, cSvUnittests#).
-        end.
-        else
-          run value(b-ttFile.cFullPath).
+        RunSingleUnittest(b-ttFile.cFullPath).  
         
       end.
 
@@ -693,6 +675,43 @@ class panaedra.msroot.msutil.logic.sc_unittest
     end. /* finally */
         
   end method. /* RunAllUnittests */
+  
+  
+  method public static void RunSingleUnittest(
+    /* ------------------------------------------------------------
+       runs a single unittest
+       ------------------------------------------------------------ */
+    cFullPathIP# as character
+    ):
+    
+    define variable oUnittestClient# as i_unittest_client no-undo.
+    define variable cSvUnittests#    as character         no-undo.
+    
+
+    /* Needed for special unittest constructor in c_*_unittests.cls */
+    if not valid-object(oSingleton) then
+      oSingleton = new sc_unittest(). 
+
+    
+    LogMessage(subst("Start unittest: &1 &2",iso-date(now), cFullPathIP#)).
+        
+    sc_eventbroadcaster:FireEvent("evt@unittest@run", cFullPathIP#).
+
+    if cFullPathIP# matches "*~~.cls" then
+    do:
+      /* If the unittest is a class, get the relative class name and create an object from it */
+      oUnittestClient# = dynamic-new(sc_path:SplitGetClassName(sc_path:Full2PartialPath(cFullPathIP#)) /* en .cls er af */) (oSingleton).
+          
+      /* Get a lists of all units in this class */
+      oUnittestClient#:GetUnittests(output cSvUnittests#).
+          
+      /* Run alle unittests in this class */
+      RunUnittestsInClass(oUnittestClient#, cSvUnittests#).
+    end.
+    else
+      run value(cFullPathIP#).
+  
+  end method. /* RunSingleUnittest */
   
   
   method protected static void RunUnittestsInClass(
