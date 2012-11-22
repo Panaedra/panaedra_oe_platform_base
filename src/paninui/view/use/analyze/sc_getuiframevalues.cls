@@ -230,6 +230,31 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
   end method. /* GetUiValue ; Groupframe */
 
 
+  method public static integer GetUiValueInt(
+    
+    /* Directly set any property of a groupframe widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oFrmLogicIP#     as i_frmlogic,
+    oGroupFrameOVID# as i_widgettype_groupframe,
+    cWidgetNameIP#   as character,
+    cPropertyIP#     as character):
+      
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+    define variable iValue#             as integer              no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "groupframe", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+      GetUiValueImplement(oWidget#, cPropertyIP#, output iValue#).
+    
+    return iValue#.
+    
+  end method. /* GetUiValue ; Groupframe */
+
+
   method public static character GetUiValue(
     
     /* Directly set any property of a grid widget to a new value, without databinding.

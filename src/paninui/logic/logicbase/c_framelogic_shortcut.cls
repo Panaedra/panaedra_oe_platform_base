@@ -163,6 +163,21 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
   end method. /* GetUiValue ; Groupframe */
 
 
+  method public integer GetUiValueInt(
+    
+    /* Directly set any property of a groupframe widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oGroupFrameOVID# as i_widgettype_groupframe,
+    cWidgetNameIP#   as character,
+    cPropertyIP#     as character):
+      
+    return sc_getuiframevalues:GetUiValueInt(oFrmLogic, oGroupFrameOVID#, cWidgetNameIP#, cPropertyIP#).
+    
+  end method. /* GetUiValue ; Groupframe */
+
+
   method public character GetUiValue(
     
     /* Directly set any property of a grid widget to a new value, without databinding.
@@ -330,6 +345,18 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
     bValueIP#        as logical):
       
     paninui.view.use.display.sc_displaydata:SetUiValue(oFrmLogic, oGroupFrameOVID#, cWidgetNameIP#, cPropertyIP#, bValueIP#).
+
+  end method. /* SetUiValue ; Groupframe */
+
+
+  method public void SetUiValue(
+    
+    oGroupFrameOVID# as i_widgettype_groupframe,
+    cWidgetNameIP#   as character,
+    cPropertyIP#     as character,
+    iValueIP#        as integer):
+      
+    paninui.view.use.display.sc_displaydata:SetUiValue(oFrmLogic, oGroupFrameOVID#, cWidgetNameIP#, cPropertyIP#, iValueIP#).
 
   end method. /* SetUiValue ; Groupframe */
 
