@@ -74,7 +74,6 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     field cNamespace       as character
     field cNsDatabaseGroup as character
     field cClass           as character            init "<none>"
-    field cMethodName      as character
     field oDbTrigClass     as Progress.Lang.Object
     field oParamList       as Progress.Lang.Object
     index cNamespace_DbGroup is primary unique cNamespace cNsDatabaseGroup 
@@ -668,7 +667,6 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
           entry(num-entries(b-ttDbLogicLocations.cClass,"."),b-ttDbLogicLocations.cClass,".") = "".
           b-ttDbLogicLocations.cClass = right-trim(b-ttDbLogicLocations.cClass,". ").
           b-ttDbLogicLocations.cClass = replace(b-ttDbLogicLocations.cClass,"/",".").
-          b-ttDbLogicLocations.cMethodName = subst("DbTrig_&1", b-ttTableInfo.cCased).
         end.
                 
       end. /* If not avail ; initialization, searching propath only once */  
@@ -701,7 +699,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
         oParamList#:SetParameter(4,"handle","input",hBuffOldIP#).
         oParamList#:SetParameter(5,"logical","output",bDbTrigOkay#).
         
-        oDbTrigClass#:Invoke(b-ttDbLogicLocations.cMethodName, oParamList#).
+        oDbTrigClass#:Invoke(subst("DbTrig_&1", b-ttTableInfo.cCased), oParamList#).
 
         oTriggerLogicData#:_sys_SetBuffers(hBuffIP#, hBuffOldIP#).
 
