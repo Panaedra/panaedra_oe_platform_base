@@ -43,7 +43,6 @@ define {&protected} {&static} temp-table ttMsOsCommandDef{&ttSuffix} {&no-undo} 
   field cEnv                   as character xml-node-type "attribute" 
   field cOpsys                 as character xml-node-type "attribute" 
   field cHostname              as character xml-node-type "attribute"
-  field cMessageFormat         as character xml-node-type "attribute" initial "commandline"
   field cTempfileBuilderObject as character xml-node-type "attribute"
   field cOsCommand             as character xml-node-type "attribute"
   
