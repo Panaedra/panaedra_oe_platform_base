@@ -38,12 +38,12 @@ procedure dvcs__panaedra_msroot_msutil_logic_tt_msutil_oscommanddef_tt_i: return
 &if defined(ttMsOsCommandDef{&ttSuffix}) = 0 &then
 &glob ttMsOsCommandDef{&ttSuffix} true
 define {&protected} {&static} temp-table ttMsOsCommandDef{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
-  field iIDMsOsCommandDef    as int64     format "->>>,>>>,>>>,>>9" initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsOsCommandDef | PersistencyMode=xml-store "
-  field cOsCommandToken      as character xml-node-type "attribute"
+  field iIDMsOsCommandDef      as int64     format "->>>,>>>,>>>,>>9" initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsOsCommandDef | PersistencyMode=xml-store "
+  field cOsCommandToken        as character xml-node-type "attribute"
   field cEnv                   as character xml-node-type "attribute" 
   field cOpsys                 as character xml-node-type "attribute" 
   field cHostname              as character xml-node-type "attribute"
-  field cTempfileBuilderObject as character xml-node-type "attribute"
+  field cTempfileBuilderObject as character xml-node-type "attribute" /* This can be ignored for now. The temp-file builder can be used elsewhere */
   field cOsCommand             as character xml-node-type "attribute"
   
   {&ttExtraFields}
