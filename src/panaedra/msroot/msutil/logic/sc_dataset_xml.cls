@@ -107,16 +107,20 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml:
   
   method protected static void WriteXmlAndSplit_Sub(hDatasetIP# as handle, cOutputFileIP# as character, iSplitIP# as integer):
     
-    define variable iIndex# as integer no-undo.
+    define variable iIndex#    as integer   no-undo.
+    define variable cTempfile# as character no-undo.
+    
     
     if iSplitIP# > 0 then 
       assign
         iIndex#                             = r-index(cOutputFileIP#, ".")
         substring(cOutputFileIP#,iIndex#,1) = subst("_&1.", trim(string(iSplitIP#, ">>>>99999"))).
     
+    cTempfile# = cOutputFileIP# + ".working".
+     
     hDatasetIP#:write-xml(
       "File",  /* mode */
-      cOutputFileIP#, /* file */
+      cTempfile#, /* file */
       yes,     /* formatted */
       "utf-8", /* encoding */
       "",      /* schema location */
@@ -125,8 +129,8 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml:
       no,      /* write-before-image */
       no       /* omit initial values */
       ).
-    
-    sc_osfile:CorrectFileRights(cOutputFileIP#).
+      
+    sc_osfile:SafeFileMoveThrow(cTempfile#, cOutputFileIP#, false).  
         
   end method. /* WriteXmlAndSplit_Sub */  
   
