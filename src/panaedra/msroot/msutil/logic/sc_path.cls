@@ -940,6 +940,28 @@ class panaedra.msroot.msutil.logic.sc_path:
       (file-info:file-type matches "*D*").
         
   end method. /* PathExists */
+  
+  
+  method public static logical IsAbsolute(
+    /* returns true if the inputfile is an absolute path
+       returns false if it is a relative path  */
+    input cInputfileIP# as character
+    ):
+      
+    define variable bReturn# as logical no-undo.
+    
+    if opsys = "unix" then
+      bReturn# = (cInputfileIP# begins "/"). 
+    else
+      undo, throw new c_panaedraexception(
+        9990671,
+        sc_lang:oEnglish,
+        "IsAbsolute() not implemented yet."
+        ).
+        
+    return bReturn#.   
+  
+  end method. /* IsAbsolute */
 
 end class.
 
