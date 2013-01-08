@@ -954,7 +954,7 @@ class panaedra.msroot.msutil.logic.sc_path:
       bReturn# = (cInputfileIP# begins "/"). 
     else
       undo, throw new c_panaedraexception(
-        9990671,
+        99906711,
         sc_lang:oEnglish,
         "IsAbsolute() not implemented yet."
         ).
