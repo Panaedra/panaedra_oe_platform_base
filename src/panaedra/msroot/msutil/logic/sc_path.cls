@@ -360,9 +360,17 @@ class panaedra.msroot.msutil.logic.sc_path:
         if sc_boot:SessionParameter("Env") <> "live" then cIniDir = "Q:/test/ini/".
         else cIniDir = "P:/live/ini/".
       &else
-        if panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Env") <> "live" then cIniDir = "/ota/_PRODUCT_/_FCMPNY_/ini/". /* codeQok#7110 */
-        else cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".                                                                   /* codeQok#7110 */
+        if sc_boot:SessionParameter("Env") <> "live" then 
+          cIniDir = "/ota/_PRODUCT_/_FCMPNY_/ini/". /* codeQok#7110 */
+        else 
+        do:
+          if os-getenv("REPLTARGETACTIVE") = "yes" then
+            cIniDir = "/mount/progress__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
+          else
+            cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
+        end.  
       &endif
+      
       end.
     end.
     
