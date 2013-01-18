@@ -27,6 +27,7 @@ define {&protected} {&static} temp-table ttTableInfo no-undo
   field cNsGroupdir      as character
   field cNsKey           as character
   field cNsDatabaseGroup as character /* namespace database group (4th entry in database table description) can be used for tables that reside in a different database, that must have its own onwriteordelete static trigger class (sc_*_onwriteordelete_u.cls) */
+  field iTableMetaID     as int64     /* table metadata ID (5th entry in database table description) is like an iID field, but on metadata level. This can be used in data visualisation, and for example table renames. */
   field cNsPath          as character
   field cPersistencyMode as character
   index cCased is primary        cCased
