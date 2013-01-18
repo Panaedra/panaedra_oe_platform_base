@@ -499,6 +499,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
         b-ttTableInfo.cCased           = if (num-entries(hBuff#::_Desc,"/") < 3) then "" else entry(2,b-ttTableInfo.cDescription,"/")
         b-ttTableInfo.cNsKey           = if (num-entries(hBuff#::_Desc,"/") < 3) then "" else entry(3,b-ttTableInfo.cDescription,"/")
         b-ttTableInfo.cNsDatabaseGroup = (if num-entries(b-ttTableInfo.cDescription,"/") < 4 then "" else trim(entry(4,b-ttTableInfo.cDescription,"/")))
+        b-ttTableInfo.iTableMetaID     = (if num-entries(b-ttTableInfo.cDescription,"/") < 5 then 0 else int64(entry(5,b-ttTableInfo.cDescription,"/")))
         b-ttTableInfo.cNsSubroot       = if (num-entries(hBuff#::_Desc,"/") < 3) then "" else entry(1,b-ttTableInfo.cNsPath,".")
         b-ttTableInfo.cNsGroupdir      = if (num-entries(hBuff#::_Desc,"/") < 3) then "" else entry(2,b-ttTableInfo.cNsPath,".")
         b-ttTableInfo.cPersistencyMode = "oe-database"
