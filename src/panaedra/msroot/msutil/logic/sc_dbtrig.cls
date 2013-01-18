@@ -26,6 +26,8 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
                    If the db table record is based on a temp-table, cGUID* is simply copied.
 
   \*****************************  Include Files ********************************/
+  
+  {panaedra/msroot/msutil/logic/tt/msdbtrig_tableinfo_tt.i &class=class &protected=protected &static=static}
 
   /************************  Source control constructor ************************/
   constructor public sc_dbtrig(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
@@ -38,46 +40,6 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
   define protected static variable bInitialized as log   no-undo.
   define protected static variable bDbLayer     as log   no-undo.
 
-  define protected static temp-table ttTableInfo no-undo
-    field cTempTableName   as character init ? /* either cTempTableName or cDbTableName is filled */
-    field cDbTableName     as character init ? /* either cTempTableName or cDbTableName is filled */
-    field cNonCased        as character
-    field cCased           as character
-    field cLabel           as character 
-    field cDescription     as character
-    field cNsSubroot       as character
-    field cNsGroupdir      as character
-    field cNsKey           as character
-    field cNsDatabaseGroup as character /* namespace database group (4th entry in database table description) can be used for tables that reside in a different database, that must have its own onwriteordelete static trigger class (sc_*_onwriteordelete_u.cls) */
-    field cNsPath          as character
-    field cPersistencyMode as character
-    index cCased is primary        cCased
-    index cTempTableName is unique cTempTableName
-    index cDbTableName is unique   cDbTableName
-    .
-  
-  define protected static temp-table ttCacheLogicLocations no-undo
-    field cTable     as character
-    field cType      as character init "wri"
-    field cLogicVal  as character init "<none>"
-    field cLogicCalc as character init "<none>"
-    field bDummy     as logical   init ?
-    /* The following index is a workaround on a OE10.2A01 bug.
-       A direct/normal cTable cType index gets corrupted:
-       Find statement on index doesn't work in tty (unix or win32). 
-       Unique or not doesn't matter. 
-    */
-    index cTable_cType is primary unique cTable cType 
-    . 
-  
-  define protected static temp-table ttDbLogicLocations no-undo
-    field cNamespace       as character
-    field cNsDatabaseGroup as character
-    field cClass           as character            init "<none>"
-    field oDbTrigClass     as Progress.Lang.Object
-    field oParamList       as Progress.Lang.Object
-    index cNamespace_DbGroup is primary unique cNamespace cNsDatabaseGroup 
-    . 
 
   method public static logical OnWriteOrCreate (hBuffIP# as handle):
     
@@ -201,7 +163,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
       if hBuffIP#:table-handle <> ? then 
         GetTtInfo(buffer b-ttTableInfo, hBuffIP#).
       else 
-        GetDbInfo(buffer b-ttTableInfo, hBuffIP#).
+        GetDbInfo(true,buffer b-ttTableInfo, hBuffIP#).
 
 
       cCased# = b-ttTableInfo.cCased.
@@ -244,7 +206,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     if hBuffIP#:table-handle <> ? then 
       GetTtInfo(buffer b-ttTableInfo, hBuffIP#).
     else 
-      GetDbInfo(buffer b-ttTableInfo, hBuffIP#).
+      GetDbInfo(true,buffer b-ttTableInfo, hBuffIP#).
 
     cCased# = b-ttTableInfo.cCased.
     
@@ -441,7 +403,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     if hBuffIP#:table-handle <> ? then 
       GetTtInfo(buffer b-ttTableInfo, hBuffIP#).
     else 
-      GetDbInfo(buffer b-ttTableInfo, hBuffIP#).
+      GetDbInfo(true,buffer b-ttTableInfo, hBuffIP#).
 
     cCased# = b-ttTableInfo.cCased.
 
@@ -511,7 +473,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
   end method. /* GetNonCased */
 
   
-  method protected static void GetDbInfo(buffer b-ttTableInfo for ttTableInfo, hBuffIP# as handle):
+  method public static void GetDbInfo(bMustBePanaedraCompliantIP# as logical, buffer b-ttTableInfo for ttTableInfo, hBuffIP# as handle):
     
     define variable bEclipseFix# as logical no-undo.
     
@@ -528,22 +490,22 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
       create buffer hBuff# for table /* assumes sc_dbconnect:SetAliases() is used; */ hBuffIP#:table + "._File".
       hBuff#:find-first(subst("where _File._File-name = &1 ", quoter(hBuffIP#:table)), no-lock) no-error.
       if not hBuff#:available then undo, throw new Progress.Lang.AppError(subst("Table '&1' not found", hBuffIP#:table),99950285).
-      if not num-entries(hBuff#::_Desc,"/") >= 3 then undo, throw new Progress.Lang.AppError(subst("Table '&1' Description invalid: '&2'", hBuffIP#:table, hBuff#::_Desc),99950286).
+      if bMustBePanaedraCompliantIP# and not num-entries(hBuff#::_Desc,"/") >= 3 then undo, throw new Progress.Lang.AppError(subst("Table '&1' Description invalid: '&2'", hBuffIP#:table, hBuff#::_Desc),99950286).
       assign
         b-ttTableInfo.cNonCased        = hBuffIP#:table
         b-ttTableInfo.cLabel           = hBuff#::_File-Label
         b-ttTableInfo.cDescription     = hBuff#::_Desc
-        b-ttTableInfo.cNsPath          = entry(1,b-ttTableInfo.cDescription,"/")
-        b-ttTableInfo.cCased           = entry(2,b-ttTableInfo.cDescription,"/")
-        b-ttTableInfo.cNsKey           = entry(3,b-ttTableInfo.cDescription,"/")
+        b-ttTableInfo.cNsPath          = if (num-entries(hBuff#::_Desc,"/") < 3) then "" else entry(1,b-ttTableInfo.cDescription,"/")
+        b-ttTableInfo.cCased           = if (num-entries(hBuff#::_Desc,"/") < 3) then "" else entry(2,b-ttTableInfo.cDescription,"/")
+        b-ttTableInfo.cNsKey           = if (num-entries(hBuff#::_Desc,"/") < 3) then "" else entry(3,b-ttTableInfo.cDescription,"/")
         b-ttTableInfo.cNsDatabaseGroup = (if num-entries(b-ttTableInfo.cDescription,"/") < 4 then "" else trim(entry(4,b-ttTableInfo.cDescription,"/")))
-        b-ttTableInfo.cNsSubroot       = entry(1,b-ttTableInfo.cNsPath,".")
-        b-ttTableInfo.cNsGroupdir      = entry(2,b-ttTableInfo.cNsPath,".")
+        b-ttTableInfo.cNsSubroot       = if (num-entries(hBuff#::_Desc,"/") < 3) then "" else entry(1,b-ttTableInfo.cNsPath,".")
+        b-ttTableInfo.cNsGroupdir      = if (num-entries(hBuff#::_Desc,"/") < 3) then "" else entry(2,b-ttTableInfo.cNsPath,".")
         b-ttTableInfo.cPersistencyMode = "oe-database"
         .
     end.
         
-  end method. /* GetDbInfo */  
+  end method. /* GetDbInfo */
   
 
   method protected static void GetTtInfo(buffer b-ttTableInfo for ttTableInfo, hBuffIP# as handle):
@@ -624,7 +586,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
       if hBuffIP#:table-handle <> ? then 
         GetTtInfo(buffer b-ttTableInfo, hBuffIP#).
       else 
-        GetDbInfo(buffer b-ttTableInfo, hBuffIP#).
+        GetDbInfo(true,buffer b-ttTableInfo, hBuffIP#).
     end.
     
     assign
@@ -758,7 +720,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
       if hBuffIP#:table-handle <> ? then 
         GetTtInfo(buffer b-ttTableInfo, hBuffIP#).
       else 
-        GetDbInfo(buffer b-ttTableInfo, hBuffIP#).
+        GetDbInfo(true,buffer b-ttTableInfo, hBuffIP#).
     end.
     
     cTable# = b-ttTableInfo.cNonCased.
