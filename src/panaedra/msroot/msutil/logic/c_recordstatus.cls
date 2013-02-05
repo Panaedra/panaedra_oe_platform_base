@@ -75,10 +75,18 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
     public get.
     protected set.
 
+  define property cVstInfo as character no-undo
+    public get.
+    protected set.
+
   constructor public c_recordstatus(
     input hBufferIP# as handle,
     input cSvKeyvaluesIP# as character
     ):
+      
+    define variable cName#         as character no-undo format "x(15)".
+    define variable cPid#          as character no-undo format "x(12)".
+    define variable cDevice#       as character no-undo format "x(20)".  
     
     assign   
       cTableName    = hBufferIP#:table
@@ -88,6 +96,9 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
       cSvKeyvalues  = cSvKeyvaluesIP#
       cSeperatorCsv = "|"
       .  
+
+    sc_dbrecord_info:GetLockingInfo(hBufferIP#, output cName#, output cPid#, output cDevice#).
+    cVstInfo = subst("&1 &2 &3 &5", cName#, cPid#, cDevice#, sc_environment:GetWorkstationDescription(cDevice#)).        
       
   end constructor.
 

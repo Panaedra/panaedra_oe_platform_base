@@ -218,11 +218,12 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
        of the end user. 
     */
     
-    cError# = subst("Record Status Error &1: ~"&2~" record &3: &4",
+    cError# = subst("Record Status Error &1: ~"&2~" record &3: &4, VstInfo: &5",
       iErrorIP#, 
       oRecordStatusIP#:cTablename,
       (if oRecordStatusIP#:bLocked then "locked" else if oRecordStatusIP#:bAmbiguous then "ambiguous" else if oRecordStatusIP#:bAvailable then "available" else "not available"), 
-      oRecordStatusIP#:cSvKeyValues
+      oRecordStatusIP#:cSvKeyValues,
+      oRecordStatusIP#:cVstInfo
       ). 
       
     this-object:AddMessage(cError#,iErrorIP#).

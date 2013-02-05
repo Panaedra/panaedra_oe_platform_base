@@ -781,6 +781,30 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
   end method. /* GetIpAdres */
   
+  
+  method public static character GetWorkstationDescription(
+    input cTerminalIdIP# as character
+    ):
+    
+    define variable cReturn# as character no-undo.  
+    
+    if opsys = 'unix' then
+    do:
+    
+      cTerminalIdIP# = replace(cTerminalIdIP#, '/dev/', '').
+      
+      input through value(subst('who| grep "&1 "', cTerminalIdIP#)) no-echo.
+      import unformatted cReturn#.
+      input close.
+      
+      if length(cReturn#) > 42 then
+        return substring(cReturn#, 42).
+      
+    end.  
+  
+  end method. /* GetWorkstationDescription */
+  
+  
 end class.
 
 /* EOF */
