@@ -144,7 +144,7 @@ class panaedra.msroot.msdr.logic.c_buf
   end method. /* Resync */
 
 
-  method public static void Resync(oBuffIP# as panaedra.msroot.msdr.logic.c_buf):
+  method public static void Resync(oBuffIP# as panaedra.msroot.msdr.logic.c_buf): /* codeQok#7302 */
     
     /* Resync syncs the local OnHold buffer to the rowid  of the buffer that's in use.
        Normally these are static buffers, so this method facilitates strong typed source code. 

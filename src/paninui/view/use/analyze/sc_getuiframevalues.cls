@@ -157,7 +157,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
   end method. /* GetUiValue ; ComboBox */
 
 
-  method public static c_uivalue_selection GetUiValueSelection(
+  method public static c_uivalue_selection GetUiValueSelection( /* codeQok#7302 */
 
     oFrmLogicIP#    as i_frmlogic,
     oGridOVID#      as i_widgettype_grid,
@@ -462,9 +462,9 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
               undo, throw new c_panaedraexception(
                 99958211,
                 sc_lang:oEnglish,
-                substitute("Error: The column '&1' has no value. Is databinding properly set up? Is the iID field of the temp-table filled?", cIDFieldName#)
+                substitute("Error: The column '&1' of grid '&2' has no value. Is databinding properly set up? Is the iID field of the temp-table filled?", cIDFieldName#,
+                if valid-object(oFormsGrid#) then oFormsGrid#:Name else "")
                 ).
-              
             end.
             else 
             do:
