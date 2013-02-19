@@ -95,10 +95,12 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
       bAmbiguous    = hBufferIP#:ambiguous
       cSvKeyvalues  = cSvKeyvaluesIP#
       cSeperatorCsv = "|"
-      .  
-
-    sc_dbrecord_info:GetLockingInfo(hBufferIP#, output cName#, output cPid#, output cDevice#).
-    cVstInfo = subst("&1 &2 &3 &5", cName#, cPid#, cDevice#, sc_environment:GetWorkstationDescription(cDevice#)).        
+      .
+        
+    if hBufferIP#:locked then do:
+      sc_dbrecord_info:GetLockingInfo(hBufferIP#, output cName#, output cPid#, output cDevice#).
+      cVstInfo = subst("&1 &2 &3 &4", cName#, cPid#, cDevice#, sc_environment:GetWorkstationDescription(cDevice#)).
+    end.        
       
   end constructor.
 

@@ -77,7 +77,6 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     create buffer hLockBuff# for table subst("&1._lock", cDbIP#). 
     create query hQuery#.
    
-   
     if hQuery#:set-buffers(hLockBuff#)
       and hQuery#:query-prepare(subst("for each &1._lock no-lock", cDbIP#))
       and hQuery#:query-open()
@@ -276,7 +275,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
        returns a temp-table with info about all record locks 
        for all connected databases, using vst tables
        ----------------------------------------------------------- */
-    output table for ttLock  
+    output table for ttLock /* by-reference */
     ):
       
     define variable iDb#     as integer no-undo.
