@@ -2,9 +2,6 @@ using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
-
-
-
 class panaedra.msroot.msutil.logic.sc_dbrecord_info: 
 
   /******************************  Dvcs_ Header ********************************\
@@ -194,7 +191,109 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     end finally.
   
   end method. /* GetTableInfo */
+  
+  
+  method public static character _deprecated_GetKeyFieldDataString(
+    
+    
+    /* Deprecated, use panaedra.msroot.msutil.logic.sc_bufferfield  */
+    
+    /* Get the buffer-values, separated by "space", from the fields of the primary index of a record buffer */
+  
+    cDbIP#    as character, 
+    cTableIP# as character, 
+    rRecidIP# as recid):
+  
+    define variable cReturn#       as character no-undo.
+    define variable hBuff#         as handle    no-undo.
+    define variable cBuffIdx#      as character no-undo.
+    define variable hBuffIdx#      as handle    no-undo.
+    define variable hQuerIdx#      as handle    no-undo.
+    define variable cBuffFile#     as character no-undo.
+    define variable hBuffFile#     as handle    no-undo.
+    define variable cIdxName#      as character no-undo.
+    define variable hBuffIdxField# as handle    no-undo.
+    define variable hBuffFldOfIdx# as handle    no-undo.
+    define variable hQuerIdxFld#   as handle    no-undo.
+  
+    /* Actual record ... */
+    create buffer hBuff# for table substitute("&1.&2", cDbIP#, cTableIP#) no-error.
+    if valid-handle(hBuff#) then hBuff#:find-first(subst("where recid(&1) = &2", hBuff#:name, rRecidIP#), no-lock).
+  
+    if valid-handle(hBuff#) and hBuff#:available then 
+    do:
+  
+      /* _File ... */
+      cBuffFile#  = substitute("&1._File", cDbIP#).
+      create buffer hBuffFile# for table cBuffFile# no-error.
+      hBuffFile#:find-first("where _File-Name = " + quoter(cTableIP#),no-lock).
+  
+      /* _Index ... */
+      cBuffIdx#  = substitute("&1._Index", cDbIP#).
+      create buffer hBuffIdx# for table cBuffIdx# no-error.
+      create query hQuerIdx#.
+      hQuerIdx#:set-buffers(hBuffIdx#).
+      hQuerIdx#:query-prepare(substitute("for each &1 where &1._File-recid = &2", hBuffIdx#:name, hBuffFile#:recid)).
+      hQuerIdx#:query-open().
+      hQuerIdx#:get-first.
+  
+      /* Walk through _Index metadata ... */
+      do while hBuffIdx#:available:
+    
+        if hBuffIdx#:recid = hBuffFile#::_Prime-Index then 
+        do:
+      
+          /* Note - Other index meta fields: _Wordidx , _Unique , _Active */
+          cIdxName# = hBuffIdx#::_Index-Name.
+      
+          /* Fields in index */
+          create buffer hBuffIdxField# for table substitute("&1._Index-Field", cDbIP#) no-error.
+          create buffer hBuffFldOfIdx# for table substitute("&1._Field", cDbIP#)       no-error.
 
+          if valid-handle(hBuffIdxField#) and valid-handle(hBuffFldOfIdx#) then 
+          do on error undo, throw:
+
+            create query hQuerIdxFld#.
+            hQuerIdxFld#:set-buffers(hBuffIdxField#, hBuffFldOfIdx#).
+            hQuerIdxFld#:query-prepare(substitute("for each &1 where &1._Index-recid = &2, first &3 of &1", cDbIP# + "." + hBuffIdxField#:name, hBuffIdx#:recid, cDbIP# + "." + hBuffFldOfIdx#:name)).
+            hQuerIdxFld#:query-open().
+            hQuerIdxFld#:get-first.
+
+            do while hBuffIdxField#:available:
+              if hBuffFldOfIdx#::_Field-name > "" then  
+                cReturn# = cReturn# + subst(" &1", hBuff#:buffer-field(hBuffFldOfIdx#::_Field-name):buffer-value ).
+              hQuerIdxFld#:get-next.
+            end.
+        
+            cReturn# = substring(cReturn#,2).
+          
+            finally:
+              if valid-handle(hQuerIdxFld#  ) then delete object hQuerIdxFld#.
+              if valid-handle(hBuffIdxField#) then delete object hBuffIdxField#.
+              if valid-handle(hBuffFldOfIdx#) then delete object hBuffFldOfIdx#.
+            end finally.
+
+          end. /* Fields in index */
+
+        end.
+    
+        hQuerIdx#:get-next.
+
+      end. /* Query on Indices */
+  
+    end. /* (Normal) record can be found */
+    
+    return cReturn#.
+  
+    finally:
+      if valid-handle(hBuff#    ) then delete object hBuff#    . 
+      if valid-handle(hQuerIdx# ) then delete object hQuerIdx# .
+      if valid-handle(hBuffFile#) then delete object hBuffFile#. 
+      if valid-handle(hBuffIdx# ) then delete object hBuffIdx# .
+    end finally.
+  
+  end method. /* _deprecated_GetKeyFieldDataString */
+  
 
   method protected static void GetConnectionInfo(
     /* -----------------------------------------------------------
@@ -287,7 +386,6 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
 
     do iDb# = 1 to num-dbs on error undo, throw:
       
-      
       create query hQuery#.
       create buffer hBuffer# for table subst("&1._Lock", ldbname(iDb#)).
       
@@ -295,15 +393,16 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
         and hQuery#:query-prepare(subst("for each &1._Lock no-lock", ldbname(iDb#)))
         and hQuery#:query-open()
         and hQuery#:get-first()
-        then 
-      do while (not hQuery#:query-off-end and hBuffer#::_Lock-Usr <> ? ) :
+        then
+      do while (not hQuery#:query-off-end and hBuffer#::_Lock-Usr <> ? ): /* Break loop when field is null; no index on this VST table */
         
         create ttLock.
         assign
-          iIdLock# = iIdLock# + 1
+          iIdLock#          = iIdLock# + 1
           ttLock.iIDLock    = iIdLock#
           ttLock.cDb        = ldbname(iDb#)
           ttLock.iLockId    = hBuffer#::_Lock-Id
+          ttLock.rLockRecid = hBuffer#::_Lock-RecId
           ttLock.iLockUsr   = hBuffer#::_Lock-Usr
           ttLock.cLockName  = hBuffer#::_Lock-Name
           ttLock.iLockTable = hBuffer#::_Lock-Table
@@ -318,6 +417,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
         ttLock.cWhoInfo  = sc_environment:GetWorkstationDescription(ttLock.cDevice). 
           
         hQuery#:get-next().
+        
       end.
       
       finally:
