@@ -218,7 +218,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
   
     /* Actual record ... */
     create buffer hBuff# for table substitute("&1.&2", cDbIP#, cTableIP#) no-error.
-    if valid-handle(hBuff#) then hBuff#:find-first(subst("where recid(&1) = &2", hBuff#:name, rRecidIP#), no-lock).
+    if valid-handle(hBuff#) then hBuff#:find-first(subst("where recid(&1) = &2", hBuff#:name, rRecidIP#), no-lock) no-error.
   
     if valid-handle(hBuff#) and hBuff#:available then 
     do:
@@ -284,7 +284,11 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     end. /* (Normal) record can be found */
     
     return cReturn#.
-  
+    
+    catch oError# as Progress.Lang.Error:
+      sc_showexception:ShowException(oError#).	
+    end catch.
+    
     finally:
       if valid-handle(hBuff#    ) then delete object hBuff#    . 
       if valid-handle(hQuerIdx# ) then delete object hQuerIdx# .
