@@ -28,7 +28,19 @@ define {&protected} {&static} temp-table tt{&ttPrefix}Lock{&ttSuffix} {&no-undo}
   field iLockTable      as integer
   field cTableName      as character   label "Table"
   field cDevice         as character   label "Device" format "x(15)"
-  field cWhoInfo        as character   label "Who info" format "x(30)"
+  field iPid            as integer
+  field cWhoInfo        as character   label "Who info"     format "x(30)"
+  field cCommandLineRaw as character   label "Command line" format "x(74)"
+  field cCommandLine01  as character   label "Command line 1" format "x(74)"
+  field cCommandLine02  as character   label "Command line 2" format "x(74)"
+  field cCommandLine03  as character   label "Command line 3" format "x(74)"
+  field cCommandLine04  as character   label "Command line 4" format "x(74)"
+  field cCommandLine05  as character   label "Command line 5" format "x(74)"
+  field cCommandLine06  as character   label "Command line 6" format "x(74)"
+  field cCommandLine07  as character   label "Command line 7" format "x(74)"
+  field cCommandLine08  as character   label "Command line 8" format "x(74)"
+  field cCommandLine09  as character   label "Command line 9" format "x(74)"
+  field cCommandLine10  as character   label "Command line 10" format "x(74)"
   field dtmSince        as datetime-tz label "Since"
   field cSince          as character   label "Since" format "x(8)"
   

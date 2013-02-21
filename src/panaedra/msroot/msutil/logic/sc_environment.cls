@@ -620,9 +620,49 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     return sc_msprocess_win32:GetCommandLine().
     
-    &endif /* non unix */
+  &endif /* non unix */
     
   end method. /* GetCommandLine */
+
+
+  method public static character GetCommandLine(iPidIP# as integer):
+    
+    define variable cParent#  as character no-undo.
+    define variable cLine#    as character no-undo.
+    define variable cReturn#  as character no-undo.
+    define variable iPidLine# as integer   no-undo.
+    define variable cCmd#     as character no-undo.
+    define variable cGrep#    as character no-undo.
+
+    &if opsys = "unix" &then
+    
+    assign
+      cGrep# = substitute(" grep &1", trim(string(iPidIP#,">>>>>>>>9")))
+      cCmd#  = "ps -ef |" + cGrep#.
+    
+    input stream str-in through value(cCmd#).
+ 
+    repeat on error undo, throw:
+      import stream str-in unformatted cLine#.
+      if not cLine# matches "*" + cGrep# + "*" then
+        cReturn# = cReturn# + subst(chr(10) + "&1", cLine#).
+    end.
+    
+    input stream str-in close.
+
+    return substring(cReturn#,2).
+    
+    &else /* non unix */
+    
+    undo, throw new c_panaedraexception(
+      99958228,
+      sc_lang:oEnglish,
+      "Error:  GetCommandLine with iPidIP# as input parameter is not yet implemented for this platform."
+      ).
+    
+  &endif /* non unix */
+    
+  end method. /* GetCommandLine ; with iPidIP# as input parameter */
 
 
   method public static char GetHostName():
@@ -797,10 +837,14 @@ class panaedra.msroot.msutil.logic.sc_environment:
       import unformatted cReturn#.
       input close.
       
-      if length(cReturn#) > 42 then
-        return substring(cReturn#, 42).
+      if length(cReturn#) > 42 then 
+      do:
+        cReturn# = substring(cReturn#, 42).
+      end.
       
     end.  
+    
+    return cReturn#.
   
   end method. /* GetWorkstationDescription */
   

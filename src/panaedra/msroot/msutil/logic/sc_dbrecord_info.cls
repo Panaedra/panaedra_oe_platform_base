@@ -301,7 +301,8 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
        ----------------------------------------------------------- */
     input cDbIP#      as character,
     input iUserNoIP#  as integer,
-    output cDeviceOP#   as character
+    output cDeviceOP# as character,
+    output iPidOP#    as integer
     ):
     
     define variable hBuffer# as handle no-undo.
@@ -317,7 +318,8 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
       then 
     do:
       assign 
-        cDeviceOP# = hBuffer#::_connect-device.
+        cDeviceOP# = hBuffer#::_Connect-device
+        iPidOP#    = hBuffer#::_Connect-Pid .
     end.
   
     finally:
@@ -338,7 +340,8 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
        ----------------------------------------------------------- */
     input cDbIP#                as character,
     input iUserNoIP#            as integer,
-    output iTransactionNumOP#   as integer
+    output iTransactionNumOP#   as integer,
+    output dtmSinceOP#          as datetime-tz
     ):
     
     define variable hBuffer# as handle no-undo.
@@ -355,6 +358,17 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     do:
       assign 
         iTransactionNumOP# = hBuffer#::_trans-num.
+      assign
+        /* Note: if hBuffer#::_Trans-State = "ALLOCATED", no timestamp info is available yet. As soon as record changes are pending, state "ACTIVE", timestamp info will be filled. */
+        dtmSinceOP# = add-interval(now, (if hBuffer#::_Trans-Duration <> ? then -1 * int(hBuffer#::_Trans-Duration) else 0), "seconds").
+        &if false &then
+        message "dtmSinceOP#" dtmSinceOP# skip
+          "hBuffer#::_trans-num" hBuffer#::_trans-num skip
+          "hBuffer#::_Trans-txtime" hBuffer#::_Trans-txtime skip
+          "hBuffer#::_Trans-State" hBuffer#::_Trans-State skip
+          "hBuffer#::_Trans-Duration" hBuffer#::_Trans-Duration skip
+          view-as alert-box.
+        &endif
     end.
   
     finally:
@@ -377,54 +391,67 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     output table for ttLock /* by-reference */
     ):
       
-    define variable iDb#     as integer no-undo.
-    define variable hBuffer# as handle  no-undo.
-    define variable hQuery#  as handle  no-undo.  
-    define variable iIdLock# as int64   no-undo.
+    define variable iDb#       as integer no-undo.
+    define variable hBuffLock# as handle  no-undo.
+    define variable hQuery#    as handle  no-undo.  
+    define variable iIdLock#   as int64   no-undo.
     
     empty temp-table ttLock.
 
     do iDb# = 1 to num-dbs on error undo, throw:
       
       create query hQuery#.
-      create buffer hBuffer# for table subst("&1._Lock", ldbname(iDb#)).
+      create buffer hBuffLock# for table subst("&1._Lock", ldbname(iDb#)).
       
-      if hQuery#:add-buffer(hBuffer#)
-        and hQuery#:query-prepare(subst("for each &1._Lock no-lock", ldbname(iDb#)))
+      if hQuery#:add-buffer(hBuffLock#)
+        and hQuery#:query-prepare("for each _Lock no-lock")
         and hQuery#:query-open()
         and hQuery#:get-first()
         then
-      do while (not hQuery#:query-off-end and hBuffer#::_Lock-Usr <> ? ): /* Break loop when field is null; no index on this VST table */
+      do while (not hQuery#:query-off-end and hBuffLock#::_Lock-Usr <> ? ): /* Break loop when field is null; no index on this VST table */
         
         create ttLock.
         assign
           iIdLock#          = iIdLock# + 1
           ttLock.iIDLock    = iIdLock#
           ttLock.cDb        = ldbname(iDb#)
-          ttLock.iLockId    = hBuffer#::_Lock-Id
-          ttLock.rLockRecid = hBuffer#::_Lock-RecId
-          ttLock.iLockUsr   = hBuffer#::_Lock-Usr
-          ttLock.cLockName  = hBuffer#::_Lock-Name
-          ttLock.iLockTable = hBuffer#::_Lock-Table
-          ttLock.dtmSince   = now
+          ttLock.iLockId    = hBuffLock#::_Lock-Id
+          ttLock.rLockRecid = hBuffLock#::_Lock-RecId
+          ttLock.iLockUsr   = hBuffLock#::_Lock-Usr
+          ttLock.cLockName  = hBuffLock#::_Lock-Name
+          ttLock.iLockTable = hBuffLock#::_Lock-Table
           .
           
-        ttLock.cSince     = sc_datetime:GetTimeHH_FCMPNY_S(ttLock.dtmSince).
-          
         GetTableInfo(ldbname(iDb#), ttLock.iLockTable, output ttLock.cTableName).
-        GetConnectionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.cDevice).
-        GetTransactionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.iTransactionNum).
-        ttLock.cWhoInfo  = sc_environment:GetWorkstationDescription(ttLock.cDevice). 
+        GetConnectionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.cDevice, output ttLock.iPid).
+        GetTransactionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.iTransactionNum, output ttLock.dtmSince).
+        
+        assign
+          ttLock.cSince          = sc_datetime:GetTimeHH_FCMPNY_S(ttLock.dtmSince)
+          ttLock.cWhoInfo        = sc_environment:GetWorkstationDescription(ttLock.cDevice)
+          ttLock.cCommandLineRaw = sc_environment:GetCommandLine(ttLock.iPid). 
           
         hQuery#:get-next().
         
       end.
       
+      catch oError# as Progress.Lang.Error:
+        
+        sc_exception:ReThrow(
+          99958112,
+          oError#,
+          "recordlockinfo_loop-end", 
+          sc_lang:oEnglish,
+          substitute("Db='&1/&2', valid-handle(hBuffLock#)=&3", ldbname(iDb#), pdbname(iDb#), valid-handle(hBuffLock#))  
+          ).
+        
+      end catch.
+      
       finally:
         if valid-handle(hQuery#) then
           delete object hQuery#.
-        if valid-handle(hBuffer#) then
-          delete object hBuffer#.	
+        if valid-handle(hBuffLock#) then
+          delete object hBuffLock#.	
       end finally.
       
     end. /* do iDb# .... */   
