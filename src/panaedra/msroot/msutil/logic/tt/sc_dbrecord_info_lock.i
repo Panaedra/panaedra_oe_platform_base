@@ -26,6 +26,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}Lock{&ttSuffix} {&no-undo}
   field iTransactionNum as int64       label "Transaction-Id" format ">>>>>>>>>>>>>>>>9"  /*  codeQok#7103 */
   field cLockName       as character
   field iLockTable      as integer
+  field cTransStat      as character   label "Tr.State" format "x(14)"
   field cTableName      as character   label "Table"
   field cDevice         as character   label "Device" format "x(15)"
   field iPid            as integer

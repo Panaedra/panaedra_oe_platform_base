@@ -345,7 +345,8 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     input cDbIP#                as character,
     input iUserNoIP#            as integer,
     output iTransactionNumOP#   as integer,
-    output dtmSinceOP#          as datetime-tz
+    output dtmSinceOP#          as datetime-tz,
+    output cTransStatOP#        as character
     ):
     
     define variable hBuffer# as handle no-undo.
@@ -364,15 +365,16 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
         iTransactionNumOP# = hBuffer#::_trans-num.
       assign
         /* Note: if hBuffer#::_Trans-State = "ALLOCATED", no timestamp info is available yet. As soon as record changes are pending, state "ACTIVE", timestamp info will be filled. */
-        dtmSinceOP# = add-interval(now, (if hBuffer#::_Trans-Duration <> ? then -1 * int(hBuffer#::_Trans-Duration) else 0), "seconds").
-        &if false &then
-        message "dtmSinceOP#" dtmSinceOP# skip
-          "hBuffer#::_trans-num" hBuffer#::_trans-num skip
-          "hBuffer#::_Trans-txtime" hBuffer#::_Trans-txtime skip
-          "hBuffer#::_Trans-State" hBuffer#::_Trans-State skip
-          "hBuffer#::_Trans-Duration" hBuffer#::_Trans-Duration skip
-          view-as alert-box.
-        &endif
+        cTransStatOP# = hBuffer#::_Trans-State
+        dtmSinceOP#   = add-interval(now, (if hBuffer#::_Trans-Duration <> ? then -1 * int(hBuffer#::_Trans-Duration) else 0), "seconds").
+      &if false &then
+      message "dtmSinceOP#" dtmSinceOP# skip
+        "hBuffer#::_trans-num" hBuffer#::_trans-num skip
+        "hBuffer#::_Trans-txtime" hBuffer#::_Trans-txtime skip
+        "hBuffer#::_Trans-State" hBuffer#::_Trans-State skip
+        "hBuffer#::_Trans-Duration" hBuffer#::_Trans-Duration skip
+        view-as alert-box.
+      &endif
     end.
   
     finally:
@@ -428,7 +430,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
           
         GetTableInfo(ldbname(iDb#), ttLock.iLockTable, output ttLock.cTableName).
         GetConnectionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.cDevice, output ttLock.iPid).
-        GetTransactionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.iTransactionNum, output ttLock.dtmSince).
+        GetTransactionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.iTransactionNum, output ttLock.dtmSince, output ttLock.cTransStat).
         
         assign
           ttLock.cSince          = sc_datetime:GetTimeHH_FCMPNY_S(ttLock.dtmSince)
