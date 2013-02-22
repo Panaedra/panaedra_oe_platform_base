@@ -71,11 +71,11 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     define variable hQuery#    as handle  no-undo.
     define variable iRecid#    as recid   no-undo.
    
-    create buffer hLockBuff# for table subst("&1._lock", cDbIP#). 
+    create buffer hLockBuff# for table subst("&1._Lock", cDbIP#). 
     create query hQuery#.
    
     if hQuery#:set-buffers(hLockBuff#)
-      and hQuery#:query-prepare(subst("for each &1._lock no-lock", cDbIP#))
+      and hQuery#:query-prepare("for each _Lock no-lock")
       and hQuery#:query-open()
       and hQuery#:get-first()
       then 
@@ -133,7 +133,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     create query hQuery#.
     
     if hQuery#:set-buffers(hBuffer#)
-      and hQuery#:query-prepare(subst("for each &1._connect where &1._connect._connect-usr = &2 no-lock", cDbIP#, iUseridIP#))
+      and hQuery#:query-prepare(subst("for each _Connect no-lock where _Connect._Connect-Usr = &1", iUseridIP#))
       and hQuery#:query-open()
       and hQuery#:get-first()
       then 
@@ -172,7 +172,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     create query hQuery#.
     
     if hQuery#:set-buffers(hBuffer#)
-      and hQuery#:query-prepare(subst("for each &1._file where &1._file._file-number = &2 no-lock", cDbIP#, iFileNoIP#))
+      and hQuery#:query-prepare(subst("for each _File no-lock where _File._File-number = &1", iFileNoIP#))
       and hQuery#:query-open()
       and hQuery#:get-first()
       then 
@@ -233,7 +233,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
       create buffer hBuffIdx# for table cBuffIdx# no-error.
       create query hQuerIdx#.
       hQuerIdx#:set-buffers(hBuffIdx#).
-      hQuerIdx#:query-prepare(substitute("for each &1 where &1._File-recid = &2", hBuffIdx#:name, hBuffFile#:recid)).
+      hQuerIdx#:query-prepare(substitute("for each &1 no-lock where &1._File-recid = &2", hBuffIdx#:name, hBuffFile#:recid)).
       hQuerIdx#:query-open().
       hQuerIdx#:get-first.
   
@@ -255,7 +255,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
 
             create query hQuerIdxFld#.
             hQuerIdxFld#:set-buffers(hBuffIdxField#, hBuffFldOfIdx#).
-            hQuerIdxFld#:query-prepare(substitute("for each &1 where &1._Index-recid = &2, first &3 of &1", cDbIP# + "." + hBuffIdxField#:name, hBuffIdx#:recid, cDbIP# + "." + hBuffFldOfIdx#:name)).
+            hQuerIdxFld#:query-prepare(substitute("for each &1 no-lock where &1._Index-recid = &2, first &3 no-lock of &1", hBuffIdxField#:name, hBuffIdx#:recid, hBuffFldOfIdx#:name)).
             hQuerIdxFld#:query-open().
             hQuerIdxFld#:get-first.
 
@@ -316,7 +316,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     create query hQuery#.
     
     if hQuery#:set-buffers(hBuffer#)
-      and hQuery#:query-prepare(subst("for each &1._connect where &1._connect._connect-usr = &2 no-lock", cDbIP#, iUserNoIP#))
+      and hQuery#:query-prepare(subst("for each _Connect no-lock where _Connect._Connect-Usr = &1", iUserNoIP#))
       and hQuery#:query-open()
       and hQuery#:get-first()
       then 
@@ -356,7 +356,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     create query hQuery#.
     
     if hQuery#:set-buffers(hBuffer#)
-      and hQuery#:query-prepare(subst("for each &1._trans where  &1._trans._trans-usrnum = &2 and &1._trans._trans-state <> ? no-lock", cDbIP#, iUserNoIP#))
+      and hQuery#:query-prepare(subst("for each _Trans no-lock where _Trans._Trans-Usrnum = &1 and _Trans._Trans-State <> ?", iUserNoIP#))
       and hQuery#:query-open()
       and hQuery#:get-first()
       then 
