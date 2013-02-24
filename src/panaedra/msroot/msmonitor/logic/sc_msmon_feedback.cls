@@ -51,7 +51,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       "MyTestMonitorID",
       "At some location...",
       "This is just a MsMonFeedback test!",  /* Message, if supplied: overrules exception message           */
-      oPanaedraError#                           /* Optional exception object, to pass callstack and other info */
+      oPanaedraError#                           /* Optional exception object, to pass callstack and other info */ /* codeQok#7120 */
       ).
       
     
@@ -401,7 +401,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           if type-of(oErrorIP#, c_panaedraexception) and cast(oErrorIP#,c_panaedraexception):oInnerException <> ? then
           do:
             oInnerException# = cast(oErrorIP#,c_panaedraexception):oInnerException.
-            /* Display inner exception's message and callstack in exception */
+            /* Display inner exception's message and callstack in exception */ /* codeQok#7120 */
             b-ttMsMonFeedbackDefCopy.cException = sc_showexception:ExceptionToString(oInnerException#).
                 
           end.
@@ -640,10 +640,10 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     
     /* Generic handling of "xxx not available" */
   
-    input  iErrorIP#       as integer,
-    input  cLocationID#    as character,
-    input  hBuffIP#        as handle,
-    input  cSvKeyValuesIP# as character
+    input  iErrorIP#           as integer,
+    input  cLocationID#        as character,
+    input  hBuffIP#            as handle,
+    input  cParamFindValuesIP# as character
     ):
       
     HandleEvent(
@@ -651,7 +651,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       hBuffIP#:name, /* ID    */
       cLocationID#,  /* Location*/
       new c_panaedraexception(iErrorIP#, sc_lang:oAny,
-      new c_recordstatus(hBuffIP#,cSvKeyValuesIP#))).
+      new c_recordstatus(hBuffIP#,cParamFindValuesIP#))).
              
   end method. /* HandleMissingData */
   

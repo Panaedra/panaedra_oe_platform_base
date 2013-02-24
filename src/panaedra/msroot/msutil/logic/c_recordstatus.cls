@@ -138,16 +138,26 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
       if cEntr# = "" or num-entries(cEntr#,"]") < 2 then next.
       cToken# = trim(entry(1,cEntr#,"]")).
       cValue# = trim(entry(2,cEntr#,"]")).
-      hField# = hBufferIP#:buffer-field(cToken#) no-error.
-      if hField# <> ? then 
+      if cToken# = "@rowid" then 
       do:
         iFieldEntry# = iFieldEntry# + 1.
         if iFieldEntry# = 1 then cReturn# = "where ". 
         else cReturn# = cReturn# + " and ".
-        cReturn# = cReturn# + subst("&1 = &2", hField#:name, if lookup(hField#:data-type,"character,clob") > 0 then quoter(cValue#) else cValue#).
+        cReturn# = cReturn# + subst("rowid(&1) = to-rowid(&2)", hBufferIP#:name, quoter(cValue#)).
+      end.
+      else 
+      do:
+        hField# = hBufferIP#:buffer-field(cToken#) no-error.
+        if hField# <> ? then 
+        do:
+          iFieldEntry# = iFieldEntry# + 1.
+          if iFieldEntry# = 1 then cReturn# = "where ". 
+          else cReturn# = cReturn# + " and ".
+          cReturn# = cReturn# + subst("&1 = &2", hField#:name, if lookup(hField#:data-type,"character,clob,longchar") > 0 then quoter(cValue#) else cValue#).
+        end.
       end.
     end.
-
+    
     return cReturn#.
 
   end method. /* ParamToPrep */
