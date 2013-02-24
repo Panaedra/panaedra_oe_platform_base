@@ -31,10 +31,10 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
        hBufferIP# needs to be a record found by NO-LOCK
        http://knowledgebase.progress.com/%61rticles/%41rticle/19136
        ----------------------------------------------------------- */
-    input hBufferIP#  as handle,
-    output cNameOP#   as character,
-    output cPidOP#    as character,
-    output cDeviceOP# as character
+    input hBufferIP#            as handle,
+    output cConnectNameOP#      as character,
+    output iPidOP#              as integer,
+    output cDeviceOP#           as character
     ):
       
     define variable iDb# as integer no-undo.
@@ -43,10 +43,10 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
       GetLockingInfo(
         input ldbname(iDb#),
         input hBufferIP#,
-        output cNameOP#,
-        output cPidOP#,
+        output cConnectNameOP#,
+        output iPidOP#,
         output cDeviceOP#).      
-      if cPidOP# > "" then leave.
+      if iPidOP# > 0 then leave.
     end. 
 
   end method.  /* GetLockingInfo */
@@ -58,11 +58,11 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
        hBufferIP# needs to be a record found by NO-LOCK
        http://knowledgebase.progress.com/%61rticles/%41rticle/19136
        ----------------------------------------------------------- */
-    input cDbIP#      as character,
-    input hBufferIP#  as handle,
-    output cNameOP#   as character,
-    output cPidOP#    as character,
-    output cDeviceOP# as character
+    input  cDbIP#               as character,
+    input  hBufferIP#           as handle,
+    output cConnectNameOP#      as character,
+    output iPidOP#              as integer,
+    output cDeviceOP#           as character
     ):
       
     define variable iFileNum#  as integer no-undo.
@@ -79,28 +79,31 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
       and hQuery#:query-open()
       and hQuery#:get-first()
       then 
-    do:  
+    do: 
+       
       repeat while (not hQuery#:query-off-end and hLockBuff#::_lock-recid <> ?) on error undo, throw:
         
         if hLockBuff#::_lock-recid = hBufferIP#:recid and
-          hLockBuff#::_lock-table = hBufferIP#:table-number and
+          hLockBuff#::_lock-table  = hBufferIP#:table-number and
           hLockBuff#::_lock-flags matches "*X*" 
           then leave.
   
         hQuery#:get-next().
         
-      end. /* repeat */  
+      end. /* repeat */
+        
     end. /* do */
 
     if hLockBuff#:available and hLockBuff#::_lock-recid <> ? then 
     do:
+      
       GetUserInfo(
         cDbIP#, 
         hLockBuff#::_lock-usr, 
-        output cNameOP#,
-        output cPidOP#,
-        output cDeviceOP#
-        ).
+        output cConnectNameOP#,
+        output iPidOP#,
+        output cDeviceOP#).
+        
     end.
    
     finally:
@@ -119,11 +122,11 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     /* -----------------------------------------------------------
        returns info about a user connection to a progress database
        ----------------------------------------------------------- */
-    input cDbIP#      as character,
-    input iUseridIP#  as integer,
-    output cNameOP#   as character,
-    output cPidOP#    as character,
-    output cDeviceOP# as character
+    input cDbIP#                as character,
+    input iUseridIP#            as integer,
+    output cConnectNameOP#      as character,
+    output iPidOP#              as integer,
+    output cDeviceOP#           as character
     ):
     
     define variable hBuffer# as handle no-undo.
@@ -139,9 +142,9 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
       then 
     do:
       assign 
-        cNameOP#   = hBuffer#::_connect-name
-        cPidOP#    = hBuffer#::_connect-pid
-        cDeviceOP# = hBuffer#::_connect-device.
+        cConnectNameOP# = hBuffer#::_connect-name
+        iPidOP#         = hBuffer#::_connect-pid
+        cDeviceOP#      = hBuffer#::_connect-device.
     end.
   
     finally:
@@ -160,9 +163,9 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     /* -----------------------------------------------------------
        returns info about table in a progress database
        ----------------------------------------------------------- */
-    input cDbIP#      as character,
-    input iFileNoIP#  as integer,
-    output cNameOP#   as character
+    input  cDbIP#        as character,
+    input  iFileNoIP#    as integer,
+    output cTableNameOP# as character
     ):
     
     define variable hBuffer# as handle no-undo.
@@ -178,7 +181,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
       then 
     do:
       assign 
-        cNameOP# = hBuffer#::_File-Name.
+        cTableNameOP# = hBuffer#::_File-Name.
     end.
   
     finally:

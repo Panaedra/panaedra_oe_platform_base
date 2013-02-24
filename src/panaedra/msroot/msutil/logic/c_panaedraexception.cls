@@ -218,11 +218,11 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
        of the end user. 
     */
     
-    cError# = subst("Record Status Error &1: ~"&2~" record &3: &4, VstInfo: &5",
+    cError# = subst("Record status error (&1) for table ~"&2~" (&3) with find values ~"&4~".~nVstInfo:~n&5",
       iErrorIP#, 
       oRecordStatusIP#:cTablename,
       (if oRecordStatusIP#:bLocked then "locked" else if oRecordStatusIP#:bAmbiguous then "ambiguous" else if oRecordStatusIP#:bAvailable then "available" else "not available"), 
-      oRecordStatusIP#:cSvKeyValues,
+      oRecordStatusIP#:cParamRecordFindValues,
       oRecordStatusIP#:cVstInfo
       ). 
       

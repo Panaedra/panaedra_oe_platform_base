@@ -31,6 +31,10 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
     public get.
     protected set.  
 
+  define property cParamRecordFindValues as character no-undo
+    public get.
+    protected set.  
+
   define property bLocked as logical no-undo
     public get.
     protected set.  
@@ -80,29 +84,73 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
     protected set.
 
   constructor public c_recordstatus(
-    input hBufferIP# as handle,
-    input cSvKeyvaluesIP# as character
+    input hBufferIP#                as handle,
+    input cParamRecordFindValuesIP# as character
     ):
       
-    define variable cName#         as character no-undo format "x(15)".
-    define variable cPid#          as character no-undo format "x(12)".
-    define variable cDevice#       as character no-undo format "x(20)".  
+    define variable cConnectName# as character no-undo format "x(15)".
+    define variable iPid#         as integer   no-undo format ">>>>>>>>>9".
+    define variable cDevice#      as character no-undo format "x(20)".  
     
     assign   
-      cTableName    = hBufferIP#:table
-      bAvailable    = hBufferIP#:available
-      bLocked       = hBufferIP#:locked
-      bAmbiguous    = hBufferIP#:ambiguous
-      cSvKeyvalues  = cSvKeyvaluesIP#
-      cSeperatorCsv = "|"
+      cTableName             = hBufferIP#:table
+      bAvailable             = hBufferIP#:available
+      bLocked                = hBufferIP#:locked
+      bAmbiguous             = hBufferIP#:ambiguous
+      cParamRecordFindValues = cParamRecordFindValuesIP#
       .
-        
-    if hBufferIP#:locked then do:
-      sc_dbrecord_info:GetLockingInfo(hBufferIP#, output cName#, output cPid#, output cDevice#).
-      cVstInfo = subst("&1 &2 &3 &4", cName#, cPid#, cDevice#, sc_environment:GetWorkstationDescription(cDevice#)).
+    
+    if hBufferIP#:locked or hBufferIP#:available /* It is possible to supply a no-lock buffer to the locked record */ then 
+    do:
+      if (not hBufferIP#:available) and cParamRecordFindValues > "" then 
+        hBufferIP#:find-first(ParamToPrep(hBufferIP#,cParamRecordFindValues),no-lock) no-error.
+      if hBufferIP#:available then 
+        sc_dbrecord_info:GetLockingInfo(hBufferIP#, output cConnectName#, output iPid#, output cDevice#).
+      cVstInfo = subst("ConnectName=&1~nPID=&2~nDevice=&3~nWorkstation=&5", cConnectName#, iPid#, cDevice#, sc_environment:GetWorkstationDescription(cDevice#)).
     end.        
       
   end constructor.
+
+
+  method protected static character ParamToPrep(
+
+    /* Gets values from a readable string like " [Hallo] hoi [Bla] boe ".
+       Trim is automatically applied.
+       Generates a dynamic find where-string.
+    */
+
+    hBufferIP# as handle,
+    cParamIP#  as character):
+  
+    define variable cReturn#     as character no-undo init "where true".
+    define variable iTell#       as integer   no-undo.
+    define variable cPara#       as character no-undo.
+    define variable cEntr#       as character no-undo.
+    define variable cToken#      as character no-undo.
+    define variable cValue#      as character no-undo.
+    define variable hField#      as handle    no-undo.
+    define variable iFieldEntry# as integer   no-undo.
+
+    cPara# = cParamIP#.
+
+    do iTell# = 1 to num-entries(cPara#,"["):
+      cEntr# = entry(iTell#,cPara#,"[").
+      if cEntr# = "" or num-entries(cEntr#,"]") < 2 then next.
+      cToken# = trim(entry(1,cEntr#,"]")).
+      cValue# = trim(entry(2,cEntr#,"]")).
+      hField# = hBufferIP#:buffer-field(cToken#) no-error.
+      if hField# <> ? then 
+      do:
+        iFieldEntry# = iFieldEntry# + 1.
+        if iFieldEntry# = 1 then cReturn# = "where ". 
+        else cReturn# = cReturn# + " and ".
+        cReturn# = cReturn# + subst("&1 = &2", hField#:name, if lookup(hField#:data-type,"character,clob") > 0 then quoter(cValue#) else cValue#).
+      end.
+    end.
+
+    return cReturn#.
+
+  end method. /* ParamToPrep */
 
 
   constructor public c_recordstatus(
