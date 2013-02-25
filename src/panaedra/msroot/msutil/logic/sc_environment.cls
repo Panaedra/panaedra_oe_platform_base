@@ -81,10 +81,10 @@ class panaedra.msroot.msutil.logic.sc_environment:
     end get.
     protected set.
   
-  define static property cIpAdres as character no-undo init ?
+  define static property cIpAdress as character no-undo init ?
     public get:
-      if cIpAdres = ? then cIpAdres = GetIpAdres().
-      return cIpAdres.
+      if cIpAdress = ? then cIpAdress = GetIpAdress().
+      return cIpAdress.
     end get.
     protected set.
        
@@ -726,7 +726,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   end method. /* IsIdeRunning */  
 
   
-  method protected static character GetIpAdres():
+  method protected static character GetIpAdress():
     
     define variable cLine#                     as character no-undo.
     define variable cIpAdres#                  as character no-undo.
@@ -819,7 +819,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     return cIpAdres#.
     
-  end method. /* GetIpAdres */
+  end method. /* GetIpAdress */
   
   
   method public static character GetWorkstationDescription(
