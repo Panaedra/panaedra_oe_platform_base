@@ -83,7 +83,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   
   define static property cIpAddress as character no-undo init ?
     public get:
-      if cIpAdress = ? then cIpAddress = GetIpAddress().
+      if cIpAddress = ? then cIpAddress = GetIpAddress().
       return cIpAddress.
     end get.
     protected set.
