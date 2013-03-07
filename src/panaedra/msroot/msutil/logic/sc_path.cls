@@ -341,6 +341,16 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
 
+
+  /* "Pcl" directory */
+  define public static property cPclDir as character no-undo 
+    get():
+      if not bTtPathInitialized then 
+        TtPathInitialize().
+      return cPclDir.
+    end get.
+    protected set.
+
   /* ---Methods--- */
   
   method protected static void IniInitialize():
@@ -398,6 +408,7 @@ class panaedra.msroot.msutil.logic.sc_path:
       cVanWanDir           = FillPathProperty(GetScPathEnv(), "cVanWanDir",opsys).
       cNaarWanDir          = FillPathProperty(GetScPathEnv(), "cNaarWanDir",opsys).
       c_TERM_UNDISCLOSED_queueDir  = FillPathProperty(GetScPathEnv(), "c_TERM_UNDISCLOSED_queueDir",opsys).
+      cPclDir              = FillPathProperty(GetScPathEnv(), "cPclDir",opsys).
     end.
     
   end method. /* TtPathInitialize */
@@ -823,6 +834,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     if index(cPathStringIOP#,"[:cVanWanDir:]"       ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanWanDir:]"       ,sc_path:cVanWanDir       ).
     if index(cPathStringIOP#,"[:cWorkDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cWorkDir:]"         ,sc_path:cWorkDir         ).
     if index(cPathStringIOP#,"[:bLiveEnv:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:bLiveEnv:]"         ,if sc_environment:bLiveEnv then "live" else "nonlive").
+    if index(cPathStringIOP#,"[:cPclDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cPclDir:]"          ,sc_path:cPclDir          ).
 
   end method. /* ReplacePathTokens */
 
@@ -863,6 +875,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     if index(cPathStringIOP#,"[:cTempDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cTempDir:]"         ,GetDirOfOtherEnv(cEnvIP#,"cTempDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cVanWanDir:]"       ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanWanDir:]"       ,GetDirOfOtherEnv(cEnvIP#,"cVanWanDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cWorkDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cWorkDir:]"         ,GetDirOfOtherEnv(cEnvIP#,"cWorkDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cPclDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cPclDir:]"          ,GetDirOfOtherEnv(cEnvIP#,"cPclDir",cOpsysIP#)).
     
     /* This token is always taken from it's own session */
     if index(cPathStringIOP#,"[:bLiveEnv:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:bLiveEnv:]"         ,if sc_environment:bLiveEnv then "live" else "nonlive").

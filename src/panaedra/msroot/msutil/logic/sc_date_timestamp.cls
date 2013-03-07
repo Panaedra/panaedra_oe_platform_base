@@ -46,9 +46,6 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   define public static variable iMsInMinute as int64 no-undo init 60000.  
     
 
-  /* Shouldhave: function in class has gotta go */
-  function englishAbvDate returns character(dtWhenIP# as date) in super.
-
   method public static character EnglishAbvDate(dtmWhenIP# as datetime-tz):
     
     /* Overload for easy acces date version below */
@@ -64,7 +61,41 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
        Format is protected for i.e. E-mail headers, so don't change the format. 
     */
     
-    return englishAbvDate(date(dtWhenIP#)).
+    define variable cMonth# as character no-undo.
+        
+    case month(dtWhenIP#):
+      when 1  then 
+        cMonth# = "Jan".
+      when 2  then 
+        cMonth# = "Feb".
+      when 3  then 
+        cMonth# = "Mar".
+      when 4  then 
+        cMonth# = "Apr".
+      when 5  then 
+        cMonth# = "May".
+      when 6  then 
+        cMonth# = "Jun".
+      when 7  then 
+        cMonth# = "Jul".
+      when 8  then 
+        cMonth# = "Aug".
+      when 9  then 
+        cMonth# = "Sep".
+      when 10 then 
+        cMonth# = "Oct".
+      when 11 then 
+        cMonth# = "Nov".
+      when 12 then 
+        cMonth# = "Dec".
+    end.
+    
+    return 
+      trim(string(day(dtWhenIP#),">9")) 
+      + " " 
+      + cMonth# 
+      + " " 
+      + string(year(dtWhenIP#),"9999").
     
   end method. /* EnglishAbvDate; date */
 
@@ -212,7 +243,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
     if iSecondsIP# <> 0 then iMilliSeconds# = iMilliSeconds# +  1000 * iSecondsIP#.
 
     assign     
-      iDays#     = truncate(dec(iMilliSeconds#) / iMsPerDay#, 0)
+      iDays#      = truncate(dec(iMilliSeconds#) / iMsPerDay#, 0)
       dtInterval# = dtDeltaNull + iDays#. 
   
     return datetime(dtInterval#, iMilliSeconds# mod iMsPerDay#).
@@ -345,7 +376,36 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
     if error-status:num-messages > 0 then iDtmOP#[8] = ?.
   
   end method. /* DatetimeExplodeToInts */
+
+
+  method public static character englishAbvDay(
+    input iDayIP# as integer
+    ):
+    
+    define variable cDay# as character no-undo.
   
+    case iDayIP#:
+      when 1  then 
+        cDay# = "Sun".
+      when 2  then 
+        cDay# = "Mon".
+      when 3  then 
+        cDay# = "Tue".
+      when 4  then 
+        cDay# = "Wed".
+      when 5  then 
+        cDay# = "Thu".
+      when 6  then 
+        cDay# = "Fri".
+      when 7  then 
+        cDay# = "Sat".
+    end.
+  
+    return cDay#.
+  
+  end method. /* englishAbvDay */
+  
+    
 end class.
 
 /* EOF */ 
