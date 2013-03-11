@@ -37,7 +37,7 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
 
   define property bLocked as logical no-undo
     public get.
-    protected set.  
+    public set.  
     
   define property bAvailable as logical no-undo
     public get.
