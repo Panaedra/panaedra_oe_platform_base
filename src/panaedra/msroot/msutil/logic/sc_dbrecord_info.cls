@@ -171,7 +171,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     define variable hBuffer# as handle no-undo.
     define variable hQuery#  as handle no-undo.
     
-    create buffer hBuffer# for table subst("&1._file", cDbIP#).
+    create buffer hBuffer# for table subst("&1._File", cDbIP#).
     create query hQuery#.
     
     if hQuery#:set-buffers(hBuffer#)
@@ -185,12 +185,10 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     end.
   
     finally:
-      
-      if valid-handle(hBuffer#) then  
-        delete object hBuffer#. 
       if valid-handle(hQuery#) then  
         delete object hQuery#. 
-        
+      if valid-handle(hBuffer#) then  
+        delete object hBuffer#. 
     end finally.
   
   end method. /* GetTableInfo */
