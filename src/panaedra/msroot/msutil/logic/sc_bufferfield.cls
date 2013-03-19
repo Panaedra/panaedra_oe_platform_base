@@ -137,6 +137,32 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
     return cSvKeyValues#.     
   
   end method. /* GetKeyFieldValues */
+  
+  
+  method public static handle GetQueryBufferField(
+    input hQueryIP#     as handle,
+    input cTableIP#     as character,
+    input cFieldnameIP# as character
+    ):
+  
+    define variable iBuffer# as integer no-undo.
+    define variable hBuffer# as handle  no-undo.
+    define variable hField#  as handle  no-undo.
+    
+    bZoekBuffer:
+    do iBuffer# = 1 to hQueryIP#:num-buffers :
+      hBuffer# = hQueryIP#:get-buffer-handle(iBuffer#).
+      
+      if hBuffer#:table = cTableIP# then
+      do:
+        hField# = hBuffer#:buffer-field(cFieldnameIP#).
+        leave bZoekBuffer.
+      end.
+    end.
+    
+    return hField#.
+  
+  end method. /* GetQueryBufferField */
 
 end class.
 
