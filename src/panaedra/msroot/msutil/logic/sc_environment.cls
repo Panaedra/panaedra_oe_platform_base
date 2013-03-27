@@ -671,7 +671,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     &if opsys = "unix" &then
     
-    input through hostname.
+    input through "_TOOLING_".
     import cReturn#.
     input close.
     
