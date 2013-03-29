@@ -82,8 +82,29 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
   define property cVstInfo as character no-undo
     public get.
     protected set.
+    
 
   constructor public c_recordstatus(
+    input hBufferIP# as handle
+    ):
+      
+    c_recordstatus_implement(hBufferIP#, "").  
+      
+  end constructor.
+
+    
+
+  constructor public c_recordstatus(
+    input hBufferIP#                as handle,
+    input cParamRecordFindValuesIP# as character
+    ):
+
+    c_recordstatus_implement(hBufferIP#, cParamRecordFindValuesIP#).  
+        
+  end constructor.
+
+  
+  method protected void c_recordstatus_implement(
     input hBufferIP#                as handle,
     input cParamRecordFindValuesIP# as character
     ):
@@ -104,12 +125,16 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
     do:
       if (not hBufferIP#:available) and cParamRecordFindValues > "" then 
         hBufferIP#:find-first(ParamToPrep(hBufferIP#,cParamRecordFindValues),no-lock) no-error.
+        
       if hBufferIP#:available then 
+      do:
         sc_dbrecord_info:GetLockingInfo(hBufferIP#, output cConnectName#, output iPid#, output cDevice#).
-      cVstInfo = subst("ConnectName=&1~nPID=&2~nDevice=&3~nWorkstation=&5", cConnectName#, iPid#, cDevice#, sc_environment:GetWorkstationDescription(cDevice#)).
+        cVstInfo = subst("ConnectName=&1~nPID=&2~nDevice=&3~nWorkstation=&5", cConnectName#, iPid#, cDevice#, sc_environment:GetWorkstationDescription(cDevice#)).
+        cSvKeyValues  = sc_bufferfield:getKeyfieldValues(hBufferIP#, ";").
+      end.
     end.        
       
-  end constructor.
+  end method. /* c_recordstatus_implement */
 
 
   method protected static character ParamToPrep(
@@ -161,25 +186,6 @@ class panaedra.msroot.msutil.logic.c_recordstatus:
     return cReturn#.
 
   end method. /* ParamToPrep */
-
-
-  constructor public c_recordstatus(
-    input hBufferIP# as handle
-    ):
-      
-    /* build a list of fieldsnames/values of the prim.index
-       and save in property cSvKeyValues */
-    
-    assign   
-      cSvKeyValues  = sc_bufferfield:getKeyfieldValues(hBufferIP#, ";")
-      cTableName    = hBufferIP#:table
-      bAvailable    = hBufferIP#:available
-      bLocked       = hBufferIP#:locked
-      bAmbiguous    = hBufferIP#:ambiguous
-      cSeperatorCsv = "|"
-      .  
-      
-  end constructor.
 
 
 end class.
