@@ -505,6 +505,10 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
         b-ttTableInfo.cPersistencyMode = "oe-database"
         .
     end.
+    
+    finally:
+      if valid-handle(hBuff#) then delete object hBuff#.	
+    end finally.
         
   end method. /* GetDbInfo */
   
