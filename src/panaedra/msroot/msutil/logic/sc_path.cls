@@ -376,8 +376,12 @@ class panaedra.msroot.msutil.logic.sc_path:
         do:
           if os-getenv("REPLTARGETACTIVE") = "yes" then
             cIniDir = "/mount/progress__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-          else
-            cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
+          else case os-getenv("ProfileParameter"):
+            when "_PRODUCT_Profile" then cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
+            when "_SRVR_Profile"   then cIniDir = "/mount/progress__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
+            when "otaProfile"    then cIniDir = "/mount/progress__PRODUCT__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
+            otherwise cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
+          end case.
         end.  
       &endif
       
