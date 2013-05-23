@@ -109,17 +109,28 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
     input hBufferIP# as handle,
     input cSeparatorCharIP# as character
     ):
+    
+    return GetKeyFieldValues(hBufferIP#,"",cSeparatorCharIP#).
+      
+  end method. /* GetKeyFieldValues */
+  
+      
+  method public static character GetKeyFieldValues(
+    input hBufferIP# as handle,
+    input cSvKeyValuesIP# as character,
+    input cSeparatorCharIP# as character
+    ):
       
     define variable cKeyfields#   as character no-undo.
     define variable cSvKeyValues# as character no-undo.  
     define variable iField#       as integer   no-undo.
     define variable hField#       as handle    no-undo.
     define variable cFieldname#   as character no-undo.
-      
-    assign
-      cKeyfields#   = getKeyfields(hBufferIP#)
-      cSvKeyValues# = ""
-      .
+    
+    if cSvKeyValuesIP# > "" then  
+      cKeyfields# = cSvKeyValuesIP#.
+    else
+      cKeyfields# = getKeyfields(hBufferIP#).
      
     if hBufferIP#:available then   
     do iField# = 1 to num-entries(cKeyfields#) :
