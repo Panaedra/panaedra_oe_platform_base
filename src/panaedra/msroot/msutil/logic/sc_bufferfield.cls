@@ -59,8 +59,7 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
   
   method public static character getKeyfields(
     /*--------------------------------
-      return then Keyfields of a table
-      based on the primairy index.  
+      return the Keyfields of a table.
       -------------------------------- */
     input hBufferIP# as handle 
     ):
@@ -72,7 +71,7 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
     define variable bPrimary# as log  no-undo.
     define variable bUnique#  as log  no-undo.
   
-    /*-- find the primairy index --*/
+    /*-- find the unique index --*/
     zoek_index:
     do while cIndex# <> ? :
       iIndex# = iIndex# + 1.
@@ -81,12 +80,12 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
       bUnique# = (entry(2, cIndex#) = "1") no-error.
       bPrimary# = (entry(3, cIndex#) = "1") no-error.
   
-      if bUnique# and bPrimary# then
+      if bUnique# then
         leave zoek_index.
     end. /* do */
   
     /*- do we have prim/unique index? -*/
-    if bUnique# and bPrimary# then 
+    if bUnique# then 
     do:
       if valid-handle(hBufferIP#)  
         then 
