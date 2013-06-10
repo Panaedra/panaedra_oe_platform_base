@@ -1,3 +1,5 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.sc_bufferfield: 
@@ -173,6 +175,41 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
     return hField#.
   
   end method. /* GetQueryBufferField */
+  
+  
+  method public static void SetBufferValue(
+    input hBufferIP# as handle,
+    input cFieldnameIP# as character,
+    input cValueIP# as character
+    ):
+      
+    define variable hField# as handle no-undo.  
+      
+    if hBufferIP#:available then
+    do:
+      hField# = hBufferIP#:buffer-field(cFieldnameIP#).
+      
+      case hField#:data-type:
+        when "integer" then
+          hField#:buffer-value = integer(cValueIP#).
+        when "decimal" then
+          hField#:buffer-value = decimal(cValueIP#).
+        when "date" then
+          hField#:buffer-value = date(cValueIP#).
+        when "character" then
+          hField#:buffer-value = string(cValueIP#).
+        
+        otherwise
+          undo, throw new c_panaedraexception(
+            99950104,
+            sc_lang:oEnglish,
+            substitute("Datatype '&1' not implemented (yet).", hField#:data-type)
+            ).
+      end case.
+      
+    end.  
+  
+  end method. /* SetBufferValue */
 
 end class.
 
