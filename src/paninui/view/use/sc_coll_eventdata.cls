@@ -1206,6 +1206,10 @@ class paninui.view.use.sc_coll_eventdata
           if ttUiEvent.cSvFilterKeyCode > "" 
             and lookup(string(oFormsKeyPressArgs#:KeyChar), ttUiEvent.cSvFilterKeyCode) = 0 
             then next b_EachUiEvent.
+          if ttUiEvent.cSvFilterKeyCodeNoFocus > "" 
+            and ttUiEvent.iPackID <> iFocusPackID#
+            and lookup(string(oFormsKeyPressArgs#:KeyChar), ttUiEvent.cSvFilterKeyCodeNoFocus) = 0 
+            then next b_EachUiEvent.
           /*            cCasedLetter#  = string(oFormsKeyPressArgs#:KeyChar).                                                  */
           /*          if length(cCasedLetter#) <> 1 then cCasedLetter# = "".                                                   */
           /*          if                                                                                                       */
@@ -1325,6 +1329,10 @@ class paninui.view.use.sc_coll_eventdata
           if ttUiEvent.cSvFilterKeyCode > "" 
             and lookup(string(oFormsKeyArgs#:KeyCode), ttUiEvent.cSvFilterKeyCode) = 0 
             then next b_EachUiEvent.
+          if ttUiEvent.cSvFilterKeyCodeNoFocus > "" 
+            and ttUiEvent.iPackID <> iFocusPackID#
+            and lookup(string(oFormsKeyArgs#:KeyCode), ttUiEvent.cSvFilterKeyCodeNoFocus) = 0 
+            then next b_EachUiEvent.
           if length(cCasedLetter#) <> 1 then cCasedLetter# = "".
           if 
             (asc(cCasedLetter#) >= asc("A") and asc(cCasedLetter#) <= asc("Z"))
@@ -1420,6 +1428,10 @@ class paninui.view.use.sc_coll_eventdata
             cCasedLetter#  = string(oFormsKeyArgs#:KeyCode).
           if ttUiEvent.cSvFilterKeyCode > "" 
             and lookup(string(oFormsKeyArgs#:KeyCode), ttUiEvent.cSvFilterKeyCode) = 0 
+            then next b_EachUiEvent.
+          if ttUiEvent.cSvFilterKeyCodeNoFocus > "" 
+            and ttUiEvent.iPackID <> iFocusPackID#
+            and lookup(string(oFormsKeyArgs#:KeyCode), ttUiEvent.cSvFilterKeyCodeNoFocus) = 0 
             then next b_EachUiEvent.
           if length(cCasedLetter#) <> 1 then cCasedLetter# = "".
           if 
@@ -2077,6 +2089,15 @@ class paninui.view.use.sc_coll_eventdata
             iStart#                    = iIndex# + length("|cSvFilterKeyCode=") - 1
             iLength#                   = index("|" + cSvEventOptionIP# + "|", "|", iStart#) - iStart# - 1
             ttUiEvent.cSvFilterKeyCode = substring(cSvEventOptionIP#, iStart#, iLength#).
+        end.
+          
+        if "|" + cSvEventOptionIP# + "|" matches "*|cSvFilterKeyCodeNoFocus=*" then 
+        do:
+          assign
+            iIndex#                           = index("|" + cSvEventOptionIP#, "|cSvFilterKeyCodeNoFocus=")
+            iStart#                           = iIndex# + length("|cSvFilterKeyCodeNoFocus=") - 1
+            iLength#                          = index("|" + cSvEventOptionIP# + "|", "|", iStart#) - iStart# - 1
+            ttUiEvent.cSvFilterKeyCodeNoFocus = substring(cSvEventOptionIP#, iStart#, iLength#).
         end.
           
       end.

@@ -29,10 +29,11 @@ procedure dvcs__paninui_view_use_sc_coll_eventdata_tt_i: return "$Revision: 7 $"
     field hWidget          as handle  
     field cWidgetName      as character            format "x(50)" xml-node-type "attribute" 
     
-    field cEventName       as character            format "x(50)"               xml-node-type "attribute"
-    field cEventType       as character            format "x(50)"               xml-node-type "attribute"
-    field cEventOptions    as character            format "x(50)"               xml-node-type "attribute"
-    field cSvFilterKeyCode as character            format "x(50)"               xml-node-type "attribute"
+    field cEventName              as character            format "x(50)"               xml-node-type "attribute"
+    field cEventType              as character            format "x(50)"               xml-node-type "attribute"
+    field cEventOptions           as character            format "x(50)"               xml-node-type "attribute"
+    field cSvFilterKeyCode        as character            format "x(50)"               xml-node-type "attribute" /* Filter applies always */
+    field cSvFilterKeyCodeNoFocus as character            format "x(50)"               xml-node-type "attribute" /* Filter applies only when the focus is not in a frame of the pack */
     index iIDUiEvent       is unique iIDUiEvent ascending 
     
     index oWidget_EventType_Delegate     is primary unique oWidget cEventType iDelegateID
