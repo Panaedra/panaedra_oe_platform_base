@@ -26,7 +26,7 @@ class paninui.view.use.sc_coll_eventdata
 
   \*****************************  Include Files ********************************/
 
-  {paninui/view/use/sc_coll_eventdata_tt.i &protected=protected &static=static &class=class}
+{paninui/view/use/sc_coll_eventdata_tt.i &protected=protected &static=static &class=class}
   
   /************************  Source control constructor ************************/
   constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
@@ -688,15 +688,26 @@ class paninui.view.use.sc_coll_eventdata
     define variable bEclipseFix#      as logical                           no-undo.
     define variable oUiValue#         as paninui.view.interfaces.i_uivalue no-undo.
     define variable iSuspendedPackID# as int64                             no-undo.
+    define variable bFirst#           as logical                           no-undo init true.
+    define variable oFocus#           as Progress.Lang.Object              no-undo.
+    define variable iFocusPackID#     as int64                             no-undo.
+    define variable cFocusLinkName#   as character                         no-undo.
     
     define buffer b-ttUiEvent for ttUiEvent.
 
     for each b-ttUiEvent where b-ttUiEvent.oWidget = oSender# and b-ttUiEvent.cEventType = "PositionChanged"
       on error undo,throw:
+      
+      if bFirst# then 
+      do:
+        bFirst# = false.
+        oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+        paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+      end.
           
       iSuspendedPackID# = EvtSuspendedEvent("query", "PositionChanged", oSender#, b-ttUiEvent.iDelegateID).
       if iSuspendedPackID# = 0 then 
-        sc_coll_delegatedata:InvokeEventHandler(b-ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        sc_coll_delegatedata:InvokeEventHandler(b-ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
       else 
       do:
       /* Normally we would have to store data for the suspended event here. 
@@ -719,6 +730,10 @@ class paninui.view.use.sc_coll_eventdata
     define variable oUiValue#         as paninui.view.interfaces.i_uivalue no-undo.
     define variable oSelection#       as c_uivalue_selection               no-undo.
     define variable bFirst#           as logical                           no-undo init true.
+
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define variable iSuspendedPackID# as int64                             no-undo.
     define buffer ttUiEvent for ttUiEvent.
@@ -739,11 +754,14 @@ class paninui.view.use.sc_coll_eventdata
           
           if bFirst# then 
           do:
-            bFirst# = false.
-            oSelection# = paninui.view.use.analyze.sc_getuiframevalues:_sys_GetUiValueSelectionImplement(ttUiEvent.oWidget, "Rows", 25 /* Limit num rows to 25 in UI events */).
+            assign
+              bFirst#     = false
+              oSelection# = paninui.view.use.analyze.sc_getuiframevalues:_sys_GetUiValueSelectionImplement(ttUiEvent.oWidget, "Rows", 25 /* Limit num rows to 25 in UI events */)
+              oFocus#     = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+            paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
           end.  
 
-          sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oSelection#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+          sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oSelection#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
           
         end. 
 
@@ -763,6 +781,11 @@ class paninui.view.use.sc_coll_eventdata
     
     define variable bEclipseFix# as logical                           no-undo.
     define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -770,7 +793,13 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "SortRequest"
         on error undo,throw:
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -785,8 +814,11 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_ColumnSortModeChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix# as logical                           no-undo.
     define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -794,7 +826,13 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "ColumnSortModeChanged"
         on error undo,throw:
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -812,6 +850,11 @@ class paninui.view.use.sc_coll_eventdata
     define variable bEclipseFix#  as logical                               no-undo.
     define variable oUiValue#     as paninui.view.interfaces.i_uivalue     no-undo.
     define variable oUiEventData# as paninui.view.use.events.c_uieventdata no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -819,7 +862,13 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "CurrentCellChanged"
         on error undo,throw:
-        oUiEventData# = new paninui.view.use.events.c_uieventdata("Allowed:Request_PositionChanged","",?,?).
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
+        oUiEventData# = new paninui.view.use.events.c_uieventdata("Allowed:Request_PositionChanged","",?,ttUiEvent.iPackID,iFocusPackID#,?).
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, oUiEventData#).
         if oUiEventData#:cData = "Request_PositionChanged" then 
         do:
@@ -861,6 +910,11 @@ class paninui.view.use.sc_coll_eventdata
     define variable oWpfButton#              as System.Windows.Controls.Button         no-undo.
     define variable oUiValue#                as paninui.view.interfaces.i_uivalue      no-undo.
     define variable bInvokePrepared#         as logical                                no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
         
     define buffer ttUiEvent for ttUiEvent.
     
@@ -922,7 +976,14 @@ class paninui.view.use.sc_coll_eventdata
             oUiValue#        = new c_uivalue_button(oSender#:ToString(), ?, ?, ?).
         end.
         
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
+
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
         
       end.
       
@@ -942,6 +1003,11 @@ class paninui.view.use.sc_coll_eventdata
     define variable oComboBox#   as System.Windows.Forms.ComboBox     no-undo.
     define variable oTextBox#    as System.Windows.Forms.TextBox      no-undo.
     define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -949,6 +1015,12 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "TextChanged"
         on error undo,throw:
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
         if type-of(oSender#, System.Windows.Forms.ComboBox) then 
         do:
           assign
@@ -961,7 +1033,7 @@ class paninui.view.use.sc_coll_eventdata
               oTextBox# = cast(oSender#, System.Windows.Forms.TextBox)
               oUiValue# = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oTextBox#,oTextBox#:Name,""), oTextBox#:Enabled, oTextBox#:Visible, oTextBox#:Text).
           end.
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -983,6 +1055,11 @@ class paninui.view.use.sc_coll_eventdata
     define variable oUiEventData#     as paninui.view.use.events.c_uieventdata_combobox no-undo.
     define variable bHandled#         as logical                                        no-undo.
     define variable cPreviousText#    as character                                      no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -998,7 +1075,14 @@ class paninui.view.use.sc_coll_eventdata
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "SelectionChangeCommitted"
         on error undo,throw:
           
-        oUiEventData# = new paninui.view.use.events.c_uieventdata_combobox("","",?,?).
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
+        
+        oUiEventData# = new paninui.view.use.events.c_uieventdata_combobox("","",?,ttUiEvent.iPackID,iFocusPackID#,?).
         
         if type-of(oSender#, System.Windows.Forms.ComboBox) then 
         do:
@@ -1036,6 +1120,11 @@ class paninui.view.use.sc_coll_eventdata
     
     define variable oComboBox# as System.Windows.Forms.ComboBox     no-undo.
     define variable oUiValue#  as paninui.view.interfaces.i_uivalue no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1043,13 +1132,19 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "SelectedValueChanged"
         on error undo,throw:
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
         if type-of(oSender#, System.Windows.Forms.ComboBox) then 
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
         end.
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -1067,6 +1162,11 @@ class paninui.view.use.sc_coll_eventdata
     define variable oComboBox#   as System.Windows.Forms.ComboBox     no-undo.
     define variable oTabControl# as System.Windows.Forms.TabControl   no-undo.
     define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1074,6 +1174,12 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "SelectedIndexChanged"
         on error undo,throw:
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
         if type-of(oSender#, System.Windows.Forms.ComboBox) then 
         do:
           assign
@@ -1087,7 +1193,7 @@ class paninui.view.use.sc_coll_eventdata
               oTabControl# = cast(oSender#, System.Windows.Forms.TabControl)
               oUiValue#    = new c_uivalue_groupframe(sc_coll_widgetdata:WidgetNameToLinkName(oTabControl#,oTabControl#:Name,""), oTabControl#:Enabled, oTabControl#:Visible, oTabControl#:SelectedIndex).
           end.
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -1104,6 +1210,11 @@ class paninui.view.use.sc_coll_eventdata
                                                      
     define variable oComboBox# as System.Windows.Forms.ComboBox     no-undo.
     define variable oUiValue#  as paninui.view.interfaces.i_uivalue no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1111,13 +1222,19 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "DropDown"
         on error undo,throw:
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
         if type-of(oSender#, System.Windows.Forms.ComboBox) then 
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
         end.
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -1134,6 +1251,11 @@ class paninui.view.use.sc_coll_eventdata
                                                      
     define variable oComboBox# as System.Windows.Forms.ComboBox     no-undo.
     define variable oUiValue#  as paninui.view.interfaces.i_uivalue no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1141,13 +1263,19 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "DropDownClosed"
         on error undo,throw:
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
         if type-of(oSender#, System.Windows.Forms.ComboBox) then 
         do:
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
         end.
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -1167,12 +1295,13 @@ class paninui.view.use.sc_coll_eventdata
     define variable oFormsKeyPressArgs# as System.Windows.Forms.KeyPressEventArgs         no-undo.
     define variable oUiValue#           as paninui.view.interfaces.i_uivalue              no-undo.
     define variable oUiEventData#       as paninui.view.use.events.c_uieventdata_keypress no-undo.
+    define variable iAscii#             as integer                                        no-undo.
+    define variable bHandled#           as logical                                        no-undo.
+
     define variable bFirst#             as logical                                        no-undo init true.
     define variable oFocus#             as Progress.Lang.Object                           no-undo.
     define variable iFocusPackID#       as int64                                          no-undo.
     define variable cFocusLinkName#     as character                                      no-undo.
-    define variable iAscii#             as integer                                        no-undo.
-    define variable bHandled#           as logical                                        no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1221,7 +1350,7 @@ class paninui.view.use.sc_coll_eventdata
           /*          end.                                                                                                     */
           /*          else cCasedLetter# = "". /* Platform user should use cKeyArgs for special characters, not cCasedLetter */*/
           assign
-            oUiEventData# = new c_uieventdata_keypress("","",?,?, 
+            oUiEventData# = new c_uieventdata_keypress("","",?,ttUiEvent.iPackID,iFocusPackID#,?, 
             string(oFormsKeyPressArgs#:KeyChar)).
         end.
         
@@ -1349,7 +1478,7 @@ class paninui.view.use.sc_coll_eventdata
           end.
           else cCasedLetter# = "". /* Platform user should use cKeyArgs for special characters, not cCasedLetter */
           assign
-            oUiEventData# = new c_uieventdata_key("","",?,?, 
+            oUiEventData# = new c_uieventdata_key("","",?,ttUiEvent.iPackID,iFocusPackID#,?, 
             string(oFormsKeyArgs#:KeyCode), 
             cCasedLetter#,
             oFormsKeyArgs#:Shift, oFormsKeyArgs#:Control, oFormsKeyArgs#:Alt).
@@ -1449,7 +1578,7 @@ class paninui.view.use.sc_coll_eventdata
           end.
           else cCasedLetter# = "". /* Platform user should use cKeyArgs for special characters, not cCasedLetter */
           assign
-            oUiEventData# = new c_uieventdata_key("","",?,?, 
+            oUiEventData# = new c_uieventdata_key("","",?,ttUiEvent.iPackID,iFocusPackID#,?, 
             string(oFormsKeyArgs#:KeyCode), 
             cCasedLetter#,
             oFormsKeyArgs#:Shift, oFormsKeyArgs#:Control, oFormsKeyArgs#:Alt).
@@ -1487,6 +1616,11 @@ class paninui.view.use.sc_coll_eventdata
     define variable oFormsGridArgs# as System.Windows.Forms.DataGridViewCellCancelEventArgs no-undo.
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue                    no-undo.
     define variable iIDCurrentRow#  as int64                                                no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1494,6 +1628,12 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "CellBeginEdit"
         on error undo,throw:
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
         if type-of(oSender#, System.Windows.Forms.DataGridView) then 
         do:
           assign
@@ -1508,7 +1648,7 @@ class paninui.view.use.sc_coll_eventdata
           entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_")
           ]:Value:ToString()) no-error.
             
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,?, iIDCurrentRow#)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,ttUiEvent.iPackID,iFocusPackID#,?, iIDCurrentRow#)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -1528,6 +1668,11 @@ class paninui.view.use.sc_coll_eventdata
     define variable oFormsGridArgs# as System.Windows.Forms.DataGridViewCellEventArgs no-undo.
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue              no-undo.
     define variable iIDCurrentRow#  as int64                                          no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1535,6 +1680,12 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "CellContentClick"
         on error undo,throw:
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
         if type-of(oSender#, System.Windows.Forms.DataGridView) then 
         do:
           assign
@@ -1553,7 +1704,7 @@ class paninui.view.use.sc_coll_eventdata
           entry(num-entries(oFormsGrid#:Name,"_"),oFormsGrid#:Name,"_")
           ]:Value:ToString()) no-error.
             
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,?, iIDCurrentRow#)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,ttUiEvent.iPackID,iFocusPackID#,?, iIDCurrentRow#)).
         
       end.
       
@@ -1573,6 +1724,11 @@ class paninui.view.use.sc_coll_eventdata
     define variable oFormsGrid#     as System.Windows.Forms.DataGridView              no-undo.
     define variable oFormsGridArgs# as System.Windows.Forms.DataGridViewCellEventArgs no-undo.
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue              no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1580,6 +1736,12 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "CellEndEdit"
         on error undo,throw:
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
         if type-of(oSender#, System.Windows.Forms.DataGridView) then 
         do:
           assign
@@ -1587,7 +1749,7 @@ class paninui.view.use.sc_coll_eventdata
             oFormsGridArgs# = cast(oArgs#, System.Windows.Forms.DataGridViewCellEventArgs)
             oUiValue#       = new c_uivalue_griditem(sc_coll_widgetdata:WidgetNameToLinkName(oFormsGrid#,oFormsGrid#:Name,""), oFormsGrid#:Enabled, oFormsGrid#:Visible).
         end.
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,?,1234)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,ttUiEvent.iPackID,iFocusPackID#,?,1234)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -1606,6 +1768,11 @@ class paninui.view.use.sc_coll_eventdata
     define variable oFormsGrid#     as System.Windows.Forms.DataGridView              no-undo.
     define variable oFormsGridArgs# as System.Windows.Forms.DataGridViewCellEventArgs no-undo.
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue              no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1613,6 +1780,12 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "CellValueChanged"
         on error undo,throw:
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
         if type-of(oSender#, System.Windows.Forms.DataGridView) then 
         do:
           assign
@@ -1620,7 +1793,7 @@ class paninui.view.use.sc_coll_eventdata
             oFormsGridArgs# = cast(oArgs#, System.Windows.Forms.DataGridViewCellEventArgs)
             oUiValue#       = new c_uivalue_griditem(sc_coll_widgetdata:WidgetNameToLinkName(oFormsGrid#,oFormsGrid#:Name,""), oFormsGrid#:Enabled, oFormsGrid#:Visible).
         end.
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,?,1234)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,ttUiEvent.iPackID,iFocusPackID#,?,1234)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -1638,6 +1811,11 @@ class paninui.view.use.sc_coll_eventdata
     define variable bEclipseFix# as logical                           no-undo.
     define variable oFormsGrid#  as System.Windows.Forms.DataGridView no-undo.
     define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+
+    define variable bFirst#             as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1646,13 +1824,19 @@ class paninui.view.use.sc_coll_eventdata
       if not bSuspendCurrentCellDirtyStateChanged then
         for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "CellValueChanged"
           on error undo,throw:
+          if bFirst# then 
+          do:
+            bFirst# = false.
+            oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+            paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+          end.  
           if type-of(oSender#, System.Windows.Forms.DataGridView) then 
           do:
             assign
               oFormsGrid# = cast(oSender#, System.Windows.Forms.DataGridView)
               oUiValue#   = new c_uivalue_griditem(sc_coll_widgetdata:WidgetNameToLinkName(oFormsGrid#,oFormsGrid#:Name,""), oFormsGrid#:Enabled, oFormsGrid#:Visible).
           end.
-          sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,?,1234)).
+          sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata_griditem("","",?,ttUiEvent.iPackID,iFocusPackID#,?,1234)).
           if type-of(oSender#, System.Windows.Forms.DataGridView) then 
           do:
             bSuspendCurrentCellDirtyStateChanged = true.
@@ -1767,7 +1951,7 @@ class paninui.view.use.sc_coll_eventdata
       */      
       for each ttUiEvent where ttUiEvent.hWidget = oQryIP#:sys__hQuery and ttUiEvent.cEventType = "QueryOpen"
         on error undo,throw:
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, ?,new paninui.view.use.events.c_uieventdata("","",?,?)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, ?,new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,?,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -1796,7 +1980,7 @@ class paninui.view.use.sc_coll_eventdata
       */      
       for each ttUiEvent where ttUiEvent.hWidget = oQryIP#:sys__hQuery and ttUiEvent.cEventType = "QueryClose"
         on error undo,throw:
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, ?,new paninui.view.use.events.c_uieventdata("","",?,?)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, ?,new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,?,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -1825,7 +2009,7 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.hWidget = oBindIP#:Handle and ttUiEvent.cEventType = "QueryOpen"
         on error undo,throw:
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, ?, new paninui.view.use.events.c_uieventdata("","",?,?)).
+        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, ?, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,?,?)).
       end.
       
       catch ex as Progress.Lang.Error:
@@ -1962,6 +2146,11 @@ class paninui.view.use.sc_coll_eventdata
     define variable oUiEventData#      as i_uieventdata no-undo.
     define variable bFirst#            as logical       no-undo init true.
     define variable oUiValueSelection# as i_uivalue     no-undo.
+
+    define variable bFirstFocus#        as logical                                        no-undo init true.
+    define variable oFocus#             as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#       as int64                                          no-undo.
+    define variable cFocusLinkName#     as character                                      no-undo.
     
     define buffer ttEventsSuspend   for ttEventsSuspend.
     define buffer b-ttEventsSuspend for ttEventsSuspend.
@@ -1983,6 +2172,13 @@ class paninui.view.use.sc_coll_eventdata
         for each ttEventsSuspend 
           by ttEventsSuspend.iIDEventsSuspend descending
           on error undo, throw:
+
+          if bFirstFocus# then 
+          do:
+            bFirstFocus# = false.
+            oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+            paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+          end.  
           
           case ttEventsSuspend.cEventType:
           
@@ -2018,7 +2214,7 @@ class paninui.view.use.sc_coll_eventdata
                   if ttEventsSuspend.oUiValue <> ? then oUiValue# = cast(ttEventsSuspend.oUiValue,i_uivalue).
                   if ttEventsSuspend.oUiEventData <> ? then oUiEventData# = cast(ttEventsSuspend.oUiEventData,i_uieventdata).
                   
-                  if oUiEventData# = ? then oUiEventData# = new paninui.view.use.events.c_uieventdata("","",?,?).
+                  if oUiEventData# = ? then oUiEventData# = new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?).
                   
                   sc_coll_delegatedata:InvokeEventHandler(
                     ttEventsSuspend.iDelegateID, 

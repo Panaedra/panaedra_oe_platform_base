@@ -114,6 +114,30 @@ class paninui.view.use.sc_coll_widgetdata
   end method. /* HidePackFrames */
 
   
+  method public static void ShowPackFrames (iPackIDIP# as int64):
+
+    def buffer ttUIFrame for ttUIFrame.
+    
+    do for ttUIFrame:
+      
+      find first ttUIFrame where ttUIFrame.iPackID = iPackIDIP#  no-error.
+      
+      if avail ttUIFrame then 
+      do:
+        &if not {&paninui_tty} &then
+        if valid-object(ttUIFrame.oFrame) and type-of(ttUIFrame.oFrame, System.Windows.Forms.Control) 
+          then do:
+            cast(ttUIFrame.oFrame, System.Windows.Forms.Control):Visible = true.
+            cast(ttUIFrame.oFrame, System.Windows.Forms.Control):BringToFront().
+          end.
+        &endif
+      end.
+      
+    end.
+    
+  end method. /* ShowPackFrames */
+
+  
   method public static int64 ItemAdd (
     input  oWidgettypeGridOVID# as i_widgettype_grid, /* *OVID# is not a real parameter, but an interface overload ID */
     input  iIDUIFrameIP#        as int64,

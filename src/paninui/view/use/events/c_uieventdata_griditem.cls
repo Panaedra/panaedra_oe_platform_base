@@ -32,18 +32,21 @@ class paninui.view.use.events.c_uieventdata_griditem
     &glob Generic_Object System.Object
   &endif
   
-  define public property iIDCurrentRow as int64 get. 
+  define public property iIDCurrentRow as int64 no-undo get. 
     protected set.
   
   
   constructor private c_uieventdata_griditem(
   
-    cInfoIP# as character, 
-    cDataIP# as character, 
-    oObjectIP# as {&Generic_Object}, 
-    oUiValueIP# as paninui.view.interfaces.i_uivalue):
+    cInfoIP#        as character, 
+    cDataIP#        as character, 
+    oObjectIP#      as {&Generic_Object}, 
+    iPackIdIP#      as int64, 
+    iFocusPackIdIP# as int64, 
+    oUiValueIP#     as paninui.view.interfaces.i_uivalue)
+  :
 
-    super(cInfoIP#,cDataIP#,oObjectIP#,oUiValueIP#).
+    super(cInfoIP#,cDataIP#,oObjectIP#,iPackIdIP#,iFocusPackIdIP#,oUiValueIP#).
     
   end constructor.
 
@@ -53,15 +56,19 @@ class paninui.view.use.events.c_uieventdata_griditem
     cInfoIP#         as character, 
     cDataIP#         as character, 
     oObjectIP#       as {&Generic_Object}, 
+    iPackIdIP#       as int64, 
+    iFocusPackIdIP#  as int64, 
     oUiValueIP#      as paninui.view.interfaces.i_uivalue,
-    iIDCurrentRowIP#      as int64):
+    iIDCurrentRowIP# as int64):
     
-    super(cInfoIP#,cDataIP#,oObjectIP#,oUiValueIP#).
+    super(cInfoIP#,cDataIP#,oObjectIP#,iPackIdIP#,iFocusPackIdIP#,oUiValueIP#).
       
     assign 
       cInfo         = cInfoIP#
       cData         = cDataIP#
       oObject       = oObjectIP#
+      iPackID       = iPackIdIP#
+      iFocusPackId  = iFocusPackIdIP#
       oUiValue      = oUiValueIP#
       iIDCurrentRow = iIDCurrentRowIP#.
   

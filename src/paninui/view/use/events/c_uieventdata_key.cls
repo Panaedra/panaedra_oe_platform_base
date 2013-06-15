@@ -34,24 +34,26 @@ class paninui.view.use.events.c_uieventdata_key
   
   define public variable cCasedLetter as character no-undo case-sensitive.
   
-  define public property cKeyCode as character get. 
+  define public property cKeyCode as character no-undo get. 
     protected set.
-  define public property bShift as logical get. 
+  define public property bShift as logical no-undo get. 
     protected set.
-  define public property bCtrl as logical get. 
+  define public property bCtrl as logical no-undo get. 
     protected set.
-  define public property bAlt as logical get. 
+  define public property bAlt as logical no-undo get. 
     protected set.
   
   
   constructor private c_uieventdata_key(
   
-    cInfoIP# as character, 
-    cDataIP# as character, 
-    oObjectIP# as {&Generic_Object}, 
-    oUiValueIP# as paninui.view.interfaces.i_uivalue):
+    cInfoIP#        as character, 
+    cDataIP#        as character, 
+    oObjectIP#      as {&Generic_Object}, 
+    iPackIdIP#      as int64, 
+    iFocusPackIdIP# as int64, 
+    oUiValueIP#     as paninui.view.interfaces.i_uivalue):
 
-    super(cInfoIP#,cDataIP#,oObjectIP#,oUiValueIP#).
+    super(cInfoIP#,cDataIP#,oObjectIP#,iPackIdIP#,iFocusPackIdIP#,oUiValueIP#).
     
   end constructor.
 
@@ -61,6 +63,8 @@ class paninui.view.use.events.c_uieventdata_key
     cInfoIP#         as character, 
     cDataIP#         as character, 
     oObjectIP#       as {&Generic_Object}, 
+    iPackIdIP#       as int64, 
+    iFocusPackIdIP#  as int64, 
     oUiValueIP#      as paninui.view.interfaces.i_uivalue,
     cKeyCodeIP#      as character,
     cCasedLetterIP#  as character,
@@ -68,12 +72,13 @@ class paninui.view.use.events.c_uieventdata_key
     bCtrlIP#         as logical,
     bAltIP#          as logical):
     
-    super(cInfoIP#,cDataIP#,oObjectIP#,oUiValueIP#).
+    super(cInfoIP#,cDataIP#,oObjectIP#,iPackIdIP#,iFocusPackIdIP#,oUiValueIP#).
       
     assign 
       cInfo        = cInfoIP#
       cData        = cDataIP#
       oObject      = oObjectIP#
+      iPackID      = iPackIdIP#
       oUiValue     = oUiValueIP#
       cKeyCode     = cKeyCodeIP#
       cCasedLetter = cCasedLetterIP#

@@ -32,16 +32,18 @@ class paninui.view.use.events.c_uieventdata_handled
     &glob Generic_Object System.Object
   &endif
   
-  define public property bHandled as logical get. set.
+  define public property bHandled as logical no-undo get. set.
   
   constructor public c_uieventdata_handled(
   
-    cInfoIP# as character, 
-    cDataIP# as character, 
-    oObjectIP# as {&Generic_Object}, 
-    oUiValueIP# as paninui.view.interfaces.i_uivalue):
+    cInfoIP#        as character, 
+    cDataIP#        as character, 
+    oObjectIP#      as {&Generic_Object}, 
+    iPackIdIP#      as int64, 
+    iFocusPackIdIP# as int64, 
+    oUiValueIP#     as paninui.view.interfaces.i_uivalue):
 
-    super(cInfoIP#,cDataIP#,oObjectIP#,oUiValueIP#).
+    super(cInfoIP#,cDataIP#,oObjectIP#,iPackIdIP#,iFocusPackIdIP#,oUiValueIP#).
     
   end constructor.
 
