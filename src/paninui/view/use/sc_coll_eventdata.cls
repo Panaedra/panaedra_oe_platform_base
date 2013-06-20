@@ -1015,6 +1015,7 @@ class paninui.view.use.sc_coll_eventdata
       
       for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "TextChanged"
         on error undo,throw:
+          
         if bFirst# then 
         do:
           bFirst# = false.
@@ -1023,6 +1024,13 @@ class paninui.view.use.sc_coll_eventdata
         end.  
         if type-of(oSender#, System.Windows.Forms.ComboBox) then 
         do:
+          
+/*          oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox).*/
+/*          message "2" skip                                           */
+/*          oComboBox#:Name skip                                       */
+/*          oComboBox#:SelectedValue                                   */
+/*            view-as alert-box.                                       */
+          
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
