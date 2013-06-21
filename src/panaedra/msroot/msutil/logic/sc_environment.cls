@@ -19,7 +19,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
 
   \*****************************  Include Files ********************************/
 {panaedra/msroot/msutil/logic/ds/msenvironment_ds.i &class=class &protected=protected &static=static}
-
+{panaedra/msroot/msutil/logic/sc_environment_sub.i &class=class}
   /************************  Source control constructor ************************/
   constructor public sc_environment(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
@@ -392,21 +392,37 @@ class panaedra.msroot.msutil.logic.sc_environment:
     define variable cParent# as character no-undo.
     define variable cTempID# as character no-undo.
     define variable cLine#   as character no-undo.
+    define variable iReturn# as integer no-undo.
         
     &if opsys = "unix" &then
     
-    cTempID# = "$A" + replace(guid,"-","").
- 
-    input through value("ps -ef | grep $$ " + cTempID#).
- 
-    repeat on error undo, throw:
-      import unformatted cLine#.
-      if cLine# matches "*grep $$ " + cTempID# + "*" then
-      do:
-        /* Get the parent process id from the temporary shell/fork */
-        cParent# = substring(cLine#,18,7).
-        leave.
+    if search({&UnixGetPidLib}) = ? then do:
+      
+      /* Do it the old way that does not work 100 percent OK all the time */
+      
+      cTempID# = "$A" + replace(guid,"-","").
+   
+      input through value("ps -ef | grep $$ " + cTempID#).
+   
+      repeat on error undo, throw:
+        import unformatted cLine#.
+        if cLine# matches "*grep $$ " + cTempID# + "*" then
+        do:
+          /* Get the parent process id from the temporary shell/fork */
+          cParent# = substring(cLine#,18,7).
+          leave.
+        end.
       end.
+      
+      iReturn# = integer(cParent#).
+      
+    end.
+    else do:
+      
+      /* Do it the new way that does work 100 percent OK, but is dependent on a custom dll/shared object. */
+      
+      run panaedra/msroot/msutil/logic/sc_environment_sub_unix_getpid.p (output iReturn#).
+      
     end.
     
     &else
@@ -415,7 +431,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     &endif /* unix only */
    
-    return integer(cParent#).
+    return iReturn#. 
 
     &else /* win32 gui */
     
