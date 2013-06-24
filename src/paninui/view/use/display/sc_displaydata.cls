@@ -384,7 +384,7 @@ class paninui.view.use.display.sc_displaydata   :
           do on error undo, throw:
             oComboBox#:ValueMember   = subst("iID&1", cCased#).
             catch ex as Progress.Lang.Error :
-            	 undo, throw new Progress.Lang.AppError(subst("ValueMember of combobox could not be set. Does your temp-table contain a &1 field?", subst("iID&1", cCased#)), 99950823).
+              undo, throw new Progress.Lang.AppError(subst("ValueMember of combobox could not be set. Does your temp-table contain a &1 field?", subst("iID&1", cCased#)), 99950823).
             end catch.
           end.
         end.
@@ -567,10 +567,12 @@ class paninui.view.use.display.sc_displaydata   :
         end.
         
         case cPropertyIP#: 
+          
           when "Focus" then 
             do:
               if oFormsControl# <> ? then oFormsControl#:Focus().
             end.
+            
         end case.
       end.
     end.
@@ -883,12 +885,15 @@ class paninui.view.use.display.sc_displaydata   :
     /* Directly set any property of any widget to a new value, without databinding.
      */
     
-    oWidgetIP#    as Progress.Lang.Object,
+    oWidgetIP#      as Progress.Lang.Object,
     cPropertyIP#    as character,
     cValueIP#       as character):
 
-    define variable oControl# as System.Object        no-undo.
-    define variable oValue#   as Progress.Lang.Object no-undo.
+    define variable oControl#       as System.Object                 no-undo.
+    define variable oValue#         as Progress.Lang.Object          no-undo.
+    define variable bEnumProperty#  as logical                       no-undo.
+
+    define variable oFormsCombobox# as System.Windows.Forms.ComboBox no-undo.
 
     /* We only support Text objects for cValueIP#, and we can convert this to other objects
        later in time 
@@ -897,11 +902,50 @@ class paninui.view.use.display.sc_displaydata   :
     if valid-object(oWidgetIP#) then 
     do:
       RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cValueIP#, output oValue#).
-      oControl# = cast(oWidgetIP#, System.Object).
-      if oValue# <> ? then
-        paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cast(oValue#,System.Object)).
-      else
-        paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cValueIP#).
+      
+      if type-of(oWidgetIP#, System.Windows.Forms.ComboBox) then 
+      do:
+        oFormsCombobox# = cast(oWidgetIP#, System.Windows.Forms.ComboBox).
+        bEnumProperty# = yes.
+        
+        case cPropertyIP#:
+          
+          when "DropDownStyle" then 
+            case cValueIP# :
+              when "Simple" then
+                oFormsCombobox#:DropDownStyle = System.Windows.Forms.ComboBoxStyle:Simple.
+              when "DropDown" then
+                oFormsCombobox#:DropDownStyle = System.Windows.Forms.ComboBoxStyle:DropDown.
+              when "DropDownList" then
+                oFormsCombobox#:DropDownStyle = System.Windows.Forms.ComboBoxStyle:DropDownList.
+              otherwise 
+              undo, throw new c_panaedraexception(
+                99908672,
+                sc_lang:oEnglish,
+                substitute("Unsupported value '&1' for property 'DropDownStyle'", cValueIP#)
+                ).
+                
+            end case.
+            
+          otherwise  
+            bEnumProperty# = no.
+          
+        end case.     
+         
+      end. /* if type-of ... */
+      
+      
+      if not bEnumProperty# then
+      do: 
+      
+        oControl# = cast(oWidgetIP#, System.Object).
+        if oValue# <> ? then
+          paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cast(oValue#,System.Object)).
+        else
+          paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cValueIP#).
+          
+      end.
+        
     end.
 
   end method. /* SetUiValueImplement ; character */
