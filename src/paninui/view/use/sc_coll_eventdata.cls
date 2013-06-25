@@ -449,11 +449,14 @@ class paninui.view.use.sc_coll_eventdata
           do: 
             case cEventTypeIP#:
               
-              when "TextChanged" 
-              then 
-                do:
-                  oFormsCombobox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
-                end.
+              when "TextChanged" then 
+                oFormsCombobox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+              
+              when "DelayedTextChanged" then
+              do: 
+                if type-of(oFormsCombobox#,paninui.view.loose.widgets.c_forms_delayed_combobox) then
+                  cast(oFormsCombobox#,paninui.view.loose.widgets.c_forms_delayed_combobox):DelayedTextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+              end.
               
               when "SelectionChangeCommitted" 
               then oFormsCombobox#:SelectionChangeCommitted:Subscribe(oSingleton:OnEventArgsHandler_SelectionChangeCommitted).
@@ -1013,7 +1016,9 @@ class paninui.view.use.sc_coll_eventdata
     
     do for ttUiEvent on error undo, throw:
       
-      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "TextChanged"
+      for each ttUiEvent 
+        where ttUiEvent.oWidget = oSender# 
+        and   (ttUiEvent.cEventType = "TextChanged" or ttUiEvent.cEventType = "DelayedTextChanged")
         on error undo,throw:
           
         if bFirst# then 
@@ -1024,13 +1029,6 @@ class paninui.view.use.sc_coll_eventdata
         end.  
         if type-of(oSender#, System.Windows.Forms.ComboBox) then 
         do:
-          
-/*          oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox).*/
-/*          message "2" skip                                           */
-/*          oComboBox#:Name skip                                       */
-/*          oComboBox#:SelectedValue                                   */
-/*            view-as alert-box.                                       */
-          
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
