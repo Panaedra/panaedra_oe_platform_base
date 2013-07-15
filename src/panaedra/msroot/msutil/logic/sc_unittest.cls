@@ -394,9 +394,6 @@ class panaedra.msroot.msutil.logic.sc_unittest
     
     bDatasetsEqual# = sc_dataset:DatasetCompare(dataset-handle hDatasetOneIP# by-reference, dataset-handle hDatasetTwoIP# by-reference). 
     
-    hDatasetOneIP#:write-xml ("file",sc_path:cWorkDir + "svdxml1.xml", yes, "UTF-8", ?, no).
-    hDatasetTwoIP#:write-xml ("file",sc_path:cWorkDir + "svdxml2.xml", yes, "UTF-8", ?, no).
-    
     if (bExpectedEqualIP# = ? and bDatasetsEqual# <> ?)
       or (bExpectedEqualIP# <> ? and bDatasetsEqual# = ?)
       or (bExpectedEqualIP# <> bDatasetsEqual#) then 
@@ -407,11 +404,11 @@ class panaedra.msroot.msutil.logic.sc_unittest
       hDatasetOneIP#:write-json("longchar", clobJsonOne#, true, "utf-8").  
       hDatasetTwoIP#:write-json("longchar", clobJsonTwo#, true, "utf-8").
       
-      cExtraInfo# = 
-        subst("Dataset One: &1 &2", hDatasetOneIP#:name, hDatasetOneIP#:get-buffer-handle(1):name) +
-        subst("Dataset Two: &1 &2", hDatasetTwoIP#:name, hDatasetTwoIP#:get-buffer-handle(1):name) +
-        subst("JSON One: &1", string(substring(clobJsonOne#,1,90))                               ) +
-        subst("JSON Two: &1", string(substring(clobJsonTwo#,1,90))                               ).
+      /* write files for more information */
+      hDatasetOneIP#:write-xml ("file",sc_path:cWorkDir + "unittestxml1.xml", yes, "UTF-8", ?, no).
+      hDatasetTwoIP#:write-xml ("file",sc_path:cWorkDir + "unittestxml2.xml", yes, "UTF-8", ?, no).
+            
+      cExtraInfo# = subst("See &1 for more information.",sc_path:cWorkDir + "unittestxml1.xml").
 
       AssertFailFeedback(cTestIDIP#, cTestDescIP#, subst("&1",bDatasetsEqual#), subst("&1",bExpectedEqualIP#), cExtraInfo#).
 
