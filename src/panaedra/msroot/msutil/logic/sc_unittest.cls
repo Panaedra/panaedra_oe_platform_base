@@ -394,6 +394,9 @@ class panaedra.msroot.msutil.logic.sc_unittest
     
     bDatasetsEqual# = sc_dataset:DatasetCompare(dataset-handle hDatasetOneIP# by-reference, dataset-handle hDatasetTwoIP# by-reference). 
     
+    hDatasetOneIP#:write-xml ("file",sc_path:cWorkDir + "svdxml1.xml", yes, "UTF-8", ?, no).
+    hDatasetTwoIP#:write-xml ("file",sc_path:cWorkDir + "svdxml2.xml", yes, "UTF-8", ?, no).
+    
     if (bExpectedEqualIP# = ? and bDatasetsEqual# <> ?)
       or (bExpectedEqualIP# <> ? and bDatasetsEqual# = ?)
       or (bExpectedEqualIP# <> bDatasetsEqual#) then 
