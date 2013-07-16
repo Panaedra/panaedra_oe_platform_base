@@ -387,16 +387,23 @@ class panaedra.msroot.msutil.logic.sc_environment:
   
   method public static integer GetProcessID():
     
-    &if {&paninui_tty} &then
+    &if TRUE or {&paninui_tty} &then
  
     define variable cParent# as character no-undo.
     define variable cTempID# as character no-undo.
     define variable cLine#   as character no-undo.
     define variable iReturn# as integer no-undo.
         
-    &if opsys = "unix" &then
+    &if TRUE or opsys = "unix" &then
     
-    if search({&UnixGetPidLib}) = ? then do:
+    if
+      /* Do it the old way on the 'old' _SRVR_ server.   New server is called '_SRVR_'.  codeQok#7110 */ 
+      GetHostName() = "_SRVR_" or                                                       /* codeQok#7110 */
+      /* Do it the old way on the 'old' _PRODUCT_ server. New server is called 'srv-_PRODUCT_' codeQok#7110 */ 
+      GetHostName() = "_PRODUCT_" or                                                     /* codeQok#7110 */
+      /* Do it the old way if our python library is not present                          codeQok#7110 */
+      search({&UnixGetPidLib}) = ? 
+      then do:
       
       /* Do it the old way that does not work 100 percent OK all the time */
       
