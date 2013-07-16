@@ -387,14 +387,14 @@ class panaedra.msroot.msutil.logic.sc_environment:
   
   method public static integer GetProcessID():
     
-    &if TRUE or {&paninui_tty} &then
+    &if {&paninui_tty} &then
  
     define variable cParent# as character no-undo.
     define variable cTempID# as character no-undo.
     define variable cLine#   as character no-undo.
-    define variable iReturn# as integer no-undo.
+    define variable iReturn# as integer   no-undo.
         
-    &if TRUE or opsys = "unix" &then
+    &if opsys = "unix" &then
     
     if
       /* Do it the old way on the 'old' _SRVR_ server.   New server is called '_SRVR_'.  codeQok#7110 */ 
