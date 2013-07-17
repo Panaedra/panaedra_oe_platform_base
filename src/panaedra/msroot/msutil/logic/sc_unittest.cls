@@ -404,8 +404,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
       /* write files for more information */
       hDatasetOneIP#:write-xml ("file",sc_path:cWorkDir + "unittestxml1.xml", yes, "UTF-8", ?, no).
       hDatasetTwoIP#:write-xml ("file",sc_path:cWorkDir + "unittestxml2.xml", yes, "UTF-8", ?, no).
-      hDatasetOneIP#:write-json("file",sc_path:cWorkDir + "unittestjson1.json", yes, "UTF-8", ?, no).  
-      hDatasetTwoIP#:write-json("file",sc_path:cWorkDir + "unittestjson2.json", yes, "UTF-8", ?, no).
+      hDatasetOneIP#:write-json("file",sc_path:cWorkDir + "unittestjson1.json", yes, "UTF-8").  
+      hDatasetTwoIP#:write-json("file",sc_path:cWorkDir + "unittestjson2.json", yes, "UTF-8").
             
       cExtraInfo# = subst("See &1 for more information.",sc_path:cWorkDir + "unittestxml1.xml").
 
