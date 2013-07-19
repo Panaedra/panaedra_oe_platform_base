@@ -376,35 +376,6 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
     if error-status:num-messages > 0 then iDtmOP#[8] = ?.
   
   end method. /* DatetimeExplodeToInts */
-
-
-  method public static character englishAbvDay(
-    input iDayIP# as integer
-    ):
-    
-    define variable cDay# as character no-undo.
-  
-    case iDayIP#:
-      when 1  then 
-        cDay# = "Sun".
-      when 2  then 
-        cDay# = "Mon".
-      when 3  then 
-        cDay# = "Tue".
-      when 4  then 
-        cDay# = "Wed".
-      when 5  then 
-        cDay# = "Thu".
-      when 6  then 
-        cDay# = "Fri".
-      when 7  then 
-        cDay# = "Sat".
-    end.
-  
-    return cDay#.
-  
-  end method. /* englishAbvDay */
-  
     
 end class.
 
