@@ -26,10 +26,10 @@ class panaedra.msroot.msutil.logic.sc_html_convert   :
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected static temp-table ttHtmlConvert no-undo
-    field iAscii    as int  xml-node-type "attribute"
-    field cHtmlCode as char xml-node-type "attribute"
-    field cHtmlSafe as char xml-node-type "attribute"
-    field cInfo     as char xml-node-type "attribute"
+    field iAscii    as int                 xml-node-type "attribute"
+    field cHtmlCode as char case-sensitive xml-node-type "attribute"
+    field cHtmlSafe as char case-sensitive xml-node-type "attribute"
+    field cInfo     as char                xml-node-type "attribute"
     index iAscii is primary unique iAscii
     index cHtmlCode                cHtmlCode
     index cHtmlSafe                cHtmlSafe

@@ -66,7 +66,52 @@ class panaedra.msroot.msutil.logic.sc_dataset:
   end method. /* DatasetCompare */
   
   
+  method public static character FieldAttr_i18n(
+    /* Internationalized version of FieldAttr
+       supports Html special characters and symbols
+       ex: &amp;  &gt;  &eacute; 
+       see: http://www.ascii.cl/htmlcodes.htm */
+  
+    cAttrIP#        as char,
+    hFieldHandleIP# as handle,
+    hFieldIP#       as handle):
+      
+    define variable cReturn# as character no-undo.
+    
+    cReturn# = FieldAttrImplement(
+      cAttrIP#,
+      hFieldHandleIP#,
+      hFieldIP#       
+      ).
+      
+    cReturn# = sc_html_convert:ConvertFromHtml(cReturn#).    
+      
+    return cReturn#.  
+  
+  end method. /* FieldAttr_i18n */
+  
+
   method public static character FieldAttr(
+  
+    /* Helper method, see if a field handle attribute (like 'label' or 'format') is overruled.  */
+    cAttrIP#        as char,
+    hFieldHandleIP# as handle,
+    hFieldIP#       as handle):
+      
+    define variable cReturn# as character no-undo.
+    
+    cReturn# = FieldAttrImplement(
+      cAttrIP#,
+      hFieldHandleIP#,
+      hFieldIP#       
+      ).  
+      
+    return cReturn#.  
+  
+  end method. /* FieldAttr */
+  
+  
+  method protected static character FieldAttrImplement(
   
     /* Helper method, see if a field handle attribute (like 'label' or 'format') is overruled.  */
     
