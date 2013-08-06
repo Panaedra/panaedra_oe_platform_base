@@ -37,6 +37,11 @@ class paninui.logic.logicbase.c_framelogicbase
   define protected        variable i_p_PackID           as int64 no-undo.
   define protected static variable iFrmLogicIDStatic    as int64 no-undo.
   define protected        variable iFrmLogicIDProtected as int64 no-undo.
+
+  define public property bFrameLogicInitialized     as logical no-undo get. set.
+  define public property bFrameEventsInitialized    as logical no-undo get. set.
+  define public property bFrameViewInitialized      as logical no-undo get. set.
+  define public property bFrameViewShownInitialized as logical no-undo get. set.
   
   define property oUI as {&i_frmlogic_shortcut}
     no-undo 
@@ -82,20 +87,23 @@ class paninui.logic.logicbase.c_framelogicbase
 
   method public logical InitializeFrameLogic():
     
+    bFrameLogicInitialized = true.  
     return true.
     
   end method. /* InitializeFrameLogic */
 
 
   method public logical InitializeFrameEvents():
-    
+
+    bFrameEventsInitialized = true. 
     return true.
     
   end method. /* InitializeFrameEvents */
 
 
   method public logical InitializeFrameView():
-    
+
+    bFrameViewInitialized = true.   
     return true.
     
   end method. /* InitializeFrameView */
@@ -103,6 +111,7 @@ class paninui.logic.logicbase.c_framelogicbase
 
   method public void InitializeFrameViewShown():
     
+    bFrameViewShownInitialized = true.  
     return.
     
   end method. /* InitializeFrameViewShown */
