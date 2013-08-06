@@ -40,11 +40,15 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsFrameLogic{&ttSuffix} {&
   {&reference-only} {&rcode-information} {&before-table}
   field iIDMsFrameLogic   as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsFrameLogic "  
   field iIDMsLogicObjects as int64       xml-node-type "hidden"
+  field iFrmlgExtent      as integer     xml-node-type "attribute" initial ?
   field cObject           as character   xml-node-type "attribute"
+  field bPackBootLoad     as logical     xml-node-type "attribute" initial true
   field bActive           as logical     xml-node-type "attribute"
+  field cLinkName         as character   xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsFrameLogic   is unique primary iIDMsFrameLogic
   index iIDMsLogicObjects is unique iIDMsLogicObjects cObject
+  index iFrmlgExtent iFrmlgExtent
   {&ttExtraIndices}
   .
 

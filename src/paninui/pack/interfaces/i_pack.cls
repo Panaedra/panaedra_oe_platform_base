@@ -100,6 +100,8 @@ interface paninui.pack.interfaces.i_pack:
     dataset-handle hDatasetIP# /* By reference */).
     
   method public character GetPackParam(cKeyIP# as character).
+
+  method public logical StartFrameLogic(cFrmlgLinkNameIP# as character).
   
 end interface.
 

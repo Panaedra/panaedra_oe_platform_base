@@ -26,6 +26,11 @@ interface paninui.view.interfaces.i_frmlogic:
   method logical  InitializeFrameEvents().
   method logical  InitializeFrameView().
   method void     InitializeFrameViewShown().
+
+  define public property bFrameLogicInitialized     as logical no-undo get. set.
+  define public property bFrameEventsInitialized    as logical no-undo get. set.
+  define public property bFrameViewInitialized      as logical no-undo get. set.
+  define public property bFrameViewShownInitialized as logical no-undo get. set.
   
 end interface.
 
