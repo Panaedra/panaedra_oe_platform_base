@@ -714,8 +714,12 @@ class paninui.view.use.display.sc_displaydata   :
     define variable oWidget#            as Progress.Lang.Object                    no-undo.
     define variable oFormsGrid#         as System.Windows.Forms.DataGridView       no-undo.
     define variable oFormsGridColumn#   as System.Windows.Forms.DataGridViewColumn no-undo.
+    define variable cWidgetItemName#    as character no-undo.
 
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    /* translate widgetname from Panaedra to .Net naming convention */
+    cWidgetItemName# = replace(cWidgetItemNameIP#, ".", "__").
     
     if valid-object(oWidget#) then 
     do:
@@ -723,7 +727,7 @@ class paninui.view.use.display.sc_displaydata   :
       do:
         assign
           oFormsGrid#       = cast(oWidget#, System.Windows.Forms.DataGridView)
-          oFormsGridColumn# = oFormsGrid#:Columns[cWidgetItemNameIP#] no-error.
+          oFormsGridColumn# = oFormsGrid#:Columns[cWidgetItemName#] no-error.
         if oFormsGridColumn# <> ? then 
           case cPropertyIP#:
             when "Visible" then 
