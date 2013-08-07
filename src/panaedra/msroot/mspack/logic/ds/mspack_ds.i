@@ -34,6 +34,8 @@ procedure dvcs__panaedra_msroot_mspack_logic_ds_mspack_ds_i: return "$Revision: 
 {panaedra/msroot/mspack/logic/tt/msscopetable_tt.i              {&*}}
 {panaedra/msroot/mspack/logic/tt/mssubframes_tt.i               {&*} &ttSuffix="Ovly" &xml-node-name-tt="SubFrames.GroupframeOverlay"}
 {panaedra/msroot/mspack/logic/tt/mssubframe_tt.i                {&*} &ttSuffix="Ovly" &xml-node-name-tt="SubFrame"}
+{panaedra/msroot/mspack/logic/tt/mslooseframes_tt.i             {&*}}
+{panaedra/msroot/mspack/logic/tt/mslooseframe_tt.i              {&*}}
 {panaedra/msroot/mspack/logic/tt/mssubframepacks_tt.i           {&*} &ttSuffix="Ovly" &xml-node-name-tt="SubFramepacks.GroupframeOverlay"}
 {panaedra/msroot/mspack/logic/tt/mssubframepack_tt.i            {&*} &ttSuffix="Ovly" &xml-node-name-tt="SubFramepack"}
 
@@ -54,6 +56,8 @@ define {&protected} {&static} dataset dsPackConfig
   ttMsDatasetController,
   ttMsLogicObjects,
   ttMsFrameLogic,
+  ttMsLooseFrames, /* not yet implemented, only prepared */
+  ttMsLooseFrame, /* not yet implemented, only prepared */
   ttMsSubframesOvly,
   ttMsSubframeOvly,
   ttMsSubframePacksOvly,
@@ -66,6 +70,7 @@ define {&protected} {&static} dataset dsPackConfig
   data-relation for ttMsConstructorItems,  ttMsDatasetConstructorItem relation-fields (iIDMsConstructorItems,iIDMsConstructorItems) nested
   data-relation for ttMsControllers,       ttMsDatasetController relation-fields (iIDMsControllers,iIDMsControllers) nested
   data-relation for ttMsLogicObjects,      ttMsFrameLogic relation-fields (iIDMsLogicObjects,iIDMsLogicObjects) nested
+  data-relation for ttMsLooseFrames,       ttMsLooseFrame relation-fields (iIDMsLooseFrames,iIDMsLooseFrames) nested 
   data-relation for ttMsSubframesOvly,     ttMsSubframeOvly relation-fields (iIDMsSubframes,iIDMsSubframes) nested
   data-relation for ttMsSubframepacksOvly, ttMsSubframePackOvly relation-fields (iIDMsSubframepacks,iIDMsSubframepacks) nested
   data-relation for ttMsChildPacks,        ttMsChildPack relation-fields (iIDMsChildPacks,iIDMsChildPacks) nested
