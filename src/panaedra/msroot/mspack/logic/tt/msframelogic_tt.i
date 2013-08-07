@@ -45,6 +45,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsFrameLogic{&ttSuffix} {&
   field bPackBootLoad     as logical     xml-node-type "attribute" initial true
   field bActive           as logical     xml-node-type "attribute"
   field cLinkName         as character   xml-node-type "attribute"
+  field cLooseframeID     as character   xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsFrameLogic   is unique primary iIDMsFrameLogic
   index iIDMsLogicObjects is unique iIDMsLogicObjects cObject
