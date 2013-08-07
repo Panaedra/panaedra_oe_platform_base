@@ -38,14 +38,14 @@ procedure dvcs__panaedra_msroot_mspack_logic_tt_msframelogic_tt_i: return "$Revi
 define {&protected} {&static} temp-table tt{&ttPrefix}MsFrameLogic{&ttSuffix} {&no-undo}
   xml-node-name "FrameLogic"
   {&reference-only} {&rcode-information} {&before-table}
-  field iIDMsFrameLogic   as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsFrameLogic "  
-  field iIDMsLogicObjects as int64       xml-node-type "hidden"
-  field iFrmlgExtent      as integer     xml-node-type "attribute" initial ?
-  field cObject           as character   xml-node-type "attribute"
-  field bPackBootLoad     as logical     xml-node-type "attribute" initial true
-  field bActive           as logical     xml-node-type "attribute"
-  field cLinkName         as character   xml-node-type "attribute"
-  field cLooseframeID     as character   xml-node-type "attribute"
+  field iIDMsFrameLogic     as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsFrameLogic "  
+  field iIDMsLogicObjects   as int64       xml-node-type "hidden"
+  field iFrmlgExtent        as integer     xml-node-type "attribute" initial ?
+  field cObject             as character   xml-node-type "attribute"
+  field bPackBootLoad       as logical     xml-node-type "attribute" initial true
+  field bActive             as logical     xml-node-type "attribute"
+  field cLinkName           as character   xml-node-type "attribute"
+  field cLooseframeLinkName as character   xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsFrameLogic   is unique primary iIDMsFrameLogic
   index iIDMsLogicObjects is unique iIDMsLogicObjects cObject

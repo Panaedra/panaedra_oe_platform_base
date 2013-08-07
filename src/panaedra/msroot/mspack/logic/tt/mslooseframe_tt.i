@@ -41,7 +41,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsLooseFrame{&ttSuffix} {&
   field iIDMsLooseFrame     as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsLooseFrame "  
   field iIDMsLooseFrames    as int64       xml-node-type "hidden"
   field bInitialized        as logical     xml-node-type "hidden"
-  field cLooseFrameID       as character   xml-node-type "attribute"
+  field cLinkName           as character   xml-node-type "attribute"
   field cLocationWidgetType as character   xml-node-type "attribute"
   field cLocationWidgetName as character   xml-node-type "attribute"
   field cDotnetDLL          as character   xml-node-type "attribute"
@@ -49,7 +49,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsLooseFrame{&ttSuffix} {&
   field bActive             as logical     xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsLooseFrame  is unique primary iIDMsLooseFrame
-  index iIDMsLooseFrames is unique iIDMsLooseFrames cLooseFrameID
+  index iIDMsLooseFrames is unique iIDMsLooseFrames cLinkName
   {&ttExtraIndices}
   .
 
