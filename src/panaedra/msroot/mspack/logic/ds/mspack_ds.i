@@ -56,8 +56,8 @@ define {&protected} {&static} dataset dsPackConfig
   ttMsDatasetController,
   ttMsLogicObjects,
   ttMsFrameLogic,
-  ttMsLooseFrames, /* not yet implemented, only prepared */
-  ttMsLooseFrame, /* not yet implemented, only prepared */
+  ttMsLooseFrames, 
+  ttMsLooseFrame, 
   ttMsSubframesOvly,
   ttMsSubframeOvly,
   ttMsSubframePacksOvly,

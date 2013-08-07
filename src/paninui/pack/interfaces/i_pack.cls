@@ -45,6 +45,8 @@ interface paninui.pack.interfaces.i_pack:
     cWidgetTypeIP#  as character,
     cWidgetNameIP#  as character).
     
+  method void ShowLooseFrame(oPackIP# as i_pack, cLooseFrameIDIP# as character).
+  
   method void LoadSubframe(
     oGroupframeOverlayOVID# as i_showlocationtype_groupframeoverlay,
     cLocationWidgetTypeIP#  as character,

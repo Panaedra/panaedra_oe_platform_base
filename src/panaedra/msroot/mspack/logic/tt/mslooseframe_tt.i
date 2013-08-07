@@ -36,10 +36,11 @@ procedure dvcs__panaedra_msroot_mspack_logic_tt_mslooseframe_tt_i: return "$Revi
 &if defined(tt{&ttPrefix}MsLooseFrame{&ttSuffix}) = 0 &then
 &glob tt{&ttPrefix}MsLooseFrame{&ttSuffix} true
 define {&protected} {&static} temp-table tt{&ttPrefix}MsLooseFrame{&ttSuffix} {&no-undo}
-  xml-node-name "{&xml-node-name-tt}"
+  xml-node-name "LooseFrame"
   {&reference-only} {&rcode-information} {&before-table}
   field iIDMsLooseFrame     as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsLooseFrame "  
   field iIDMsLooseFrames    as int64       xml-node-type "hidden"
+  field bInitialized        as logical     xml-node-type "hidden"
   field cLooseFrameID       as character   xml-node-type "attribute"
   field cLocationWidgetType as character   xml-node-type "attribute"
   field cLocationWidgetName as character   xml-node-type "attribute"
