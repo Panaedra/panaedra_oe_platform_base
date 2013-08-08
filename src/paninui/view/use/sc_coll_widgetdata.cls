@@ -25,8 +25,8 @@ class paninui.view.use.sc_coll_widgetdata
                    indicate local storage of runtime data, normally in a temp-table.
       
   \*****************************  Include Files ********************************/
-  {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
-  {paninui/view/use/sc_coll_widgetdata_tt.i &class=true &protected=protected &static=static}
+{paninui/logic/includes/preproc_dotnetclasses.i &class=class}
+{paninui/view/use/sc_coll_widgetdata_tt.i &class=true &protected=protected &static=static}
 
   /************************  Source control constructor ************************/
   constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
@@ -63,7 +63,7 @@ class paninui.view.use.sc_coll_widgetdata
   
 
   method public static int64 FrameAdd (oPackIP# as i_pack, oUiFrameIP# as {&i_uiframe}, cLinkFrameNameIP# as character):
-
+    
     define variable bEclipseFix# as logical no-undo.  
     def buffer ttUIFrame for ttUIFrame.
     
@@ -98,18 +98,22 @@ class paninui.view.use.sc_coll_widgetdata
     def buffer ttUIFrame for ttUIFrame.
     
     do for ttUIFrame:
+        
+      for each ttUIFrame 
+        where ttUIFrame.iPackID = iPackIDIP#
+        on error undo, throw:
       
-      find first ttUIFrame where ttUIFrame.iPackID = iPackIDIP#  no-error.
-      
-      if avail ttUIFrame then 
-      do:
+        if avail ttUIFrame then 
+        do:
         &if not {&paninui_tty} &then
-        if valid-object(ttUIFrame.oFrame) and type-of(ttUIFrame.oFrame, System.Windows.Forms.Control) 
-          then cast(ttUIFrame.oFrame, System.Windows.Forms.Control):Visible = false.
+          if valid-object(ttUIFrame.oFrame) and type-of(ttUIFrame.oFrame, System.Windows.Forms.Control) 
+            then cast(ttUIFrame.oFrame, System.Windows.Forms.Control):Visible = false.
         &endif
-      end.
+        end.
       
-    end.
+      end. /* for each ttUiFrame */
+      
+    end. /* do for ttUiFrame */
     
   end method. /* HidePackFrames */
 
@@ -126,10 +130,11 @@ class paninui.view.use.sc_coll_widgetdata
       do:
         &if not {&paninui_tty} &then
         if valid-object(ttUIFrame.oFrame) and type-of(ttUIFrame.oFrame, System.Windows.Forms.Control) 
-          then do:
-            cast(ttUIFrame.oFrame, System.Windows.Forms.Control):Visible = true.
-            cast(ttUIFrame.oFrame, System.Windows.Forms.Control):BringToFront().
-          end.
+          then 
+        do:
+          cast(ttUIFrame.oFrame, System.Windows.Forms.Control):Visible = true.
+          cast(ttUIFrame.oFrame, System.Windows.Forms.Control):BringToFront().
+        end.
         &endif
       end.
       
@@ -649,13 +654,24 @@ class paninui.view.use.sc_coll_widgetdata
 
   
   method public static {&i_uiframe} GetFrameByLinkName(cLinkNameIP# as character):
+    return GetFrameByLinkName(?, cLinkNameIP#).
+  end method. /* GetFrameByLinkName */
+    
+  method public static {&i_uiframe} GetFrameByLinkName(iPackIDIP# as int64, cLinkNameIP# as character):
     
     /* Return frame object found by the linkname */
     
     define variable oUiFrame# as {&i_uiframe} no-undo.
     define buffer b-ttUIFrame for ttUIFrame.
     
-    find first b-ttUIFrame where b-ttUIFrame.cLinkFrameName = cLinkNameIP# no-error.
+    /* Shouldhave: always supply packid, don't accept '?' */
+    if iPackIDIP# = ? then
+      find first b-ttUIFrame 
+        where b-ttUIFrame.cLinkFrameName = cLinkNameIP# no-error. 
+    else
+      find first b-ttUIFrame 
+        where b-ttUIFrame.cLinkFrameName = cLinkNameIP# 
+        and   b-ttUIFrame.iPackID = iPackIDIP# no-error.
     
     if not available b-ttUIFrame then
       return ?.
