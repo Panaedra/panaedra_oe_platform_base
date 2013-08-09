@@ -40,6 +40,13 @@
 &glob JoinUiEventCodeHeader ~
     def var o-joinhelp as c_delegate_helper no-undo. ~~n~
     def var iDelegateID# as int64 no-undo.
+&glob JoinUiExceptionCatches ~
+    catch oException# as System.Exception: ~~n~
+      sc_showexception:ShowException(oException#). ~~n~
+    end catch. ~~n~
+    catch oError# as Progress.Lang.Error: ~~n~
+      sc_showexception:ShowException(oError#). ~~n~
+    end catch.
 &glob JoinUiEventCode ~~n~
     o-joinhelp = sc_coll_delegatedata:JoinInit(this-object,c_eventtype:~{&JoinUiWidget}_~{&JoinUiEvent}). ~~n~
     o-joinhelp:JoinEvent:subscribe(On_~{&JoinUiWidget}_~{&JoinUiWidgetName}_~{&JoinUiEvent}). ~~n~
