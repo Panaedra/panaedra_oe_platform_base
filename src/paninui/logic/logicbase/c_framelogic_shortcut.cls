@@ -318,6 +318,18 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
     oButtonOVID#    as i_widgettype_button,
     cWidgetNameIP#  as character,
     cPropertyIP#    as character,
+    iValueIP#       as integer):
+      
+    paninui.view.use.display.sc_displaydata:SetUiValue(oFrmLogic, oButtonOVID#, cWidgetNameIP#, cPropertyIP#, iValueIP#).
+
+  end method. /* SetUiValue ; Button + logical */
+
+
+  method public void SetUiValue(
+    
+    oButtonOVID#    as i_widgettype_button,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
     bValueIP#       as logical):
       
     paninui.view.use.display.sc_displaydata:SetUiValue(oFrmLogic, oButtonOVID#, cWidgetNameIP#, cPropertyIP#, bValueIP#).

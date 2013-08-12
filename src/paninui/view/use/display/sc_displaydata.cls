@@ -767,6 +767,29 @@ class paninui.view.use.display.sc_displaydata   :
       SetUiValueImplement(oWidget#, cPropertyIP#, cValueIP#).
 
   end method. /* SetUiValue ; Button */
+
+
+  method public static void SetUiValue(
+    
+    /* Directly set any property of a button widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oFrmLogicIP#    as i_frmlogic,
+    oButtonOVID#    as i_widgettype_button,
+    cWidgetNameIP#  as character,
+    cPropertyIP#    as character,
+    iValueIP#       as integer):
+      
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "button", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+    
+    if valid-object(oWidget#) then 
+      SetUiValueImplement(oWidget#, cPropertyIP#, iValueIP#).
+
+  end method. /* SetUiValue ; Button */
   
 
   method public static void SetUiValue(
