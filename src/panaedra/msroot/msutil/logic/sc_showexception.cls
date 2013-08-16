@@ -281,7 +281,34 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       view-as alert-box title "Panaedra " + string(now,"99-99-99 hh:mm:ss").
   
   end method. /* ShowExceptionKeepNativeImplement */
+
+  &if not opsys = "unix" &then
+  method public static character ExceptionToString(
+    
+    /* Get all info from an exception and put it in a simple string */
   
+    input oErrorIP# as System.Exception):
+
+    define variable cLastProgram#       as character           no-undo.
+    define variable cMessage#           as character           no-undo.
+    define variable iTell#              as integer             no-undo.
+    define variable oApiProxyException# as c_apiproxyexception no-undo.
+    
+    assign
+      cLastProgram# = GetSessionCallStack()
+      cLastProgram# = entry(num-entries(cLastProgram#,chr(10)), cLastProgram#, chr(10))
+      cLastProgram# = entry(num-entries(cLastProgram#," ")    , cLastProgram#, " ").
+    
+    if length(cLastProgram#) >= 60 then
+      cLastProgram# = "..." + 
+        substring(cLastProgram#, length(cLastProgram#) - 59).
+    
+    cMessage# = cMessage# + ExceptionMsgToString(oErrorIP#) + " ~n[Callstack] " + GetCallstack(oErrorIP#). /* codeQok#7120 */
+          
+    return cMessage#.
+  
+  end method. /* ExceptionToString */
+  &endif /* not opsys = unix */ 
   
   method public static character ExceptionToString(
     
@@ -309,6 +336,21 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
   end method. /* ExceptionToString */
   
+  &if not opsys = "unix" &then
+  method public static character ExceptionMsgToString(
+    
+    /* Get only "message" info from an exception (omit the callstack) and put it in a simple string codeQok#7120 */
+  
+    input oErrorIP# as System.Exception):
+
+    define variable cMessage#           as character           no-undo.
+    
+    cMessage# = ExceptionMsgToStringSub(oErrorIP#).
+    
+    return cMessage#.
+  
+  end method. /* ExceptionMsgToString */
+  &endif /* not opsys = unix */
   
   method public static character ExceptionMsgToString(
     
@@ -340,7 +382,40 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
   end method. /* ExceptionMsgToString */
   
+  &if not opsys = "unix" &then
+  method protected static character ExceptionMsgToStringSub(
+    
+    /* Get only "message" info from an exception (omit the callstack) and put it in a simple string codeQok#7120 */
+  
+    input oErrorIP# as System.Exception):
 
+    define variable cLastProgram# as character no-undo.
+    define variable cMessage#     as character no-undo.
+    define variable iTell#        as integer   no-undo.
+    
+    do iTell# = 1 to oErrorIP#:NumMessages on error undo, throw:
+      
+      if iTell# > 1 
+        then cMessage# = cMessage# + chr(10).
+        
+      cMessage# = cMessage# + 
+        oErrorIP#:GetMessage(iTell#).
+        
+      if index(cMessage#, subst("(&1)", oErrorIP#:GetMessageNum(iTell#))) = 0
+        then cMessage# = cMessage# + subst(" (&1)", oErrorIP#:GetMessageNum(iTell#)).
+        
+      catch oError# as Progress.Lang.Error:
+        /* Just to be ultra safe; ensure no unknown value is returned. We are in exception handling here. */
+        cMessage# = "". 
+      end catch.
+      
+    end. /* do iTell# */
+    
+    return cMessage#.
+  
+  end method. /* ExceptionMsgToStringSub */
+  &endif /* not opsys = unix */
+  
   method protected static character ExceptionMsgToStringSub(
     
     /* Get only "message" info from an exception (omit the callstack) and put it in a simple string codeQok#7120 */
@@ -373,6 +448,34 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
   end method. /* ExceptionMsgToStringSub */
   
+  &if not opsys = "unix" &then
+  method public static character ExceptionCallStackLastEntry(
+    
+    /* This is a method, because behaviour is different between oe10 and oe11+.
+     
+       "Last" means: last called code block just before the exception occurred.
+    */
+    
+    oErrorIP# as System.Exception):
+      
+    define variable cReturn# as character no-undo.  
+    
+    if oErrorIP#:CallStack = ? then /* codeQok#7120 */
+      cReturn# = program-name(3).
+    else
+      cReturn# = trim(entry(
+        &if int(entry(1,proversion,".")) <= 10 &then
+        num-entries(oErrorIP#:CallStack,chr(10)) /* codeQok#7120 */
+        &else
+        1
+        &endif
+        ,oErrorIP#:CallStack,chr(10))). /* codeQok#7120 */
+      
+    
+    return cReturn#.  
+  
+  end method. /* ExceptionCallStackLastEntry */
+  &endif /* not opsys = unix */
   
   method public static character ExceptionCallStackLastEntry(
     
@@ -401,6 +504,26 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
   end method. /* ExceptionCallStackLastEntry */
 
+  &if not opsys = "unix" &then
+  method public static character GetCallStack(
+    
+    /* Uses apiproxyexception to give back extended callstack    codeQok#7120
+       wich has appserver bounderies */
+       
+    oExceptionIP# as System.Exception
+    ):
+    
+    define variable cCallstack#         as character           no-undo.
+     
+    if oExceptionIP#:CallStack > "" then /* codeQok#7120 */ 
+      cCallstack# = oExceptionIP#:CallStack. /* codeQok#7120 */
+    else  
+      cCallstack# = GetSessionCallStack().
+     
+    return cCallstack#. 
+       
+  end method. /* GetCallStack ; dotnet */
+  &endif /* not opsys = unix */ 
   
   method public static character GetCallStack(
     
