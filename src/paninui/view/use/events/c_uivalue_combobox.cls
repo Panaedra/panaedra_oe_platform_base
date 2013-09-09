@@ -30,30 +30,24 @@ class paninui.view.use.events.c_uivalue_combobox
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  define public property cText            as character no-undo get. set.
-  define public property iIDSelected      as int64     no-undo get. set.
-  define public property iSelectionStart  as integer   no-undo get. set.
-  define public property iSelectionLength as integer   no-undo get. set.
-  
-  constructor public c_uivalue_combobox(cNameIP# as character, bEnabledIP# as logical, bVisibleIP# as logical, cTextIP# as character, iSelectionStartIP# as integer, iSelectionLengthIP# as integer):
+  define public property cText       as character no-undo get. set.
+  define public property iIDSelected as int64     no-undo get. set.
+
+  constructor public c_uivalue_combobox(cNameIP# as character, bEnabledIP# as logical, bVisibleIP# as logical, cTextIP# as character):
     
     super().
-
+    
     assign 
-      cName            = cNameIP#
-      bEnabled         = bEnabledIP#
-      bVisible         = bVisibleIP#
-      cText            = cTextIP#
-      iSelectionStart  = iSelectionStartIP#   
-      iSelectionLength = iSelectionLengthIP#
-      . 
+      cName    = cNameIP#
+      bEnabled = bEnabledIP#
+      bVisible = bVisibleIP#
+      cText    = cTextIP#. 
     
   end constructor.
 
-
-  constructor public c_uivalue_combobox(cNameIP# as character, bEnabledIP# as logical, bVisibleIP# as logical, cTextIP# as character, iIDSelectedIP# as int64, iSelectionStartIP# as integer, iSelectionLengthIP# as integer):
+  constructor public c_uivalue_combobox(cNameIP# as character, bEnabledIP# as logical, bVisibleIP# as logical, cTextIP# as character, iIDSelectedIP# as int64):
     
-    this-object(cNameIP#, bEnabledIP#, bVisibleIP#, cTextIP#, iSelectionStartIP#, iSelectionLengthIP#).
+    this-object(cNameIP#, bEnabledIP#, bVisibleIP#, cTextIP#).
     
     assign
       iIDSelected = iIDSelectedIP#.
