@@ -1020,7 +1020,7 @@ class paninui.view.use.sc_coll_eventdata
         where ttUiEvent.oWidget = oSender# 
         and   (ttUiEvent.cEventType = "TextChanged" or ttUiEvent.cEventType = "DelayedTextChanged")
         on error undo,throw:
-          
+        
         if bFirst# then 
         do:
           bFirst# = false.
@@ -1032,14 +1032,18 @@ class paninui.view.use.sc_coll_eventdata
           assign
             oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
+
+          sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata_combobox("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
         end.
         else if type-of(oSender#, System.Windows.Forms.TextBox) then 
           do:
             assign
               oTextBox# = cast(oSender#, System.Windows.Forms.TextBox)
               oUiValue# = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oTextBox#,oTextBox#:Name,""), oTextBox#:Enabled, oTextBox#:Visible, oTextBox#:Text).
+
+            sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
           end.
-        sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
+        
       end.
       
       catch ex as Progress.Lang.Error:
