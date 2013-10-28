@@ -2,7 +2,7 @@
 
 class panaedra.msroot.mspy.logic.c_mspython_call
 	inherits
-	panaedra.msroot.mspy.logic.c_mspython_base: 
+	panaedra.msroot.mspy.logic.c_mspython_sys_base: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive:  $ 
@@ -22,6 +22,16 @@ class panaedra.msroot.mspy.logic.c_mspython_call
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
+  constructor public c_mspython_call(
+  
+    cClassIP#     as character,
+    cMethodIP#    as character,
+    cNamespaceIP# as character
+    ):
+    	
+   super(cClassIP#,cMethodIP#,cNamespaceIP#). 	
+	
+	end constructor.
 
 end class.
 
