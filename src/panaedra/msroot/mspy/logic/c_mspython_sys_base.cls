@@ -45,6 +45,10 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
 		public get.
 		protected set.
   
+	define property iId as integer no-undo
+		public get.
+		protected set.
+  
 	define property cClass as character no-undo
 		public get.
 		protected set.
@@ -56,6 +60,11 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
 	define property cNamespace as character no-undo
 		public get.
 		protected set.
+		
+	define property bPyCompiled as logical no-undo
+		public get.
+		protected set.
+  
   
 	constructor public c_mspython_sys_base(
   
@@ -64,30 +73,74 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
 		cMethodIP#    as character,
 		cNamespaceIP# as character):
 		
+		define variable iIndex# as integer no-undo.
+		
 		assign	
 			iNumInstances = iNumInstances + 1
 			cId           = cIdIP#                
 			cClass        = cClassIP#     
 			cMethod       = cMethodIP#    
 			cNamespace    = cNamespaceIP#.
-			
+		
 		if substring(cNamespace,length(cNamespace)) = "." then
-		  /* Panaedra standard, namespace contains class name. Ending the namespace with a dot does that for you. */
-		  cNamespace = cNamespace + cClass.
+      /* Panaedra standard, namespace contains class name. Ending the namespace with a dot does that for you. */
+			cNamespace = cNamespace + cClass.
+			
+		if lookup(cSvId,cIdIP#,chr(3)) > 0 then 
+		do:
+			undo, throw new c_panaedraexception(
+				99937288,
+				sc_lang:oEnglish,
+				substitute("Python (base) object with id '&1' already exists.", cId)).
+		end.	
+		
+		if length(cSvId) = 0 then cSvId = cId.
+		else 
+		do:
+			if cSvId begins chr(3) then cSvId = cId + cSvId.
+			else 
+			do:
+				if substring(cSvId,length(cSvId)) = chr(3) then cSvId = cSvId + cId.
+				else 
+				do:
+					iIndex# = index(cSvId, fill(chr(3),2)). /* Fill gaps */
+					if iIndex# > 0 then 
+						cSvId = substring(cSvId,1,iIndex#) + cId + substring(cSvId,iIndex# + 1).   
+					else
+						cSvId = cSvId + chr(3) + cId.
+				end.
+			end.
+		end.
+
+		iId = lookup(cId,cSvId,chr(3)) - 1. /* zero based */
+    
+		if iId < 0 then
+			undo, throw new c_panaedraexception(
+				99937289,
+				sc_lang:oEnglish,
+				substitute("cSvId '&1' error, cId='&2'.", cSvId, cId)).
 		
 		set-size(mError) = {&MaxErrorLen}.
 		if not valid-handle(hProcEvalPython) then run panaedra/msroot/mspy/logic/c_mspython_sys_base_sub.p persistent set hProcEvalPython.
-	
+		
+		sc_mspython:MsPythonInitialize().
+	  
 	end constructor.
 	
 
 	destructor c_mspython_sys_base():
 		
+		if bPyCompiled then QxPy_FreeCompiledPyCode().
 		set-size(mError) = 0.
-		iNumInstances = iNumInstances - 1.
+		
+		assign
+			entry(iId + 1,cSvId,chr(3)) = "" /* iId is zero based */
+			iNumInstances               = iNumInstances - 1.
+		
 		if iNumInstances <= 0 then 
 		do:
-			if valid-handle(hProcEvalPython) then sc_procedurehandles:DeleteProcedure(this-object, hProcEvalPython).
+			if valid-handle(hProcEvalPython) then 
+				sc_procedurehandles:DeleteProcedure(this-object, hProcEvalPython).
 		end.
 		
 	end destructor.
@@ -109,17 +162,37 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
 
 	end method.  /* _sys_GeneratePyCode */
 	
+	
+	method public void PyCompile():
+		
+		QxPy_SetCompiledPyCode(iId,cId).
+		
+	end method.
+  
 
 	method public void QxPy_SetCompiledPyCode(input iPyObjectIP# as integer, input cPyDescIP# as character):
+    
+		if length(clobPyCode) = 0 then _sys_GeneratePyCode().
     
 		run QxPy_SetCompiledPyCode in hProcEvalPython (iPyObjectIP#, cPyDescIP#, clobPyCode, input-output mError, output iErrorLen).
 
 		if iErrorLen > 0 then
 			clobError = get-string(mError, 1, iErrorLen).
-		else
-			clobError = "".
+		else 
+			assign
+				bPyCompiled = true
+				clobError   = "".
     
 	end method. /* QxPy_SetCompiledPyCode */
+	
+  
+	method public void PyRunU():
+
+    /* Unbuffered / clob in / clob out , see header in next method called. */
+		
+		QxPy_RunCompiledPyCodeUnbuffered(iId).
+		
+	end method. /* PyRunU */
   
   
 	method public void QxPy_RunCompiledPyCodeUnbuffered(
@@ -155,8 +228,17 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
 			clobError = "".
       
 	end method. /* QxPy_RunCompiledPyCodeUnbuffered */
+	
   
-
+	method public void PyRunUB():
+		
+    /* Unbuffered / bytearray in / clob out , see header in next method called. */
+		
+		QxPy_RunCompiledPyCodeUnbufferedB(iId).
+		
+	end method. /* PyRunUB */
+	
+	
 	method public void QxPy_RunCompiledPyCodeUnbufferedB(
   
     /* Same as QxPy_RunCompiledPyCodeUnbuffered, but cInputIP in python is a bytearray instead of a unicode object */
@@ -191,7 +273,16 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
 			clobError = "".
       
 	end method. /* QxPy_RunCompiledPyCodeUnbufferedB */
+	
   
+	method public void PyRunUBB():
+		
+    /* Unbuffered / bytearray in / bytearray out , see header in next method called. */
+		
+		QxPy_RunCompiledPyCodeUnbufferedBB(iId).
+		
+	end method. /* PyRunUBB */
+	
 
 	method public void QxPy_RunCompiledPyCodeUnbufferedBB(
   
@@ -229,10 +320,13 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
 
 	end method. /* QxPy_RunCompiledPyCodeUnbufferedBB */
 	
-	method public void QxPy_FreeCompiledPyCode(
-	  iBlablaIP# as int):
-	  run QxPy_FreeCompiledPyCode in hProcEvalPython (iBlablaIP#).
-	end method. /* name */
+	
+	method public void QxPy_FreeCompiledPyCode():
+		
+		run QxPy_FreeCompiledPyCode in hProcEvalPython (iId).
+		
+	end method. /* QxPy_FreeCompiledPyCode */
+	
   
 end class.
 

@@ -28,7 +28,11 @@ class panaedra.msroot.mspy.logic.sc_mspython:
   
   method public static logical MsPythonInitialize():
   	
-	  /* Initialize the Python interpreter of this session/process */
+	  /* 
+	    Initialize the Python interpreter of this session/process. 
+	    May be called multiple times. 
+	  */
+	  
 	  if not valid-object(oPythonSysInterpreter) then do:
 	  	define variable oOvid# as sc_mspython no-undo.
 	  	oPythonSysInterpreter = new c_mspython_sys_interpreter(oOvid#).
