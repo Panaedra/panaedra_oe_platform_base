@@ -18,7 +18,7 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_interpreter
       Description: Start the python interpreter (system class), happens once per session.
 
   \*****************************  Include Files ********************************/
-	{panaedra/msroot/mspy/logic/sc_mspython_externals_def.i &static=static &protected=protected &OnlyPreprocessorDefs=true}
+	{panaedra/msroot/mspy/logic/sc_mspython_externals_def.i &protected=protected &static=static &OnlyPreprocessorDefs=true}
   
   /************************  Source control constructor ************************/
 	constructor public c_mspython_sys_interpreter(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):

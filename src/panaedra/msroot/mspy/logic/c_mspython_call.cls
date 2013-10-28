@@ -24,12 +24,13 @@ class panaedra.msroot.mspy.logic.c_mspython_call
 
   constructor public c_mspython_call(
   
+    cIdIP#        as character,
     cClassIP#     as character,
     cMethodIP#    as character,
     cNamespaceIP# as character
     ):
     	
-   super(cClassIP#,cMethodIP#,cNamespaceIP#). 	
+   super(cIdIP#,cClassIP#,cMethodIP#,cNamespaceIP#). 	
 	
 	end constructor.
 
