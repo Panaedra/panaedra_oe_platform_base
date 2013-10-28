@@ -24,13 +24,27 @@ class panaedra.msroot.mspy.logic.sc_mspython:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  method public static c_mspython GetPython(
-    cClassIP# as character,
-    cMethodIP# as character,
-    cNamespaceIP# as character
-    ):
-	
-	end method. /* GetPython */
+  define protected static variable oPythonSysInterpreter as c_mspython_sys_interpreter no-undo.
+  
+/*  method public static c_mspython GetPython(*/
+/*    cClassIP# as character,                 */
+/*    cMethodIP# as character,                */
+/*    cNamespaceIP# as character              */
+/*    ):                                      */
+/*	                                            */
+/*	end method. /* GetPython */                */
+
+
+  method public static logical MsPythonInitialize():
+  	
+	  /* Initialize the Python interpreter of this session/process */
+	  if not valid-object(oPythonSysInterpreter) then do:
+	  	define variable oOvid# as sc_mspython no-undo.
+	  	oPythonSysInterpreter = new c_mspython_sys_interpreter(oOvid#).
+	  	oPythonSysInterpreter:QxPy_InitializeInterpreter().
+	  end.
+	  
+	end method. /* MsPythonInitialize */
 
 end class.
 
