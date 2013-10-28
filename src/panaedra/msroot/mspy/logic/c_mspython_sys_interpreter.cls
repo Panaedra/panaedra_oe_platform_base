@@ -47,7 +47,7 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_interpreter
       
 			when "evt@SessionClose" then 
 				do:
-          /* cleanup python interpreter */
+          /* Cleanup python interpreter */
 					if valid-handle(hProcInitFinalyzePython) then run QxPy_FinalizeInterpreter in hProcInitFinalyzePython.
 					delete object this-object.
 				end.
