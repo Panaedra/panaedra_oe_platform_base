@@ -128,6 +128,14 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
 		if not valid-handle(hProcEvalPython) then run panaedra/msroot/mspy/logic/c_mspython_sys_base_sub.p persistent set hProcEvalPython.
 		
 		sc_mspython:MsPythonInitialize().
+		
+		PyCompile().
+		
+		if clobError > "" then
+			undo, throw new c_panaedraexception(
+				99937290,
+				sc_lang:oEnglish,
+				substitute("PyCompile failed for '&1': &2", cSvId, substring(clobError,1,1000))).
 	  
 	end constructor.
 	
@@ -195,6 +203,12 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     /* Unbuffered / clob in / clob out , see header in next method called. */
 		
 		QxPy_RunCompiledPyCodeUnbuffered(iId).
+
+		if clobError > "" then
+			undo, throw new c_panaedraexception(
+				99937291,
+				sc_lang:oEnglish,
+				substitute("&1", substring(clobError,1,1000))). /* We don't apply formatting, the python exception is already formatted. */
 		
 	end method. /* PyRunU */
   
@@ -239,6 +253,12 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     /* Unbuffered / bytearray in / clob out , see header in next method called. */
 		
 		QxPy_RunCompiledPyCodeUnbufferedB(iId).
+
+		if clobError > "" then
+			undo, throw new c_panaedraexception(
+				99937292,
+				sc_lang:oEnglish,
+				substitute("&1", substring(clobError,1,1000))). /* We don't apply formatting, the python exception is already formatted. */
 		
 	end method. /* PyRunUB */
 	
@@ -284,6 +304,12 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     /* Unbuffered / bytearray in / bytearray out , see header in next method called. */
 		
 		QxPy_RunCompiledPyCodeUnbufferedBB(iId).
+
+		if clobError > "" then
+			undo, throw new c_panaedraexception(
+				99937293,
+				sc_lang:oEnglish,
+				substitute("&1", substring(clobError,1,1000))). /* We don't apply formatting, the python exception is already formatted. */
 		
 	end method. /* PyRunUBB */
 	
