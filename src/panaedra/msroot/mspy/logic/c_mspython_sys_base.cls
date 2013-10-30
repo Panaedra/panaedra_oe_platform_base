@@ -65,11 +65,6 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
 		public get.
 		protected set.
   
-	define property hTemptempProcEvalPython as handle no-undo
-		public get:
-			return hProcEvalPython.  /* codeQok#7302 shouldhave:sc_msosfifo.cls */
-		end get.
-  
 	constructor public c_mspython_sys_base(
   
 		cIdIP#        as character,
