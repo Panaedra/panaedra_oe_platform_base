@@ -99,6 +99,10 @@ procedure QxPy_FreeCompiledPyCode external {&qx_python_dll} {&cdecl} persistent:
   define input parameter iPyObjectOP# as long no-undo.
 end procedure.
 
+&endif /* WithEvalLogic */
+
+&if "{&WithFifoLogic}" = "true" &then
+
 procedure QxPy_MkFifo external {&qx_python_dll} {&cdecl} persistent:
   define input  parameter       cPathToPipeIP# as character no-undo.
   define output parameter       iErrorOP#      as long      no-undo.
@@ -114,7 +118,7 @@ procedure QxPy_UnlinkFifo external {&qx_python_dll} {&cdecl} persistent:
   define output parameter       iErrorOP#      as long      no-undo.
 end procedure.
 
-&endif /* WithEvalLogic */
+&endif /* WithFifoLogic */
 
 &endif /* OnlyPreprocessorDefs */
 

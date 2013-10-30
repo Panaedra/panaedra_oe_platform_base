@@ -2,7 +2,7 @@ using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 
 {panaedra/msroot/msutil/logic/top_i/ptop_procedure.i}
-{panaedra/msroot/mspy/logic/sc_mspython_externals_def.i &WithInitializeFinalize=false &WithEvalLogic=true}
+{panaedra/msroot/mspy/logic/sc_mspython_externals_def.i &WithInitializeFinalize=false &WithEvalLogic=true &WithFifoLogic=true} /* shouldhave: WithFifoLogic mag zo op false */
 
 /******************************  Dvcs_ Header ********************************\
        Filename: $Archive: $ 

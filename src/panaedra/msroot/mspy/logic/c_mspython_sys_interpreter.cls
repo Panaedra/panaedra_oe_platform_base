@@ -35,6 +35,13 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_interpreter
 	constructor public c_mspython_sys_interpreter(oSemiProtectedOVID# as sc_mspython):
   	
 		set-size(mError) = {&MaxErrorLen}. /* Hardcoded safe limit in shared object / dll */
+		
+		if valid-handle(hProcInitFinalyzePython) then
+		  undo, throw new c_panaedraexception(
+				99948114,
+				sc_lang:oEnglish,
+				"Objects of class c_mspython_sys_interpreter should be singletons").
+		
 		run panaedra/msroot/mspy/logic/c_mspython_sys_interpreter_sub.p persistent set hProcInitFinalyzePython.
 		sc_eventbroadcaster:SubscribeEvent(this-object,"evt@SessionClose").
        
