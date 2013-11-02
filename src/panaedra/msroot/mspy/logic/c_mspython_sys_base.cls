@@ -65,8 +65,10 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
 		public get.
 		protected set.
   
-	constructor public c_mspython_sys_base(
-  
+	constructor protected c_mspython_sys_base(
+    
+    /* This is the normal constructor */
+    
 		cIdIP#        as character,
 		cClassIP#     as character,
 		cMethodIP#    as character,
@@ -85,7 +87,33 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
       /* Panaedra standard, namespace contains class name. Ending the namespace with a dot does that for you. */
 			cNamespace = cNamespace + cClass.
 			
-		if lookup(cSvId,cIdIP#,chr(3)) > 0 then 
+		ConstructorPost().
+
+	end constructor.
+	
+
+	constructor protected c_mspython_sys_base(
+    
+    /* Constructor only to be used for small snippets of python code, which can use cDataIP if needed. */
+    
+		cIdIP#        as character,
+		cPyCodeIP#    as character):
+		
+		assign	
+			iNumInstances = iNumInstances + 1
+			cId           = cIdIP#
+			clobPyCode    = cPyCodeIP#.
+		
+		ConstructorPost().
+	  
+	end constructor.
+	
+  
+  method protected void ConstructorPost():
+	
+		define variable iIndex# as integer no-undo.
+		
+		if lookup(cSvId,cId,chr(3)) > 0 then 
 		do:
 			undo, throw new c_panaedraexception(
 				99937288,
@@ -131,10 +159,10 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
 				99937290,
 				sc_lang:oEnglish,
 				substitute("PyCompile failed for '&1': &2", cSvId, substring(clobError,1,1000))).
-	  
-	end constructor.
+				
+	end method. /* ConstructorPost */
 	
-
+  
 	destructor c_mspython_sys_base():
 		
 		if bPyCompiled then QxPy_FreeCompiledPyCode().
@@ -337,7 +365,7 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
       &endif
 		else
 			clobOutput = "".
-      
+    
 		if iErrorLen > 0 then
 			clobError = get-string(mError, 1, iErrorLen).
 		else
@@ -352,7 +380,6 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
 		
 	end method. /* QxPy_FreeCompiledPyCode */
 	
-  
 end class.
 
 /* EOF */ 

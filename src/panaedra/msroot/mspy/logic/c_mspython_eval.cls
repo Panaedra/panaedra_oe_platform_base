@@ -22,15 +22,9 @@ class panaedra.msroot.mspy.logic.c_mspython_eval
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  constructor public c_mspython_eval(
-  
-    cIdIP#        as character,
-    cClassIP#     as character,
-    cMethodIP#    as character,
-    cNamespaceIP# as character
-    ):
+  constructor public c_mspython_eval(cPyCodeIP# as character):
     	
-   super(cIdIP#,cClassIP#,cMethodIP#,cNamespaceIP#). 	
+    super(guid, cPyCodeIP#). 	
 	
 	end constructor.
 
