@@ -21,6 +21,11 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
+  
+  constructor public sc_string_csv(
+    input oParamIP# as panaedra.msroot.msutil.interfaces.i_unittest_param):
+  end constructor.  
+  
 
   define protected static temp-table ttCsvSortList no-undo
     field cValue as character
@@ -152,6 +157,16 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
  
   method public static character CsvGetJoinList(
     csvOneIP#   as character, 
+    csvTwoIP#   as character  ):
+      
+    return CsvGetJoinList(csvOneIP#, csvTwoIP#, ',', '').  
+      
+  end method. /* CsvGetJoinList overload zonder delimiter,options */   
+ 
+ 
+  @panaedraannotation file(unittest="yes").
+  method public static character CsvGetJoinList(
+    csvOneIP#   as character, 
     csvTwoIP#   as character, 
     cDelimIP#   as character, 
     cOptionsIP# as character):
@@ -162,12 +177,14 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     define variable iTell#   as integer   no-undo.
     define variable iTell2#  as integer   no-undo.
   
+    /* if the 2 lists are both the same, then return list 1. */
     if csvOneIP# = csvTwoIP# then 
     do:
       csvJoin# = csvOneIP#.
       return csvJoin#.
     end.
   
+    /* if list 2 is present inside list 1, then return list 1 */
     if 
       index(cDelimIP# + csvTwoIP# + cDelimIP#, cDelimIP# + csvOneIP# + cDelimIP#) > 0 then 
     do:
@@ -175,6 +192,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
       return csvJoin#.
     end.
   
+    /* if list 1 is present inside list 2, then return list 2 */
     if 
       index(cDelimIP# + csvOneIP# + cDelimIP#, cDelimIP# + csvTwoIP# + cDelimIP#) > 0 then 
     do:
@@ -182,17 +200,9 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
       return csvJoin#.
     end.
   
-    do iTell# = 1 to num-entries(csvOneIP#,cDelimIP#):
-      do iTell2# = 1 to num-entries(csvTwoIP#,cDelimIP#):
-        if entry(iTell#,csvOneIP#,cDelimIP#) = entry(iTell2#,csvTwoIP#,cDelimIP#) then 
-        do:
-          if lookup(entry(iTell#,csvOneIP#,cDelimIP#),csvJoin#,cDelimIP#) = 0
-            then csvJoin# = csvJoin# + subst("&1&2",cDelimIP#,entry(iTell#,csvOneIP#,cDelimIP#)).
-        end.
-      end.
-    end.  
-
-    csvJoin# = substring(csvJoin#,2).
+    /* none of the above; join the 2 lists */
+    csvJoin# = CsvAddLastUnique(csvJoin#, csvOneIP#,cDelimIP#).
+    csvJoin# = CsvAddLastUnique(csvJoin#, csvTwoIP#,cDelimIP#).
 
     return csvJoin#.
 
