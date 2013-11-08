@@ -69,7 +69,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
       
       sc_unittest:Assert(
         "CsvGetJoinList_00001_01",
-        "2 simpel lists",
+        "2 simple lists",
         cResult#,
         "abc,def,ghi,jkl"
         ).
@@ -82,7 +82,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
       
       sc_unittest:Assert(
         "CsvGetJoinList_00001_02",
-        "2 simpel lists, 1 empty",
+        "2 simple lists, 1 empty",
         cResult#,
         "ghi,jkl"
         ).
@@ -95,7 +95,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
       
       sc_unittest:Assert(
         "CsvGetJoinList_00001_03",
-        "2 simpel lists, the other one empty",
+        "2 simple lists, the other one empty",
         cResult#,
         "abc,def"
         ).
@@ -108,7 +108,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
       
       sc_unittest:Assert(
         "CsvGetJoinList_00001_04",
-        "2 simpel lists, one of them unknown",
+        "2 simple lists, one of them unknown",
         cResult#,
         "ghi,jkl"
         ).
@@ -121,7 +121,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
       
       sc_unittest:Assert(
         "CsvGetJoinList_00001_05",
-        "2 simpel lists, the other one unknown",
+        "2 simple lists, the other one unknown",
         cResult#,
         "abc,def"
         ).
@@ -135,7 +135,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
       
       sc_unittest:Assert(
         "CsvGetJoinList_00001_06",
-        "2 simpel lists, avoiding double entries",
+        "2 simple lists, avoiding double entries",
         cResult#,
         "abc,def,jkl"
         ).
