@@ -820,8 +820,10 @@ class panaedra.msroot.msutil.logic.sc_unittest
         substitute("ttSessionUnittest not found with '&1'", cCurrentGlobalTestID)
         ).
     
-    if b-ttSessionUnittest.oLastTestClass <> ? then
+    if b-ttSessionUnittest.oLastTestClass <> ? then do:
+      sc_eventbroadcaster:FireEvent("evt@UnitTestRerunMemcheck").
       cast(b-ttSessionUnittest.oLastTestClass,i_unittest_client):ExecuteUnittest(b-ttSessionUnittest.cTestID).
+    end.
     else
       run value(b-ttSessionUnittest.cLastTestProc).
   
