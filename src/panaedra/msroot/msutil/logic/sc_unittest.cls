@@ -56,7 +56,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
   define protected static variable cCurrentGlobalTestID  as character   no-undo.
   define protected static variable bFirstOfTwo           as logical     no-undo. /* If a unittest has finished okay, it's run a second time for memleak check. Stored in bFirstOfTwo. */
   define protected static variable bRunOnNonTstOkay      as logical     no-undo.
-  
+  define protected static variable bBusyUnittesting      as logical     no-undo.
+    
   constructor protected sc_unittest():
     
   end constructor.
@@ -141,6 +142,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
       empty temp-table ttPersistentThingsPre.
       empty temp-table ttPersistentThingsPost.
     end.
+    
+    bBusyUnittesting = true.
         
     catch oError# as Progress.Lang.Error:
       OnException(cTestIDIP#,oError#).
@@ -285,6 +288,10 @@ class panaedra.msroot.msutil.logic.sc_unittest
     catch oError# as Progress.Lang.Error :
       OnException(cTestIDIP#,oError#).
     end catch.
+    
+    finally:
+      bBusyUnittesting = false.  
+    end finally.
     
   end method. /* UnittestFinish */
 
@@ -606,7 +613,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
     cSvSourcedirsIP# as character
     ):
     
-    define variable iTell#           as integer           no-undo.
+    define variable iTell# as integer no-undo.
     
     define buffer b-ttFile            for ttFile.
     define buffer b-ttSessionUnittest for ttSessionUnittest.
@@ -820,7 +827,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
         substitute("ttSessionUnittest not found with '&1'", cCurrentGlobalTestID)
         ).
     
-    if b-ttSessionUnittest.oLastTestClass <> ? then do:
+    if b-ttSessionUnittest.oLastTestClass <> ? then 
+    do:
       sc_eventbroadcaster:FireEvent("evt@UnitTestRerunMemcheck", b-ttSessionUnittest.oLastTestClass).
       cast(b-ttSessionUnittest.oLastTestClass,i_unittest_client):ExecuteUnittest(b-ttSessionUnittest.cTestID).
     end.
@@ -828,6 +836,16 @@ class panaedra.msroot.msutil.logic.sc_unittest
       run value(b-ttSessionUnittest.cLastTestProc).
   
   end method. /* RunLastTestAgain */
+  
+  
+  method public static logical IsBusyUnittesting():
+    
+    /* Can be called by for example database triggers, to skip certain actions 
+       (like automated e-mails) that are not wanted during unittesting */
+     
+    return bBusyUnittesting.
+      
+  end method. /* IsBusyUnittesting */
 
 end class.
 
