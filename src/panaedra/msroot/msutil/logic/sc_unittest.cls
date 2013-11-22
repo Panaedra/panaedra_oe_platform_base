@@ -821,7 +821,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
         ).
     
     if b-ttSessionUnittest.oLastTestClass <> ? then do:
-      sc_eventbroadcaster:FireEvent("evt@UnitTestRerunMemcheck").
+      sc_eventbroadcaster:FireEvent("evt@UnitTestRerunMemcheck", b-ttSessionUnittest.oLastTestClass).
       cast(b-ttSessionUnittest.oLastTestClass,i_unittest_client):ExecuteUnittest(b-ttSessionUnittest.cTestID).
     end.
     else
