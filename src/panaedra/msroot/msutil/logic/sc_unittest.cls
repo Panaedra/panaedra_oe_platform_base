@@ -143,8 +143,6 @@ class panaedra.msroot.msutil.logic.sc_unittest
       empty temp-table ttPersistentThingsPost.
     end.
     
-    bBusyUnittesting = true.
-        
     catch oError# as Progress.Lang.Error:
       OnException(cTestIDIP#,oError#).
     end catch.
@@ -288,10 +286,6 @@ class panaedra.msroot.msutil.logic.sc_unittest
     catch oError# as Progress.Lang.Error :
       OnException(cTestIDIP#,oError#).
     end catch.
-    
-    finally:
-      bBusyUnittesting = false.  
-    end finally.
     
   end method. /* UnittestFinish */
 
@@ -693,11 +687,11 @@ class panaedra.msroot.msutil.logic.sc_unittest
     define variable oUnittestClient# as i_unittest_client no-undo.
     define variable cSvUnittests#    as character         no-undo.
     
+    bBusyUnittesting = true. 
 
     /* Needed for special unittest constructor in c_*_unittests.cls */
     if not valid-object(oSingleton) then
       oSingleton = new sc_unittest(). 
-
     
     LogMessage(subst("Start unittest: &1 &2",iso-date(now), cFullPathIP#)).
         
@@ -716,6 +710,10 @@ class panaedra.msroot.msutil.logic.sc_unittest
     end.
     else
       run value(cFullPathIP#).
+      
+    finally:
+      bBusyUnittesting = false.
+    end finally.
   
   end method. /* RunSingleUnittest */
   
