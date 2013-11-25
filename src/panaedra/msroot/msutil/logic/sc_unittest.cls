@@ -827,6 +827,9 @@ class panaedra.msroot.msutil.logic.sc_unittest
     
     if b-ttSessionUnittest.oLastTestClass <> ? then 
     do:
+      /* NOTE: ShouldHave: this 'broadcast' solution is not a preferred solution, quick&dirty. 
+         What it should be: a unittest-info object passed to the constructor of the unittest. 
+         TW+_PPL_UNDISCLOSED_ Nov 2013. */
       sc_eventbroadcaster:FireEvent("evt@UnitTestRerunMemcheck", b-ttSessionUnittest.oLastTestClass).
       cast(b-ttSessionUnittest.oLastTestClass,i_unittest_client):ExecuteUnittest(b-ttSessionUnittest.cTestID).
     end.
@@ -836,10 +839,14 @@ class panaedra.msroot.msutil.logic.sc_unittest
   end method. /* RunLastTestAgain */
   
   
-  method public static logical IsBusyUnittesting():
+  method protected static logical IsBusyUnittesting():
     
-    /* Can be called by for example database triggers, to skip certain actions 
-       (like automated e-mails) that are not wanted during unittesting */
+    /* DEPRECATED because: don't put unittest logic anywhere outside the unittest itself:
+       Can be called by for example database triggers, to skip certain actions 
+       (like automated e-mails) that are not wanted during unittesting.
+       
+       NOTE: With _TOOLING_ the data is decoupled from the database, enabling more pure unittesting.
+    */
      
     return bBusyUnittesting.
       
