@@ -12,10 +12,6 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
 
       Description: unittests for sc_string_csv
       
-  constructor public sc_string_csv(
-    input oParamIP# as panaedra.msroot.msutil.interfaces.i_unittest_param):
-  end constructor.  
-      
       
   \*****************************  Include Files ********************************/
 
