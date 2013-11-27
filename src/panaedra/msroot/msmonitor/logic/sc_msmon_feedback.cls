@@ -129,31 +129,6 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       
   end method. /* HandleEvent ; overload with only exception object and no message string */
   
-  /* Why allow failsafe from outside??? It's not passed through anyhow, don't see the point of this method. 14-10-2012 tw */  
-  /*  method public static logical HandleEvent(                                     */
-  /*                                                                                */
-  /*    /* Handle a monitor event, by config file                                   */
-  /*       bFailSafeIP#  yes= handle previous a failed event, failover mechanism. */*/
-  /*                                                                                */
-  /*    cEventIP#     as character,                                                 */
-  /*    cMonitorIdIP# as character,                                                 */
-  /*    cLocationIP#  as character,                                                 */
-  /*    cMessageIP#   as character,                                                 */
-  /*    oErrorIP#     as Progress.Lang.Error,                                       */
-  /*    bFailSafeIP#  as logical ):                                                 */
-  /*                                                                                */
-  /*    ReloadConfig().                                                             */
-  /*                                                                                */
-  /*    return HandleEvent_Implement(                                               */
-  /*      cEventIP#,                                                                */
-  /*      cMonitorIdIP#,                                                            */
-  /*      cLocationIP#,                                                             */
-  /*      cMessageIP#,                                                              */
-  /*      oErrorIP#,                                                                */
-  /*      no /* FailSafe */                                                         */
-  /*      ).                                                                        */
-  /*                                                                                */
-  /*  end method.                                                                   */
 
   method protected static logical HandleEvent_Implement(
     
@@ -348,7 +323,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           end.
         end.
           
-      end. /* cSpecialModeIP# > "" */
+      end. /* else cSpecialModeIP# = "" */
       
       if not available b-ttMsMonFeedbackDef then 
       do:
@@ -371,7 +346,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       
       cOsCommand# = b-ttMsMonFeedbackDef.cOsCommand.
       
-      if cOsCommand# > "" or b-ttMsMonFeedbackDef.cMessageDispatchObject > "" then 
+      if length(cOsCommand#) > 0 or length(b-ttMsMonFeedbackDef.cMessageDispatchObject) > 0 then 
       do on error undo, throw:
         
         create b-ttMsMonFeedbackDefCopy.
@@ -493,7 +468,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
                 view-as alert-box.
               catch oError# as Progress.Lang.Error :
                 sc_showexception:ShowExceptionKeepNative(oError#). /* Keep Native: don't go back to msmon_feedback, keep handling native to the session. */
-                leave b_command.	
+                leave b_command.  
               end catch.
             end. /* b_command */
             input stream str-in close.
@@ -618,7 +593,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             delete object oTempfileBuilderObject#.  
         end finally.
         
-      end. /* if cOsCommand# > "" or b-ttMsMonFeedbackDef.cMessageDispatchObject > "" */
+      end. /* if length(cOsCommand#) > 0 or length(b-ttMsMonFeedbackDef.cMessageDispatchObject) > 0 */
       else
         bReturn# = false.
       
@@ -628,7 +603,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       /* here we catch the exceptions and present them with a special ShowExceptionKeepNative version
          to avoid error looping, since at this point we are handling an error on error. */
       catch oError# as Progress.Lang.Error :
-        sc_showexception:ShowExceptionKeepNative(oError#).	
+        sc_showexception:ShowExceptionKeepNative(oError#).  
       end catch.
       
     end. /* do */
