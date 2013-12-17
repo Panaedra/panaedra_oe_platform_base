@@ -22,7 +22,7 @@ class panaedra.msroot.msutil.logic.sc_unix:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  define protected static variable hExternals as handle no-undo.
+  define protected static variable hExternals as handle  no-undo.
   define protected static variable oSingleton as sc_unix no-undo.
 
 
@@ -35,7 +35,8 @@ class panaedra.msroot.msutil.logic.sc_unix:
     
     define variable iReturn# as integer no-undo.
     
-    if not valid-handle(hExternals) then do:
+    if not valid-handle(hExternals) then 
+    do:
       if not valid-object(oSingleton) then oSingleton = new sc_unix().
       sc_procedurehandles:PersistentProcedure(oSingleton, "panaedra/msroot/msutil/logic/sc_unix_sub.p", output hExternals).
     end.
@@ -43,6 +44,25 @@ class panaedra.msroot.msutil.logic.sc_unix:
     run usleep in hExternals (1000 * iMillisecondsIP#, output iReturn#).
     
   end method. /* Microsleep */
+
+
+  method public static void SetEnvironmentValue(cTokenIP# as character, cValueIP# as character):
+    
+    define variable iReturn# as integer no-undo.
+    
+    if not valid-handle(hExternals) then 
+    do:
+      if not valid-object(oSingleton) then oSingleton = new sc_unix().
+      sc_procedurehandles:PersistentProcedure(oSingleton, "panaedra/msroot/msutil/logic/sc_unix_sub.p", output hExternals).
+    end.
+    
+    run setenvironmentvalue in hExternals (cTokenIP#, cValueIP#, output iReturn#).
+    
+    if iReturn# = ? or iReturn# = 0 then
+      undo, throw new c_panaedraexception(
+        99978001, sc_lang:oEnglish, substitute("Setting environment value (setenv) returns '&1'", iReturn#)).
+        
+  end method. /* SetEnvironmentValue */
 
 
 end class.
