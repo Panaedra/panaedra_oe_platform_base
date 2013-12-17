@@ -58,7 +58,7 @@ class panaedra.msroot.msutil.logic.sc_unix:
     
     run setenvironmentvalue in hExternals (cTokenIP#, cValueIP#, output iReturn#).
     
-    if iReturn# = ? or iReturn# = 0 then
+    if iReturn# = ? or iReturn# <> 0 then
       undo, throw new c_panaedraexception(
         99978001, sc_lang:oEnglish, substitute("Setting environment value (setenv) returns '&1'", iReturn#)).
         
