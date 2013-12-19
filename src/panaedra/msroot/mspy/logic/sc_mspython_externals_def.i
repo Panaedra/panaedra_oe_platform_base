@@ -122,4 +122,4 @@ end procedure.
 
 &endif /* OnlyPreprocessorDefs */
 
-/* EOF : panaedra/msroot/mspy/logic/mxqx_python_externals_def.i */
+/* EOF : panaedra/msroot/mspy/logic/sc_mspython_externals_def.i */

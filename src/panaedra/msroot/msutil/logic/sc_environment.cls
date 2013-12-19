@@ -75,7 +75,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     public get:
       if cSessionParameterString = ? then 
       do:
-        cSessionParameterString = sc_string_substitute:ExpandOsEnv(if sc_boot:cBootSessionParameter > "" then sc_boot:cBootSessionParameter else session:parameter).
+        cSessionParameterString = sc_string_substitute:ExpandOsEnv(if length(sc_boot:cBootSessionParameter) > 0 then sc_boot:cBootSessionParameter else session:parameter).
       end.
       return cSessionParameterString.
     end get.
@@ -396,6 +396,8 @@ class panaedra.msroot.msutil.logic.sc_environment:
         
     &if opsys = "unix" &then
     
+    {panaedra/msroot/msutil/logic/sc_unix_set_libpath.i}
+    
     if
       /* Do it the old way on the 'old' _SRVR_ server.   New server is called '_SRVR_'.  codeQok#7110 */ 
       GetHostName() = "_SRVR_" or                                                       /* codeQok#7110 */
@@ -519,16 +521,15 @@ class panaedra.msroot.msutil.logic.sc_environment:
       .
     
     cCmd# = "ps -ef" 
-      + (if cWildcardOneIP#   > "" then subst("| grep &1 '&2'", trim(string(bCasesensitiveIP#,"/-i")), cWildcardOneIP#  ) else "" )
-      + (if cWildcardTwoIP#   > "" then subst("| grep &1 '&2'", trim(string(bCasesensitiveIP#,"/-i")), cWildcardTwoIP#  ) else "" )
-      + (if cWildcardThreeIP# > "" then subst("| grep &1 '&2'", trim(string(bCasesensitiveIP#,"/-i")), cWildcardThreeIP#) else "" ).
+      + (if length(cWildcardOneIP#  ) > 0 then subst("| grep &1 '&2'", trim(string(bCasesensitiveIP#,"/-i")), cWildcardOneIP#  ) else "" )
+      + (if length(cWildcardTwoIP#  ) > 0 then subst("| grep &1 '&2'", trim(string(bCasesensitiveIP#,"/-i")), cWildcardTwoIP#  ) else "" )
+      + (if length(cWildcardThreeIP#) > 0 then subst("| grep &1 '&2'", trim(string(bCasesensitiveIP#,"/-i")), cWildcardThreeIP#) else "" ).
     
     input stream str-in through value(cCmd#).
  
     repeat on error undo, throw:
       import stream str-in unformatted cLine#.
-      if cLine# > "" 
-        and (not (substring(cLine#,51, 6) = " grep "       ))
+      if length(cLine#) > 0 
         and (not (substring(cLine#,65,13) = "ps -ef| grep ")) 
         then
         iReturn# = iReturn# + 1.
@@ -571,7 +572,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
       
       cLine# = oManagementObject#:Current:Item["CommandLine"].
       
-      if cLine# > ""  
+      if length(cLine#) > 0  
         and (cWildcardOneIP# = ""   or cLine# matches "*" + cWildcardOneIP# + "*") 
         and (cWildcardTwoIP# = ""   or cLine# matches "*" + cWildcardTwoIP# + "*") 
         and (cWildcardThreeIP# = "" or cLine# matches "*" + cWildcardThreeIP# + "*") then       
@@ -626,7 +627,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
         /* Only the line that has the pid of this session */
         and iPidLine# = iPidByGuid# 
         /* Be extra sure if session:parameter is filled  */
-        and (if session:parameter > "" then (cLine# matches substitute("*&1*", session:parameter)) 
+        and (if length(session:parameter) > 0 then (cLine# matches substitute("*&1*", session:parameter)) 
       else true) 
         then
       do:
@@ -717,7 +718,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     /* Checks if an IDE (like Eclipse) is running this session. */
   
     /* If it's a seperate Eclipse session, we can use an environment variable */
-    if os-getenv("ECLIPSE_PROJECT") > "" then return true.
+    if length(os-getenv("ECLIPSE_PROJECT")) > 0 then return true.
     
     /* Otherwise check the boot procedure */    
     
@@ -737,8 +738,8 @@ class panaedra.msroot.msutil.logic.sc_environment:
     define variable iLastProgram# as integer no-undo init 1.
     
     if cBootProcedure = "" then 
-    do:    
-      do while program-name(iLastProgram#) > "":
+    do:
+      do while program-name(iLastProgram#) > "": /* codeQok#7122 */
         iLastProgram# = iLastProgram# + 1.
       end.
       cBootProcedure = replace(program-name(iLastProgram# - 1),"~\","/").
