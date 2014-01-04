@@ -5,8 +5,8 @@ using panaedra.msroot.mspy.logic.*.
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.mspy.logic.c_mspython_sys_interpreter
-	implements 
-	panaedra.msroot.msutil.interfaces.i_eventbroadcastclient: 
+  implements 
+  panaedra.msroot.msutil.interfaces.i_eventbroadcastclient: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive:  $ 
@@ -18,69 +18,71 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_interpreter
       Description: Start the python interpreter (system class), happens once per session.
 
   \*****************************  Include Files ********************************/
-	{panaedra/msroot/mspy/logic/sc_mspython_externals_def.i &protected=protected &static=static &OnlyPreprocessorDefs=true}
+  {panaedra/msroot/mspy/logic/sc_mspython_externals_def.i &protected=protected &static=static &OnlyPreprocessorDefs=true}
   
   /************************  Source control constructor ************************/
-	constructor public c_mspython_sys_interpreter(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
+  constructor public c_mspython_sys_interpreter(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-		panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-	end constructor.
+    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
+  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-	define protected static variable hProcInitFinalyzePython as handle   no-undo.
-	define public           variable clobError               as longchar no-undo.
-	define protected        variable mError                  as memptr   no-undo.
-	define public           variable iErrorLen               as int64    no-undo.
+  define protected static variable hProcInitFinalyzePython as handle   no-undo.
+  define public           variable clobError               as longchar no-undo.
+  define protected        variable mError                  as memptr   no-undo.
+  define public           variable iErrorLen               as int64    no-undo.
   
-	constructor public c_mspython_sys_interpreter(oSemiProtectedOVID# as sc_mspython):
-  	
-		set-size(mError) = {&MaxErrorLen}. /* Hardcoded safe limit in shared object / dll */
-		
-		if valid-handle(hProcInitFinalyzePython) then
-		  undo, throw new c_panaedraexception(
-				99948114,
-				sc_lang:oEnglish,
-				"Objects of class c_mspython_sys_interpreter should be singletons").
-		
-		run panaedra/msroot/mspy/logic/c_mspython_sys_interpreter_sub.p persistent set hProcInitFinalyzePython.
-		sc_eventbroadcaster:SubscribeEvent(this-object,"evt@SessionClose").
+  constructor public c_mspython_sys_interpreter(oSemiProtectedOVID# as sc_mspython):
+    
+    set-size(mError) = {&MaxErrorLen}. /* Hardcoded safe limit in shared object / dll */
+    
+    if valid-handle(hProcInitFinalyzePython) then
+      undo, throw new c_panaedraexception(
+        99948114,
+        sc_lang:oEnglish,
+        "Objects of class c_mspython_sys_interpreter should be singletons").
+    
+    run panaedra/msroot/mspy/logic/c_mspython_sys_interpreter_sub.p persistent set hProcInitFinalyzePython.
+    sc_eventbroadcaster:SubscribeEvent(this-object,"evt@SessionClose").
        
-	end constructor.
+  end constructor.
 
 
-	method public void OnEventBroadcast(oBroadcastDataIP# as i_eventbroadcastdata):
+  method public void OnEventBroadcast(oBroadcastDataIP# as i_eventbroadcastdata):
     
-		case oBroadcastDataIP#:cEventName:
+    case oBroadcastDataIP#:cEventName:
       
-			when "evt@SessionClose" then 
-				do:
+      when "evt@SessionClose" then 
+        do:
+          /* Let python objects first do their thing */
+          sc_eventbroadcaster:FireEvent("evt@PythonInterpreterExit").
           /* Cleanup python interpreter */
-					if valid-handle(hProcInitFinalyzePython) then run QxPy_FinalizeInterpreter in hProcInitFinalyzePython.
-					delete object this-object.
-				end.
+          if valid-handle(hProcInitFinalyzePython) then run QxPy_FinalizeInterpreter in hProcInitFinalyzePython.
+          delete object this-object.
+        end.
         
-		end case.
+    end case.
     
-	end method. /* OnEventBroadcast */
+  end method. /* OnEventBroadcast */
   
 
-	method public void QxPy_InitializeInterpreter():
+  method public void QxPy_InitializeInterpreter():
 
-		run QxPy_InitializeInterpreter in hProcInitFinalyzePython ({&PythonExePath}, 1000, input-output mError, output iErrorLen). /* Note: iMaxModulesIP#=100.000 in initialize (but not used yet) gives an increase of ProcessMemSize=19744KB to ProcessMemSize=20516KB. This shows it's okay to leave some margin. */
+    run QxPy_InitializeInterpreter in hProcInitFinalyzePython ({&PythonExePath}, 1000, input-output mError, output iErrorLen). /* Note: iMaxModulesIP#=100.000 in initialize (but not used yet) gives an increase of ProcessMemSize=19744KB to ProcessMemSize=20516KB. This shows it's okay to leave some margin. */
   
-		if iErrorLen > 0 then
-			clobError = get-string(mError, 1, iErrorLen).
-		else
-			clobError = "".
+    if iErrorLen > 0 then
+      clobError = get-string(mError, 1, iErrorLen).
+    else
+      clobError = "".
 
-		if iErrorLen > 0 then
-			undo, throw new c_panaedraexception(
-				99951992,
-				sc_lang:oEnglish,
-				substitute("Error initializing Python interpreter: '&1'", this-object:clobError)
-				).
+    if iErrorLen > 0 then
+      undo, throw new c_panaedraexception(
+        99951992,
+        sc_lang:oEnglish,
+        substitute("Error initializing Python interpreter: '&1'", this-object:clobError)
+        ).
       
-	end method. /* QxPy_InitializeInterpreter */
+  end method. /* QxPy_InitializeInterpreter */
 
 end class.
 
