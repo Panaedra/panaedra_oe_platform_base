@@ -340,7 +340,12 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           99938299,
           sc_lang:oEnglish,
           substitute("No MsMonFeedbackDef configuration found for event '&1', environment '&2', opsys '&3', hostname '&4', monitor ID '&5', message '&6'", 
-          (if cSpecialModeIP# = "FAILSAFE" then "FailSafe" else cEventIP#), sc_environment:cEnv, lc(opsys), sc_environment:cHostName, cMonitorIdIP#, cMessageIP#)
+          (if cSpecialModeIP# = "FAILSAFE" then "FailSafe" else cEventIP#), 
+            sc_environment:cEnv, 
+            lc(opsys), 
+            if cSpecialModeIP# = "FAILSAFE" then "(default)" else sc_environment:cHostName, 
+            if cSpecialModeIP# = "FAILSAFE" then "(default)" else cMonitorIdIP#, 
+            cMessageIP#)
           ).
       end.
       
