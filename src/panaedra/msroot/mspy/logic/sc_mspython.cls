@@ -29,7 +29,6 @@ class panaedra.msroot.mspy.logic.sc_mspython:
   
   method public static logical MsPythonInitialize():
     
-   
     /* 
       Initialize the Python interpreter of this session/process. 
       May be called multiple times, does nothing if already initialized.
@@ -53,20 +52,38 @@ class panaedra.msroot.mspy.logic.sc_mspython:
            within the progress runtime (which is not impossible, but hard to do if you don't intend to).
         */
         
-        
         oPythonSysInterpreter = new c_mspython_sys_interpreter(oOvid#).
         oPythonSysInterpreter:QxPy_InitializeInterpreter().
         
-        /* send Environment of Progress to the python environment */
-        oPy# = new c_mspython_call(sc_environment:cEnv,"sc_environment","SetEnvironment","panaedra.msroot.msutil.logic.").
-        oPy#:PyRunUB().
-       
-        message ">>>hier" skip
-         sc_environment:cEnv
-         view-as alert-box. 
-        
+        /* Send environment of Progress to the Python environment, as a Python dict */
+        oPy# = new c_mspython_call("inherit-env","sc_environment","_InheritAblEnvironmentSettings","panaedra.msroot.msutil.logic.").
+        oPy#:clobDataIn = 
+          "~{" +
+          subst("'cEnv'               : '&1',", sc_environment:cEnv) +
+          subst("'bLiveEnv'           :  &1 ,", trim(string(sc_environment:bLiveEnv,"True/False"))) +
+          subst("'cUiMode'            : '&1',", sc_boot:SessionParameter("UiMode")) +
+          subst("'cLogDir'            : '&1',", sc_boot:SessionParameter("LogDir")) +
+          subst("'cSharedIniDir'      : '&1',", sc_boot:SessionParameter("SharedIniDir")) +
+          subst("'cDevIP'             : '&1',", sc_boot:SessionParameter("DevIP")) +
+          subst("'cOtaPath'           : '&1',", sc_boot:SessionParameter("OtaPath")) +
+          subst("'cAsMode'            : '&1',", sc_boot:SessionParameter("AsMode")) +
+          subst("'cUserID'            : '&1',", sc_environment:cUserID) +
+          subst("'cOsUserID'          : '&1',", sc_environment:cOsUserID) +
+          subst("'cLayer'             : '&1',", sc_environment:cLayer) +
+          subst("'cLang'              : '&1',", sc_environment:cLang) +
+          subst("'cSessionGuid'       : '&1',", sc_environment:cSessionGuid) +
+          subst("'cSessionGuidShort'  : '&1',", sc_environment:cSessionGuidShort) +
+          subst("'cSessionGuidRemote' : '&1',", sc_environment:cSessionGuidRemote) +
+          subst("'cWorkPath'          : '&1',", sc_boot:SessionParameter("WorkPath")) +
+          subst("'cDevToken'          : '&1',", os-getenv("DevToken")) +
+          "~}".
+        oPy#:PyRunU().
       end.
     end.
+
+    finally:
+      if valid-object(oPy#) then delete object oPy#.
+    end finally.    
     
   end method. /* MsPythonInitialize */
   
