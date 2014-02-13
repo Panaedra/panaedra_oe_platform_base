@@ -29,12 +29,14 @@ class panaedra.msroot.mspy.logic.sc_mspython:
   
   method public static logical MsPythonInitialize():
     
+   
     /* 
       Initialize the Python interpreter of this session/process. 
       May be called multiple times, does nothing if already initialized.
     */
     
-    define variable oOvid# as sc_mspython no-undo.
+    define variable oOvid# as sc_mspython     no-undo.
+    define variable oPy#   as c_mspython_call no-undo.
     
     {panaedra/msroot/msutil/logic/sc_unix_set_libpath.i}
     
@@ -50,8 +52,19 @@ class panaedra.msroot.mspy.logic.sc_mspython:
            The static boolean is not affected by the procedure editor, unless this static class is reloaded
            within the progress runtime (which is not impossible, but hard to do if you don't intend to).
         */
+        
+        
         oPythonSysInterpreter = new c_mspython_sys_interpreter(oOvid#).
         oPythonSysInterpreter:QxPy_InitializeInterpreter().
+        
+        /* send Environment of Progress to the python environment */
+        oPy# = new c_mspython_call(sc_environment:cEnv,"sc_environment","SetEnvironment","panaedra.msroot.msutil.logic.").
+        oPy#:PyRunUB().
+       
+        message ">>>hier" skip
+         sc_environment:cEnv
+         view-as alert-box. 
+        
       end.
     end.
     
