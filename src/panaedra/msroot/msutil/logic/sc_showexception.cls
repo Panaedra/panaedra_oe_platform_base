@@ -34,6 +34,36 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   &endif
 
   method public static void ShowException(
+    input iErrorIP# as integer,
+    input cErrorIP# as character,
+    input oLanguageIP# as i_language_dutch):
+
+    ShowException(
+      new c_panaedraexception(
+        iErrorIP#,
+        oLanguageIP#,
+        substitute("Zie: '&1'", cErrorIP#) /* codeQok#7104 */
+        )).
+    
+  end method. /* ShowException | NL: input errornr and text */
+  
+  
+  method public static void ShowException(
+    input iErrorIP# as integer,
+    input cErrorIP# as character,
+    input oLanguageIP# as i_language_english):
+
+    ShowException(
+      new c_panaedraexception(
+        iErrorIP#,
+        oLanguageIP#,
+        substitute("See: '&1'", cErrorIP#)
+        )).
+    
+  end method. /* ShowException | EN: input errornr and text */
+  
+  
+  method public static void ShowException(
     
     /* Default exception handling. Depending on session type and config: to screen, logfile, or (in batchmode) posted as a monitor event. */
     input oErrorIP# as Progress.Lang.Error):
@@ -132,7 +162,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
         if valid-object(oPanaedraError#:oRecordStatus) then 
         do:
           /* A record status has a table, this is useful in the ID */
-          if oPanaedraError#:oRecordStatus:cTablename > "" then
+          if length(oPanaedraError#:oRecordStatus:cTablename) > 0 then
             cEventID# = "_" + oPanaedraError#:oRecordStatus:cTablename.
           bUseStackForID# = false.  
         end.
@@ -150,7 +180,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       else
         cEventID# = subst("Loc_&1",string(iError#,"99999999")) + cEventID#.
         
-      if cExtraMessageIP# > "" then
+      if length(cExtraMessageIP#) > 0 then
         cExtraMessageIP# = cExtraMessageIP# + "~n".
       else /* in case of unknown value */
         cExtraMessageIP# = "".  
@@ -267,7 +297,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       cLastProgram# = "..." + 
         substring(cLastProgram#, length(cLastProgram#) - 59).
     
-    if cExtraMessageIP# > "" then
+    if length(cExtraMessageIP#) > 0 then
       cMessage# = cExtraMessageIP# + chr(10).
     
     cMessage# = cMessage# + sc_showexception:ExceptionMsgToString(oErrorIP#).
@@ -373,7 +403,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
         then 
       do:
         cMessageInner# = ExceptionMsgToStringSub(oPanaedraException#:oInnerException).
-        if cMessageInner# > "" then
+        if length(cMessageInner#) > 0 then
           cMessage# = subst("&1~n&2",cMessage#,cMessageInner#).
       end.
     end.
@@ -515,7 +545,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
     define variable cCallstack#         as character           no-undo.
      
-    if oExceptionIP#:CallStack > "" then /* codeQok#7120 */ 
+    if length(oExceptionIP#:CallStack) > 0 then /* codeQok#7120 */ 
       cCallstack# = oExceptionIP#:CallStack. /* codeQok#7120 */
     else  
       cCallstack# = GetSessionCallStack().
@@ -562,13 +592,13 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       end. /* do while */
 
       finally:
-        delete object hQuery#.	
+        delete object hQuery#.  
       end finally.
             
     end. /* oApiproxyexception# */  
     else
     do:
-      if oExceptionIP#:CallStack > "" then /* codeQok#7120 */ 
+      if length(oExceptionIP#:CallStack) > 0 then /* codeQok#7120 */ 
         cCallstack# = oExceptionIP#:CallStack. /* codeQok#7120 */
       else  
         cCallstack# = GetSessionCallStack().
@@ -589,7 +619,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     iProgramNo# = 2.
     
     /* Look for known runs */
-    do while program-name(iProgramNo#) > ""
+    do while length(program-name(iProgramNo#)) > 0
       and program-name(iProgramNo#) <> "adecomm/_runcode.p":
       
       /* Exclude routine framework calls. */
