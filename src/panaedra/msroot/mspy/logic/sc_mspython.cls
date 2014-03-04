@@ -75,7 +75,7 @@ class panaedra.msroot.mspy.logic.sc_mspython:
           subst("'cSessionGuidShort'  : '&1',", sc_environment:cSessionGuidShort) +
           subst("'cSessionGuidRemote' : '&1',", sc_environment:cSessionGuidRemote) +
           subst("'cWorkPath'          : '&1',", sc_boot:SessionParameter("WorkPath")) +
-          subst("'cDevToken'          : '&1',", os-getenv("DevToken")) +
+          subst("'cDevToken'          : '&1',", sc_environment:GetOsEnv("DevToken") ) +
           "~}".
         oPy#:PyRunU().
       end.

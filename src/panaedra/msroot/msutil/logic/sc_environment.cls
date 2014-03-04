@@ -873,6 +873,21 @@ class panaedra.msroot.msutil.logic.sc_environment:
   end method. /* GetWorkstationDescription */
   
   
+  method public static character GetOsEnv(
+    
+    /* Returns the same as os-getenv, but returns an empty string if the environment variable is not set. */
+    
+    cOsEnvIP# as character):
+    
+    define variable cRet# as character no-undo.
+    
+    cRet# = os-getenv(cOsEnvIP#).
+    if cRet# = ? then cRet# = "".
+    
+    return cRet#.
+    
+  end method. /* GetOsEnv */
+  
 end class.
 
 /* EOF */
