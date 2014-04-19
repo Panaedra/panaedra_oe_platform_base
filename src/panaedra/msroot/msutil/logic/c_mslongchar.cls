@@ -6,7 +6,7 @@ class panaedra.msroot.msutil.logic.c_mslongchar:
 
   ******************************** $NoKeywords:  $ *****************************/
   
-  define public property clobValue as longchar no-undo get. set.
+  define public variable clobValue as longchar no-undo.
   
   constructor c_mslongchar(clobValueIP# as longchar):
     clobValue = clobValueIP#.
