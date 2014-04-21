@@ -43,11 +43,20 @@ class panaedra.msroot.msutil.logic.sc_osfile
     field dtmExpire as datetime-tz
     index dtmExpire dtmExpire.
 
-  define protected static variable oSingleton as sc_osfile no-undo.
+  define protected static variable oSingleton    as sc_osfile no-undo.
+  define protected static variable hTtFileNative as handle    no-undo.
 
   constructor protected sc_osfile():
     
     sc_eventbroadcaster:SubscribeEvent(this-object,"evt@SessionClose").
+         
+  end constructor.
+
+
+  constructor static sc_osfile():
+    
+    /* This statement can only be in the static constructor. Reason: the first called method could be a by-reference call. */
+    hTtFileNative = temp-table ttFile:handle.
          
   end constructor.
 
@@ -66,7 +75,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
       
     define variable dtmDummy# as datetime-tz no-undo.
     
-    empty temp-table ttFile.
+    if temp-table ttFile:handle = hTtFileNative then
+      empty temp-table ttFile.
     
     GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmDummy#, dtmDummy#, bRecursiveIP#).
     
@@ -187,7 +197,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
          field cFullPath as char.
           
        sc_osfile:GetFileNamesInDirectory(
-         "/ota/wrktst/",
+         "/o t a/wrktst/",
          "*~~.txt",
          yes,
          output table ttFile).     
@@ -201,7 +211,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
     
     define variable dtmDummy# as datetime-tz no-undo.
     
-    empty temp-table ttFile.
+    if temp-table ttFile:handle = hTtFileNative then
+      empty temp-table ttFile.
     
     GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmDummy#, dtmDummy#, bRecursiveIP#).
     
@@ -217,7 +228,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
     output table for ttFile
     ):
     
-    empty temp-table ttFile.
+    if temp-table ttFile:handle = hTtFileNative then
+      empty temp-table ttFile.
     
     GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmFromIP#, dtmToIP#, bRecursiveIP#).
     
@@ -800,7 +812,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     if oSingleton = ? then
       oSingleton = new sc_osfile(). /* Subscribe ourselves to sessionclose broadcasted event */
     
-    empty temp-table ttFileExpire.
+    if native handle thingy then... empty temp-table ttFileExpire.
     
     sc_osfile:GetFileNamesInDirectory(
       sc_path:cLocalIniDir + "sysref/del/", 
@@ -853,9 +865,9 @@ class panaedra.msroot.msutil.logic.sc_osfile
 
 
   method public void OnEventBroadcast(
-	
+  
     oBroadcastDataIP# as i_eventbroadcastdata):
-		
+    
     case oBroadcastDataIP#:cEventName:
       
       when "evt@SessionClose" then 
