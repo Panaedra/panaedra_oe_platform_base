@@ -355,16 +355,13 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     do:
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oControl#, cPropertyIP#, output oValue#).
-      /* Cast to string is necessary, for example with property "FirstDisplayedScrollingRowIndex" .
+      &if int(entry(1, proversion, ".")) >= 11 and int(entry(2, proversion, ".")) >= 3 &then /* OE11.3+ */  
+      dtmValueOP# = oValue#.
+      &else
+      /* Earlier progress versions:
+         Cast to string is necessary, for example with property "FirstDisplayedScrollingRowIndex" .
          Otherwise, we get a meaningless handle in the iValueOP#.
       */
-      /* OpenEdge 11.3 and higher */
-      &if int(entry(1, proversion, ".")) >= 11 and int(entry(2, proversion, ".")) >= 3 
-      &then  
-      dtmValueOP# = oValue#.
-      message "Check this value:" iso-date(dtmValueOP#) skip(1) program-name(1)
-        view-as alert-box.
-      &else
       define variable oDateTime# as System.DateTime no-undo.
       oDateTime# = cast(cast(oValue#,Progress.Lang.Object),System.DateTime).
       dtmValueOP# = datetime-tz(oDateTime#:Month,oDateTime#:Day,oDateTime#:Year,oDateTime#:Hour,oDateTime#:Minute,oDateTime#:Second,oDateTime#:MilliSecond).
