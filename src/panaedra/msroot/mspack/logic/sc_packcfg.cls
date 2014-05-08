@@ -18,8 +18,8 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
       Description: Start runtime configurations (from .config or .xconfig)
 
   \*****************************  Include Files ********************************/
-  {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
-  {panaedra/msroot/mspack/logic/ds/mspack_ds.i &class=class &protected=protected &static=static &reference-only=reference-only}
+{paninui/logic/includes/preproc_dotnetclasses.i &class=class}
+{panaedra/msroot/mspack/logic/ds/mspack_ds.i &class=class &protected=protected &static=static &reference-only=reference-only}
 
   /************************  Source control constructor ************************/
   constructor public sc_packcfg(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
@@ -74,9 +74,14 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
       /* Start the master MDI window, which will display the initial pack. 
          This (void!) method contains the wait-for. */
       sc_mdiwindow:StartNewMdiWindow(
-        if ttMsMdiMaster.cDotnetDLL > "" then ttMsMdiMaster.cDotnetDLL else "[no dll]" ,
+        if length(ttMsMdiMaster.cDotnetDLL) > 0 then ttMsMdiMaster.cDotnetDLL else "[no dll]" ,
         ttMsMdiMaster.cObject).
     end.
+    
+    catch oError# as Progress.Lang.Error:
+      sc_showexception:ShowException(oError#).
+    end catch.
+    
     
     finally:
       dataset dsPackConfig:empty-dataset().
@@ -121,10 +126,10 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
 
       find ttMsPack.
       
-      if ttMsPack.cObject > "" then
+      if length(ttMsPack.cObject) > 0 then
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsPack.cObject).
         
-      if ttMsPack.cPackRegisterAs > "" then 
+      if length(ttMsPack.cPackRegisterAs) > 0 then 
       do:
         cCodeBehind# = ClassToPath(ttMsPack.cPackRegisterAs).
         if search(cCodeBehind#) <> ?
@@ -138,27 +143,27 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
       find ttMsMdiMaster no-error.
       if avail ttMsMdiMaster 
         and ttMsMdiMaster.cDotnetDLL = "" /* Meaning: no dotnet, but ABL */ 
-        and ttMsMdiMaster.cObject    > "" 
+        and length(ttMsMdiMaster.cObject) > 0 
         and ttMsMdiMaster.cObject   <> "[none]" then
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsMdiMaster.cObject).
         
       find ttMsMainFrame no-error.
       if avail ttMsMainFrame 
         and ttMsMainFrame.cDotnetDLL = "" 
-        and ttMsMainFrame.cObject    > "" 
+        and length(ttMsMainFrame.cObject) > 0 
         and ttMsMainFrame.cObject   <> "[none]" then
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsMainFrame.cObject).
 
       for each ttMsPreloadPack 
         where ttMsPreloadPack.bActive
-        and ttMsPreloadPack.cObject > "" 
+        and length(ttMsPreloadPack.cObject) > 0 
         and ttMsPreloadPack.cObject <> "[none]" on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsPreloadPack.cObject).
       end.
   
       for each ttMsScopetable 
         where ttMsScopetable.bActive 
-        and ttMsScopetable.cObject > ""
+        and length(ttMsScopetable.cObject) > 0
         and ttMsScopetable.cObject <> "[none]"
         on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsScopetable.cObject).
@@ -166,7 +171,7 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
   
       for each ttMsDatasetConstructorItem 
         where ttMsDatasetConstructorItem.bActive 
-        and ttMsDatasetConstructorItem.cClass > ""
+        and length(ttMsDatasetConstructorItem.cClass) > 0
         and ttMsDatasetConstructorItem.cClass <> "[none]"
         on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsDatasetConstructorItem.cClass).
@@ -174,7 +179,7 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
 
       for each ttMsDatasetController 
         where ttMsDatasetController.bActive
-        and ttMsDatasetController.cClass > "" 
+        and length(ttMsDatasetController.cClass) > 0 
         and ttMsDatasetController.cClass <> "[none]" 
         on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsDatasetController.cClass).
@@ -182,7 +187,7 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
 
       for each ttMsFrameLogic 
         where ttMsFrameLogic.bActive
-        and ttMsFrameLogic.cObject > "" 
+        and length(ttMsFrameLogic.cObject) > 0 
         and ttMsFrameLogic.cObject <> "[none]" 
         on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsFrameLogic.cObject).
@@ -190,7 +195,7 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
 
       for each ttMsSubframePackOvly 
         where ttMsSubframePackOvly.bActive
-        and ttMsSubframePackOvly.cObject > "" 
+        and length(ttMsSubframePackOvly.cObject) > 0 
         and ttMsSubframePackOvly.cObject <> "[none]" 
         on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsSubframePackOvly.cObject).
@@ -198,7 +203,7 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
   
       for each ttMsChildPack 
         where ttMsChildPack.bActive
-        and   ttMsChildPack.cObject > "" 
+        and   length(ttMsChildPack.cObject) > 0 
         and   ttMsChildPack.cObject <> "[none]" 
         on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(ttMsChildPack.cObject).
@@ -207,7 +212,7 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
       for each ttMsPackParamValue 
         where ttMsPackParamValue.bActive 
         and   ttMsPackParamValue.bCompilable
-        and   ttMsPackParamValue.cValue > ""
+        and   length(ttMsPackParamValue.cValue) > 0
         on error undo, throw:
         cReturn# = cReturn# + chr(10) + ClassToPath(trim(ttMsPackParamValue.cValue)).
       end.
