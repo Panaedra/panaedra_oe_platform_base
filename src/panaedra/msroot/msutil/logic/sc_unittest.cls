@@ -622,6 +622,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
     do iTell# = 1 to num-entries(cSvSourcedirsIP#):
       sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_unittest~~.p", yes,  output table ttFile append).
       sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_unittests~~.cls", yes,  output table ttFile append).
+      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_ftest~~.p", yes,  output table ttFile append).
+      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_ftests~~.cls", yes,  output table ttFile append).
     end.
     
     /* Cleanup */
