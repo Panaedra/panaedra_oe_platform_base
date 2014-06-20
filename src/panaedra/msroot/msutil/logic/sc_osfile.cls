@@ -812,7 +812,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
     if oSingleton = ? then
       oSingleton = new sc_osfile(). /* Subscribe ourselves to sessionclose broadcasted event */
     
-    if native handle thingy then... empty temp-table ttFileExpire.
+    if native handle thingy then... 
+    empty temp-table ttFileExpire.
     
     sc_osfile:GetFileNamesInDirectory(
       sc_path:cLocalIniDir + "sysref/del/", 
@@ -899,6 +900,29 @@ class panaedra.msroot.msutil.logic.sc_osfile
         ).
   
   end method. /* FlipFileToWin */
+  
+  
+  method public static logical IsFileModWithinDays(
+  
+    /* Check if the file modification age in days is within the specified amount of days */  
+    input  cFilepathIP#  as character, 
+    input  iMaxDaysIP#   as integer,
+    output iAgeInDaysOP# as integer):
+     
+    define variable bOk# as logical no-undo.    
+     
+    file-info:file-name = cFilepathIP#.    
+
+    /* Calculate the age in days */ 
+    iAgeInDaysOP# = interval(today,file-info:file-mod-date, "days").
+    
+    /* Check if the age is within iMaxDaysIP# */ 
+    if iAgeInDaysOP# <= iMaxDaysIP# then 
+      bOk# = true. 
+  
+    return bOk#. 
+    
+  end method. /* FileWithinDays */ 
   
   
   method public static character OsErrorDescription(
