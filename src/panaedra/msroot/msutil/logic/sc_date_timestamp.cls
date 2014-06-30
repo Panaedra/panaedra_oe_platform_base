@@ -199,6 +199,34 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   end method. /* GetTimeAsHHMM: time input */
 
 
+  method public static character GetDateTimeAsStringYYYYMMDDUUMM():
+  
+    /* Get the current date time in the order of year, month, day, hour and minute as YYYYMMDDUUMM */
+
+    define variable cDateTime# as character no-undo. 
+    define variable cYear#     as character no-undo. 
+    define variable cMonth#    as character no-undo. 
+    define variable cDay#      as character no-undo. 
+    define variable cHour#     as character no-undo. 
+    define variable cMinute#   as character no-undo. 
+
+    /* Get the current system date and time as: 27/06/2014 16:05:03,991+02:00
+       and extract the date and time elements into the descriptive named variables */ 
+    assign 
+      cDateTime# = string(now)
+      cYear#     = substring(cDateTime#,7,4)  
+      cDay#      = substring(cDateTime#,1,2)
+      cMonth#    = substring(cDateTime#,4,2)
+      cHour#     = substring(cDateTime#,12,2)
+      cMinute#   = substring(cDateTime#,15,2).
+
+    /* return the datetime variable elements into a string in the shape of YYYYMMDDHHMM 
+       for example 27/06/2014 15:58:33,072 results in the character string output 201427061558  */  
+    return substitute("&1&2&3&4&5", cYear#, cMonth#, cDay#, cHour#, cMinute#).    
+  
+  end method. /* GetDateTimeAsStringYYYYMMDDUUMM */
+
+
   method public static datetime TimezoneInterval(
     input iMillisecondsIP# as int64):
     
