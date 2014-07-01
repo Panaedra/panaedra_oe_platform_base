@@ -211,7 +211,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
     define variable cMinute#   as character no-undo. 
 
     /* Get the current system date and time as: 27/06/2014 16:05:03,991+02:00
-       and extract the date and time elements into the descriptive named variables */ 
+       and extract the date and time elements into descriptive named variables */ 
     assign 
       cDateTime# = string(now)
       cYear#     = substring(cDateTime#,7,4)  
@@ -221,7 +221,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
       cMinute#   = substring(cDateTime#,15,2).
 
     /* return the datetime variable elements into a string in the shape of YYYYMMDDHHMM 
-       for example 27/06/2014 15:58:33,072 results in the character string output 201427061558  */  
+       for example 27/06/2014 15:58:33,072 results in the character string output 201406271558  */  
     return substitute("&1&2&3&4&5", cYear#, cMonth#, cDay#, cHour#, cMinute#).    
   
   end method. /* GetDateTimeAsStringYYYYMMDDUUMM */
