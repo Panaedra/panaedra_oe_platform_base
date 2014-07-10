@@ -244,11 +244,14 @@ class panaedra.msroot.msutil.logic.sc_osfile
     input bRecursiveIP# as logical
     ):
 
-    define variable cLine#   as char          no-undo extent 3.
-    define variable oStream# as c_file_stream no-undo.
-    define variable dtmFile# as datetime-tz   no-undo.
-    define variable iTell#   as integer       no-undo.
-    define variable cMatch#  as character     no-undo.
+    define variable cLine#        as char          no-undo extent 3.
+    define variable oStream#      as c_file_stream no-undo.
+    define variable dtmFile#      as datetime-tz   no-undo.
+    define variable iTell#        as integer       no-undo.
+    define variable cMatch#       as character     no-undo.
+    define variable iSaveLastkey# as integer       no-undo.
+     
+    iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */ 
     
     oStream# = new c_file_stream().
     
@@ -256,7 +259,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     
     b_repeat_osdir:
     repeat on error undo, throw:
-      import stream-handle oStream#:hStream cLine#.
+      import stream-handle oStream#:hStream cLine#. /* codeQok#7126 */
       cLine#[2] = replace(cLine#[2],"~\","/").
       if cLine#[1] = "."  then next b_repeat_osdir.
       if cLine#[1] = ".." then next b_repeat_osdir.
@@ -298,6 +301,12 @@ class panaedra.msroot.msutil.logic.sc_osfile
     end.
    
     finally:
+      
+      /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
+       * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
+                         
+      last-event:set-lastkey(0, iSaveLastkey#).  
+      
       if valid-object(oStream#) then 
       do:
         do 
@@ -397,8 +406,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
   method public static character GetIniValue(
 
     /* Read values from INI files.
-       Note: the INI file must end with a linefeed.
-    */
+     * Note: the INI file must end with a linefeed.
+     */
     
     cIniIP#     as character, 
     cSectionIP# as character, 
@@ -408,9 +417,9 @@ class panaedra.msroot.msutil.logic.sc_osfile
     define variable iIndex#       as integer   no-undo.
     define variable cSection#     as character no-undo.
     define variable cRet#         as character no-undo init ?.
-    define variable iLastKeyCode# as integer   no-undo.
+    define variable iSaveLastkey# as integer   no-undo.
      
-    iLastKeyCode# = keycode(keyfunction(lastkey)). /* Remember the last key code */ 
+    iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */ 
    
     file-info:file-name = cIniIP#.
   
@@ -420,7 +429,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
   
     searchLine:
     repeat on error undo, throw:
-      import stream s-alg-in unformatted cLine#.
+      import stream s-alg-in unformatted cLine#. /* codeQok#7126 */
       cLine# = left-trim(cLine#).
       if cLine# begins ";" or cLine# = "" then next.
       if cLine# begins "[" then 
@@ -437,7 +446,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
         if entry(1,cLine#,"=") = cVarIP# then 
         do:
           cRet# = substring(cLine#,
-          index(cLine#,"=") + 1,-1).
+          index(cLine#,"=") + 1,-1). 
           leave searchLine.
         end.
       end.
@@ -446,10 +455,16 @@ class panaedra.msroot.msutil.logic.sc_osfile
   
     input stream s-alg-in close.
     
-    last-event:set-lastkey(0, iLastKeyCode#). /* The first argument is to determine the event-type (0) to read the last pressed set keypress event. 
-                                                 last-event:set-lastkey is set back to the remembered keycode in iLastKeyCode# */
-    
     return cRet#.
+    
+    finally:
+    
+      /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
+       * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
+                         
+      last-event:set-lastkey(0, iSaveLastkey#).  
+                                                
+    end finally.
   
   end method. /* GetIniValue */
   
@@ -466,13 +481,17 @@ class panaedra.msroot.msutil.logic.sc_osfile
     cVarIP#     as char, 
     cValueIP#   as char):
   
-    def var cLine#        as char no-undo.
-    def var cSection#     as char no-undo.
-    def var cPrevSection# as char no-undo.
-    def var iIndex#       as int  no-undo.
-    def var cTempFile#    as char no-undo.
-    def var bWritten#     as log  no-undo.
+    def    var      cLine#        as char    no-undo.
+    def    var      cSection#     as char    no-undo.
+    def    var      cPrevSection# as char    no-undo.
+    def    var      iIndex#       as int     no-undo.
+    def    var      cTempFile#    as char    no-undo.
+    def    var      bWritten#     as log     no-undo.
   
+    define variable iSaveLastkey# as integer no-undo.
+     
+    iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */ 
+    
     file-info:file-name = cIniIP#.
   
     if file-info:full-pathname = ? then 
@@ -493,7 +512,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     copyLines:
     repeat on error undo, throw:
    
-      import stream s-alg-in unformatted cLine#.
+      import stream s-alg-in unformatted cLine#. /* codeQok#7126 */
     
       if left-trim(cLine#) begins ";" or left-trim(cLine#) = "" then 
       do:
@@ -554,6 +573,15 @@ class panaedra.msroot.msutil.logic.sc_osfile
     os-delete value(cTempFile#).
   
     return true.
+  
+    finally:
+    
+      /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
+       * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
+                         
+      last-event:set-lastkey(0, iSaveLastkey#).  
+                                                
+    end finally.
   
   end method. /* PutIniValue */
 
@@ -815,6 +843,10 @@ class panaedra.msroot.msutil.logic.sc_osfile
     define variable cMyGuidMatch# as character   no-undo.
     define variable cFullPath#    as character   no-undo.
     define variable dtmExpire#    as datetime-tz no-undo.
+    define variable iSaveLastkey# as integer     no-undo.
+
+    iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */ 
+    
     
     if oSingleton = ? then
       oSingleton = new sc_osfile(). /* Subscribe ourselves to sessionclose broadcasted event */
@@ -842,7 +874,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
         input stream s-del-in from value(ttFileExpire.cFullPath) convert source "1252". 
         
         repeat on error undo, throw:
-          import stream s-del-in dtmExpire# cFullPath#.
+          import stream s-del-in dtmExpire# cFullPath#. /* codeQok#7126 */
           create ttLineExpire.
           assign
             ttLineExpire.cFullPath = cFullPath# 
@@ -857,6 +889,16 @@ class panaedra.msroot.msutil.logic.sc_osfile
       end.
       
     end. /* b_each_ttFileExpire ; Collect my own temp-files*/
+        
+    finally:
+    
+      /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
+       * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
+                         
+      last-event:set-lastkey(0, iSaveLastkey#).  
+                                                
+    end finally.
+    
     
     &endif
     
