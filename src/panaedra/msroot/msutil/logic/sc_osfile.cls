@@ -400,15 +400,18 @@ class panaedra.msroot.msutil.logic.sc_osfile
        Note: the INI file must end with a linefeed.
     */
     
-    cIniIP#     as char, 
-    cSectionIP# as char, 
-    cVarIP#     as char):
+    cIniIP#     as character, 
+    cSectionIP# as character, 
+    cVarIP#     as character):
   
-    def var cLine#    as char no-undo.
-    def var cSection# as char no-undo.
-    def var iIndex#   as int  no-undo.
-    def var cRet#     as char no-undo init ?.
-  
+    define variable cLine#        as character no-undo.
+    define variable iIndex#       as integer   no-undo.
+    define variable cSection#     as character no-undo.
+    define variable cRet#         as character no-undo init ?.
+    define variable iLastKeyCode# as integer   no-undo.
+     
+    iLastKeyCode# = keycode(keyfunction(lastkey)). /* Remember the last key code */ 
+   
     file-info:file-name = cIniIP#.
   
     if file-info:full-pathname = ? then return ?.
@@ -438,10 +441,14 @@ class panaedra.msroot.msutil.logic.sc_osfile
           leave searchLine.
         end.
       end.
+      
     end.
   
     input stream s-alg-in close.
-  
+    
+    last-event:set-lastkey(0, iLastKeyCode#). /* The first argument is to determine the event-type (0) to read the last pressed set keypress event. 
+                                                 last-event:set-lastkey is set back to the remembered keycode in iLastKeyCode# */
+    
     return cRet#.
   
   end method. /* GetIniValue */
