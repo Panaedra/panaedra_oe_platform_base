@@ -5,7 +5,7 @@
    Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
   Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
 
-    Description: Include die bovenaan in iedere procedure moet worden gebruikt.
+    Description: Include to be used at the top of each procedure.
 
 \**************************** End of Dvcs_ Header ****************************/
 &if '{&dvcs__panaedra_msi_logic_ptop_procedure_i}' = '' &then
