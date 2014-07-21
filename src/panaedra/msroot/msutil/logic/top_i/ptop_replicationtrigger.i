@@ -17,7 +17,12 @@ routine-level on error undo, throw.
 &glob _TOOLING_ReplicationEnabled false
 
 &if not {&_TOOLING_ReplicationEnabled} &then
-if not subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*testT*" then return. 
+if panaedra.msroot.msutil.logic.sc_environment:bLiveEnv
+  or 
+  (subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*testT*") 
+  then.   /* Do nothing -> Continue with replication trigger */
+else 
+  return. /* Andere developers even niet lastig vallen; ALLEEN LIVE en testT */ 
 &endif
 
 &endif
