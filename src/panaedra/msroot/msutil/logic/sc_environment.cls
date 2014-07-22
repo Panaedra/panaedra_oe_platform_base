@@ -387,6 +387,12 @@ class panaedra.msroot.msutil.logic.sc_environment:
   
   method public static integer GetProcessID():
     
+    &if opsys = "win32" &then
+    
+    return sc_msprocess_win32:GetProcessID().
+    
+    &else
+    
     &if {&paninui_tty} &then
  
     define variable cParent# as character no-undo.
@@ -414,7 +420,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
       input through value("ps -ef | grep $$ " + cTempID#).
    
       repeat on error undo, throw:
-        import unformatted cLine#.
+        import unformatted cLine#. /* codeQok#7126 -> fail */
         if cLine# matches "*grep $$ " + cTempID# + "*" then
         do:
           /* Get the parent process id from the temporary shell/fork */
@@ -442,9 +448,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
    
     return iReturn#. 
 
-    &else /* win32 gui */
-    
-    return sc_msprocess_win32:GetProcessID().
+    &endif
     
     &endif
     
@@ -464,7 +468,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     input through value(subst("ps vx | grep &1", iPID#)).
     
     repeat on error undo, throw:
-      import unformatted cLine#.
+      import unformatted cLine#. /* codeQok#7126 -> fail */
       if " " + cLine# matches subst("* &1*", iPID#) then 
       do:
         cLine# = trim(substring(cLine#,28,-1)).
@@ -528,7 +532,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     input stream str-in through value(cCmd#).
  
     repeat on error undo, throw:
-      import stream str-in unformatted cLine#.
+      import stream str-in unformatted cLine#. /* codeQok#7126 -> fail */
       if length(cLine#) > 0 
         and (not (substring(cLine#,65,13) = "ps -ef| grep ")) 
         then
@@ -605,7 +609,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     input stream str-in through value("ps -ef | grep $$ " + cTempID#).
  
     repeat on error undo, throw:
-      import stream str-in unformatted cLine#.
+      import stream str-in unformatted cLine#. /* codeQok#7126 -> fail */
       if cLine# matches "*grep $$ " + cTempID# + "*" then
       do:
         /* Get the parent process id from the temporary shell/fork */
@@ -621,7 +625,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     input stream str-in through value("ps -ef | grep " + cParent#).
  
     repeat on error undo, throw:
-      import stream str-in unformatted cLine#.
+      import stream str-in unformatted cLine#. /* codeQok#7126 -> fail */
       iPidLine# = int(substring(cLine#,10,7)).
       if iPidLine# > 0 
         /* Only the line that has the pid of this session */
@@ -667,7 +671,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     input stream str-in through value(cCmd#).
  
     repeat on error undo, throw:
-      import stream str-in unformatted cLine#.
+      import stream str-in unformatted cLine#. /* codeQok#7126 -> fail */
       if not cLine# matches "*" + cGrep# + "*" then
         cReturn# = cReturn# + subst(chr(10) + "&1", cLine#).
     end.
@@ -696,7 +700,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     &if opsys = "unix" &then
     
     input through "_TOOLING_".
-    import cReturn#.
+    import cReturn#. /* codeQok#7126 -> fail */
     input close.
     
     &else 
@@ -799,7 +803,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     b_read_file:
     repeat on error undo, throw:
       
-      import unformatted cLine#.
+      import unformatted cLine#. /* codeQok#7126 -> fail */
       
       if cLine# matches ("*Local Area Connection:*") then 
         bLocalAreaConnectionFound# = yes.
@@ -836,7 +840,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     &else
     
     input through value("resolv") no-echo.
-    import unformatted cIpAdres#.
+    import unformatted cIpAdres#. /* codeQok#7126 -> fail */
     input close.
     
     &endif
@@ -858,7 +862,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
       cTerminalIdIP# = replace(cTerminalIdIP#, '/dev/', '').
       
       input through value(subst('who| grep "&1 "', cTerminalIdIP#)) no-echo.
-      import unformatted cReturn#.
+      import unformatted cReturn#. /* codeQok#7126 -> fail */
       input close.
       
       if length(cReturn#) > 42 then 
