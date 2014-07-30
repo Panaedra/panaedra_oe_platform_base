@@ -71,6 +71,8 @@ class panaedra.msroot.mspy.logic.sc_mspython:
           subst("'cOsUserID'          : '&1',", sc_environment:cOsUserID) +
           subst("'cLayer'             : '&1',", sc_environment:cLayer) +
           subst("'cLang'              : '&1',", sc_environment:cLang) +
+          subst("'cSessionPid'        : '&1',", sc_environment:GetProcessID()) +
+          subst("'cSessionHostname'   : '&1',", sc_environment:cHostName) +
           subst("'cSessionGuid'       : '&1',", sc_environment:cSessionGuid) +
           subst("'cSessionGuidShort'  : '&1',", sc_environment:cSessionGuidShort) +
           subst("'cSessionGuidRemote' : '&1',", sc_environment:cSessionGuidRemote) +
