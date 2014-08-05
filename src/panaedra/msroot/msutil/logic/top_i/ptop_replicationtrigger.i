@@ -20,6 +20,8 @@ routine-level on error undo, throw.
 if panaedra.msroot.msutil.logic.sc_environment:bLiveEnv
   or 
   (subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*testT*") 
+  or 
+  (subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*_PPL_UNDISCLOSED_*") 
   then.   /* Do nothing -> Continue with replication trigger */
 else 
   return. /* Andere developers even niet lastig vallen; ALLEEN LIVE en testT */ 
