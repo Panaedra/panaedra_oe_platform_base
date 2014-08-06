@@ -37,6 +37,10 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   /* timestamp */
   define public property cTimeStamp as character no-undo get.
   
+  /* for WriteStatusLnBuf calls, automatically do a WriteStatusHeader if 
+    * something else was written in between. Also at day switch. */
+  define public property bAutoHeaders as logical no-undo get. set.
+  
   /* write a status message */
   method public void WriteStatus(cMessage# as character).
   method public void WriteStatusLn(cMessage# as character).
