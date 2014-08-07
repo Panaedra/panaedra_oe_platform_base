@@ -52,6 +52,10 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   method public void WriteStatusHeader(hBufferReportIP# as handle).
   method public void WriteStatusLnBuf(hBufferReportIP# as handle).
   
+  /* for streaming data */
+  method public handle OpenStatusStream().
+  method public void   CloseStatusStream().
+  
   /* write a error message */
   method public void WriteError(cMessage# as character).
   method public void WriteErrorLn(cMessage# as character).
