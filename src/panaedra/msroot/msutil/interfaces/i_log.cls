@@ -52,6 +52,12 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   method public void WriteStatusHeader(hBufferReportIP# as handle).
   method public void WriteStatusLnBuf(hBufferReportIP# as handle).
   
+  /* write a snapshot file. the separate snapshot file will be overwritten with each call. */
+  method public void SnapshotStatus(cMessage# as character).
+  
+  /* write a snapshot file with header. the separate snapshot file will be overwritten with each call. */
+  method public void SnapshotStatusLnBuf(hBufferReportIP# as handle).
+  
   /* for streaming data */
   method public handle OpenStatusStream().
   method public void   CloseStatusStream().
