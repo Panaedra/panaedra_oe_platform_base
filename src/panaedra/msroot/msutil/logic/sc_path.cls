@@ -413,7 +413,7 @@ class panaedra.msroot.msutil.logic.sc_path:
       cSysteemDir          = FillPathProperty(GetScPathEnv(), "cSysteemDir",opsys).
       cLogDir              = FillPathProperty(GetScPathEnv(), "cLogDir",opsys).
       cLogverboseDir       = FillPathProperty(GetScPathEnv(), "cLogverboseDir",opsys).
-      if cLogverboseDir = ? or cLogverboseDir = "" or cLogverboseDir = "?" then
+      if cLogverboseDir = ? or cLogverboseDir = "" or cLogverboseDir = "?" or cLogverboseDir = cWorkDir then
         cLogverboseDir       = FillPathProperty(GetScPathEnv(), "cLogVoortgangDir",opsys).
       cNoSweatDir          = FillPathProperty(GetScPathEnv(), "cNoSweatDir",opsys).
       c_SRVR_Dir          = FillPathProperty(GetScPathEnv(), "c_SRVR_Dir",opsys).
