@@ -140,13 +140,19 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
-  /* Voorgang log directory */
-  define public static property cLogVoortgangDir as character no-undo 
+  /* Logverbose directory */
+  define public static property cLogverboseDir as character no-undo 
     get():
       if not bTtPathInitialized then TtPathInitialize().
-      return cLogVoortgangDir.
+      return cLogverboseDir.
     end get.
     protected set.
+
+  /* "Voortgang" (bad name for cLogverbose, deprecated!!) log directory */
+  define public static property cLogVoortgangDir as character no-undo 
+    get():
+      return cLogverboseDir.
+    end get.
 
   /* _SRVR_ directory */
   define public static property cNoSweatDir as character no-undo 
@@ -290,7 +296,7 @@ class panaedra.msroot.msutil.logic.sc_path:
             leave b_param.
           end.
         end.
-        if cAssemblies# > "" 
+        if length(cAssemblies#) > 0 
           then 
         do:
           if length(cAssemblies#) > 2 
@@ -376,12 +382,17 @@ class panaedra.msroot.msutil.logic.sc_path:
         do:
           if os-getenv("REPLTARGETACTIVE") = "yes" then
             cIniDir = "/mount/progress__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-          else case os-getenv("ProfileParameter"):
-            when "_PRODUCT_Profile" then cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-            when "_SRVR_Profile"   then cIniDir = "/mount/progress__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-            when "otaProfile"    then cIniDir = "/mount/progress__PRODUCT__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-            otherwise cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-          end case.
+          else 
+            case os-getenv("ProfileParameter"):
+              when "_PRODUCT_Profile" then 
+                cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
+              when "_SRVR_Profile"   then 
+                cIniDir = "/mount/progress__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
+              when "otaProfile"    then 
+                cIniDir = "/mount/progress__PRODUCT__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
+              otherwise 
+              cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
+            end case.
         end.  
       &endif
       
@@ -401,7 +412,9 @@ class panaedra.msroot.msutil.logic.sc_path:
         cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config").
       cSysteemDir          = FillPathProperty(GetScPathEnv(), "cSysteemDir",opsys).
       cLogDir              = FillPathProperty(GetScPathEnv(), "cLogDir",opsys).
-      cLogVoortgangDir     = FillPathProperty(GetScPathEnv(), "cLogVoortgangDir",opsys).
+      cLogverboseDir       = FillPathProperty(GetScPathEnv(), "cLogverboseDir",opsys).
+      if cLogverboseDir = ? or cLogverboseDir = "" or cLogverboseDir = "?" then
+        cLogverboseDir       = FillPathProperty(GetScPathEnv(), "cLogVoortgangDir",opsys).
       cNoSweatDir          = FillPathProperty(GetScPathEnv(), "cNoSweatDir",opsys).
       c_SRVR_Dir          = FillPathProperty(GetScPathEnv(), "c_SRVR_Dir",opsys).
       cNonstaticDir        = FillPathProperty(GetScPathEnv(), "cNonstaticDir",opsys).
@@ -829,7 +842,8 @@ class panaedra.msroot.msutil.logic.sc_path:
     if index(cPathStringIOP#,"[:cIniDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cIniDir:]"          ,sc_path:cIniDir          ).
     if index(cPathStringIOP#,"[:cLocalIniDir:]"     ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLocalIniDir:]"     ,sc_path:cLocalIniDir     ).
     if index(cPathStringIOP#,"[:cLogDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogDir:]"          ,sc_path:cLogDir          ).
-    if index(cPathStringIOP#,"[:cLogVoortgangDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogVoortgangDir:]" ,sc_path:cLogVoortgangDir ).
+    if index(cPathStringIOP#,"[:cLogVerboseDir:]"   ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogVerboseDir:]"   ,sc_path:cLogVerboseDir   ).
+    if index(cPathStringIOP#,"[:cLogVoortgangDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogVoortgangDir:]" ,sc_path:cLogVerboseDir   ).
     if index(cPathStringIOP#,"[:cNaarWanDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarWanDir:]"      ,sc_path:cNaarWanDir      ).
     if index(cPathStringIOP#,"[:cNaarWebDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarWebDir:]"      ,sc_path:cNaarWebDir      ).
     if index(cPathStringIOP#,"[:cNonstaticDir:]"    ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNonstaticDir:]"    ,sc_path:cNonstaticDir    ).
@@ -871,6 +885,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     if index(cPathStringIOP#,"[:cIniDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cIniDir:]"          ,GetDirOfOtherEnv(cEnvIP#,"cIniDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cLocalIniDir:]"     ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLocalIniDir:]"     ,GetDirOfOtherEnv(cEnvIP#,"cLocalIniDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cLogDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogDir:]"          ,GetDirOfOtherEnv(cEnvIP#,"cLogDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cLogVerboseDir:]"   ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogVerboseDir:]"   ,GetDirOfOtherEnv(cEnvIP#,"cLogVerboseDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cLogVoortgangDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogVoortgangDir:]" ,GetDirOfOtherEnv(cEnvIP#,"cLogVoortgangDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cNaarWanDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarWanDir:]"      ,GetDirOfOtherEnv(cEnvIP#,"cNaarWanDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cNaarWebDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarWebDir:]"      ,GetDirOfOtherEnv(cEnvIP#,"cNaarWebDir",cOpsysIP#)).

@@ -62,8 +62,14 @@ class panaedra.msroot.mspy.logic.sc_mspython:
           subst("'cEnv'               : '&1',", sc_environment:cEnv) +
           subst("'bLiveEnv'           :  &1 ,", trim(string(sc_environment:bLiveEnv,"True/False"))) +
           subst("'cUiMode'            : '&1',", sc_boot:SessionParameter("UiMode")) +
-          subst("'cLogDir'            : '&1',", sc_boot:SessionParameter("LogDir")) +
           subst("'cSharedIniDir'      : '&1',", sc_boot:SessionParameter("SharedIniDir")) +
+          subst("'cIniDir'            : '&1',", sc_path:cIniDir) +
+          subst("'cLogDir'            : '&1',", sc_path:cLogDir) +
+          subst("'cLogverboseDir'     : '&1',", sc_path:cLogverboseDir) +
+          subst("'cWorkDir'           : '&1',", sc_path:cWorkDir) +
+          subst("'cTempDir'           : '&1',", sc_path:cTempDir) +
+          subst("'cDataExchangeDir'   : '&1',", sc_path:cDataExchangeDir) +
+          subst("'cDataRecoveryDir'   : '&1',", sc_path:cDataRecoveryDir) +
           subst("'cDevIP'             : '&1',", sc_boot:SessionParameter("DevIP")) +
           subst("'cOtaPath'           : '&1',", sc_boot:SessionParameter("OtaPath")) +
           subst("'cAsMode'            : '&1',", sc_boot:SessionParameter("AsMode")) +
