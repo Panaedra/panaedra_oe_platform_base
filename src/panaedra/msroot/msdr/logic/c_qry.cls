@@ -41,6 +41,10 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   define property sys__oBindingSource as c_bindingsource no-undo 
     public get. 
     public set.
+    
+  define protected property bFireEventsEnabled as logical no-undo 
+    get.
+    set. 
 
   define property iNumResults         as integer no-undo 
     public get:
@@ -110,11 +114,22 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
 
   constructor public c_qry(hQueryIP# as handle):
-    
-    sys__hQuery = hQueryIP#.
+
+    assign    
+      sys__hQuery = hQueryIP#
+      bFireEventsEnabled = true.
 
   end constructor.
+  
+  
+  constructor public c_qry(hQueryIP# as handle, bFireEventsEnabledIP# as logical):
 
+    assign    
+      bFireEventsEnabled = bFireEventsEnabledIP#
+      sys__hQuery        = hQueryIP#.
+
+  end constructor.
+  
 
   method public void PrepareStringGenSimple():
     
@@ -486,7 +501,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     if bReturn# and bPointerBeforeFirstIP# then sys__hQuery:get-prev().
     
     /* Fire a broad scope event, for sc_coll_*.cls */
-    sc_eventbroadcaster:FireEvent("evt@c_qry@queryopen", this-object).
+    if bFireEventsEnabled then sc_eventbroadcaster:FireEvent("evt@c_qry@queryopen", this-object).
     
     cName# = cName.
     if cName# > "" then 
@@ -495,7 +510,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
          The query name should include a pack id or other scope identifier,
          i.e.: qXyZoner@000001.
        */
-      sc_eventbroadcaster:FireEvent(subst("evt@c_qry@queryopen@&1", cName#), this-object).
+      if bFireEventsEnabled then sc_eventbroadcaster:FireEvent(subst("evt@c_qry@queryopen@&1", cName#), this-object).
     end.
     
     return bReturn#.
@@ -535,7 +550,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
      */
     
     sys__hQuery:query-close().
-    sc_eventbroadcaster:FireEvent("evt@c_qry@queryclose", this-object).
+    if bFireEventsEnabled then sc_eventbroadcaster:FireEvent("evt@c_qry@queryclose", this-object).
     
   end method. /* QueryClose */
   
@@ -543,7 +558,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   method public logical GetPrev():
     
     sys__hQuery:get-prev().
-    sc_eventbroadcaster:FireEvent("evt@c_qry@querygetprev", this-object).
+    if bFireEventsEnabled then sc_eventbroadcaster:FireEvent("evt@c_qry@querygetprev", this-object).
     return not sys__hQuery:query-off-end.
     
   end method. /* QueryGetPrev */
@@ -552,7 +567,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   method public logical GetNext():
     
     sys__hQuery:get-next().
-    sc_eventbroadcaster:FireEvent("evt@c_qry@querygetnext", this-object).
+    if bFireEventsEnabled then sc_eventbroadcaster:FireEvent("evt@c_qry@querygetnext", this-object).
     return not sys__hQuery:query-off-end.
     
   end method. /* QueryGetNext */
@@ -565,7 +580,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   end method. /* QueryOffEnd */
 
 
-  method public static panaedra.msroot.msdr.interfaces.i_qry CreateClone(
+  method public static panaedra.msroot.msdr.interfaces.i_qry CreateClone( /* codeQok#7302 */
     
     /* Use this method to create a clone of a i_qry object.
     
@@ -590,7 +605,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   end method.
   
 
-  method public static panaedra.msroot.msdr.interfaces.i_qry CreateClone(
+  method public static panaedra.msroot.msdr.interfaces.i_qry CreateClone( /* codeQok#7302 */
     
     /* Use this method to create a clone of a i_qry object.
 
@@ -774,7 +789,7 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     do:
       oBindingSource#:ResetCurrentItem().
       /* Fire a broad scope event, for sc_coll_*.cls */
-      sc_eventbroadcaster:FireEvent("evt@c_qry@UiResetCurrentItem", this-object).
+      if bFireEventsEnabled then sc_eventbroadcaster:FireEvent("evt@c_qry@UiResetCurrentItem", this-object).
     end.
 
   end method. /* UiResetCurrentItem */
