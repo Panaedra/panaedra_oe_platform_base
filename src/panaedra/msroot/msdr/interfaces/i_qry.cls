@@ -19,7 +19,6 @@ interface panaedra.msroot.msdr.interfaces.i_qry:
   define public property iNumBuffers         as integer   no-undo get.
   define public property cPrepareString      as character no-undo get.
   define public property bIsOpen             as logical   no-undo get.
-  define public property cName               as character no-undo get. set.
 
   define public property sys__hQuery         as handle    no-undo get. set.
   define public property sys__hQueryOnHold   as handle    no-undo get. set.
