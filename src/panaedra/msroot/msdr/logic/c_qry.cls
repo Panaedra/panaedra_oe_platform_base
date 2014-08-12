@@ -71,14 +71,13 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
       hQueryPrivate = hQueryIP#.
     end set.
   
-  define public property sys__hQueryOnHold as handle no-undo
-    get:
-      return hQueryOnHoldPrivate.
-    end get.
-    set(hQueryIP# as handle): 
-      hQueryOnHoldPrivate = hQueryIP#.
-    end set.
-  
+ define public property sys__hQueryOnHold as handle no-undo
+   get:
+     return hQueryOnHoldPrivate.
+   end get.
+   set(hQueryIP# as handle): 
+     hQueryOnHoldPrivate = hQueryIP#.
+   end set.  
 
   define public property cPrepareString as character no-undo 
     get:
@@ -90,18 +89,6 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
     get:
       return if valid-handle(sys__hQuery) then sys__hQuery:is-open else ?.
     end get. /* cPrepareString */
-
-
-  define public property cName as character no-undo 
-    get:
-      define variable cReturn# as character no-undo.
-      if cName > "" then return cName.
-      if valid-handle(sys__hQuery) and sys__hQuery:name <> ? then cName = sys__hQuery:name.
-      return cName.
-    end get. /* cName */
-    set(cValueIP# as character):
-      cName = cValueIP#.
-    end set.
 
   define public property hDisplayField as handle extent no-undo get. set.
    
@@ -492,26 +479,15 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   method public logical QueryOpen(bPointerBeforeFirstIP# as logical):
     
     define variable bReturn# as logical   no-undo.
-    define variable cName#   as character no-undo.
     
     sys__hQuery:query-open().
     sys__hQuery:get-first().
     bReturn# = not sys__hQuery:query-off-end.
     
     if bReturn# and bPointerBeforeFirstIP# then sys__hQuery:get-prev().
-    
+
     /* Fire a broad scope event, for sc_coll_*.cls */
     if bFireEventsEnabled then sc_eventbroadcaster:FireEvent("evt@c_qry@queryopen", this-object).
-    
-    cName# = cName.
-    if cName# > "" then 
-    do:
-      /* Fire an event with a smaller scope, for custom logic procedures.
-         The query name should include a pack id or other scope identifier,
-         i.e.: qXyZoner@000001.
-       */
-      if bFireEventsEnabled then sc_eventbroadcaster:FireEvent(subst("evt@c_qry@queryopen@&1", cName#), this-object).
-    end.
     
     return bReturn#.
 
