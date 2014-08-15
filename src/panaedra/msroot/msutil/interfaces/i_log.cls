@@ -52,7 +52,10 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   method public void WriteStatusHeader(hBufferReportIP# as handle).
   method public void WriteStatusLnBuf(hBufferReportIP# as handle).
   
-  /* write a snapshot file. the separate snapshot file will be overwritten with each call. */
+  /* write a snapshot file. the separate snapshot file will be overwritten with each call.
+   * suffix:  Optional. If you need one: give a SHORT tag (4 to 6 chars) that will be appended 
+   *          to the snapshot logfile name.
+   * message: The complete contents for the snapshot file, including all newlines. */
   method public void SnapshotStatus(cSuffixIP# as character, cMessageIP# as character).
   
   /* write a snapshot file with header. the separate snapshot file will be overwritten with each call. */
