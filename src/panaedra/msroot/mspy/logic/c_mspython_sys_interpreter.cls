@@ -54,10 +54,22 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_interpreter
       
       when "evt@SessionClose" then 
         do:
-          /* Let python objects first do their thing */
+          /* Note: Let python objects first do their thing */
           sc_eventbroadcaster:FireEvent("evt@PythonInterpreterExit").
-          /* Cleanup python interpreter */
-          if valid-handle(hProcInitFinalyzePython) then run QxPy_FinalizeInterpreter in hProcInitFinalyzePython.
+          /* Note: Cleanup python interpreter */
+          if valid-handle(hProcInitFinalyzePython) then 
+          do:
+            do on error undo, throw:
+              /* Note: AllObjectsToTrash ->
+               *   Implemented while bugfixing CORE dump _TOOLING_ at end of ABL session. 
+               *   The problem is generic, so this solution applies to all sessions. */
+              sc_mspysys:AllObjectsToTrash().
+              catch oError# as Progress.Lang.Error:
+                sc_showexception:ShowException(oError#).  
+              end catch.
+            end.
+            run QxPy_FinalizeInterpreter in hProcInitFinalyzePython.
+          end.
           delete object this-object.
         end.
         

@@ -25,6 +25,7 @@ class panaedra.msroot.mspy.logic.sc_mspysys:
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected static variable oPySleep as c_mspython_call no-undo.
+  define protected static variable oPyTrash as c_mspython_call no-undo.
 
   method public static void MicroSleep(
   
@@ -48,6 +49,24 @@ class panaedra.msroot.mspy.logic.sc_mspysys:
     end.
     
   end method.  /* MicroSleep */
+
+
+  method public static void AllObjectsToTrash(
+  
+    /* Does a 'del' on all python class objects.
+     * Prevents core dumps at the end of an ABL session. */
+     
+    ):
+    
+    if not valid-object(oPyTrash) then
+      oPyTrash = new c_mspython_call("Trash","sc_mspysys","AllObjectsToTrash","panaedra.msroot.msutil.logic.").
+
+    oPyTrash:clobDataIn = "". 
+    oPyTrash:PyRunU().
+    if length(oPyTrash:clobError) > 0 then
+      undo, throw new c_panaedraexception(99959153,sc_lang:oEnglish,substitute("&1", oPyTrash:clobError)).
+    
+  end method.  /* AllObjectsToTrash */
 
 end class.
 
