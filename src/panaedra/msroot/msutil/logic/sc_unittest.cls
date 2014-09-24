@@ -95,15 +95,24 @@ class panaedra.msroot.msutil.logic.sc_unittest
     oUnittestClassIP# as i_unittest_client,
     cTestIDIP#        as character):
 
-    define variable bFirstOfTwo# as logical no-undo.
+    define variable bFirstOfTwo#      as logical   no-undo.
+    define variable cUnittestMoreEnv# as character no-undo.
+    define variable bUnittestMoreEnv# as logical   no-undo.
     
     if sc_environment:bLiveEnv then
       undo, throw new c_panaedraexception(
         99958111,
         sc_lang:oEnglish,
         substitute("Running of unit tests in a live environment is NEVER allowed. TestID='&1'", cTestIDIP#)).
-
-    if not sc_environment:cEnv matches "*tst*" then 
+    
+    cUnittestMoreEnv# = os-getenv("UNITTEST_MORE_ENV"). /* For developers who temporarily want to unittest in a different test or stage environment */
+    
+    if length(cUnittestMoreEnv#) > 0 and logical(cUnittestMoreEnv#) then 
+    do:
+      bUnittestMoreEnv# = true.
+    end.
+    
+    if (not bUnittestMoreEnv#) and (not sc_environment:cEnv matches "*tst*") then 
     do:
       if sc_environment:bBatchMode then
         undo, throw new c_panaedraexception(
