@@ -19,6 +19,8 @@ routine-level on error undo, throw.
 &if not {&_TOOLING_ReplicationEnabled} &then
 if panaedra.msroot.msutil.logic.sc_environment:bLiveEnv
   or 
+  (trim(subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#"))," ?") = "") 
+  or 
   (subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*testT*") 
   or 
   (subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*_PPL_UNDISCLOSED_*") 
