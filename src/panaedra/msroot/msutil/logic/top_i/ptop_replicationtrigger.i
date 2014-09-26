@@ -17,16 +17,20 @@ routine-level on error undo, throw.
 &glob _TOOLING_ReplicationEnabled false
 
 &if not {&_TOOLING_ReplicationEnabled} &then
+/* Live environment: _TOOLING_ always active */
 if panaedra.msroot.msutil.logic.sc_environment:bLiveEnv
   or 
-  (trim(subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#"))," ?") = "") 
+  /* Tst environment: replication active for automatic unit tests (no DevToken) */
+  (panaedra.msroot.msutil.logic.sc_environment:cEnv = "tst" and trim(subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#"))," ?") = "") 
   or 
+  /* testT DevToken: _TOOLING_ always active (testT has own endpoint) */
   (subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*testT*") 
   or 
+  /* _PPL_UNDISCLOSED_ DevToken: _TOOLING_ always active (_PPL_UNDISCLOSED_ has own endpoint) */
   (subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*_PPL_UNDISCLOSED_*") 
   then.   /* Do nothing -> Continue with replication trigger */
 else 
-  return. /* Andere developers even niet lastig vallen; ALLEEN LIVE en testT */ 
+  return. /* Don't disturb other developers */ 
 &endif
 
 &endif
