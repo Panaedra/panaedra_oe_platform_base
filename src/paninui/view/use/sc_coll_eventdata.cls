@@ -453,10 +453,10 @@ class paninui.view.use.sc_coll_eventdata
                 oFormsCombobox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
               
               when "DelayedTextChanged" then
-              do: 
-                if type-of(oFormsCombobox#,paninui.view.loose.widgets.c_forms_delayed_combobox) then
-                  cast(oFormsCombobox#,paninui.view.loose.widgets.c_forms_delayed_combobox):DelayedTextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
-              end.
+                do: 
+                  if type-of(oFormsCombobox#,paninui.view.loose.widgets.c_forms_delayed_combobox) then
+                    cast(oFormsCombobox#,paninui.view.loose.widgets.c_forms_delayed_combobox):DelayedTextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+                end.
               
               when "SelectionChangeCommitted" 
               then oFormsCombobox#:SelectionChangeCommitted:Subscribe(oSingleton:OnEventArgsHandler_SelectionChangeCommitted).
@@ -734,9 +734,9 @@ class paninui.view.use.sc_coll_eventdata
     define variable oSelection#       as c_uivalue_selection               no-undo.
     define variable bFirst#           as logical                           no-undo init true.
 
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable oFocus#           as Progress.Lang.Object              no-undo.
+    define variable iFocusPackID#     as int64                             no-undo.
+    define variable cFocusLinkName#   as character                         no-undo.
     
     define variable iSuspendedPackID# as int64                             no-undo.
     define buffer ttUiEvent for ttUiEvent.
@@ -782,13 +782,13 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_SortRequest(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix# as logical                           no-undo.
-    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    define variable bEclipseFix#    as logical                           no-undo.
+    define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#         as logical                           no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object              no-undo.
+    define variable iFocusPackID#   as int64                             no-undo.
+    define variable cFocusLinkName# as character                         no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -817,11 +817,11 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_ColumnSortModeChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
+    define variable bFirst#         as logical                           no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object              no-undo.
+    define variable iFocusPackID#   as int64                             no-undo.
+    define variable cFocusLinkName# as character                         no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -850,14 +850,14 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_CurrentCellChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix#  as logical                               no-undo.
-    define variable oUiValue#     as paninui.view.interfaces.i_uivalue     no-undo.
-    define variable oUiEventData# as paninui.view.use.events.c_uieventdata no-undo.
+    define variable bEclipseFix#    as logical                               no-undo.
+    define variable oUiValue#       as paninui.view.interfaces.i_uivalue     no-undo.
+    define variable oUiEventData#   as paninui.view.use.events.c_uieventdata no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#         as logical                               no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object                  no-undo.
+    define variable iFocusPackID#   as int64                                 no-undo.
+    define variable cFocusLinkName# as character                             no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -914,10 +914,10 @@ class paninui.view.use.sc_coll_eventdata
     define variable oUiValue#                as paninui.view.interfaces.i_uivalue      no-undo.
     define variable bInvokePrepared#         as logical                                no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#                  as logical                                no-undo init true.
+    define variable oFocus#                  as Progress.Lang.Object                   no-undo.
+    define variable iFocusPackID#            as int64                                  no-undo.
+    define variable cFocusLinkName#          as character                              no-undo.
         
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1002,15 +1002,15 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_TextChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix# as logical                           no-undo.
-    define variable oComboBox#   as System.Windows.Forms.ComboBox     no-undo.
-    define variable oTextBox#    as System.Windows.Forms.TextBox      no-undo.
-    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    define variable bEclipseFix#    as logical                           no-undo.
+    define variable oComboBox#      as System.Windows.Forms.ComboBox     no-undo.
+    define variable oTextBox#       as System.Windows.Forms.TextBox      no-undo.
+    define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#         as logical                           no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object              no-undo.
+    define variable iFocusPackID#   as int64                             no-undo.
+    define variable cFocusLinkName# as character                         no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1066,10 +1066,10 @@ class paninui.view.use.sc_coll_eventdata
     define variable bHandled#         as logical                                        no-undo.
     define variable cPreviousText#    as character                                      no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#           as logical                                        no-undo init true.
+    define variable oFocus#           as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#     as int64                                          no-undo.
+    define variable cFocusLinkName#   as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1128,13 +1128,13 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_SelectedValueChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable oComboBox# as System.Windows.Forms.ComboBox     no-undo.
-    define variable oUiValue#  as paninui.view.interfaces.i_uivalue no-undo.
+    define variable oComboBox#      as System.Windows.Forms.ComboBox     no-undo.
+    define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#         as logical                           no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object              no-undo.
+    define variable iFocusPackID#   as int64                             no-undo.
+    define variable cFocusLinkName# as character                         no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1169,14 +1169,14 @@ class paninui.view.use.sc_coll_eventdata
     
   method private void OnEventArgsHandler_SelectedIndexChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable oComboBox#   as System.Windows.Forms.ComboBox     no-undo.
-    define variable oTabControl# as System.Windows.Forms.TabControl   no-undo.
-    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    define variable oComboBox#      as System.Windows.Forms.ComboBox     no-undo.
+    define variable oTabControl#    as System.Windows.Forms.TabControl   no-undo.
+    define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#         as logical                           no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object              no-undo.
+    define variable iFocusPackID#   as int64                             no-undo.
+    define variable cFocusLinkName# as character                         no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1218,13 +1218,13 @@ class paninui.view.use.sc_coll_eventdata
     
   method private void OnEventArgsHandler_DropDown(oSender# as System.Object, oArgs# as System.EventArgs):
                                                      
-    define variable oComboBox# as System.Windows.Forms.ComboBox     no-undo.
-    define variable oUiValue#  as paninui.view.interfaces.i_uivalue no-undo.
+    define variable oComboBox#      as System.Windows.Forms.ComboBox     no-undo.
+    define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#         as logical                           no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object              no-undo.
+    define variable iFocusPackID#   as int64                             no-undo.
+    define variable cFocusLinkName# as character                         no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1259,13 +1259,13 @@ class paninui.view.use.sc_coll_eventdata
     
   method private void OnEventArgsHandler_DropDownClosed(oSender# as System.Object, oArgs# as System.EventArgs):
                                                      
-    define variable oComboBox# as System.Windows.Forms.ComboBox     no-undo.
-    define variable oUiValue#  as paninui.view.interfaces.i_uivalue no-undo.
+    define variable oComboBox#      as System.Windows.Forms.ComboBox     no-undo.
+    define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#         as logical                           no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object              no-undo.
+    define variable iFocusPackID#   as int64                             no-undo.
+    define variable cFocusLinkName# as character                         no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1342,10 +1342,10 @@ class paninui.view.use.sc_coll_eventdata
         do:
           assign
             oFormsKeyPressArgs# = cast(oArgs#, System.Windows.Forms.KeyPressEventArgs).
-          if ttUiEvent.cSvFilterKeyCode > "" 
+          if length(ttUiEvent.cSvFilterKeyCode) > 0 
             and lookup(string(oFormsKeyPressArgs#:KeyChar), ttUiEvent.cSvFilterKeyCode) = 0 
             then next b_EachUiEvent.
-          if ttUiEvent.cSvFilterKeyCodeNoFocus > "" 
+          if length(ttUiEvent.cSvFilterKeyCodeNoFocus) > 0 
             and ttUiEvent.iPackID <> iFocusPackID#
             and lookup(string(oFormsKeyPressArgs#:KeyChar), ttUiEvent.cSvFilterKeyCodeNoFocus) = 0 
             then next b_EachUiEvent.
@@ -1465,10 +1465,10 @@ class paninui.view.use.sc_coll_eventdata
           assign
             oFormsKeyArgs# = cast(oArgs#, System.Windows.Forms.KeyEventArgs)
             cCasedLetter#  = string(oFormsKeyArgs#:KeyCode).
-          if ttUiEvent.cSvFilterKeyCode > "" 
+          if length(ttUiEvent.cSvFilterKeyCode) > 0
             and lookup(string(oFormsKeyArgs#:KeyCode), ttUiEvent.cSvFilterKeyCode) = 0 
             then next b_EachUiEvent.
-          if ttUiEvent.cSvFilterKeyCodeNoFocus > "" 
+          if length(ttUiEvent.cSvFilterKeyCodeNoFocus) > 0 
             and ttUiEvent.iPackID <> iFocusPackID#
             and lookup(string(oFormsKeyArgs#:KeyCode), ttUiEvent.cSvFilterKeyCodeNoFocus) = 0 
             then next b_EachUiEvent.
@@ -1565,10 +1565,10 @@ class paninui.view.use.sc_coll_eventdata
           assign
             oFormsKeyArgs# = cast(oArgs#, System.Windows.Forms.KeyEventArgs)
             cCasedLetter#  = string(oFormsKeyArgs#:KeyCode).
-          if ttUiEvent.cSvFilterKeyCode > "" 
+          if length(ttUiEvent.cSvFilterKeyCode) > 0 
             and lookup(string(oFormsKeyArgs#:KeyCode), ttUiEvent.cSvFilterKeyCode) = 0 
             then next b_EachUiEvent.
-          if ttUiEvent.cSvFilterKeyCodeNoFocus > "" 
+          if length(ttUiEvent.cSvFilterKeyCodeNoFocus) > 0 
             and ttUiEvent.iPackID <> iFocusPackID#
             and lookup(string(oFormsKeyArgs#:KeyCode), ttUiEvent.cSvFilterKeyCodeNoFocus) = 0 
             then next b_EachUiEvent.
@@ -1627,10 +1627,10 @@ class paninui.view.use.sc_coll_eventdata
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue                    no-undo.
     define variable iIDCurrentRow#  as int64                                                no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#         as logical                                              no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object                                 no-undo.
+    define variable iFocusPackID#   as int64                                                no-undo.
+    define variable cFocusLinkName# as character                                            no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1679,10 +1679,10 @@ class paninui.view.use.sc_coll_eventdata
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue              no-undo.
     define variable iIDCurrentRow#  as int64                                          no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#         as logical                                        no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#   as int64                                          no-undo.
+    define variable cFocusLinkName# as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1735,10 +1735,10 @@ class paninui.view.use.sc_coll_eventdata
     define variable oFormsGridArgs# as System.Windows.Forms.DataGridViewCellEventArgs no-undo.
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue              no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#         as logical                                        no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#   as int64                                          no-undo.
+    define variable cFocusLinkName# as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1779,10 +1779,10 @@ class paninui.view.use.sc_coll_eventdata
     define variable oFormsGridArgs# as System.Windows.Forms.DataGridViewCellEventArgs no-undo.
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue              no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#         as logical                                        no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object                           no-undo.
+    define variable iFocusPackID#   as int64                                          no-undo.
+    define variable cFocusLinkName# as character                                      no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1818,14 +1818,14 @@ class paninui.view.use.sc_coll_eventdata
 
   method private void OnEventArgsHandler_CurrentCellDirtyStateChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix# as logical                           no-undo.
-    define variable oFormsGrid#  as System.Windows.Forms.DataGridView no-undo.
-    define variable oUiValue#    as paninui.view.interfaces.i_uivalue no-undo.
+    define variable bEclipseFix#    as logical                           no-undo.
+    define variable oFormsGrid#     as System.Windows.Forms.DataGridView no-undo.
+    define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
 
-    define variable bFirst#             as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirst#         as logical                           no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object              no-undo.
+    define variable iFocusPackID#   as int64                             no-undo.
+    define variable cFocusLinkName# as character                         no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -2152,15 +2152,15 @@ class paninui.view.use.sc_coll_eventdata
     /* To debug this, call DebugShowData just before you call EventsResume.          */
     /* You will see the suspend "flags" (bSuspendAll) and all suspended real events. */
     
-    define variable oUiValue#          as i_uivalue     no-undo.
-    define variable oUiEventData#      as i_uieventdata no-undo.
-    define variable bFirst#            as logical       no-undo init true.
-    define variable oUiValueSelection# as i_uivalue     no-undo.
+    define variable oUiValue#          as i_uivalue            no-undo.
+    define variable oUiEventData#      as i_uieventdata        no-undo.
+    define variable bFirst#            as logical              no-undo init true.
+    define variable oUiValueSelection# as i_uivalue            no-undo.
 
-    define variable bFirstFocus#        as logical                                        no-undo init true.
-    define variable oFocus#             as Progress.Lang.Object                           no-undo.
-    define variable iFocusPackID#       as int64                                          no-undo.
-    define variable cFocusLinkName#     as character                                      no-undo.
+    define variable bFirstFocus#       as logical              no-undo init true.
+    define variable oFocus#            as Progress.Lang.Object no-undo.
+    define variable iFocusPackID#      as int64                no-undo.
+    define variable cFocusLinkName#    as character            no-undo.
     
     define buffer ttEventsSuspend   for ttEventsSuspend.
     define buffer b-ttEventsSuspend for ttEventsSuspend.
