@@ -17,6 +17,10 @@ routine-level on error undo, throw.
 &glob _TOOLING_ReplicationEnabled false
 
 &if not {&_TOOLING_ReplicationEnabled} &then
+
+if (not panaedra.msroot.msutil.logic.sc_environment:bLiveEnv) and (opsys = "win32") then 
+  return. /* Python support is not yet implemented in windows. For testing/debugging, allow non live procedures to proceed. */
+
 /* Live environment: _TOOLING_ always active */
 if panaedra.msroot.msutil.logic.sc_environment:bLiveEnv
   or 
