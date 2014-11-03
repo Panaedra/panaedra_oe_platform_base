@@ -29,9 +29,6 @@ if panaedra.msroot.msutil.logic.sc_environment:bLiveEnv
   or 
   /* testT DevToken: _TOOLING_ always active (testT has own endpoint) */
   (subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*testT*") 
-  or 
-  /* _PPL_UNDISCLOSED_ DevToken: _TOOLING_ always active (_PPL_UNDISCLOSED_ has own endpoint) */
-  (subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*_PPL_UNDISCLOSED_*") 
   then.   /* Do nothing -> Continue with replication trigger */
 else 
   return. /* Don't disturb other developers */ 
