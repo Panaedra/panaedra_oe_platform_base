@@ -1007,8 +1007,8 @@ class panaedra.msroot.msutil.logic.sc_path:
   method public static logical HasValidExt(
     
     /* Is the filepath extension valid according to the comma separated cExtensionIP# input */ 
-    input cFilepathIP# as character, 
-    input cExtensionIP# as character 
+    input cFilepathIP#    as character, 
+    input cSvExtensionIP# as character 
     ):
     
     define variable cFileExt#     as character no-undo.
@@ -1018,7 +1018,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     /* Get file extension */ 
     cFileExt# = SplitGetFileExt(cFilepathIP#). 
     
-    if lookup(cFileExt#, cExtensionIP#) > 0 then 
+    if lookup(cFileExt#, cSvExtensionIP#) > 0 then 
       bHasValidExt# = true.
     
     return bHasValidExt#.
