@@ -411,7 +411,8 @@ class panaedra.msroot.msutil.logic.sc_environment:
       GetHostName() = "_PRODUCT_" or                                                     /* codeQok#7110 */
       /* Do it the old way if our python library is not present                          codeQok#7110 */
       search({&UnixGetPidLib}) = ? 
-      then do:
+      then 
+    do:
       
       /* Do it the old way that does not work 100 percent OK all the time */
       
@@ -432,7 +433,8 @@ class panaedra.msroot.msutil.logic.sc_environment:
       iReturn# = integer(cParent#).
       
     end.
-    else do:
+    else 
+    do:
       
       /* Do it the new way that does work 100 percent OK, but is dependent on a custom dll/shared object. */
       
@@ -891,6 +893,32 @@ class panaedra.msroot.msutil.logic.sc_environment:
     return cRet#.
     
   end method. /* GetOsEnv */
+  
+  
+  method public static character GetUserIdStrong(
+    
+    /* Get the current userid in various ways.
+       If a db is connected, use the userid() function.
+       If no db connected, or connected but not logged in, continue.
+       Find by os username.
+    */
+    
+    ):
+
+    define variable cRet# as character no-undo.
+      
+    if num-dbs > 0 then
+      cRet# = userid(ldbname(1)).
+      
+    if cRet# = ? or length(cRet#) = 0 then
+      cRet# = cUserID.  
+        
+    if cRet# = ? or length(cRet#) = 0 then
+      cRet# = cOsUserID.
+        
+    return cRet#.
+        
+  end method. /* GetUserIdStrong */
   
 end class.
 
