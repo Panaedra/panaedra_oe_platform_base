@@ -33,6 +33,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   define protected static variable cBootProcedure  as character no-undo.
   define public static    variable bDebugLogAsync  as logical   no-undo.
   define public static    variable oLog            as i_log     no-undo.
+  define public static    variable cRemoteUserID   as character no-undo.
   
 
   define static property cCodepageNative as character no-undo init ?
@@ -898,6 +899,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   method public static character GetUserIdStrong(
     
     /* Get the current userid in various ways.
+       If cRemoteUserID is set, use it.
        If a db is connected, use the userid() function.
        If no db connected, or connected but not logged in, continue.
        Find by os username.
@@ -906,8 +908,12 @@ class panaedra.msroot.msutil.logic.sc_environment:
     ):
 
     define variable cRet# as character no-undo.
+    
+    if length(cRemoteUserID) > 0 then 
+      /* This is used in batches like _TOOLING_, because we want the original user in lograw.uspid (_TERM_UNDISCLOSED_ mutatie historie) */
+      cRet# = cRemoteUserID. 
       
-    if num-dbs > 0 then
+    if cRet# = ? or length(cRet#) = 0  and num-dbs > 0 then
       cRet# = userid(ldbname(1)).
       
     if cRet# = ? or length(cRet#) = 0 then
