@@ -50,6 +50,15 @@ class panaedra.msroot.msutil.logic.sc_unittest
     field dtmLastFinish   as datetime-tz
     index cTestID is primary unique cTestID.
 
+  define protected static temp-table ttUtSocketClient no-undo
+    field hProc         as handle
+    field hSock         as handle
+    field cSockGuid     as character
+    field cLastResponse as character
+    field dtmLastPing   as datetime-tz
+    index hProc is primary unique hProc
+    index cSockGuid is unique     cSockGuid.
+
   define protected static variable oSingleton            as sc_unittest no-undo.
   define protected static variable cLogFile              as character   no-undo.
   define protected static variable cPreviousGlobalTestID as character   no-undo.
@@ -57,15 +66,201 @@ class panaedra.msroot.msutil.logic.sc_unittest
   define protected static variable bFirstOfTwo           as logical     no-undo. /* If a unittest has finished okay, it's run a second time for memleak check. Stored in bFirstOfTwo. */
   define protected static variable bRunOnNonTstOkay      as logical     no-undo.
   define protected static variable bBusyUnittesting      as logical     no-undo.
+  define protected static variable hProcUtServerSocket   as handle      no-undo.
+  define public static    variable sys_iUtServerPort     as integer     no-undo init 11999.
+  define public static    variable sys_cGreeting         as character   no-undo.
+  define public static    variable sys_mGreeting         as memptr      no-undo.
+
+  define static property hUtServerSocket as handle no-undo
+    public get:
+      define variable hRet# as handle    no-undo.
+      define variable cMsg# as character no-undo.
+      if not valid-handle(hUtServerSocket) then 
+      do:
+        set-size(sys_mGreeting) = 64.
+        set-byte-order(sys_mGreeting) = big-endian.
+        sys_cGreeting = "Welcome to the unittest server.".
+        put-string(sys_mGreeting,1) = sys_cGreeting.
+        run panaedra/msroot/msutil/logic/sc_unittest_sub_serversocket.p persistent set hProcUtServerSocket.
+        create server-socket hRet#.
+        hRet#:set-connect-procedure("OnConnect", hProcUtServerSocket).
+        if hRet#:enable-connections(subst("-S &1", sys_iUtServerPort)) then
+        do:
+          hUtServerSocket = hRet#.
+          cMsg# = subst("&1: Start of UnitTest server-socket port &2 succeeded.", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, sys_iUtServerPort).
+          if valid-object(sc_environment:oLog) then sc_environment:oLog:WriteStatusLn(cMsg#).
+        end.
+        else 
+        do:
+          cMsg# = subst("&1: Start of UnitTest server-socket port &2 aborted. Could not enable connections (port busy?).", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, sys_iUtServerPort).
+          message cMsg# view-as alert-box.
+          if valid-object(sc_environment:oLog) then sc_environment:oLog:WriteErrorLn(cMsg#).
+          sc_eventbroadcaster:FireEvent("evt@SessionClose").
+          quit.
+        end.
+      end.
+      hRet# = hUtServerSocket.
+      return hRet#.
+    end get.
+    protected set.
     
   constructor protected sc_unittest():
     
   end constructor.
+  
+  
+  method public static void _sys_InitializeUtServerSocket():
+    
+    define variable hSrv# as handle no-undo.
+    
+    hSrv# = hUtServerSocket. /* Fire the getter */
+  
+  end method. /* _sys_InitializeUtServerSocket */
+  
+  
+  method public static void _sys_SocketClientRegister(hProcIP# as handle):
+    
+    define buffer b-ttUtSocketClient for ttUtSocketClient.
+    
+    create b-ttUtSocketClient.
+    
+    assign
+      b-ttUtSocketClient.hProc = hProcIP#.
+  
+  end method. /* _sys_SocketClientRegister */
+  
+  
+  method public static void _sys_SocketClientGuidWait(
+    
+    /* Wait for the new process to register it's GUID, within a certain time (ms) */
+  
+    input  cUtClientGuidIP#           as character, 
+    input  iTimeoutMsIP#              as integer,
+    output bClientGuidFeedbackOkayOP# as logical):
+    
+    define variable dtmNow# as datetime-tz no-undo.
+    
+    define buffer b-ttUtSocketClient for ttUtSocketClient.
+    
+    dtmNow# = now.
+    
+    sc_abl:ProcessEvents().
+    
+    b_sockreply:
+    do while interval(now, dtmNow#, "milliseconds") < iTimeoutMsIP#:  
+      find b-ttUtSocketClient where b-ttUtSocketClient.cSockGuid = cUtClientGuidIP# no-error.
+      if not avail b-ttUtSocketClient then 
+      do:
+        sc_abl:MicroSleep(15).
+        sc_abl:ProcessEvents().
+      end.
+      else 
+      do:
+        bClientGuidFeedbackOkayOP# = true.
+        leave b_sockreply.
+      end.
+    end.
+
+  end method. /* _sys_SocketClientGuidWait */
+  
+
+  method public static void _sys_SocketClientPingWait(
+    
+    /* Wait for the new process to send a PING, within a certain time (ms) */
+  
+    input  cUtClientGuidIP#           as character,
+    input  dtmCheckIP#                as datetime-tz, 
+    input  iTimeoutMsIP#              as integer,
+    output bClientGuidFeedbackOkayOP# as logical):
+    
+    define variable dtmNow# as datetime-tz no-undo.
+    
+    define buffer b-ttUtSocketClient for ttUtSocketClient.
+    
+    dtmNow# = now.
+    
+    sc_abl:ProcessEvents().
+    
+    b_sockreply:
+    do while interval(now, dtmNow#, "milliseconds") < iTimeoutMsIP#:  
+      find b-ttUtSocketClient where b-ttUtSocketClient.cSockGuid = cUtClientGuidIP# no-error.
+      if not avail b-ttUtSocketClient or b-ttUtSocketClient.dtmLastPing = ? or b-ttUtSocketClient.dtmLastPing < dtmCheckIP# then 
+      do:
+        sc_abl:MicroSleep(15).
+        sc_abl:ProcessEvents().
+      end.
+      else 
+      do:
+        bClientGuidFeedbackOkayOP# = true.
+        leave b_sockreply.
+      end.
+    end.
+
+  end method. /* _sys_SocketClientPingWait */
+  
+
+  method public static void _sys_SocketClientResponse(hProcIP# as handle, hSockIP# as handle, cResponseIP# as character):
+    
+    define buffer b-ttUtSocketClient for ttUtSocketClient.
+    
+    find b-ttUtSocketClient where b-ttUtSocketClient.hProc = hProcIP#.
+    
+    define variable iTell#  as integer   no-undo.
+    define variable cEntry# as character no-undo.
+    
+    do iTell# = 1 to num-entries(cResponseIP#,"~012"):
+      cEntry# = entry(iTell#,cResponseIP#,"~012").
+      if length(cEntry#) > 0 then 
+      do:
+        if cEntry# = "PING" then 
+        do:
+          b-ttUtSocketClient.dtmLastPing = now.
+        end.
+        else 
+        do:
+          case entry(1,cEntry#,"~004"):
+            when "GuidRegister" then b-ttUtSocketClient.cSockGuid = entry(2,cEntry#,"~004").
+          end case.
+        end.
+      end. /* length(cEntry#) > 0 */
+    end. /* iTell# = 1 to num-entries(cResponseIP#) */ 
+    
+    assign
+      b-ttUtSocketClient.hSock         = hSockIP#
+      b-ttUtSocketClient.cLastResponse = cResponseIP#.
+    
+  end method. /* _sys_SocketClientResponse */
+  
+  
+  method public static void _sys_SocketClientSend(cSockGuidIP# as character, cMsgIP# as character):
+    
+    define variable mMsg# as memptr no-undo.
+    
+    define buffer b-ttUtSocketClient for ttUtSocketClient.
+    
+    find b-ttUtSocketClient where b-ttUtSocketClient.cSockGuid = cSockGuidIP#.
+    
+    set-size(mMsg#) = length(cMsgIP#,"raw") + 1.
+    put-string(mMsg#, 1) = cMsgIP#.
+    
+    if valid-handle(b-ttUtSocketClient.hSock) and b-ttUtSocketClient.hSock:connected() then 
+    do:
+      b-ttUtSocketClient.hSock:write(mMsg#,1,length(cMsgIP#)).
+    end.
+    else 
+    do:
+      message "Invalid socket...." view-as alert-box.
+    end.
+    
+    finally:
+      set-size(mMsg#) = 0.  
+    end finally.
+  
+  end method. /* _sys_SocketClientSendAll */
     
 
   method public static void UnittestInit(
   
-    /* Always run this method once, at the start of the unittest, outside of any transactions */
     
     hUnittestProcIP# as handle,
     cTestIDIP#       as character):
