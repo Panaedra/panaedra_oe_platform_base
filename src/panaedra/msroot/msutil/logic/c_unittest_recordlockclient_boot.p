@@ -72,7 +72,7 @@ do on error undo, leave
 
   /* Start the loop */
 
-  do transaction while bKeepLoopingPS# /* codeQok#7103 codeQok#7108 Note: transaction is ONLY for the exclusive-lock. We do NO updates. codeQok#7102 */ 
+  do while bKeepLoopingPS# 
     on error undo, leave
     on stop undo, leave:
   
@@ -210,15 +210,19 @@ procedure ip_action_lockit:
 
   end.
   
-  hBuffExclusiveLockPS#:find-by-rowid(to-rowid(cRowid#), exclusive-lock, no-wait). /* codeQok#7102 */
+  do transaction /* codeQok#7103 codeQok#7108 Note: transaction is ONLY for the exclusive-lock. We do NO updates. codeQok#7102 */
+    on error undo, throw:
+    hBuffExclusiveLockPS#:find-by-rowid(to-rowid(cRowid#), exclusive-lock, no-wait). /* codeQok#7102 */
   
-  message subst("&1: LockIt (after) : Buffer &2@&3 locked by someone else: &4, buffer avail: &5.", 
-    sc_date_timestamp:cTimeStamp_Readable_DateAndTime,
-    subst("&1.&2", cLdbname#, cTable#),
-    cRowid#, 
-    hBuffExclusiveLockPS#:locked, 
-    hBuffExclusiveLockPS#:available)
-    view-as alert-box.
+    message subst("&1: LockIt (after) : Buffer &2@&3 locked by someone else: &4, buffer avail: &5.", 
+      sc_date_timestamp:cTimeStamp_Readable_DateAndTime,
+      subst("&1.&2", cLdbname#, cTable#),
+      cRowid#, 
+      hBuffExclusiveLockPS#:locked, 
+      hBuffExclusiveLockPS#:available)
+      view-as alert-box.
+      
+  end. /* transaction */
   
 end procedure. /* ip_action_lockit */
 
