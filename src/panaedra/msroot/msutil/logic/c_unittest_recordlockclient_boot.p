@@ -118,7 +118,6 @@ do on error undo, leave
       
       if length(cResponsePS#) > 0 then 
         message subst("&1: cResponsePS# = '&2'", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, trim(cResponsePS#)).
-        
       
       do iTell# = 1 to num-entries(cResponsePS#,"~012"):
         cEntry# = entry(iTell#,cResponsePS#,"~012").
@@ -152,7 +151,6 @@ end. /* Main block */
 
 
 procedure SocketIncomingRaw:
-  
 
   define variable hSock#     as handle    no-undo.
   define variable iBytes#    as integer   no-undo.
@@ -199,10 +197,7 @@ procedure ip_action_lockit:
   
   if not valid-handle(hBuffExclusiveLockPS#) then 
   do:
-  
-    if lookup(cLdbname#,"ma,lo") > 0 then
-      panaedra.msroot.msas.logic.sc_dbconnect:Connect_ma_lo().
-  
+    
     message subst("&1: Connected &2: &3", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, cLdbname#, connected(cLdbname#))
       view-as alert-box.
   
@@ -212,14 +207,10 @@ procedure ip_action_lockit:
   
   do transaction /* codeQok#7103 codeQok#7108 Note: transaction is ONLY for the exclusive-lock. We do NO updates. codeQok#7102 */
     on error undo, throw:
+      
     hBuffExclusiveLockPS#:find-by-rowid(to-rowid(cRowid#), exclusive-lock, no-wait). /* codeQok#7102 */
   
-    message subst("&1: LockIt (after) : Buffer &2@&3 locked by someone else: &4, buffer avail: &5.", 
-      sc_date_timestamp:cTimeStamp_Readable_DateAndTime,
-      subst("&1.&2", cLdbname#, cTable#),
-      cRowid#, 
-      hBuffExclusiveLockPS#:locked, 
-      hBuffExclusiveLockPS#:available)
+    message subst("&1: LockIt (after) : Buffer locked by someone else: &2, buffer avail: &3, dbtaskid: &4.", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, hBuffExclusiveLockPS#:locked, hBuffExclusiveLockPS#:available, dbtaskid(hBuffExclusiveLockPS#:dbname))
       view-as alert-box.
       
   end. /* transaction */
@@ -234,7 +225,7 @@ procedure ip_action_unlockit:
   if valid-handle(hBuffExclusiveLockPS#) then 
   do:
     hBuffExclusiveLockPS#:buffer-release().
-    message subst("&1: UnlockIt (after) : Buffer locked by someone else: &2, buffer avail: &3.", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, hBuffExclusiveLockPS#:locked, hBuffExclusiveLockPS#:available)
+    message subst("&1: UnlockIt (after) : Buffer locked by someone else: &2, buffer avail: &3, dbtaskid: &4.", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, hBuffExclusiveLockPS#:locked, hBuffExclusiveLockPS#:available, dbtaskid(hBuffExclusiveLockPS#:dbname))
       view-as alert-box.
   end.
   else
