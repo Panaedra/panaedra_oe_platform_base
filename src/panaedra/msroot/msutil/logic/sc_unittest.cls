@@ -57,12 +57,13 @@ class panaedra.msroot.msutil.logic.sc_unittest
     index cTestID is primary unique cTestID.
 
   define protected static temp-table ttUtSocketClient no-undo
-    field hProc            as handle
-    field hSock            as handle
-    field cSockGuid        as character
-    field cLastTaskGuid    as character
-    field clobLastResponse as clob
-    field dtmLastPing      as datetime-tz
+    field hProc             as handle
+    field hSock             as handle
+    field cSockGuid         as character
+    field cLastTaskGuid     as character
+    field cLastTaskResponse as character
+    field clobLastResponse  as clob
+    field dtmLastPing       as datetime-tz
     index hProc is primary unique hProc
     index cSockGuid is unique     cSockGuid.
 
@@ -238,7 +239,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
     input  cUtClientGuidIP#           as character,
     input  cTaskGuidIP#               as character, 
     input  iTimeoutMsIP#              as integer,
-    output bClientGuidFeedbackOkayOP# as logical):
+    output bClientGuidFeedbackOkayOP# as logical,
+    output cClientResponseOP#         as character):
     
     define variable dtmNow# as datetime-tz no-undo.
     
@@ -264,8 +266,10 @@ class panaedra.msroot.msutil.logic.sc_unittest
         down with frame frm-debug.
         &endif
         if b-ttUtSocketClient.cLastTaskGuid = cTaskGuidIP# then 
-        do: 
-          bClientGuidFeedbackOkayOP# = true.
+        do:
+          assign 
+            bClientGuidFeedbackOkayOP# = true
+            cClientResponseOP#         = b-ttUtSocketClient.cLastTaskResponse.
           leave b_sockreply.
         end.
       end.
@@ -303,10 +307,16 @@ class panaedra.msroot.msutil.logic.sc_unittest
             when "GuidRegister" then 
               b-ttUtSocketClient.cSockGuid = entry(2,cEntry#,"~004").
             when "GuidTaskComplete" then 
-              b-ttUtSocketClient.cLastTaskGuid = entry(2,cEntry#,"~004").
+              do: 
+                assign
+                  b-ttUtSocketClient.cLastTaskGuid     = entry(2, entry(1,cEntry#,"~003"), "~004")
+                  b-ttUtSocketClient.cLastTaskResponse = substring(cEntry#, index(cEntry#,"~003GuidTaskFeedback~003") + length("~003GuidTaskFeedback~003")).
+              end.
             otherwise 
-            message "ERROR" entry(1,cEntry#,"~004")
-              view-as alert-box.
+            do:
+              message "ERROR, unknown type in case statement:" entry(1,cEntry#,"~004")
+                view-as alert-box.
+            end.
           end case.
         end.
       end. /* length(cEntry#) > 0 */

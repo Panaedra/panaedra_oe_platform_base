@@ -68,6 +68,7 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
     
     define variable bClientGuidFeedbackOkay# as logical   no-undo.
     define variable cGuid#                   as character no-undo.
+    define variable cFeedback#               as character no-undo.
     
     cGuid# = guid.
     
@@ -78,10 +79,13 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
     end.
     
     sc_unittest:_sys_SocketClientSend(cUtClientGuid, subst("ACTION~004LOCKIT~003TASKGUID~004&1~003ldbname~004&2~003table~004&3~003rowid~004&4~012", cGuid#, cLdbname, cTable, rRowid)).
-    sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 5000, output bClientGuidFeedbackOkay#).
-
+    sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 5000, output bClientGuidFeedbackOkay#, output cFeedback#).
+    
     if bClientGuidFeedbackOkay# = false then
-      undo, throw new c_panaedraexception(99028162,sc_lang:oEnglish,substitute("UnitTest recordlock client did not respond to LockIt() in '&1' ms.", 5000)).
+      undo, throw new c_panaedraexception(99028162, sc_lang:oEnglish, substitute("UnitTest recordlock client did not respond to LockIt() in '&1' ms.", 5000)).
+      
+    if cFeedback# = ? or cFeedback# <> "LockSucceeded~004yes" then
+      undo, throw new c_panaedraexception(99028163, sc_lang:oEnglish, substitute("LockIt remote:'&1'", cFeedback#)).
   
   end method. /* LockIt */
   
@@ -90,14 +94,18 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
     
     define variable bClientGuidFeedbackOkay# as logical   no-undo.
     define variable cGuid#                   as character no-undo.
+    define variable cFeedback#               as character no-undo.
     
     cGuid# = guid.
     
     sc_unittest:_sys_SocketClientSend(cUtClientGuid, subst("ACTION~004UNLOCKIT~003TASKGUID~004&1~003ldbname~004&2~003table~004&3~003rowid~004&4~012", cGuid#, cLdbname, cTable, rRowid)).
-    sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 5000, output bClientGuidFeedbackOkay#).
+    sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 5000, output bClientGuidFeedbackOkay#, output cFeedback#).
     
     if bClientGuidFeedbackOkay# = false then
-      undo, throw new c_panaedraexception(99028163,sc_lang:oEnglish,substitute("UnitTest recordlock client did not respond to UnlockIt() in '&1' ms.", 5000)).
+      undo, throw new c_panaedraexception(99028164, sc_lang:oEnglish, substitute("UnitTest recordlock client did not respond to UnlockIt() in '&1' ms.", 5000)).
+  
+    if cFeedback# = ? or cFeedback# <> "LockReleased~004yes" then
+      undo, throw new c_panaedraexception(99028165, sc_lang:oEnglish, substitute("UnlockIt remote:'&1'", cFeedback#)).
   
   end method. /* UnlockIt */
   

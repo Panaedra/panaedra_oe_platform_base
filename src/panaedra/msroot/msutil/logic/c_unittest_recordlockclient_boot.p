@@ -181,10 +181,11 @@ end procedure. /* SocketIncomingRaw */
 
 procedure ip_sendGuidTaskComplete:
   
-  define input  parameter cGuidIP# as character no-undo.
+  define input  parameter cGuidIP#     as character no-undo.
+  define input  parameter cFeedbackIP# as character no-undo.
   
   assign
-    cSend# = subst("GuidTaskComplete~004&1~012",cGuidIP#). /* octal, chr(4) and chr(10) */
+    cSend# = subst("GuidTaskComplete~004&1~003GuidTaskFeedback~003&2~012",cGuidIP#, cFeedbackIP#). /* octal, chr(4) and chr(10) */
   set-size(mSend#) = length(cSend#,"raw") + 1.
   put-string(mSend#,1) = cSend#.
   hClientSocketPS#:write(mSend#,1,length(cSend#)).
@@ -233,7 +234,7 @@ procedure ip_action_lockit:
       
   end. /* transaction */
   
-  run ip_sendGuidTaskComplete(cTaskGuid#).
+  run ip_sendGuidTaskComplete(cTaskGuid#, subst("LockSucceeded~004&1", not hBuffExclusiveLockPS#:locked)).
   
 end procedure. /* ip_action_lockit */
 
@@ -259,7 +260,7 @@ procedure ip_action_unlockit:
     message subst("&1: UnlockIt (after) : Buffer invalid.", sc_date_timestamp:cTimeStamp_Readable_DateAndTime)
       view-as alert-box.
   
-  run ip_sendGuidTaskComplete(cTaskGuid#).
+  run ip_sendGuidTaskComplete(cTaskGuid#, subst("LockReleased~004&1", valid-handle(hBuffExclusiveLockPS#))).
   
 end procedure. /* ip_action_unlockit */
 

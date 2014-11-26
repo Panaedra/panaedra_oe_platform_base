@@ -367,7 +367,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
       
       message cMsgIP#
         view-as alert-box title "Progress" + string(now,"9999-99-99 hh:mm:ss") .
-    		
+        
     end catch.
     
   end method. /* MsgBox */
@@ -407,7 +407,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
       side-labels no-underline three-d  scrollable 
       title "Progress"
       default-button btnOk#.
-  
+      
     assign 
       frame frmMsgBox:scrollable         = no
       frame frmMsgBox:hidden             = yes
@@ -416,7 +416,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
       cMsg#:read-only in frame frmMsgBox = if session:window-system = "tty" then no else yes
       &endif
       .
-  
+      
     if num-entries(cMsgIP#,chr(10)) > 3 or length(cMsgIP#) > 500 then 
     do:
       assign
@@ -437,7 +437,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
         return no-apply.
       end.
     &endif
-  
+
     on window-close of frame frmMsgBox
       do:
         apply "end-error":u to self.
@@ -447,6 +447,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
   
     /* parent the dialog-box */
     frame frmMsgBox:parent = hAblWindow.
+    frame frmMsgBox:hidden = false. /* Note: this was needed in some weird exceptional flow test (empty screen, space-press needed without reason, annoying) 2014Q4 OE102B */
   
     msg-block:
     do on error   undo msg-block, leave msg-block:
@@ -469,7 +470,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
       wait-for go of frame frmMsgBox focus btnOk#.
     end.
 
-    hide frame frmMsgBox.
+    hide frame frmMsgBox no-pause.
 
     if session:window-system <> "tty" and not default-window:hidden 
       then default-window:hidden = yes.
