@@ -115,8 +115,10 @@ class panaedra.msroot.msutil.logic.sc_unittest
         else 
         do:
           cMsg# = subst("&1: Start of UnitTest server-socket port &2 to &3 aborted. Could not enable connections (all ports busy?).", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, sys_iUtServerPorts[1], sys_iUtServerPorts[extent(sys_iUtServerPorts)]).
-          if not sc_environment:bBatchMode then message cMsg# view-as alert-box. /* Note: simple message in TTY session because of OE10 input blocking */
-          if valid-object(sc_environment:oLog) and sc_environment:bBatchMode then sc_environment:oLog:WriteErrorLn(cMsg#).
+          if sc_environment:bBatchMode then 
+            sc_showexception:ShowException(new c_panaedraexception(99028123, sc_lang:oEnglish, cMsg#)).
+          else
+            message cMsg# view-as alert-box. /* Note: simple message in TTY session because of OE10 input blocking */
           sc_eventbroadcaster:FireEvent("evt@SessionClose").
           quit.
         end.
@@ -169,8 +171,10 @@ class panaedra.msroot.msutil.logic.sc_unittest
     find b-ttUtSocketClient where b-ttUtSocketClient.cSockGuid = cUtClientGuidIP# no-error.
     if avail b-ttUtSocketClient then 
     do:
-      if valid-handle(b-ttUtSocketClient.hProc) then do:
-        if valid-handle(b-ttUtSocketClient.hSock) then do:
+      if valid-handle(b-ttUtSocketClient.hProc) then 
+      do:
+        if valid-handle(b-ttUtSocketClient.hSock) then 
+        do:
           if not valid-handle(sys_hServerFlush) then 
             run panaedra/msroot/msutil/logic/sc_unittest_sub_serverflush.p persistent set sys_hServerFlush.
           b-ttUtSocketClient.hSock:set-read-response-procedure("ReadResponseFlush", sys_hServerFlush).

@@ -132,7 +132,7 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
     if cWorkPath# = ? or cWorkPath# = "" then
       cWorkPath# = sc_path:cWorkDir.
     
-    cCommand# = subst('. /etc/profile ; unset PROPATH ; &1 &2 ; export LOGFILEID=&3 ; export UtClientGuid=&3 ; export AsModeSuffixPre=&4 ; $SCRIPTS/RunRaw  "panaedra/msroot/msutil/logic/c_unittest_recordlockclient_boot.p" &5 &6 BATCH " [UnittestPort] &7 [SharedIniDir] &8 &9 "',
+    cCommand# = subst('. /etc/profile ; unset PROPATH ; &1 &2 ; export LOGFILEID=&3 ; export UtClientGuid=&3 ; export AsModeSuffixPre=&4 ; CpSuffix=_utf8_s850 $SCRIPTS/RunRaw  "panaedra/msroot/msutil/logic/c_unittest_recordlockclient_boot.p" &5 &6 BATCH " [UnittestPort] &7 [SharedIniDir] &8 &9 "',
       " export OTAUSER=yes ;" 
       /* tmp solution, remove if live is OE113 */
       + if sc_environment:cEnv <> "misc" then "" else ". /progress/scripts/progressProfile113A;",

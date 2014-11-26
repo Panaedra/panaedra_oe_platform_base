@@ -68,7 +68,8 @@ do on error undo, leave
     hClientSocketPS#:set-socket-option("SO-SNDBUF",    "{&max_char_value}").
     hClientSocketPS#:set-read-response-procedure ("SocketIncomingRaw", this-procedure).
   end.
-  else bKeepLoopingPS# = false.
+  else 
+    bKeepLoopingPS# = false.
 
   /* Start the loop */
 
@@ -179,7 +180,7 @@ procedure SocketIncomingRaw:
 end procedure. /* SocketIncomingRaw */
 
 
-procedure ip_sendGuidTaskComplete:
+procedure ip_sendGuidTaskComplete private:
   
   define input  parameter cGuidIP#     as character no-undo.
   define input  parameter cFeedbackIP# as character no-undo.
