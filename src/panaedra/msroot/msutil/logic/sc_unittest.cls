@@ -77,6 +77,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
   define protected static variable hProcUtServerSocket   as handle      no-undo.
   define public static    variable sys_iUtServerPorts    as integer     no-undo extent 10 initial [11990,11991,11992,11993,11994,11995,11996,11997,11998,11999]. /* We want full port numbers, no range, for grepability */
   define public static    variable sys_iUtServerPort     as integer     no-undo.
+  define public static    variable sys_hServerFlush      as handle      no-undo.
   
   define public static    variable sys_cGreeting         as character   no-undo.
   define public static    variable sys_mGreeting         as memptr      no-undo.
@@ -153,6 +154,33 @@ class panaedra.msroot.msutil.logic.sc_unittest
       b-ttUtSocketClient.hProc = hProcIP#.
   
   end method. /* _sys_SocketClientRegister */
+  
+  
+  method public static void _sys_SocketClientUnregister(
+    
+    /* Clean up everything for a unittest socket client */
+  
+    input  cUtClientGuidIP#           as character):
+    
+    define variable hDummy# as handle no-undo. /* For overload of DeleteProcedure */
+    
+    define buffer b-ttUtSocketClient for ttUtSocketClient.
+    
+    find b-ttUtSocketClient where b-ttUtSocketClient.cSockGuid = cUtClientGuidIP# no-error.
+    if avail b-ttUtSocketClient then 
+    do:
+      if valid-handle(b-ttUtSocketClient.hProc) then do:
+        if valid-handle(b-ttUtSocketClient.hSock) then do:
+          if not valid-handle(sys_hServerFlush) then 
+            run panaedra/msroot/msutil/logic/sc_unittest_sub_serverflush.p persistent set sys_hServerFlush.
+          b-ttUtSocketClient.hSock:set-read-response-procedure("ReadResponseFlush", sys_hServerFlush).
+        end.
+        sc_procedurehandles:DeleteProcedure(hDummy#, b-ttUtSocketClient.hProc).
+      end.
+      delete b-ttUtSocketClient.
+    end.
+      
+  end method. /* _sys_SocketClientUnregister */
   
   
   method public static void _sys_SocketClientGuidWait(

@@ -58,9 +58,9 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
     
   end constructor.
   
-  
+
   destructor c_unittest_recordlock():
-      
+    sc_unittest:_sys_SocketClientUnregister(cUtClientGuid).  
   end destructor.
   
   
