@@ -26,7 +26,7 @@ define variable iPortPS#              as integer   no-undo.
 define variable bConnected#           as logical   no-undo.
 define variable bKeepLoopingPS#       as logical   no-undo init true.
 define variable iIntervalPS#          as integer   no-undo init 1.
-define variable cResponsePS#          as character no-undo.
+define variable clobIncomingPS#       as longchar  no-undo.
 define variable mPing#                as memptr    no-undo.
 define variable mSend#                as memptr    no-undo.
 define variable cSend#                as character no-undo.
@@ -93,7 +93,7 @@ do on error undo, leave
         hClientSocketPS#:write(mSend#,1,length(cSend#)) no-error.
         set-size(mSend#) = 0.
       end.
-      else
+      else 
         hClientSocketPS#:write(mPing#,1,5) no-error.
       sc_abl:ProcessEvents().
       if not (valid-handle(hClientSocketPS#) and hClientSocketPS#:connected()) then 
@@ -116,11 +116,11 @@ do on error undo, leave
       
       sc_abl:ProcessEvents().
       
-      if length(cResponsePS#) > 0 then 
-        message subst("&1: cResponsePS# = '&2'", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, trim(cResponsePS#)).
+      if length(clobIncomingPS#) > 0 then 
+        message subst("&1: clobIncomingPS# = '&2'", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, trim(clobIncomingPS#)).
       
-      do iTell# = 1 to num-entries(cResponsePS#,"~012"):
-        cEntry# = entry(iTell#,cResponsePS#,"~012").
+      do iTell# = 1 to num-entries(clobIncomingPS#,"~012"):
+        cEntry# = entry(iTell#,clobIncomingPS#,"~012").
         if length(cEntry#) > 0 then 
         do:
           if cEntry# = "QuitUtClient" then 
@@ -138,10 +138,10 @@ do on error undo, leave
             end case.
           end.
         end. /* length(cEntry#) > 0 */
-      end. /* iTell# = 1 to num-entries(cResponsePS#,"~012") */ 
+      end. /* iTell# = 1 to num-entries(clobIncomingPS#,"~012") */ 
         
-      if length(cResponsePS#) > 0 then 
-        cResponsePS# = "".
+      if length(clobIncomingPS#) > 0 or clobIncomingPS# = ? then 
+        clobIncomingPS# = "".
   
     end. /* if bKeepLoopingPS# */
     
@@ -151,7 +151,7 @@ end. /* Main block */
 
 
 procedure SocketIncomingRaw:
-
+  
   define variable hSock#     as handle    no-undo.
   define variable iBytes#    as integer   no-undo.
   define variable pData#     as memptr    no-undo.
@@ -172,28 +172,46 @@ procedure SocketIncomingRaw:
   do:
     set-size(pData#) = iBytes#.
     hSock#:read(pData#,1,iBytes#, read-exact-num).
-    cResponsePS# = cResponsePS# + get-string(pData#,1,iBytes#) + chr(10).
+    clobIncomingPS# = clobIncomingPS# + get-string(pData#,1,iBytes#) + chr(10).
     set-size(pData#) = 0.
   end.
 
 end procedure. /* SocketIncomingRaw */
 
 
+procedure ip_sendGuidTaskComplete:
+  
+  define input  parameter cGuidIP# as character no-undo.
+  
+  assign
+    cSend# = subst("GuidTaskComplete~004&1~012",cGuidIP#). /* octal, chr(4) and chr(10) */
+  set-size(mSend#) = length(cSend#,"raw") + 1.
+  put-string(mSend#,1) = cSend#.
+  hClientSocketPS#:write(mSend#,1,length(cSend#)).
+  set-size(mSend#) = 0.
+
+end procedure. /* ip_sendGuidTaskComplete */
+
+
 procedure ip_action_lockit:
   
   define input  parameter cSockMsgIP# as character no-undo.
   
-  define variable cLdbname# as character no-undo.
-  define variable cTable#   as character no-undo.
-  define variable cRowid#   as character no-undo.
+  define variable cTaskGuid# as character no-undo.
+  define variable cLdbname#  as character no-undo.
+  define variable cTable#    as character no-undo.
+  define variable cRowid#    as character no-undo.
   
   assign
-    cLdbname# = entry(2,cSockMsgIP#,"~003")
-    cLdbname# = entry(2,cLdbname#,"~004")
-    cTable#   = entry(3,cSockMsgIP#,"~003")
-    cTable#   = entry(2,cTable#,"~004")
-    cRowid#   = entry(4,cSockMsgIP#,"~003")
-    cRowid#   = entry(2,cRowid#,"~004").
+    cTaskGuid# = entry(2,cSockMsgIP#,"~003")
+    cTaskGuid# = entry(2,cTaskGuid#,"~004")
+    cLdbname#  = entry(3,cSockMsgIP#,"~003")
+    cLdbname#  = entry(2,cLdbname#,"~004")
+    cTable#    = entry(4,cSockMsgIP#,"~003")
+    cTable#    = entry(2,cTable#,"~004")
+    cRowid#    = entry(5,cSockMsgIP#,"~003")
+    cRowid#    = entry(2,cRowid#,"~004")
+    .
   
   if not valid-handle(hBuffExclusiveLockPS#) then 
   do:
@@ -210,10 +228,12 @@ procedure ip_action_lockit:
       
     hBuffExclusiveLockPS#:find-by-rowid(to-rowid(cRowid#), exclusive-lock, no-wait). /* codeQok#7102 */
   
-    message subst("&1: LockIt (after) : Buffer locked by someone else: &2, buffer avail: &3, dbtaskid: &4.", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, hBuffExclusiveLockPS#:locked, hBuffExclusiveLockPS#:available, dbtaskid(hBuffExclusiveLockPS#:dbname))
+    message subst("&1: LockIt (after) : Buffer locked by someone else: &2, buffer avail: &3, dbtaskid: &4.", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, trim(string(hBuffExclusiveLockPS#:locked,"YES-SO-I-CANNOT-LOCK/no")), hBuffExclusiveLockPS#:available, dbtaskid(hBuffExclusiveLockPS#:dbname))
       view-as alert-box.
       
   end. /* transaction */
+  
+  run ip_sendGuidTaskComplete(cTaskGuid#).
   
 end procedure. /* ip_action_lockit */
 
@@ -221,6 +241,13 @@ end procedure. /* ip_action_lockit */
 procedure ip_action_unlockit:
   
   define input  parameter cSockMsgIP# as character no-undo.
+
+  define variable cTaskGuid# as character no-undo.
+  
+  assign
+    cTaskGuid# = entry(2,cSockMsgIP#,"~003")
+    cTaskGuid# = entry(2,cTaskGuid#,"~004")
+    .
 
   if valid-handle(hBuffExclusiveLockPS#) then 
   do:
@@ -231,6 +258,8 @@ procedure ip_action_unlockit:
   else
     message subst("&1: UnlockIt (after) : Buffer invalid.", sc_date_timestamp:cTimeStamp_Readable_DateAndTime)
       view-as alert-box.
+  
+  run ip_sendGuidTaskComplete(cTaskGuid#).
   
 end procedure. /* ip_action_unlockit */
 

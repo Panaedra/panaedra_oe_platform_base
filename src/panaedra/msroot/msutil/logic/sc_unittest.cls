@@ -4,6 +4,8 @@ using panaedra.msroot.msmonitor.logic.*.
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
+&glob TestMode false
+
 class panaedra.msroot.msutil.logic.sc_unittest
   implements
   i_unittest_param: 
@@ -36,6 +38,10 @@ class panaedra.msroot.msutil.logic.sc_unittest
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
+  
+  &if {&TestMode} = true &then
+  define frame frm-debug with down centered overlay.
+  &endif
 
   define protected static temp-table ttFile no-undo
     field cFullPath as char.
@@ -51,11 +57,12 @@ class panaedra.msroot.msutil.logic.sc_unittest
     index cTestID is primary unique cTestID.
 
   define protected static temp-table ttUtSocketClient no-undo
-    field hProc         as handle
-    field hSock         as handle
-    field cSockGuid     as character
-    field cLastResponse as character
-    field dtmLastPing   as datetime-tz
+    field hProc            as handle
+    field hSock            as handle
+    field cSockGuid        as character
+    field cLastTaskGuid    as character
+    field clobLastResponse as clob
+    field dtmLastPing      as datetime-tz
     index hProc is primary unique hProc
     index cSockGuid is unique     cSockGuid.
 
@@ -67,14 +74,18 @@ class panaedra.msroot.msutil.logic.sc_unittest
   define protected static variable bRunOnNonTstOkay      as logical     no-undo.
   define protected static variable bBusyUnittesting      as logical     no-undo.
   define protected static variable hProcUtServerSocket   as handle      no-undo.
-  define public static    variable sys_iUtServerPort     as integer     no-undo init 11999.
+  define public static    variable sys_iUtServerPorts    as integer     no-undo extent 10 initial [11990,11991,11992,11993,11994,11995,11996,11997,11998,11999]. /* We want full port numbers, no range, for grepability */
+  define public static    variable sys_iUtServerPort     as integer     no-undo.
+  
   define public static    variable sys_cGreeting         as character   no-undo.
   define public static    variable sys_mGreeting         as memptr      no-undo.
 
   define static property hUtServerSocket as handle no-undo
     public get:
-      define variable hRet# as handle    no-undo.
-      define variable cMsg# as character no-undo.
+      define variable hRet#       as handle    no-undo.
+      define variable cMsg#       as character no-undo.
+      define variable iExtent#    as integer   no-undo init 1.
+      define variable bConnected# as logical   no-undo.
       if not valid-handle(hUtServerSocket) then 
       do:
         set-size(sys_mGreeting) = 64.
@@ -84,17 +95,26 @@ class panaedra.msroot.msutil.logic.sc_unittest
         run panaedra/msroot/msutil/logic/sc_unittest_sub_serversocket.p persistent set hProcUtServerSocket.
         create server-socket hRet#.
         hRet#:set-connect-procedure("OnConnect", hProcUtServerSocket).
-        if hRet#:enable-connections(subst("-S &1", sys_iUtServerPort)) then
+        do while (not bConnected#) and (iExtent# <= extent(sys_iUtServerPorts)):
+          bConnected# = hRet#:enable-connections(subst("-S &1", sys_iUtServerPorts[iExtent#])) no-error.
+          if bConnected# = ? then 
+            bConnected# = false.
+          if not bConnected# then
+            iExtent# = iExtent# + 1. 
+        end. /* while not connected, within port range */
+        if bConnected# then
         do:
-          hUtServerSocket = hRet#.
-          cMsg# = subst("&1: Start of UnitTest server-socket port &2 succeeded.", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, sys_iUtServerPort).
-          if valid-object(sc_environment:oLog) then sc_environment:oLog:WriteStatusLn(cMsg#).
+          assign
+            hUtServerSocket   = hRet#
+            sys_iUtServerPort = sys_iUtServerPorts[iExtent#].
+          cMsg# = subst("&1: Start of UnitTest server-socket port &2 succeeded.", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, sys_iUtServerPorts[iExtent#]).
+          if valid-object(sc_environment:oLog) and sc_environment:bBatchMode then sc_environment:oLog:WriteStatusLn(cMsg#).
         end.
         else 
         do:
-          cMsg# = subst("&1: Start of UnitTest server-socket port &2 aborted. Could not enable connections (port busy?).", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, sys_iUtServerPort).
-          message cMsg# view-as alert-box.
-          if valid-object(sc_environment:oLog) then sc_environment:oLog:WriteErrorLn(cMsg#).
+          cMsg# = subst("&1: Start of UnitTest server-socket port &2 to &3 aborted. Could not enable connections (all ports busy?).", sc_date_timestamp:cTimeStamp_Readable_DateAndTime, sys_iUtServerPorts[1], sys_iUtServerPorts[extent(sys_iUtServerPorts)]).
+          if not sc_environment:bBatchMode then message cMsg# view-as alert-box. /* Note: simple message in TTY session because of OE10 input blocking */
+          if valid-object(sc_environment:oLog) and sc_environment:bBatchMode then sc_environment:oLog:WriteErrorLn(cMsg#).
           sc_eventbroadcaster:FireEvent("evt@SessionClose").
           quit.
         end.
@@ -114,6 +134,10 @@ class panaedra.msroot.msutil.logic.sc_unittest
     define variable hSrv# as handle no-undo.
     
     hSrv# = hUtServerSocket. /* Fire the getter */
+
+    &if {&TestMode} = true &then
+    pause 0 before-hide.
+    &endif
   
   end method. /* _sys_InitializeUtServerSocket */
   
@@ -182,24 +206,81 @@ class panaedra.msroot.msutil.logic.sc_unittest
     sc_abl:ProcessEvents().
     
     b_sockreply:
-    do while interval(now, dtmNow#, "milliseconds") < iTimeoutMsIP#:  
+    do while interval(now, dtmNow#, "milliseconds") < iTimeoutMsIP#:
       find b-ttUtSocketClient where b-ttUtSocketClient.cSockGuid = cUtClientGuidIP# no-error.
-      if not avail b-ttUtSocketClient or b-ttUtSocketClient.dtmLastPing = ? or b-ttUtSocketClient.dtmLastPing < dtmCheckIP# then 
+      if avail b-ttUtSocketClient then 
       do:
-        sc_abl:MicroSleep(15).
-        sc_abl:ProcessEvents().
+        &if {&TestMode} = true &then
+        disp
+          substring(b-ttUtSocketClient.cSockGuid, max(1,length(b-ttUtSocketClient.cSockGuid) - 8)) column-label "reg"
+          substring(iso-date(b-ttUtSocketClient.dtmLastPing), 16)  column-label "ping"
+          substring(b-ttUtSocketClient.cLastTaskGuid,max(1,length(b-ttUtSocketClient.cLastTaskGuid) - 8)) column-label "task"
+          with frame frm-debug.
+        down with frame frm-debug.
+        &endif
+        if b-ttUtSocketClient.dtmLastPing >= dtmCheckIP# then 
+        do: 
+          bClientGuidFeedbackOkayOP# = true.
+          leave b_sockreply.
+        end.
       end.
-      else 
-      do:
-        bClientGuidFeedbackOkayOP# = true.
-        leave b_sockreply.
-      end.
+      sc_abl:MicroSleep(50).
+      sc_abl:ProcessEvents().
     end.
 
   end method. /* _sys_SocketClientPingWait */
   
 
-  method public static void _sys_SocketClientResponse(hProcIP# as handle, hSockIP# as handle, cResponseIP# as character):
+  method public static void _sys_SocketClientTaskGuidWait(
+    
+    /* Wait for the new process to send a TASKGUID, within a certain time (ms) */
+  
+    input  cUtClientGuidIP#           as character,
+    input  cTaskGuidIP#               as character, 
+    input  iTimeoutMsIP#              as integer,
+    output bClientGuidFeedbackOkayOP# as logical):
+    
+    define variable dtmNow# as datetime-tz no-undo.
+    
+    define buffer b-ttUtSocketClient for ttUtSocketClient.
+    
+    dtmNow# = now.
+    
+    pause 0 before-hide.
+    
+    sc_abl:ProcessEvents().
+    
+    b_sockreply:
+    do while interval(now, dtmNow#, "milliseconds") < iTimeoutMsIP#:
+      find b-ttUtSocketClient where b-ttUtSocketClient.cSockGuid = cUtClientGuidIP# no-error.
+      if avail b-ttUtSocketClient then 
+      do:
+        &if {&TestMode} = true &then
+        disp
+          substring(b-ttUtSocketClient.cSockGuid, max(1,length(b-ttUtSocketClient.cSockGuid) - 8)) column-label "reg"
+          substring(iso-date(b-ttUtSocketClient.dtmLastPing), 16)  column-label "ping"
+          substring(b-ttUtSocketClient.cLastTaskGuid,max(1,length(b-ttUtSocketClient.cLastTaskGuid) - 8)) column-label "task"
+          with frame frm-debug.
+        down with frame frm-debug.
+        &endif
+        if b-ttUtSocketClient.cLastTaskGuid = cTaskGuidIP# then 
+        do: 
+          bClientGuidFeedbackOkayOP# = true.
+          leave b_sockreply.
+        end.
+      end.
+      sc_abl:MicroSleep(50).
+      sc_abl:ProcessEvents().
+    end.
+
+  end method. /* _sys_SocketClientTaskGuidWait */
+  
+
+  method public static void _sys_SocketClientResponse(
+    
+    hProcIP#        as handle, 
+    hSockIP#        as handle, 
+    clobResponseIP# as longchar):
     
     define buffer b-ttUtSocketClient for ttUtSocketClient.
     
@@ -208,8 +289,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
     define variable iTell#  as integer   no-undo.
     define variable cEntry# as character no-undo.
     
-    do iTell# = 1 to num-entries(cResponseIP#,"~012"):
-      cEntry# = entry(iTell#,cResponseIP#,"~012").
+    do iTell# = 1 to num-entries(clobResponseIP#,"~012"):
+      cEntry# = entry(iTell#,clobResponseIP#,"~012").
       if length(cEntry#) > 0 then 
       do:
         if cEntry# = "PING" then 
@@ -219,15 +300,22 @@ class panaedra.msroot.msutil.logic.sc_unittest
         else 
         do:
           case entry(1,cEntry#,"~004"):
-            when "GuidRegister" then b-ttUtSocketClient.cSockGuid = entry(2,cEntry#,"~004").
+            when "GuidRegister" then 
+              b-ttUtSocketClient.cSockGuid = entry(2,cEntry#,"~004").
+            when "GuidTaskComplete" then 
+              b-ttUtSocketClient.cLastTaskGuid = entry(2,cEntry#,"~004").
+            otherwise 
+            message "ERROR" entry(1,cEntry#,"~004")
+              view-as alert-box.
           end case.
         end.
       end. /* length(cEntry#) > 0 */
     end. /* iTell# = 1 to num-entries(cResponseIP#) */ 
     
     assign
-      b-ttUtSocketClient.hSock         = hSockIP#
-      b-ttUtSocketClient.cLastResponse = cResponseIP#.
+      b-ttUtSocketClient.hSock = hSockIP#.
+      
+    copy-lob clobResponseIP# to b-ttUtSocketClient.clobLastResponse.
     
   end method. /* _sys_SocketClientResponse */
   

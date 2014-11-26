@@ -66,7 +66,10 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
   
   method public void LockIt():
     
-    define variable bClientGuidFeedbackOkay# as logical no-undo.
+    define variable bClientGuidFeedbackOkay# as logical   no-undo.
+    define variable cGuid#                   as character no-undo.
+    
+    cGuid# = guid.
     
     if bExtraSessionIsBooted = false then 
     do:
@@ -74,8 +77,8 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
       BootExtraSession(). 
     end.
     
-    sc_unittest:_sys_SocketClientSend(cUtClientGuid, subst("ACTION~004LOCKIT~003ldbname~004&1~003table~004&2~003rowid~004&3~012", cLdbname, cTable, rRowid)).
-    sc_unittest:_sys_SocketClientPingWait(cUtClientGuid, now + 1000, 5000, output bClientGuidFeedbackOkay#).
+    sc_unittest:_sys_SocketClientSend(cUtClientGuid, subst("ACTION~004LOCKIT~003TASKGUID~004&1~003ldbname~004&2~003table~004&3~003rowid~004&4~012", cGuid#, cLdbname, cTable, rRowid)).
+    sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 5000, output bClientGuidFeedbackOkay#).
 
     if bClientGuidFeedbackOkay# = false then
       undo, throw new c_panaedraexception(99028162,sc_lang:oEnglish,substitute("UnitTest recordlock client did not respond to LockIt() in '&1' ms.", 5000)).
@@ -85,10 +88,13 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
   
   method public void UnlockIt():
     
-    define variable bClientGuidFeedbackOkay# as logical no-undo.
+    define variable bClientGuidFeedbackOkay# as logical   no-undo.
+    define variable cGuid#                   as character no-undo.
     
-    sc_unittest:_sys_SocketClientSend(cUtClientGuid, subst("ACTION~004UNLOCKIT~003ldbname~004&1~003table~004&2~003rowid~004&3~012", cLdbname, cTable, rRowid)).
-    sc_unittest:_sys_SocketClientPingWait(cUtClientGuid, now + 1000, 5000, output bClientGuidFeedbackOkay#).
+    cGuid# = guid.
+    
+    sc_unittest:_sys_SocketClientSend(cUtClientGuid, subst("ACTION~004UNLOCKIT~003TASKGUID~004&1~003ldbname~004&2~003table~004&3~003rowid~004&4~012", cGuid#, cLdbname, cTable, rRowid)).
+    sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 5000, output bClientGuidFeedbackOkay#).
     
     if bClientGuidFeedbackOkay# = false then
       undo, throw new c_panaedraexception(99028163,sc_lang:oEnglish,substitute("UnitTest recordlock client did not respond to UnlockIt() in '&1' ms.", 5000)).
@@ -100,20 +106,17 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
 
     define variable cCommand#                as character no-undo.
     define variable cEnv#                    as character no-undo.
-    define variable hLoopSocket#             as handle    no-undo.
     define variable cWorkPath#               as character no-undo.
     define variable bDevToken#               as logical   no-undo.
-    define variable cEnvLoopserver#          as character no-undo.
     define variable bClientGuidFeedbackOkay# as logical   no-undo.
     
     /* Set up a server-socket (if not already running) */
     sc_unittest:_sys_InitializeUtServerSocket().
 
-    /* Start a loopserver for this agent */
+    /* Start a separate session that connects to the server socket */
     assign
-      cEnv#           = sc_boot:SessionParameter("Env")
-      cEnvLoopserver# = sc_boot:SessionParameter("EnvLoopserver")
-      cWorkPath#      = sc_boot:SessionParameter("WorkPath").
+      cEnv#      = sc_boot:SessionParameter("Env")
+      cWorkPath# = sc_boot:SessionParameter("WorkPath").
 
     bDevToken# = length(os-getenv("DevToken")) > 0 no-error.
     if bDevToken# = ? then bDevToken# = false.
@@ -134,8 +137,8 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
       sc_path:cIniDir,
       if sc_boot:SessionParameter("DevIP") > "" then subst("[DevIP] &1 ", sc_boot:SessionParameter("DevIP")) else ""
       ).
-      
-    /* Start the loopserver. */
+    
+    /* Start the client process. */
     os-command silent value(cCommand#).
     /* After 5 seconds the process should be in the air. */
     sc_unittest:_sys_SocketClientGuidWait(cUtClientGuid, 5000, output bClientGuidFeedbackOkay#).

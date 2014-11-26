@@ -22,23 +22,22 @@ define input parameter hSocketPSIP# as handle no-undo.
 
 procedure ReadResponse:
   
-  define variable iLength# as integer   no-undo.
-  define variable cOutput# as character no-undo.
-  define variable iBytes#  as integer   no-undo.
-
-  define variable mPoint#  as memptr    no-undo. 
+  define variable iLength#    as integer  no-undo.
+  define variable clobOutput# as longchar no-undo.
+  define variable iBytes#     as integer  no-undo.
+  define variable mPoint#     as memptr   no-undo. 
   
   iBytes# = hSocketPSIP#:get-bytes-available().
   if iBytes# > 0 then 
   do:
-    set-size (mPoint#) = iBytes# + 1.
+    set-size(mPoint#) = iBytes# + 1.
     hSocketPSIP#:read(mPoint#,1,iBytes#,1).
-    cOutput# = get-string(mPoint#,1).
-    set-size (mPoint#) = 0.
+    clobOutput# = get-string(mPoint#,1).
+    set-size(mPoint#) = 0.
   end.
   
-  if cOutput# > "" then
-    sc_unittest:_sys_SocketClientResponse(this-procedure, self, cOutput#).
+  if clobOutput# > "" then
+    sc_unittest:_sys_SocketClientResponse(this-procedure, self, clobOutput#).
 
 end procedure. /* ReadResponse */
 
