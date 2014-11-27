@@ -251,7 +251,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     define variable cMatch#       as character     no-undo.
     define variable iSaveLastkey# as integer       no-undo.
      
-    iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */ 
+    iSaveLastkey# = lastkey. /* Remember the lastkey code */ 
     
     oStream# = new c_file_stream().
     
@@ -305,7 +305,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
       /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
        * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
                          
-      last-event:set-lastkey(0, iSaveLastkey#).  
+      last-event:set-lastkey(0, iSaveLastkey#).
       
       if valid-object(oStream#) then 
       do:
@@ -419,7 +419,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     define variable cRet#         as character no-undo init ?.
     define variable iSaveLastkey# as integer   no-undo.
      
-    iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */ 
+    iSaveLastkey# = lastkey. /* Remember the lastkey code */ 
    
     file-info:file-name = cIniIP#.
   
@@ -490,7 +490,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
   
     define variable iSaveLastkey# as integer no-undo.
      
-    iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */ 
+    iSaveLastkey# = lastkey. /* Remember the lastkey code */ 
     
     file-info:file-name = cIniIP#.
   
@@ -845,7 +845,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     define variable dtmExpire#    as datetime-tz no-undo.
     define variable iSaveLastkey# as integer     no-undo.
 
-    iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */ 
+    iSaveLastkey# = lastkey. /* Remember the lastkey code */ 
     
     
     if oSingleton = ? then
