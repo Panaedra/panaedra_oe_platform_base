@@ -67,7 +67,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
       
     /* Like SetParam, but read-write to a subset in the token value.
        You may use the following wildcard: asterisk plus end-delimiter.
-	    
+      
        I.e. " [Param1] sub1 = yes | sub2 = no | sub3 = value [Param2] value2 " 
           with
           "Param1", "sub1 =*|", "sub1 = no"
@@ -352,8 +352,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
        Adds a value to a seperated value list, unknown-value safe and with trim. ~n
        "
       ,en_note="
-	   In this overload, the delimiter is a comma (~",~") ~n
-	   "
+     In this overload, the delimiter is a comma (~",~") ~n
+     "
       ).
     
     return CsvAddLast(cCsvIP#, cNewValueIP#, ",").
@@ -379,6 +379,35 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     
   end method. /* CsvAddLast ; any delimiter */
 
+   
+  method public static character CsvRemoveValue(
+    cSvIP# as character, cRemoveValueIP# as character, cDelimiterIP# as character):
+    /* removes a value from a csv */
+    
+    define variable cSvReturn# as character no-undo.
+    define variable iTell#     as integer   no-undo.
+    define variable cEntry#    as character no-undo.
+        
+    if cSvIP#      = ? then cSvIP# = "".
+    if cRemoveValueIP# = ? then cRemoveValueIP# = "?".
+    
+    /* Walk through every entry and make a new csv, skip the unwanted entry */
+    do iTell# = 1 to num-entries(cSvIP#):
+      cEntry# = entry(iTell#,cSvIP#).
+      
+      if length(cEntry#) > 0 then 
+      do:
+        if cEntry# <> cRemoveValueIP# then
+          cSvReturn# = cSvReturn# + ',' + cEntry#.
+      
+      end. /* length(cEntry#) > 0 */
+      
+    end. /* iTell# = 1 to num-entries(cSvIP#) */ 
+      
+    return cSvReturn#.
+    
+  end method. /* CsvRemoveValue */ 
+  
   
   method public static character CsvAddFirst(cCsvIP# as character, cNewValueIP# as character):
     
