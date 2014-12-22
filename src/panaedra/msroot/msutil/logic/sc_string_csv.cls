@@ -381,32 +381,39 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
    
   method public static character CsvRemoveValue(
-    cSvIP# as character, cRemoveValueIP# as character, cDelimiterIP# as character):
-    /* removes a value from a csv */
+    cSvIP# as character, cSvRemoveValueIP# as character):
+
+    return CsvRemoveValue(cSvIP#, cSvRemoveValueIP#, ",").
+    
+  end method. /* CsvRemoveValue ; delimiter = "," */
+
+   
+  method public static character CsvRemoveValue(
+    cSvIP# as character, cSvRemoveValueIP# as character, cDelimiterIP# as character):
+    /* removes one or more values from a csv */
     
     define variable cSvReturn# as character no-undo.
     define variable iTell#     as integer   no-undo.
     define variable cEntry#    as character no-undo.
-        
-    if cSvIP#      = ? then cSvIP# = "".
-    if cRemoveValueIP# = ? then cRemoveValueIP# = "?".
-    
-    /* Walk through every entry and make a new csv, skip the unwanted entry */
-    do iTell# = 1 to num-entries(cSvIP#):
-      cEntry# = entry(iTell#,cSvIP#).
+
+    if cSvIP# = ? or cSvIP# = "" then
+      cSvReturn# = "".
       
-      if length(cEntry#) > 0 then 
-      do:
-        if cEntry# <> cRemoveValueIP# then
-          cSvReturn# = cSvReturn# + ',' + cEntry#.
+    else if cSvRemoveValueIP# = ? then
+      cSvReturn# = cSvIP#.
+
+    else
+    do iTell# = 1 to num-entries(cSvIP#, cDelimiterIP#):
       
-      end. /* length(cEntry#) > 0 */
-      
-    end. /* iTell# = 1 to num-entries(cSvIP#) */ 
-      
+      /* Don't add the item to the new list if it's in the list of items to remove */
+      if lookup(entry(iTell#, cSvIP#, cDelimiterIP#), cSvRemoveValueIP#, cDelimiterIP#) = 0 then 
+        cSvReturn# = cSvReturn# + (if length(cSvReturn#) > 0 then cDelimiterIP# else "") + entry(iTell#, cSvIP#, cDelimiterIP#).
+
+    end.
+
     return cSvReturn#.
     
-  end method. /* CsvRemoveValue */ 
+  end method. /* CsvRemoveValue ; any delimiter */
   
   
   method public static character CsvAddFirst(cCsvIP# as character, cNewValueIP# as character):

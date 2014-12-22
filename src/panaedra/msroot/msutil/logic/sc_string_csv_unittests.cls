@@ -30,7 +30,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
   method public void GetUnittests(
     output cSvUnittestsOP# as character):
      
-    cSvUnittestsOP# = "UT_CsvGetJoinList".
+    cSvUnittestsOP# = "UT_CsvGetJoinList,CsvRemoveValue".
     
   end method. /* GetUnittests */
  
@@ -40,6 +40,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
 
     case cUnittestIP#:
       when "UT_CsvGetJoinList" then UT_CsvGetJoinList(cUnittestIP#).
+      when "CsvRemoveValue"    then UT_CsvRemoveValue(cUnittestIP#).
     end case.
     
   end method. /* ExecuteUnittest */
@@ -121,7 +122,6 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
         cResult#,
         "abc,def"
         ).
-
         
       assign 
         cSvList1# = "abc,def"
@@ -149,8 +149,55 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
   end method. /* UT_CsvGetJoinList */   
   
   
-  method protected void CreateUnittestData(input cUnittestIP# as character):
+  method public void UT_CsvRemoveValue(
+    cUnittestIP# as character):
+    
+    sc_unittest:Assert(
+      "CsvRemoveValue_00001_01",
+      "Remove first entry",
+      sc_string_csv:CsvRemoveValue("AAA,BBB,CCC,DDD", "AAA"),      
+      "BBB,CCC,DDD"
+      ).
+    
+    sc_unittest:Assert(
+      "CsvRemoveValue_00001_02",
+      "Remove middle entry",
+      sc_string_csv:CsvRemoveValue("AAA,BBB,CCC,DDD", "BBB"),      
+      "AAA,CCC,DDD"
+      ).
+    
+    sc_unittest:Assert(
+      "CsvRemoveValue_00001_03",
+      "Remove last entry",
+      sc_string_csv:CsvRemoveValue("AAA,BBB,CCC,DDD", "DDD"),      
+      "AAA,BBB,CCC"
+      ).
+    
+    sc_unittest:Assert(
+      "CsvRemoveValue_00001_04",
+      "Remove nothing",
+      sc_string_csv:CsvRemoveValue("AAA,BBB,CCC,DDD", ""),      
+      "AAA,BBB,CCC,DDD"
+      ).
+        
+    sc_unittest:Assert(
+      "CsvRemoveValue_00001_05",
+      "Remove from pipe-separated list",
+      sc_string_csv:CsvRemoveValue("AAA|BBB|CCC|DDD", "BBB", "|"),      
+      "AAA|CCC|DDD"
+      ).
+        
+    sc_unittest:Assert(
+      "CsvRemoveValue_00001_05",
+      "Remove all entries",
+      sc_string_csv:CsvRemoveValue("AAA|BBB|CCC|DDD", "AAA|BBB|CCC|DDD"),      
+      ""
+      ).
 
+  end method.  /* UT_CsvRemoveValue */
+
+
+  method protected void CreateUnittestData(input cUnittestIP# as character):
     
     case cUnittestIP#:
       
