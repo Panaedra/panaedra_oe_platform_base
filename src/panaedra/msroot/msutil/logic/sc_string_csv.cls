@@ -379,7 +379,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     
   end method. /* CsvAddLast ; any delimiter */
 
-   
+
+  @panaedraannotation file(unittest="yes").
   method public static character CsvRemoveValue(
     cSvIP# as character, cSvRemoveValueIP# as character):
 
@@ -388,6 +389,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   end method. /* CsvRemoveValue ; delimiter = "," */
 
    
+  @panaedraannotation file(unittest="yes").
   method public static character CsvRemoveValue(
     cSvIP# as character, cSvRemoveValueIP# as character, cDelimiterIP# as character):
     /* removes one or more values from a csv */
