@@ -30,7 +30,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
   method public void GetUnittests(
     output cSvUnittestsOP# as character):
      
-    cSvUnittestsOP# = "UT_CsvGetJoinList,CsvRemoveValue".
+    cSvUnittestsOP# = "UT_CsvGetJoinList,UT_CsvRemoveValue,UT_CsvRemoveLastValue".
     
   end method. /* GetUnittests */
  
@@ -40,7 +40,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
 
     case cUnittestIP#:
       when "UT_CsvGetJoinList" then UT_CsvGetJoinList(cUnittestIP#).
-      when "CsvRemoveValue"    then UT_CsvRemoveValue(cUnittestIP#).
+      when "UT_CsvRemoveValue"    then UT_CsvRemoveValue(cUnittestIP#).
+      when "UT_CsvRemoveLastValue"    then UT_CsvRemoveLastValue(cUnittestIP#).
     end case.
     
   end method. /* ExecuteUnittest */
@@ -147,6 +148,40 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
     end catch.
 
   end method. /* UT_CsvGetJoinList */   
+  
+  
+  method public void UT_CsvRemoveLastValue(
+    cUnittestIP# as character):
+    
+    sc_unittest:Assert(
+      "UT_CsvRemoveLastValue_00001_01",
+      "Remove last entry",
+      sc_string_csv:CsvRemoveLastValue("AAA,BBB,CCC,DDD", ","),      
+      "AAA,BBB,CCC"
+      ).
+    
+    sc_unittest:Assert(
+      "UT_CsvRemoveLastValue_00001_02",
+      "Remove last entry",
+      sc_string_csv:CsvRemoveLastValue("AAA,BBB", ","),      
+      "AAA"
+      ).
+    
+    sc_unittest:Assert(
+      "UT_CsvRemoveLastValue_00001_03",
+      "Remove last entry",
+      sc_string_csv:CsvRemoveLastValue("AAA", ","),      
+      ""
+      ).
+    
+    sc_unittest:Assert(
+      "UT_CsvRemoveLastValue_00001_04",
+      "Remove last entry",
+      sc_string_csv:CsvRemoveLastValue("AAA;BBB;CCC;DDD", ";"),      
+      "AAA;BBB;CCC"
+      ).
+    
+  end method.  /* UT_CsvRemoveLastValue */
   
   
   method public void UT_CsvRemoveValue(

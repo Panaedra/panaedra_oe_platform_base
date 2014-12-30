@@ -418,6 +418,29 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   end method. /* CsvRemoveValue ; any delimiter */
   
   
+  @panaedraannotation file(unittest="yes").
+  method public static character CsvRemoveLastValue(
+    cSvIP# as character, 
+    cDelimiterIP# as character):
+    /* removes the last value from a csv */
+    
+    define variable cSvReturn# as character no-undo.
+    define variable iTell#     as integer   no-undo.
+    define variable cEntry#    as character no-undo.
+
+    if cSvIP# = ? or cSvIP# = "" then
+      cSvReturn# = "".
+      
+    else
+    do iTell# = 1 to num-entries(cSvIP#, cDelimiterIP#) - 1 /* skip last */:
+      cSvReturn# = cSvReturn# + (if length(cSvReturn#) > 0 then cDelimiterIP# else "") + entry(iTell#, cSvIP#, cDelimiterIP#).
+    end.
+
+    return cSvReturn#.
+    
+  end method. /* CsvRemoveLastValue */
+  
+  
   method public static character CsvAddFirst(cCsvIP# as character, cNewValueIP# as character):
     
     /* Adds a value to a seperated value, without adding too much delimiters.
