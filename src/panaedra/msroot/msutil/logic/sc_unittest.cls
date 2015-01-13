@@ -1187,6 +1187,22 @@ class panaedra.msroot.msutil.logic.sc_unittest
     return bBusyUnittesting.
       
   end method. /* IsBusyUnittesting */
+  
+  
+  method public static void ResetBufferToDefaultValues(hBuffIP# as handle):
+    
+    define variable iField#  as integer no-undo.
+    define variable hField#  as handle  no-undo.
+    define variable iExtent# as integer no-undo.
+    
+    do iField# = 1 to hBuffIP#:num-fields:
+      hField# = hBuffIP#:buffer-field(iField#).
+      do iExtent# = (if hField#:extent > 0 then 1 else 0) to (if hField#:extent > 0 then hField#:extent else 0):
+        hField#:buffer-value[iExtent#] = hField#:default-value. 
+      end.  /* iExtent# */
+    end. /* iField# */
+    
+  end method. /* ResetBufferToDefaultValues */
 
 end class.
 
