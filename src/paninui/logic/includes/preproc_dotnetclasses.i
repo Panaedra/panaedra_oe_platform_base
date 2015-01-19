@@ -13,7 +13,6 @@
 &glob dvcs__paninui_logic_includes_preproc_dotnetclasses_i yes
 &glob sourcecontrolversions {&sourcecontrolversions} | paninui_logic_includes_preproc_dotnetclasses_i $Revision: 4 $
 &if '{&class}' = '' &then
-procedure dvcs__paninui_logic_includes_preproc_dotnetclasses_i: return "$Revision: 4 $". end.
 &endif
 /******************************* $NoKeywords:  $ *****************************/
 
