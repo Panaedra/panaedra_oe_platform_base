@@ -136,6 +136,83 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     input cExtraMessageIP# as character,
     input oErrorIP#        as Progress.Lang.Error):
     
+    define variable bKeepNative# as logical no-undo.
+    
+    if sc_environment:bBatchMode then 
+      ShowExceptionBroadcastedImplement(false, cExtraMessageIP#, oErrorIP#).      
+    
+    else /* no batchmode */
+      /* To screen or default output, no external routes */
+      ShowExceptionKeepNative(cExtraMessageIP#, oErrorIP#).
+    
+  end method. /* ShowException */
+  
+
+  method public static void ShowExceptionBroadcasted(
+    input bShowToTtyUserIP# as logical,
+    input iErrorIP#         as integer,
+    input cErrorIP#         as character,
+    input oLanguageIP#      as i_language_dutch):
+
+    ShowExceptionBroadcasted(
+      bShowToTtyUserIP#,
+      new c_panaedraexception(
+        iErrorIP#,
+        oLanguageIP#,
+        substitute("Zie: '&1'", cErrorIP#) /* codeQok#7104 */
+        )).
+    
+  end method. /* ShowExceptionBroadcasted | NL: input errornr and text */
+  
+  
+  method public static void ShowExceptionBroadcasted(
+    input bShowToTtyUserIP# as logical,
+    input iErrorIP#         as integer,
+    input cErrorIP#         as character,
+    input oLanguageIP#      as i_language_english):
+
+    ShowExceptionBroadcasted(
+      bShowToTtyUserIP#,
+      new c_panaedraexception(
+        iErrorIP#,
+        oLanguageIP#,
+        substitute("See: '&1'", cErrorIP#)
+        )).
+    
+  end method. /* ShowExceptionBroadcasted | EN: input errornr and text */
+  
+  
+  method public static void ShowExceptionBroadcasted(
+    
+    /* Default exception handling. Depending on session type and config: to screen, logfile, or (in batchmode) posted as a monitor event. */
+    input bShowToTtyUserIP# as logical,
+    input oErrorIP#         as Progress.Lang.Error):
+      
+    ShowExceptionBroadcasted(bShowToTtyUserIP#, "", oErrorIP#).
+      
+  end method. /* ShowExceptionBroadcasted, simple overload */
+
+
+  method public static void ShowExceptionBroadcasted(    
+    input bShowToTtyUserIP# as logical,
+    input cExtraMessageIP#  as character,
+    input oErrorIP#         as Progress.Lang.Error):
+        
+    ShowExceptionBroadcastedImplement(bShowToTtyUserIP#, cExtraMessageIP#, oErrorIP#).
+        
+  end method. /* ShowExceptionBroadcasted */
+
+
+  method protected static void ShowExceptionBroadcastedImplement(
+    
+    /* Like ShowException, but even in a TTY session, the message is *ALWAYS*
+       sent to sc_msmon_feedback, and *OPTIONALLY* shown to the user.
+    */
+    
+    input bShowToTtyUserIP# as logical,
+    input cExtraMessageIP#  as character,
+    input oErrorIP#         as Progress.Lang.Error):
+    
     define variable bKeepNative#                  as logical          no-undo.
     define variable bSuccess#                     as logical          no-undo.
     define variable cEventID#                     as character        no-undo. /* EventID is meant to be used in (for example) url's to link 
@@ -143,71 +220,61 @@ class panaedra.msroot.msutil.logic.sc_showexception:
                                                                                   specific as possible. In panaedra exception, the error number 
                                                                                   is (non-forced) unique to the source location, so it's a 
                                                                                   good ID. For SysError's, part of the stack is a better ID. */
-    define variable bUseStackForID#               as logical          no-undo.
-    
+    define variable bUseStackForID#               as logical          no-undo.    
     define variable iError#                       as integer          no-undo.
     define variable cExceptionCallStackLastEntry# as character        no-undo.
     define variable oPanaedraError#                  as c_panaedraexception no-undo.
     
-    if sc_environment:bBatchMode then 
-    do:
-      
-      iError# = oErrorIP#:GetMessageNum(1).
-    
-      if iError# = 0 or iError# = ? then iError# = 99948192. /* Nothing better to do than give a unique error number */
-    
-      if type-of(oErrorIP#, c_panaedraexception) then 
-      do:
-        oPanaedraError# = cast(oErrorIP#,c_panaedraexception).
-        if valid-object(oPanaedraError#:oRecordStatus) then 
-        do:
-          /* A record status has a table, this is useful in the ID */
-          if length(oPanaedraError#:oRecordStatus:cTablename) > 0 then
-            cEventID# = "_" + oPanaedraError#:oRecordStatus:cTablename.
-          bUseStackForID# = false.  
-        end.
-        else
-          bUseStackForID# = false.
-
-      end.
-      else 
-        bUseStackForID# = true.
-      
-      cExceptionCallStackLastEntry# = ExceptionCallStackLastEntry(oErrorIP#).
-    
-      if bUseStackForID# then
-        cEventID# = cExceptionCallStackLastEntry# + cEventID#.
-      else
-        cEventID# = subst("Loc_&1",string(iError#,"99999999")) + cEventID#.
-        
-      if length(cExtraMessageIP#) > 0 then
-        cExtraMessageIP# = cExtraMessageIP# + "~n".
-      else /* in case of unknown value */
-        cExtraMessageIP# = "".  
-        
-      cExtraMessageIP# = cExtraMessageIP# + sc_showexception:ExceptionMsgToString(oErrorIP#).  
-    
-      bSuccess# = 
-        sc_msmon_feedback:HandleEvent(
-        "ShowException",                /* Event */
-        cEventID#,                      /* ID */
-        cExceptionCallStackLastEntry#,
-        cExtraMessageIP#,
-        oErrorIP#).
-      if not bSuccess# then 
-        bKeepNative# = true.  
-        
-    end. /* batchmode */
-    
-    else /* no batchmode */
-      bKeepNative# = true.
-    
-    if bKeepNative# then
-      /* To screen or default output, no external routes */
-      ShowExceptionKeepNative(cExtraMessageIP#,oErrorIP#).
-    
-  end method. /* ShowException */
+    iError# = oErrorIP#:GetMessageNum(1).
   
+    if iError# = 0 or iError# = ? then iError# = 99948192. /* Nothing better to do than give a unique error number */
+  
+    if type-of(oErrorIP#, c_panaedraexception) then 
+    do:
+
+      oPanaedraError# = cast(oErrorIP#,c_panaedraexception).
+
+      if valid-object(oPanaedraError#:oRecordStatus) then 
+      do:
+        /* A record status has a table, this is useful in the ID */
+        if length(oPanaedraError#:oRecordStatus:cTablename) > 0 then
+          cEventID# = "_" + oPanaedraError#:oRecordStatus:cTablename.
+        bUseStackForID# = false.  
+      end.
+      else
+        bUseStackForID# = false.
+
+    end.
+    else 
+      bUseStackForID# = true.
+    
+    cExceptionCallStackLastEntry# = ExceptionCallStackLastEntry(oErrorIP#).
+  
+    if bUseStackForID# then
+      cEventID# = cExceptionCallStackLastEntry# + cEventID#.
+    else
+      cEventID# = subst("Loc_&1",string(iError#,"99999999")) + cEventID#.
+      
+    if length(cExtraMessageIP#) > 0 then
+      cExtraMessageIP# = cExtraMessageIP# + "~n".
+    else /* in case of unknown value */
+      cExtraMessageIP# = "".  
+      
+    cExtraMessageIP# = cExtraMessageIP# + sc_showexception:ExceptionMsgToString(oErrorIP#).  
+  
+    bSuccess# = 
+      sc_msmon_feedback:HandleEvent(
+      "ShowException",                /* Event */
+      cEventID#,                      /* ID */
+      cExceptionCallStackLastEntry#,
+      cExtraMessageIP#,
+      oErrorIP#).
+
+    if bShowToTtyUserIP# or bSuccess# = false then
+      ShowExceptionKeepNative(cExtraMessageIP#, oErrorIP#). 
+
+  end method. /* ShowExceptionBroadcastedImplement */
+
 
   method public static void ShowExceptionKeepNative(
     
