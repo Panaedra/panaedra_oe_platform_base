@@ -3,7 +3,6 @@ using paninui.view.interfaces.*.
 using paninui.view.init.display.*.
 using panaedra.msroot.msutil.logic.*.
 
-
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class paninui.mdiwindow.sc_mdiwindow: 
@@ -46,7 +45,7 @@ class paninui.mdiwindow.sc_mdiwindow:
     define variable oAssembly# as System.Reflection.Assembly no-undo.
     define variable oForm#     as System.Windows.Forms.Form  no-undo.
     
-    
+   
     if cMdiDllNameIP# <> "[no dll]" then 
     do:
 
@@ -68,7 +67,7 @@ class paninui.mdiwindow.sc_mdiwindow:
       end.
     
     end.
-    else 
+    else
       oMdiNew# = dynamic-new cMdiClassNameIP#().
     
     oForm# = cast(cast(oMdiNew#,Progress.Lang.Object), System.Windows.Forms.Form).
@@ -95,7 +94,6 @@ class paninui.mdiwindow.sc_mdiwindow:
     wait-for System.Windows.Forms.Application:Run(oForm#). 
 
   end method. /* StartNewMdiWindow */
-
 
 end class.
 

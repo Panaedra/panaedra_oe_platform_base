@@ -51,7 +51,7 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
       then ttMsMdiMaster.cObject = "panaedra.msroot.mspack.view_abl_dotnet.c_mdi_mspack".
 
     /* Set the initial pack */
-
+    
     if sc_sgt_masterwindow_eventhandler:oSgt:cInitialPack = "" then 
     do:
       
