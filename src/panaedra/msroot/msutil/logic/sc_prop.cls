@@ -142,7 +142,7 @@ class panaedra.msroot.msutil.logic.sc_prop:
       end.
     end.
     
-  end method. /* PropsToString */
+  end method. /* PropsFromString */
 
 
   method public static char PropsToString(hWidgetIP# as handle):
@@ -338,7 +338,7 @@ class panaedra.msroot.msutil.logic.sc_prop:
         end.
       when "dataset" then 
         do:
-          /* TODO:  Check if num-buffers also works on a dataset, instead we have to use top-buffers and data-relations */
+          /* ShouldHave:  Check if num-buffers also works on a dataset, instead we have to use top-buffers and data-relations */
           do iTell# = 1 to hDataObjectIP#:num-buffers:
             SetBufferPropsFromHelpString(hDataObjectIP#:get-buffer-handle(iTell#)).
           end.
