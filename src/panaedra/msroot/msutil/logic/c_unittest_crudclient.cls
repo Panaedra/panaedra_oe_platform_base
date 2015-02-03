@@ -40,6 +40,30 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
     public get.
     public set.
   
+  define property cTxtAppend as character no-undo /* a text to append to field contents */
+    public get.
+    public set.
+  
+  define property cSvFieldsUpdAppend as character no-undo /* list of fields of the table to append cTxtAppend to */
+    public get.
+    public set.
+  
+  define property iTxtShrink as integer no-undo /* number of chars to be cut from the end of some field contents */
+    public get.
+    public set.
+  
+  define property cSvFieldsUpdShrink as character no-undo /* list of fields of the table to shrink with iTxtShrink number of chars, via substring and length */
+    public get.
+    public set.
+  
+  define property iValIncrement as integer no-undo /* number to add to some int or decimal field contents, pos or neg */
+    public get.
+    public set.
+  
+  define property cSvFieldsUpdIncrement as character no-undo /* list of fields of the table to increment with iValIncrement, pos or neg */
+    public get.
+    public set.
+  
   constructor public c_unittest_crudclient(
     cLdbnameIP# as character,
     cTableIP#   as character,
@@ -69,7 +93,16 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
       BootExtraSession("panaedra/msroot/msutil/logic/c_unittest_crudclient_boot.p").
     end.
     
-    sc_unittest:_sys_SocketClientSend(cUtClientGuid, subst("ACTION~004FULLCRUD~003TASKGUID~004&1~003ldbname~004&2~003table~004&3~003prep~004&4~003fldslogged~004&5~012", cGuid#, cLdbname, cTable, cPrep, cSvFieldsLogged)).
+    sc_unittest:_sys_SocketClientSend(cUtClientGuid, 
+      subst("ACTION~004FULLCRUD~003TASKGUID~004&1~003ldbname~004&2~003table~004&3~003prep~004&4~003fldslogged~004&5", cGuid#, cLdbname, cTable, cPrep, cSvFieldsLogged) +
+      subst("~003txtappend~004&1",     cTxtAppend            ) + 
+      subst("~003fldsappend~004&1",    cSvFieldsUpdAppend    ) + 
+      subst("~003txtshrink~004&1",     iTxtShrink            ) + 
+      subst("~003fldsshrink~004&1",    cSvFieldsUpdShrink    ) + 
+      subst("~003increment~004&1",     iValIncrement         ) + 
+      subst("~003fldsincrement~004&1", cSvFieldsUpdIncrement ) + 
+      "~012"
+      ).
     sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 5000, output bClientGuidFeedbackOkay#, output cFeedback#).
     
     if bClientGuidFeedbackOkay# = false then
