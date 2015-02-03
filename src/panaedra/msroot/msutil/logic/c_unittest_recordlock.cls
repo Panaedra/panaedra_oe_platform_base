@@ -4,7 +4,7 @@ using panaedra.msroot.msas.logic.*.
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
-class panaedra.msroot.msutil.logic.c_unittest_recordlock: 
+class panaedra.msroot.msutil.logic.c_unittest_recordlock inherits c_unittest_concurrentclient_base: 
 
   /******************************  Dvcs_ Header ********************************\
          Filename: $Archive:  $ 
@@ -24,18 +24,8 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
-  define protected variable bExtraSessionIsBooted as logical no-undo.
-  
   define property cLdbname as character no-undo
     public get.
-    protected set.
-    
-  define property cUtClientGuid as character no-undo
-    public get:
-      if length(cUtClientGuid) = 0 then
-        cUtClientGuid = guid.
-      return cUtClientGuid.
-    end get.
     protected set.
     
   define property cTable   as character no-undo
@@ -51,17 +41,14 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
     cTableIP#   as character,
     rRowidIP#   as rowid):
       
+    super().  
+      
     assign
       cLdbname = cLdbnameIP#  
       cTable   = cTableIP#   
       rRowid   = rRowidIP#.   
     
   end constructor.
-  
-
-  destructor c_unittest_recordlock():
-    sc_unittest:_sys_SocketClientUnregister(cUtClientGuid).  
-  end destructor.
   
   
   method public void LockIt():
@@ -75,7 +62,7 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
     if bExtraSessionIsBooted = false then 
     do:
       bExtraSessionIsBooted = true.
-      BootExtraSession(). 
+      BootExtraSession("panaedra/msroot/msutil/logic/c_unittest_recordlockclient_boot.p").
     end.
     
     sc_unittest:_sys_SocketClientSend(cUtClientGuid, subst("ACTION~004LOCKIT~003TASKGUID~004&1~003ldbname~004&2~003table~004&3~003rowid~004&4~012", cGuid#, cLdbname, cTable, rRowid)).
@@ -109,56 +96,6 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock:
   
   end method. /* UnlockIt */
   
-  
-  method protected void BootExtraSession():
-
-    define variable cCommand#                as character no-undo.
-    define variable cEnv#                    as character no-undo.
-    define variable cWorkPath#               as character no-undo.
-    define variable bDevToken#               as logical   no-undo.
-    define variable bClientGuidFeedbackOkay# as logical   no-undo.
-    
-    /* Set up a server-socket (if not already running) */
-    sc_unittest:_sys_InitializeUtServerSocket().
-
-    /* Start a separate session that connects to the server socket */
-    assign
-      cEnv#      = sc_boot:SessionParameter("Env")
-      cWorkPath# = sc_boot:SessionParameter("WorkPath").
-
-    bDevToken# = length(os-getenv("DevToken")) > 0 no-error.
-    if bDevToken# = ? then bDevToken# = false.
-
-    if cWorkPath# = ? or cWorkPath# = "" then
-      cWorkPath# = sc_path:cWorkDir.
-    
-    cCommand# = subst('. /etc/profile ; unset PROPATH ; &1 &2 ; export LOGFILEID=&3 ; export UtClientGuid=&3 ; export AsModeSuffixPre=&4 ; CpSuffix=_utf8_s850 $SCRIPTS/RunRaw  "panaedra/msroot/msutil/logic/c_unittest_recordlockclient_boot.p" &5 &6 BATCH " [UnittestPort] &7 [SharedIniDir] &8 &9 "',
-      " export OTAUSER=yes ;" 
-      /* tmp solution, remove if live is OE113 */
-      + if sc_environment:cEnv <> "misc" then "" else ". /progress/scripts/progressProfile113A;",
-      subst(". $SCRIPTS/PropathSet &1 ; export PROPATHPRE=$PROPATH", if bDevToken# then os-getenv("DlcTest_") else "test"),
-      cUtClientGuid,
-      replace(sc_asconnect:GetSuffix(), "_batch", "") /* _batch can be removed here */,
-      sc_environment:cEnv, 
-      cWorkPath# /* Working directory */,
-      sc_unittest:sys_iUtServerPort,
-      sc_path:cIniDir,
-      if sc_boot:SessionParameter("DevIP") > "" then subst("[DevIP] &1 ", sc_boot:SessionParameter("DevIP")) else ""
-      ).
-    
-    /* Start the client process. */
-    os-command silent value(cCommand#).
-    /* After 5 seconds the process should be in the air. */
-    sc_unittest:_sys_SocketClientGuidWait(cUtClientGuid, 5000, output bClientGuidFeedbackOkay#).
-    
-    if not bClientGuidFeedbackOkay# then
-      undo, throw new c_panaedraexception(
-        99028172,
-        sc_lang:oEnglish,
-        substitute("UnitTest client '&1' did not respond after '&2' ms.", cUtClientGuid, 5000)).
-      
-  end method. /* BootExtraSession */
-
 end class.
 
 /* EOF */ 
