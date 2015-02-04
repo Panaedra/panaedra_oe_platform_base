@@ -66,6 +66,10 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
     public get.
     public set.
   
+  define property cPrepDelete as character no-undo /* if non-empty: all records within this query will be deleted, *before* any update actions, and *before* the normal query. */
+    public get.
+    public set.
+  
   define property cSvFieldsLogged as character no-undo /* list of fields of the table to be logged in logfile */
     public get.
     public set.
@@ -87,6 +91,10 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
     public set.
   
   define property iValIncrement as integer no-undo /* number to add to some int or decimal field contents, pos or neg */
+    public get.
+    public set.
+  
+  define property cPrepIncrement as character no-undo /* if non-empty: overrules cPrep for the increment action. Query will be run *before* the normal query, and *after* a cPrepDelete delete query. */
     public get.
     public set.
   
@@ -141,6 +149,8 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
       subst("~003fldsincrement~004&1", cSvFieldsUpdIncrement ) + 
       subst("~003guidsync~004&1",      bGuidSync             ) + 
       subst("~003fxdp~004&1",          cSv_TOOLING_Fxdp           ) + 
+      subst("~003prepdel~004&1",       cPrepDelete           ) + 
+      subst("~003prepinc~004&1",       cPrepIncrement        ) + 
       "~012"
       ).
     sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 5000, output bClientGuidFeedbackOkay#, output cFeedback#).
@@ -158,7 +168,7 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
   end method. /* FullCrudCre */
     
   method public void FullCrudDel():
-    undo, throw new c_panaedraexception(99918353,sc_lang:oEnglish,"Not implemented.").
+    undo, throw new c_panaedraexception(99918353,sc_lang:oEnglish,"Use cPrepDelete for delete actions.").
   end method. /* FullCrudDel */
     
 end class.
