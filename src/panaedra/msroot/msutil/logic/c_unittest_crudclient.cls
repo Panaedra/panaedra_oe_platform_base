@@ -94,6 +94,14 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
     public get.
     public set.
   
+  define property bGuidSync as logical no-undo /* end with a guidsync, for pending _TOOLING_ data */
+    public get.
+    public set.
+
+  define property cSv_TOOLING_Fxdp as character no-undo /* list of _TOOLING_ datapartitions, ex.: dwan,dlan */
+    public get.
+    public set.
+  
   constructor public c_unittest_crudclient(
     cLdbnameIP# as character,
     cTableIP#   as character,
@@ -131,6 +139,8 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
       subst("~003fldsshrink~004&1",    cSvFieldsUpdShrink    ) + 
       subst("~003increment~004&1",     iValIncrement         ) + 
       subst("~003fldsincrement~004&1", cSvFieldsUpdIncrement ) + 
+      subst("~003guidsync~004&1",      bGuidSync             ) + 
+      subst("~003fxdp~004&1",          cSv_TOOLING_Fxdp           ) + 
       "~012"
       ).
     sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 5000, output bClientGuidFeedbackOkay#, output cFeedback#).
