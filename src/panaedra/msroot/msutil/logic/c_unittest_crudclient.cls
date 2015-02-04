@@ -14,6 +14,36 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
     Date Modified: $Modtime:  $ 
 
       Description: For unit tests: Do CRUD actions on records of a table (in another session).
+                   
+                   You can modify fields of all records in a (small) query, for testing purposes.
+                   
+                   There are basically four operations:
+                     - Add some text (append)
+                     - Shrink some text (remove last few number of characters)
+                     - Add a number to a decimal, integer, or int64 field
+                     - Subtract a number from a decimal, integer, or int64 field
+                   
+                   Example usage:
+                   assign
+                     oCrudclient#                       = new c_unittest_crudclient("sports", "_CCMPNY_", "preselect each _CCMPNY_ exclusive-lock where _CCMPNY_._CCMPNY_number = 123") /* codeQok#7102 codeQok#7105 codeQok#7108 */
+                     oCrudclient#:cSvFieldsLogged       = "_TERM_UNDISCLOSED_no,trkvol,trkseq,trkds"
+                     oCrudclient#:cTxtAppend            = " AROUND THE CLOCK"
+                     oCrudclient#:cSvFieldsUpdAppend    = "trkds"
+                     oCrudclient#:iValIncrement         = 70
+                     oCrudclient#:cSvFieldsUpdIncrement = "trkvol,trkseq"
+                   oCrudclient#:FullCrudUpd().
+                   
+                   This will start a separate progress session, which executes the query exclusive-lock. /* codeQok#7102 codeQok#7105 codeQok#7108 */
+                   The query will be run inside one transaction.                                         /* codeQok#7103 */
+                   After oCrudclient#:FullCrudUpd() has run, the operation will be complete (or timed out - synchronisation over TCP takes place). 
+                   This timeout is as of now hardcoded at 5000 milliseconds.
+                    
+                   Each field in cSvFieldsLogged will be shown in the separate logfile of the separate session. 
+                   Each field in cSvFieldsUpdAppend will be appended by " AROUND THE CLOCK". 
+                   Each field in cSvFieldsUpdIncrement will be incremented by 70.
+                   
+                   You can use cSvFieldsUpdShrink + iTxtShrink to remove the appended text again.
+                   You can use a negative iValIncrement of -70 to restore the integer fields.
 
   \*****************************  Include Files ********************************/
 
@@ -34,7 +64,7 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
     
   define property cPrep   as character no-undo
     public get.
-    protected set.
+    public set.
   
   define property cSvFieldsLogged as character no-undo /* list of fields of the table to be logged in logfile */
     public get.
@@ -79,7 +109,7 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
   end constructor.
   
   
-  method public void FullCrud():
+  method public void FullCrudUpd():
     
     define variable bClientGuidFeedbackOkay# as logical   no-undo.
     define variable cGuid#                   as character no-undo.
@@ -94,7 +124,7 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
     end.
     
     sc_unittest:_sys_SocketClientSend(cUtClientGuid, 
-      subst("ACTION~004FULLCRUD~003TASKGUID~004&1~003ldbname~004&2~003table~004&3~003prep~004&4~003fldslogged~004&5", cGuid#, cLdbname, cTable, cPrep, cSvFieldsLogged) +
+      subst("ACTION~004FULLCRUDUPD~003TASKGUID~004&1~003ldbname~004&2~003table~004&3~003prep~004&4~003fldslogged~004&5", cGuid#, cLdbname, cTable, cPrep, cSvFieldsLogged) +
       subst("~003txtappend~004&1",     cTxtAppend            ) + 
       subst("~003fldsappend~004&1",    cSvFieldsUpdAppend    ) + 
       subst("~003txtshrink~004&1",     iTxtShrink            ) + 
@@ -106,12 +136,20 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
     sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 5000, output bClientGuidFeedbackOkay#, output cFeedback#).
     
     if bClientGuidFeedbackOkay# = false then
-      undo, throw new c_panaedraexception(99028162, sc_lang:oEnglish, substitute("UnitTest crudclient client did not respond to FullCrud() in '&1' ms.", 5000)).
+      undo, throw new c_panaedraexception(99028162, sc_lang:oEnglish, substitute("UnitTest crudclient client did not respond to FullCrudUpd() in '&1' ms.", 5000)).
       
     if cFeedback# = ? or cFeedback# <> "LockSucceeded~004yes" then
-      undo, throw new c_panaedraexception(99028163, sc_lang:oEnglish, substitute("FullCrud remote:'&1'", cFeedback#)).
+      undo, throw new c_panaedraexception(99028163, sc_lang:oEnglish, substitute("FullCrudUpd remote:'&1'", cFeedback#)).
   
-  end method. /* FullCrud */
+  end method. /* FullCrudUpd */
+
+  method public void FullCrudCre():
+    undo, throw new c_panaedraexception(99918352,sc_lang:oEnglish,"Not implemented.").
+  end method. /* FullCrudCre */
+    
+  method public void FullCrudDel():
+    undo, throw new c_panaedraexception(99918353,sc_lang:oEnglish,"Not implemented.").
+  end method. /* FullCrudDel */
     
 end class.
 
