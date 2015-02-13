@@ -110,7 +110,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
       
       if valid-handle(hQuery#) then
         delete object hQuery#.
-      if valid-handle(hLockBuff#) then	
+      if valid-handle(hLockBuff#) then  
         delete object hLockBuff#.
         
     end finally.   
@@ -150,7 +150,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     finally:
       
       if valid-handle(hBuffer#) then  
-        delete object hBuffer#.	
+        delete object hBuffer#.  
       if valid-handle(hQuery#) then  
         delete object hQuery#. 
         
@@ -287,7 +287,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     return cReturn#.
     
     catch oError# as Progress.Lang.Error:
-      sc_showexception:ShowException(oError#).	
+      sc_showexception:ShowException(oError#).  
     end catch.
     
     finally:
@@ -415,28 +415,38 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
         and hQuery#:query-open()
         and hQuery#:get-first()
         then
-      do while (not hQuery#:query-off-end and hBuffLock#::_Lock-Usr <> ? ): /* Break loop when field is null; no index on this VST table */
+      do while ( not hQuery#:query-off-end ): 
         
-        create ttLock.
-        assign
-          iIdLock#          = iIdLock# + 1
-          ttLock.iIDLock    = iIdLock#
-          ttLock.cDb        = ldbname(iDb#)
-          ttLock.iLockId    = hBuffLock#::_Lock-Id
-          ttLock.rLockRecid = hBuffLock#::_Lock-RecId
-          ttLock.iLockUsr   = hBuffLock#::_Lock-Usr
-          ttLock.cLockName  = hBuffLock#::_Lock-Name
-          ttLock.iLockTable = hBuffLock#::_Lock-Table
-          .
+           
+        /* Entries in _Lock no longer appear at top of resultset from OpenEdge 11.4 onward.
+           there is no garantee where the lock records are in the resultset.
+           so we execute the complete query, and filter here.
+           of course can be slower in older progress versions before 11.4
+           http://knowledgebase.progress.com/%61rticles/%41rticle/000056304 */
+           
+        if hBuffLock#::_Lock-Usr <> ? then 
+        do:
+          create ttLock.
+          assign
+            iIdLock#          = iIdLock# + 1
+            ttLock.iIDLock    = iIdLock#
+            ttLock.cDb        = ldbname(iDb#)
+            ttLock.iLockId    = hBuffLock#::_Lock-Id
+            ttLock.rLockRecid = hBuffLock#::_Lock-RecId
+            ttLock.iLockUsr   = hBuffLock#::_Lock-Usr
+            ttLock.cLockName  = hBuffLock#::_Lock-Name
+            ttLock.iLockTable = hBuffLock#::_Lock-Table
+            .
+            
+          GetTableInfo(ldbname(iDb#), ttLock.iLockTable, output ttLock.cTableName).
+          GetConnectionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.cDevice, output ttLock.iPid).
+          GetTransactionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.iTransactionNum, output ttLock.dtmSince, output ttLock.cTransStat).
           
-        GetTableInfo(ldbname(iDb#), ttLock.iLockTable, output ttLock.cTableName).
-        GetConnectionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.cDevice, output ttLock.iPid).
-        GetTransactionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.iTransactionNum, output ttLock.dtmSince, output ttLock.cTransStat).
-        
-        assign
-          ttLock.cSince          = sc_datetime:GetTimeHH_FCMPNY_S(ttLock.dtmSince)
-          ttLock.cWhoInfo        = sc_environment:GetWorkstationDescription(ttLock.cDevice)
-          ttLock.cCommandLineRaw = sc_environment:GetCommandLine(ttLock.iPid). 
+          assign
+            ttLock.cSince          = sc_datetime:GetTimeHH_FCMPNY_S(ttLock.dtmSince)
+            ttLock.cWhoInfo        = sc_environment:GetWorkstationDescription(ttLock.cDevice)
+            ttLock.cCommandLineRaw = sc_environment:GetCommandLine(ttLock.iPid). 
+        end.
           
         hQuery#:get-next().
         
@@ -458,7 +468,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
         if valid-handle(hQuery#) then
           delete object hQuery#.
         if valid-handle(hBuffLock#) then
-          delete object hBuffLock#.	
+          delete object hBuffLock#.  
       end finally.
       
     end. /* do iDb# .... */   
