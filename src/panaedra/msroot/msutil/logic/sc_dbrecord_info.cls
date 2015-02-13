@@ -75,13 +75,13 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     create query hQuery#.
    
     if hQuery#:set-buffers(hLockBuff#)
-      and hQuery#:query-prepare("for each _Lock no-lock")
+      and hQuery#:query-prepare("for each _Lock no-lock where _lock-recid <> ?")
       and hQuery#:query-open()
       and hQuery#:get-first()
       then 
     do: 
        
-      repeat while (not hQuery#:query-off-end and hLockBuff#::_lock-recid <> ?) on error undo, throw:
+      repeat while (not hQuery#:query-off-end ) on error undo, throw:
         
         if hLockBuff#::_lock-recid = hBufferIP#:recid and
           hLockBuff#::_lock-table  = hBufferIP#:table-number and
@@ -411,7 +411,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
       create buffer hBuffLock# for table subst("&1._Lock", ldbname(iDb#)).
       
       if hQuery#:add-buffer(hBuffLock#)
-        and hQuery#:query-prepare("for each _Lock no-lock")
+        and hQuery#:query-prepare("for each _Lock no-lock where _Lock-Usr <> ? ")
         and hQuery#:query-open()
         and hQuery#:get-first()
         then
@@ -420,33 +420,29 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
            
         /* Entries in _Lock no longer appear at top of resultset from OpenEdge 11.4 onward.
            there is no garantee where the lock records are in the resultset.
-           so we execute the complete query, and filter here.
-           of course can be slower in older progress versions before 11.4
+           we now check for valid _lock records in the where clause of the query.
            http://knowledgebase.progress.com/%61rticles/%41rticle/000056304 */
            
-        if hBuffLock#::_Lock-Usr <> ? then 
-        do:
-          create ttLock.
-          assign
-            iIdLock#          = iIdLock# + 1
-            ttLock.iIDLock    = iIdLock#
-            ttLock.cDb        = ldbname(iDb#)
-            ttLock.iLockId    = hBuffLock#::_Lock-Id
-            ttLock.rLockRecid = hBuffLock#::_Lock-RecId
-            ttLock.iLockUsr   = hBuffLock#::_Lock-Usr
-            ttLock.cLockName  = hBuffLock#::_Lock-Name
-            ttLock.iLockTable = hBuffLock#::_Lock-Table
-            .
-            
-          GetTableInfo(ldbname(iDb#), ttLock.iLockTable, output ttLock.cTableName).
-          GetConnectionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.cDevice, output ttLock.iPid).
-          GetTransactionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.iTransactionNum, output ttLock.dtmSince, output ttLock.cTransStat).
+        create ttLock.
+        assign
+          iIdLock#          = iIdLock# + 1
+          ttLock.iIDLock    = iIdLock#
+          ttLock.cDb        = ldbname(iDb#)
+          ttLock.iLockId    = hBuffLock#::_Lock-Id
+          ttLock.rLockRecid = hBuffLock#::_Lock-RecId
+          ttLock.iLockUsr   = hBuffLock#::_Lock-Usr
+          ttLock.cLockName  = hBuffLock#::_Lock-Name
+          ttLock.iLockTable = hBuffLock#::_Lock-Table
+          .
           
-          assign
-            ttLock.cSince          = sc_datetime:GetTimeHH_FCMPNY_S(ttLock.dtmSince)
-            ttLock.cWhoInfo        = sc_environment:GetWorkstationDescription(ttLock.cDevice)
-            ttLock.cCommandLineRaw = sc_environment:GetCommandLine(ttLock.iPid). 
-        end.
+        GetTableInfo(ldbname(iDb#), ttLock.iLockTable, output ttLock.cTableName).
+        GetConnectionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.cDevice, output ttLock.iPid).
+        GetTransactionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.iTransactionNum, output ttLock.dtmSince, output ttLock.cTransStat).
+        
+        assign
+          ttLock.cSince          = sc_datetime:GetTimeHH_FCMPNY_S(ttLock.dtmSince)
+          ttLock.cWhoInfo        = sc_environment:GetWorkstationDescription(ttLock.cDevice)
+          ttLock.cCommandLineRaw = sc_environment:GetCommandLine(ttLock.iPid). 
           
         hQuery#:get-next().
         
