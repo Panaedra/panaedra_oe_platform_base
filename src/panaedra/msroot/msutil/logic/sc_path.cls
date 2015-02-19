@@ -935,18 +935,15 @@ class panaedra.msroot.msutil.logic.sc_path:
 
   method public static character StandardIniDynFilePath(
   
-    /* Supply a string like "myfile.dynamic.ini", and:
+    /* returns a standard INI path/filename for dynamic INI files, 
+       these are used to programmatically write dynamic data to INI files. 
+       Supply a string like "myfile.dynamic.ini", and:
        1) the ini dir is prepended
-       2) in the live environment: "_live" will be inserted before ".dynamic.ini".
-       3) Only in a *non-live* environment: a "_[:cEnv:]" tag is inserted before ".dynamic.ini".
+       2) the environment will be inserted preceded an underscore, before ".dynamic.ini", 
+          example: myfile_live.dynamic.ini, other envs: pub, misc  
        
        If you need more flexibility, do something like:
-       sc_path:ReplacePathTokens("[:cIniDir:]myfile_[:cEnv:].dynamic.ini").
-       Watch out: 
-       This precise input is a little bit different than the output from 
-       this method; 'live' tags are empty in the return value of this method.
-          
-    */
+       sc_path:ReplacePathTokens("[:cIniDir:]myfile_[:cEnv:].dynamic.ini").   */
     
     cIniFileIP# as character 
     ):
@@ -963,7 +960,7 @@ class panaedra.msroot.msutil.logic.sc_path:
         substitute("Ini (dynamic!) file '&1' has no valid name", cIniFileIP#)
         ).
     
-    return sc_path:cIniDir + substring(cIniFileIP#,1,iIndex# - 1) + (if sc_environment:bLiveEnv then "_live" else subst("_&1", lc(sc_environment:cEnv))) + substring(cIniFileIP#,iIndex#).     
+    return sc_path:cIniDir + substring(cIniFileIP#,1,iIndex# - 1) + subst("_&1", lc(sc_environment:cEnv)) + substring(cIniFileIP#,iIndex#).     
   
   end method. /* StandardIniDynFilePath */
 
