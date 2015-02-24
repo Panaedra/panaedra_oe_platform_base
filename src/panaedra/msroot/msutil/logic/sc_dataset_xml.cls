@@ -205,6 +205,23 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml:
   
   end method. /* CopyNodenames */
   
+
+  method public static void SetBufferFieldXMLNodeTypeByCSV(
+  
+   input hDsIP#          as handle, 
+   input cTablenameIP#   as character, 
+   input cSvFieldnameIP# as character,
+   input cNodeTypeIP#    as character
+   ):
+  
+   define variable iFieldname# as integer no-undo.      
+   
+   do iFieldname# = 1 to num-entries(cSvFieldNameIP#):   
+      hDsIP#:get-buffer-handle(cTablenameIP#):buffer-field(entry(iFieldname#, cSvFieldnameIP#)):xml-node-type = cNodeTypeIP#.
+   end. 
+  
+  end method. /* SetBufferFieldXMLNoteTypeByCSV */
+
 end class.
 
 /* EOF */ 
