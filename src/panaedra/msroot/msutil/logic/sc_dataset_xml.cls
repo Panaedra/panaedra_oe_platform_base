@@ -1,5 +1,6 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_dataset_xml: 
 
@@ -20,6 +21,10 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml:
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
+  
+  constructor protected sc_dataset_xml(
+    input oParamIP# as i_unittest_param):
+  end constructor.  
   
   method public static void WriteXmlAndSplit(
     hDatasetIP#    as handle,
@@ -205,20 +210,20 @@ class panaedra.msroot.msutil.logic.sc_dataset_xml:
   
   end method. /* CopyNodenames */
   
-
-  method public static void SetBufferFieldXMLNodeTypeByCSV(
+  @panaedraannotation file(unittest="yes").
+  method public static void SetBufferFieldXmlNodeTypeByCsv(
   
-   input hDsIP#          as handle, 
-   input cTablenameIP#   as character, 
-   input cSvFieldnameIP# as character,
-   input cNodeTypeIP#    as character
-   ):
+    input hDsIP#          as handle, 
+    input cTablenameIP#   as character, 
+    input cSvFieldnameIP# as character,
+    input cNodeTypeIP#    as character
+    ):
   
-   define variable iFieldname# as integer no-undo.      
+    define variable iFieldname# as integer no-undo.      
    
-   do iFieldname# = 1 to num-entries(cSvFieldNameIP#):   
+    do iFieldname# = 1 to num-entries(cSvFieldNameIP#):   
       hDsIP#:get-buffer-handle(cTablenameIP#):buffer-field(entry(iFieldname#, cSvFieldnameIP#)):xml-node-type = cNodeTypeIP#.
-   end. 
+    end. 
   
   end method. /* SetBufferFieldXMLNoteTypeByCSV */
 
