@@ -516,7 +516,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     
     return iReturn#.  
   
-  end method. /* GetLocktableCount */
+  end method. /* GetLocktableCountExt */
   
 end class.
 
