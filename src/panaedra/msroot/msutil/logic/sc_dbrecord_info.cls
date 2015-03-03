@@ -471,6 +471,53 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
   
   end method. /* GetAllRecordLockInfo */
   
+  
+  method public static integer GetLocktableCount(
+    /* -----------------------------------------------------------
+       gets the locktable count of a specific db, via _DbStatus 
+       VST single record table 
+       ----------------------------------------------------------- */
+    input cDbIP# as character):
+      
+    define variable iReturn# as integer no-undo.
+    define variable hBuff#   as handle  no-undo.
+    
+    create buffer hBuff# for table subst("&1._DbStatus", cDbIP#).
+    
+    hBuff#:find-first("where _DbStatus-NumLocks > 0", no-lock) no-error.
+    
+    if hBuff#:available then iReturn# = hBuff#::_DbStatus-NumLocks. 
+    
+    return iReturn#.  
+    
+    finally:
+      if valid-handle(hBuff#) then delete object hBuff#.
+    end finally.
+  
+  end method. /* GetLocktableCount */
+  
+  
+  method public static integer GetLocktableCountExt(
+    /* -----------------------------------------------------------
+       gets the locktable count of a specific db, via _DbStatus 
+       VST single record table. Supply/clean-up your own handle.
+       ----------------------------------------------------------- */
+    input-output hBuffIOP# as handle,
+    input        cDbIP#    as character):
+      
+    define variable iReturn# as integer no-undo.
+    
+    if not valid-handle(hBuffIOP#) then
+      create buffer hBuffIOP# for table subst("&1._DbStatus", cDbIP#).
+    
+    hBuffIOP#:find-first("where _DbStatus-NumLocks > 0", no-lock) no-error.
+    
+    if hBuffIOP#:available then iReturn# = hBuffIOP#::_DbStatus-NumLocks. 
+    
+    return iReturn#.  
+  
+  end method. /* GetLocktableCount */
+  
 end class.
 
 /* EOF */ 
