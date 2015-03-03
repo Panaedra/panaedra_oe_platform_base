@@ -20,7 +20,7 @@ procedure dvcs__panaedra_msroot_msutil_logic_ds_sc_dataset_xml_unittests_i: retu
 &if defined(static) > 0 and defined(reference-only) > 0 &then &undefine reference-only
 &endif
 
-define {&protected} {&static} dataset dsTest {&reference-only} for tt{&ttPrefix}Test{&ttSuffix}.
+define {&protected} {&static} dataset dsTestDatasetXml {&reference-only} for tt{&ttPrefix}TestDatasetXml{&ttSuffix}.
 
 &endif /* {&dvcs__panaedra_msroot_msutil_logic_ds_sc_dataset_xml_unittests_i} */
 

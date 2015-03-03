@@ -17,9 +17,10 @@
 
 &if defined(tt{&ttPrefix}Test{&ttSuffix}) = 0 &then
 &glob tt{&ttPrefix}Test{&ttSuffix} true
-define {&protected} {&static} temp-table tt{&ttPrefix}Test{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
-  field iIDTest as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=Test "  
-  field cTest   as character   format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=Test "
+define {&protected} {&static} temp-table tt{&ttPrefix}TestDatasetXml{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
+  field iIDTest  as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=TestDatasetXml "  
+  field cTestA   as character   format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=TestDatasetXml "
+  field cTestB   as character   format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=TestDatasetXml "
   {&ttExtraFields}
   index iIDTest is unique primary iIDTest
   {&ttExtraIndices}
