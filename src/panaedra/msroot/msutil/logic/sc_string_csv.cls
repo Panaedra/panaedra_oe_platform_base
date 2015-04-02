@@ -345,7 +345,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
 
   
   @panaedraannotation file(unittest="yes").
-  method protected static character CsvSortListNumeric(
+  method public static character CsvSortListNumeric(
     cListIP#       as character, 
     cDelimIP#      as character):
   
