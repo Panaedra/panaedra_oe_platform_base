@@ -30,7 +30,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
   method public void GetUnittests(
     output cSvUnittestsOP# as character):
      
-    cSvUnittestsOP# = "UT_CsvGetJoinList,UT_CsvRemoveValue,UT_CsvRemoveLastValue".
+    cSvUnittestsOP# = "UT_CsvGetJoinList,UT_CsvRemoveValue,UT_CsvRemoveLastValue,UT_CsvSortListNumeric".
     
   end method. /* GetUnittests */
  
@@ -42,9 +42,59 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
       when "UT_CsvGetJoinList" then UT_CsvGetJoinList(cUnittestIP#).
       when "UT_CsvRemoveValue"    then UT_CsvRemoveValue(cUnittestIP#).
       when "UT_CsvRemoveLastValue"    then UT_CsvRemoveLastValue(cUnittestIP#).
+      when "UT_CsvSortListNumeric"    then UT_CsvSortListNumeric(cUnittestIP#).
     end case.
     
   end method. /* ExecuteUnittest */
+  
+  
+  method public void UT_CsvSortListNumeric(
+    cUnittestIP# as character):
+      
+    sc_unittest:UnittestInit(this-object, cUnittestIP#).
+    
+    unittest1:
+    do transaction on error undo, throw:
+      
+      sc_unittest:Assert(
+        "CsvSortListNumeric_00001_01",
+        "list 1",
+        CsvSortListNumeric("1,2,3,4",","),
+        "1,2,3,4"
+        ).
+
+      sc_unittest:Assert(
+        "CsvSortListNumeric_00001_02",
+        "list 2",
+        CsvSortListNumeric("4,3,2,1",","),
+        "1,2,3,4"
+        ).
+
+      sc_unittest:Assert(
+        "CsvSortListNumeric_00001_03",
+        "list 3",
+        CsvSortListNumeric("4|3|2|1","|"),
+        "1|2|3|4"
+        ).
+
+      sc_unittest:Assert(
+        "CsvSortListNumeric_00001_04",
+        "list 4",
+        CsvSortListNumeric("4,30,3,31,29,20,20,1,5,300,-10,2,1",","),
+        "-10,1,1,2,3,4,5,20,20,29,30,31,300"
+        ).
+
+      undo unittest1, leave unittest1.
+    
+    end.
+    
+    sc_unittest:UnittestFinish(this-object, cUnittestIP#).
+
+    catch oError# as Progress.Lang.Error:
+      sc_unittest:OnException(cUnittestIP#,oError#).
+    end catch.
+
+  end method. /* UT_CsvSortListNumeric */   
   
   
   method public void UT_CsvGetJoinList(

@@ -1,3 +1,5 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.sc_string_csv: 
@@ -30,6 +32,10 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   define protected static temp-table ttCsvSortList no-undo
     field cValue as character
     index cValue is primary cValue.
+
+  define protected static temp-table ttCsvSortListNumeric no-undo
+    field iValue as integer
+    index iValue is primary iValue.
 
 
   method public static character GetParam(
@@ -150,7 +156,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
        The new parameter string is returned.
     */
     
-    return panaedra.msroot.msutil.logic.sc_string_csv:SetSubParam(cParamIP#, cTokenIP#, "", cValueIP#).
+    return sc_string_csv:SetSubParam(cParamIP#, cTokenIP#, "", cValueIP#).
     
   end method. /* SetParam */
  
@@ -337,6 +343,46 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   
   end method. /* CsvSortListImplement */
 
+  
+  @panaedraannotation file(unittest="yes").
+  method protected static character CsvSortListNumeric(
+    cListIP#       as character, 
+    cDelimIP#      as character):
+  
+    /* Sort a list numericly */
+  
+    define variable iTell#     as integer   no-undo.
+    define variable cSvReturn# as character no-undo.
+    
+    define buffer b-ttCsvSortListNumeric for ttCsvSortListNumeric.
+    
+    empty temp-table ttCsvSortListNumeric.
+    
+    do iTell# = 1 to num-entries(cListIP#,cDelimIP#) transaction: /* codeQok#7103 */
+
+      if not sc_numericformat:IsInteger(entry(iTell#,cListIP#,cDelimIP#)) then
+        undo, throw new c_panaedraexception(
+          99936548,
+          sc_lang:oDutch,
+          ""
+          ).
+    
+      create b-ttCsvSortListNumeric.
+      assign 
+        b-ttCsvSortListNumeric.iValue = int(entry(iTell#,cListIP#,cDelimIP#)).
+        
+    end.
+  
+    for each b-ttCsvSortListNumeric on error undo, throw:
+      cSvReturn# = cSvReturn# + cDelimIP# + string(b-ttCsvSortListNumeric.iValue).
+    end.
+  
+    cSvReturn# = substring(cSvReturn#, length(cDelimIP#) + 1).
+  
+    return cSvReturn#.
+  
+  end method. /* CsvSortListNumeric */
+
 
   method public static character CsvAddLast(cCsvIP# as character, cNewValueIP# as character):
     
@@ -402,16 +448,16 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
       cSvReturn# = "".
       
     else if cSvRemoveValueIP# = ? then
-      cSvReturn# = cSvIP#.
+        cSvReturn# = cSvIP#.
 
-    else
-    do iTell# = 1 to num-entries(cSvIP#, cDelimiterIP#):
+      else
+      do iTell# = 1 to num-entries(cSvIP#, cDelimiterIP#):
       
-      /* Don't add the item to the new list if it's in the list of items to remove */
-      if lookup(entry(iTell#, cSvIP#, cDelimiterIP#), cSvRemoveValueIP#, cDelimiterIP#) = 0 then 
-        cSvReturn# = cSvReturn# + (if length(cSvReturn#) > 0 then cDelimiterIP# else "") + entry(iTell#, cSvIP#, cDelimiterIP#).
+        /* Don't add the item to the new list if it's in the list of items to remove */
+        if lookup(entry(iTell#, cSvIP#, cDelimiterIP#), cSvRemoveValueIP#, cDelimiterIP#) = 0 then 
+          cSvReturn# = cSvReturn# + (if length(cSvReturn#) > 0 then cDelimiterIP# else "") + entry(iTell#, cSvIP#, cDelimiterIP#).
 
-    end.
+      end.
 
     return cSvReturn#.
     
@@ -491,7 +537,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     define variable cInputEntry# as character no-undo.
     define variable iTell#       as integer   no-undo.
     
-    define variable cCsv# as character no-undo.
+    define variable cCsv#        as character no-undo.
     
     cCsv# = cCsvIP#.
     
@@ -529,7 +575,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     define variable cInputEntry# as character no-undo.
     define variable iTell#       as integer   no-undo.
     
-    define variable cCsv# as character no-undo.
+    define variable cCsv#        as character no-undo.
     
     cCsv# = cCsvIP#.
     
