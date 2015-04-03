@@ -364,7 +364,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
         undo, throw new c_panaedraexception(
           99936548,
           sc_lang:oDutch,
-          ""
+          "CsvSortListNumeric gebruikt met waardes die niet numeric zijn"
           ).
     
       create b-ttCsvSortListNumeric.
