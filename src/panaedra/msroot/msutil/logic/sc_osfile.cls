@@ -159,23 +159,33 @@ class panaedra.msroot.msutil.logic.sc_osfile
   end method. /* RenameFile */
 
 
-  method public static void CreateFile(cFileIP# as character):
+  method public static void CreateEmptyFile(cFileIP# as character):
     
     define variable oAppError as Progress.Lang.AppError no-undo.
-    
-    os-create-dir value(cFileIP#) no-error.
-      
-    /* Determine if delete succeeded. Note: os-error isn't reliable here, OE10.2A02 */
-    file-info:file-name = cFileIP#.      
+
+    file-info:file-name = cFileIP#.
+
     if file-info:full-pathname = ? then 
     do:
-      oAppError = new Progress.Lang.AppError(subst("&1 couldn't be created",cFileIP#),99950938).
-    end.
+
+      output stream s-alg-out to value(cFileIP#).
+      output stream s-alg-out close.  
+
+      if search(cFileIP#) = ? then
+        oAppError = new Progress.Lang.AppError(subst("&1 couldn't be created", cFileIP#), 99951938).
     
+    end.
+    else
+      oAppError = new Progress.Lang.AppError(subst("&1 already exists", cFileIP#), 99952938).
+      
     if oAppError <> ? then 
       undo, throw oAppError.
+    
+    finally:
+      output stream s-alg-out close.  
+    end finally.
       
-  end method. /* CreateFile */
+  end method. /* CreateEmptyFile */
 
 
   method static public void GetFileNamesInDirectory(    

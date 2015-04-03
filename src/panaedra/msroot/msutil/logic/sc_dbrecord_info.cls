@@ -31,7 +31,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
        hBufferIP# needs to be a record found by NO-LOCK
        http://knowledgebase.progress.com/%61rticles/%41rticle/19136
        ----------------------------------------------------------- */
-    input hBufferIP#            as handle,
+    input  hBufferIP#           as handle,
     output cConnectNameOP#      as character,
     output iPidOP#              as integer,
     output cDeviceOP#           as character
@@ -64,12 +64,9 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     output iPidOP#              as integer,
     output cDeviceOP#           as character
     ):
-      
-    define variable iFileNum#  as integer no-undo.
-   
+         
     define variable hLockBuff# as handle  no-undo.
     define variable hQuery#    as handle  no-undo.
-    define variable iRecid#    as recid   no-undo.
    
     create buffer hLockBuff# for table subst("&1._Lock", cDbIP#). 
     create query hQuery#.
@@ -407,17 +404,12 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
 
     do iDb# = 1 to num-dbs on error undo, throw:
       
-      create query hQuery#.
-      create buffer hBuffLock# for table subst("&1._Lock", ldbname(iDb#)).
+      OpenLockInfoQuery(ldbname(iDb#), input-output hQuery#, input-output hBuffLock#).
       
-      if hQuery#:add-buffer(hBuffLock#)
-        and hQuery#:query-prepare("for each _Lock no-lock where _Lock-Usr <> ? ")
-        and hQuery#:query-open()
-        and hQuery#:get-first()
-        then
+      hQuery#:get-first().
+
       do while ( not hQuery#:query-off-end ): 
-        
-           
+
         /* Entries in _Lock no longer appear at top of resultset from OpenEdge 11.4 onward.
            there is no garantee where the lock records are in the resultset.
            we now check for valid _lock records in the where clause of the query.
@@ -435,9 +427,9 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
           ttLock.iLockTable = hBuffLock#::_Lock-Table
           .
           
-        GetTableInfo(ldbname(iDb#), ttLock.iLockTable, output ttLock.cTableName).
-        GetConnectionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.cDevice, output ttLock.iPid).
-        GetTransactionInfo(ldbname(iDb#), ttLock.iLockUsr, output ttLock.iTransactionNum, output ttLock.dtmSince, output ttLock.cTransStat).
+        GetTableInfo      (ldbname(iDb#), ttLock.iLockTable, output ttLock.cTableName).
+        GetConnectionInfo (ldbname(iDb#), ttLock.iLockUsr,   output ttLock.cDevice,         output ttLock.iPid).
+        GetTransactionInfo(ldbname(iDb#), ttLock.iLockUsr,   output ttLock.iTransactionNum, output ttLock.dtmSince, output ttLock.cTransStat).
         
         assign
           ttLock.cSince          = sc_datetime:GetTimeHH_FCMPNY_S(ttLock.dtmSince)
@@ -468,6 +460,25 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
       end finally.
       
     end. /* do iDb# .... */   
+  
+  end method. /* GetAllRecordLockInfo */
+  
+  
+  method protected static void OpenLockInfoQuery(
+    /* -----------------------------------------------------------
+    Open query in separate method for debugging purposes
+       ----------------------------------------------------------- */
+    input        cDbIP#        as character,
+    input-output hQueryIOP#    as handle,
+    input-output hBuffLockIOP# as handle
+    ):
+
+    create query hQueryIOP#.
+    create buffer hBuffLockIOP# for table subst("&1._Lock", cDbIP#).
+      
+    hQueryIOP#:add-buffer(hBuffLockIOP#).
+    hQueryIOP#:query-prepare("for each _Lock no-lock where _Lock-Usr <> ? ").
+    hQueryIOP#:query-open().
   
   end method. /* GetAllRecordLockInfo */
   
