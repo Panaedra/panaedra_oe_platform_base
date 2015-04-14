@@ -629,10 +629,27 @@ class panaedra.msroot.msutil.logic.sc_osfile
     input bAppendIP#   as logical
     ):
     
-    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,false,false).
+    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,false,false,false).
     
   end method. /* SafeFileMove */
   
+  
+  method public static integer SafeFileCopyWithTempfile(
+
+    /* Copy file from cFileFromIP# to cFileToIP# and use CorrectFileRights,
+       returns error number when error occured 
+       use tempfile at destination to avoid reading corrupt data */
+
+    input cFileFromIP# as character,
+    input cFileToIP#   as character,
+    input bAppendIP#   as logical
+    ):
+    
+    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,false,false,true).
+    
+  end method. /* SafeFileMove */
+  
+
   
   method public static integer SafeFileCopyThrow(
 
@@ -644,7 +661,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     input bAppendIP#   as logical
     ):
     
-    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,false,true).
+    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,false,true,false).
     
   end method. /* SafeFileCopyThrow */
   
@@ -659,7 +676,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     input bAppendIP#   as logical
     ):
     
-    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,true,false).
+    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,true,false,false).
     
   end method. /* SafeFileMove */
   
@@ -674,7 +691,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     input bAppendIP#   as logical
     ):
     
-    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,true,true).
+    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,true,true,false).
     
   end method. /* SafeFileMoveThrow */
   
@@ -684,23 +701,39 @@ class panaedra.msroot.msutil.logic.sc_osfile
     /* Copy file from cFileFromIP# to cFileToIP# and use CorrectFileRights,
        returns error number when error occured */
 
-    input cFileFromIP#    as character,
-    input cFileToIP#      as character,
-    input bAppendIP#      as logical,
-    input bMoveIP#        as logical,
-    input bThowOnErrorIP# as logical
+    input cFileFromIP#       as character,
+    input cFileToIP#         as character,
+    input bAppendIP#         as logical,
+    input bMoveIP#           as logical,
+    input bThowOnErrorIP#    as logical,
+    input bCopyToTempfileAndRenameIP# as logical
     ):
 
-    define variable iErrorNrOP# as integer no-undo initial 0.
+    define variable iErrorNrOP# as integer   no-undo initial 0.
+    define variable cTempfile#  as character no-undo.
+    define variable iOsError#   as integer   no-undo.
+    
+    cTempfile# = subst("&1_tmp.&2", cFileToIP#, guid).
   
     /* Copy/append file */
-    if bAppendIP# then 
+    if bAppendIP# then do:
       os-append value(cFileFromIP#) value(cFileToIP#).
-    else
-      os-copy value(cFileFromIP#) value(cFileToIP#).
+      iOsError# = os-error.
+    end.  
+    else do:
+      /* copy */
+      os-copy value(cFileFromIP#) value(if bCopyToTempfileAndRenameIP# then cTempfile# else cFileToIP#).
+      iOsError# = os-error.
+      
+      /* rename */
+      if bCopyToTempfileAndRenameIP# and iOsError# = 0 then do:
+        os-rename value(cTempfile#) value(cFileToIP#).
+        iOsError# = os-error.
+      end. 
+    end.  
                    
     /* If copy failed */                 
-    if os-error <> 0 then
+    if iOsError# <> 0 then
     do:
       iErrorNrOP# = 50370.
       
@@ -712,8 +745,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
           if bMoveIP# then "moving" else "copying",
           cFileFromIP#,
           cFileToIP#,
-          os-error,
-          OsErrorDescription(os-error)
+          iOsError#,
+          OsErrorDescription(iOsError#)
           )
           ).
             
