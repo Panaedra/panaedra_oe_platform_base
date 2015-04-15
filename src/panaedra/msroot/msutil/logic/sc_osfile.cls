@@ -18,6 +18,10 @@ class panaedra.msroot.msutil.logic.sc_osfile
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
+  constructor protected sc_osfile(
+    input oParamIP# as i_unittest_param):
+  end constructor.  
+
   constructor public sc_osfile(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
@@ -159,27 +163,29 @@ class panaedra.msroot.msutil.logic.sc_osfile
   end method. /* RenameFile */
 
 
+  @panaedraannotation file(unittest="yes").
   method public static void CreateEmptyFile(cFileIP# as character):
     
-    define variable oAppError as Progress.Lang.AppError no-undo.
-
     file-info:file-name = cFileIP#.
 
     if file-info:full-pathname = ? then 
     do:
 
-      output stream s-alg-out to value(cFileIP#).
-      output stream s-alg-out close.  
+      if sc_path:PathExists(sc_path:SplitGetFileDir(file-info:full-pathname)) then
+      do:
+  
+        output stream s-alg-out to value(cFileIP#).
+        output stream s-alg-out close.  
+  
+        if search(cFileIP#) = ? then
+          undo, throw new Progress.Lang.AppError(subst("&1 couldn't be created", cFileIP#), 99951938).
 
-      if search(cFileIP#) = ? then
-        oAppError = new Progress.Lang.AppError(subst("&1 couldn't be created", cFileIP#), 99951938).
-    
+      end.
+        undo, throw new Progress.Lang.AppError(subst("&1 couldn't be created", cFileIP#), 99953938).
+          
     end.
     else
-      oAppError = new Progress.Lang.AppError(subst("&1 already exists", cFileIP#), 99952938).
-      
-    if oAppError <> ? then 
-      undo, throw oAppError.
+      undo, throw new Progress.Lang.AppError(subst("&1 already exists", cFileIP#), 99952938).
     
     finally:
       output stream s-alg-out close.  
