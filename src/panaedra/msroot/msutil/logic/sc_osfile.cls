@@ -22,6 +22,11 @@ class panaedra.msroot.msutil.logic.sc_osfile
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
+  
+  constructor protected sc_osfile(
+    input oParamIP# as i_unittest_param):
+  end constructor.  
+  
   /******************************* $NoKeywords:  $ *****************************/
 
   define stream s-alg-in.
@@ -634,18 +639,19 @@ class panaedra.msroot.msutil.logic.sc_osfile
   end method. /* SafeFileMove */
   
   
+  @panaedraannotation file(unittest="yes").
   method public static integer SafeFileCopyWithTempfile(
 
     /* Copy file from cFileFromIP# to cFileToIP# and use CorrectFileRights,
        returns error number when error occured 
-       use tempfile at destination to avoid reading corrupt data */
+       use tempfile at destination to avoid reading corrupt data
+       note: append mode not possible here. */
 
     input cFileFromIP# as character,
-    input cFileToIP#   as character,
-    input bAppendIP#   as logical
+    input cFileToIP#   as character
     ):
     
-    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,bAppendIP#,false,false,true).
+    return SafeFileCopyOrMove_Implement(cFileFromIP#,cFileToIP#,false,false,false,true).
     
   end method. /* SafeFileMove */
   
@@ -696,6 +702,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
   end method. /* SafeFileMoveThrow */
   
   
+  
   method protected static integer SafeFileCopyOrMove_Implement(
 
     /* Copy file from cFileFromIP# to cFileToIP# and use CorrectFileRights,
@@ -736,6 +743,9 @@ class panaedra.msroot.msutil.logic.sc_osfile
     if iOsError# <> 0 then
     do:
       iErrorNrOP# = 50370.
+      
+      if bCopyToTempfileAndRenameIP# then
+        os-delete value(cTempfile#).
       
       if bThowOnErrorIP# then
         undo, throw new c_panaedraexception(
