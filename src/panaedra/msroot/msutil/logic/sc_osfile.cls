@@ -27,10 +27,6 @@ class panaedra.msroot.msutil.logic.sc_osfile
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
   
-  constructor protected sc_osfile(
-    input oParamIP# as i_unittest_param):
-  end constructor.  
-  
   /******************************* $NoKeywords:  $ *****************************/
 
   define stream s-alg-in.
@@ -176,7 +172,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     if file-info:full-pathname = ? then 
     do:
 
-      if sc_path:PathExists(sc_path:SplitGetFileDir(file-info:full-pathname)) then
+      if sc_path:PathExists(sc_path:SplitGetFileDir(cFileIP#)) then
       do:
   
         output stream s-alg-out to value(cFileIP#).
@@ -186,6 +182,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
           undo, throw new Progress.Lang.AppError(subst("&1 couldn't be created", cFileIP#), 99951938).
 
       end.
+      else
         undo, throw new Progress.Lang.AppError(subst("&1 couldn't be created", cFileIP#), 99953938).
           
     end.
