@@ -523,26 +523,81 @@ class panaedra.msroot.msutil.logic.sc_osfile
 
 
   method public static logical PutIniValueUnittest(
-    /* PutIniValue for use in unittests */
+    /* PutIniValue for use in unittest.p procedures */
+    hProcedureIP#     as handle,
+    cIniFileIP#       as char, 
+    cSectionIP#       as char, 
+    cParameterIP#     as char, 
+    cValueIP#         as char
+    ):
+      
+    define variable bReturn# as logical no-undo.  
+    
+    /* check if were called from a unittest procedure,
+       forced by procedure filenaming conventions */  
+    if valid-handle(hProcedureIP#) 
+       and hProcedureIP#:name matches "*unittest*" then
+      bReturn# = _sys_PutIniValueUnittest(
+        cIniFileIP#, 
+        cSectionIP#, 
+        cParameterIP#, 
+        cValueIP#
+        ).
+    else
+      undo, throw new c_panaedraexception(
+        55502504,
+        sc_lang:oEnglish,
+        "PutIniValueUnittest() is not used in a unittest."
+        ).
+    
+    return bReturn#.      
+      
+  end method. /* PutIniValueUnittest */
+
+
+  method public static logical PutIniValueUnittest(
+    /* PutIniValue for use from unittests.cls classes */
     oUnittestClassIP# as i_unittest_client,
     cIniFileIP#       as char, 
     cSectionIP#       as char, 
     cParameterIP#     as char, 
     cValueIP#         as char
     ):
-    
-    define variable bReturn# as logical no-undo.
       
-    define buffer b-ttUnittestINIfile for ttUnittestINIfile.
+    define variable bReturn# as logical no-undo.  
       
     if sc_environment:bLiveEnv 
-      or not sc_environment:cEnv matches "*tst*" then
+      or not sc_environment:cEnv matches "*tst*" 
+      or not valid-object(oUnittestClassIP#) then
       undo, throw new c_panaedraexception(
         55502505,
         sc_lang:oEnglish,
         substitute("Unit tests should be run on a *tst* environment. TestID='&1'", sc_environment:cEnv)
         ).
     else 
+      bReturn# = _sys_PutIniValueUnittest(
+        cIniFileIP#, 
+        cSectionIP#, 
+        cParameterIP#, 
+        cValueIP#
+        ).
+        
+    return bReturn#.    
+  
+  end method. /* PutIniValueUnittest */
+  
+  
+  method protected static logical _sys_PutIniValueUnittest(
+    cIniFileIP#       as char, 
+    cSectionIP#       as char, 
+    cParameterIP#     as char, 
+    cValueIP#         as char
+    ):
+
+    define variable bReturn# as logical no-undo.
+
+    define buffer b-ttUnittestINIfile for ttUnittestINIfile.
+
     do for b-ttUnittestINIfile:
       
       find first b-ttUnittestINIfile where
@@ -570,7 +625,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
   
     return bReturn#.
   
-  end method. /* PutIniValueUnittest */
+  end method. /* _sys_PutIniValueUnittest */
 
 
   method public static logical PutIniValue (
