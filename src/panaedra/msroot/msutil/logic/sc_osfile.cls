@@ -48,6 +48,16 @@ class panaedra.msroot.msutil.logic.sc_osfile
     field dtmExpire as datetime-tz
     index dtmExpire dtmExpire.
 
+
+  define protected static temp-table ttUnittestINIfile no-undo
+    field cIniFile   as character 
+    field cSection   as character 
+    field cParameter as character 
+    field cValue     as character
+    index prim is primary unique cIniFile cSection cParameter
+    .
+  
+
   define protected static variable oSingleton    as sc_osfile no-undo.
   define protected static variable hTtFileNative as handle    no-undo.
 
@@ -436,56 +446,132 @@ class panaedra.msroot.msutil.logic.sc_osfile
     define variable cSection#     as character no-undo.
     define variable cRet#         as character no-undo init ?.
     define variable iSaveLastkey# as integer   no-undo.
-     
-    iSaveLastkey# = lastkey. /* Remember the lastkey code */ 
-   
-    file-info:file-name = cIniIP#.
-  
-    if file-info:full-pathname = ? then return ?.
-   
-    input stream s-alg-in from value(file-info:full-pathname).
-  
-    searchLine:
-    repeat on error undo, throw:
-      import stream s-alg-in unformatted cLine#. /* codeQok#7126 */
-      cLine# = left-trim(cLine#).
-      if cLine# begins ";" or cLine# = "" then next.
-      if cLine# begins "[" then 
-      do:
-        iIndex# = 
-        index(cLine#,"]").
-        if iIndex# > 0 then 
-        do:
-          cSection# = substring(cLine#,2,iIndex# - 2).
-        end.
-      end.
-      if cSection# = cSectionIP# then 
-      do:
-        if entry(1,cLine#,"=") = cVarIP# then 
-        do:
-          cRet# = substring(cLine#,
-          index(cLine#,"=") + 1,-1). 
-          leave searchLine.
-        end.
-      end.
+    
+    define buffer b-ttUnittestINIfile for ttUnittestINIfile.
+    
+    /* unittests?  in that case lookup the INI entry in a temp-table. */
+    if not sc_environment:bLiveEnv 
+       and sc_environment:cEnv matches "*tst*" then
+    do:
+      
+      find first b-ttUnittestINIfile where
+        b-ttUnittestINIfile.cIniFile = cIniIP#
+        and b-ttUnittestINIfile.cSection = cSectionIP#
+        and b-ttUnittestINIfile.cParameter = cVarIP#
+        no-lock no-error.
+        
+      if available b-ttUnittestINIfile then
+        cRet# = b-ttUnittestINIfile.cValue. 
       
     end.
-  
-    input stream s-alg-in close.
+    else do: /* default flow from INI file */
+    
+      do on error undo, throw:
+            
+        iSaveLastkey# = lastkey. /* Remember the lastkey code */ 
+       
+        file-info:file-name = cIniIP#.
+      
+        if file-info:full-pathname = ? then return ?.
+       
+        input stream s-alg-in from value(file-info:full-pathname).
+      
+        searchLine:
+        repeat on error undo, throw:
+          import stream s-alg-in unformatted cLine#. /* codeQok#7126 */
+          cLine# = left-trim(cLine#).
+          if cLine# begins ";" or cLine# = "" then next.
+          if cLine# begins "[" then 
+          do:
+            iIndex# = 
+            index(cLine#,"]").
+            if iIndex# > 0 then 
+            do:
+              cSection# = substring(cLine#,2,iIndex# - 2).
+            end.
+          end.
+          if cSection# = cSectionIP# then 
+          do:
+            if entry(1,cLine#,"=") = cVarIP# then 
+            do:
+              cRet# = substring(cLine#,
+              index(cLine#,"=") + 1,-1). 
+              leave searchLine.
+            end.
+          end.
+          
+        end.
+      
+        input stream s-alg-in close.
+      
+        finally:
+        
+          /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
+           * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
+                             
+          last-event:set-lastkey(0, iSaveLastkey#).  
+                                                    
+        end finally.
+        
+      end. /* do */
+      
+    end. /* else */
     
     return cRet#.
-    
-    finally:
-    
-      /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
-       * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
-                         
-      last-event:set-lastkey(0, iSaveLastkey#).  
-                                                
-    end finally.
   
   end method. /* GetIniValue */
+
+
+  method public static logical PutIniValueUnittest(
+    /* PutIniValue for use in unittests */
+    oUnittestClassIP# as i_unittest_client,
+    cIniFileIP#       as char, 
+    cSectionIP#       as char, 
+    cParameterIP#     as char, 
+    cValueIP#         as char
+    ):
+    
+    define variable bReturn# as logical no-undo.
+      
+    define buffer b-ttUnittestINIfile for ttUnittestINIfile.
+      
+    if sc_environment:bLiveEnv 
+      or not sc_environment:cEnv matches "*tst*" then
+      undo, throw new c_panaedraexception(
+        55502505,
+        sc_lang:oEnglish,
+        substitute("Unit tests should be run on a *tst* environment. TestID='&1'", sc_environment:cEnv)
+        ).
+    else 
+    do for b-ttUnittestINIfile:
+      
+      find first b-ttUnittestINIfile where
+        b-ttUnittestINIfile.cIniFile = cIniFileIP#
+        and b-ttUnittestINIfile.cSection = cSectionIP#
+        and b-ttUnittestINIfile.cParameter = cParameterIP#
+        no-error.
+        
+      if not available b-ttUnittestINIfile then 
+      do:
+        create b-ttUnittestINIfile.
+        assign 
+          b-ttUnittestINIfile.cIniFile   = cIniFileIP#
+          b-ttUnittestINIfile.cSection   = cSectionIP#
+          b-ttUnittestINIfile.cParameter = cParameterIP#
+          .
+      end.  
+      
+      assign
+        b-ttUnittestINIfile.cValue = cValueIP#
+        bReturn# = true
+        .
+      release b-ttUnittestINIfile.
+    end.      
   
+    return bReturn#.
+  
+  end method. /* PutIniValueUnittest */
+
 
   method public static logical PutIniValue (
 
@@ -726,17 +812,20 @@ class panaedra.msroot.msutil.logic.sc_osfile
     cTempfile# = subst("&1_tmp.&2", cFileToIP#, guid).
   
     /* Copy/append file */
-    if bAppendIP# then do:
+    if bAppendIP# then 
+    do:
       os-append value(cFileFromIP#) value(cFileToIP#).
       iOsError# = os-error.
     end.  
-    else do:
+    else 
+    do:
       /* copy */
       os-copy value(cFileFromIP#) value(if bCopyToTempfileAndRenameIP# then cTempfile# else cFileToIP#).
       iOsError# = os-error.
       
       /* rename */
-      if bCopyToTempfileAndRenameIP# and iOsError# = 0 then do:
+      if bCopyToTempfileAndRenameIP# and iOsError# = 0 then 
+      do:
         os-rename value(cTempfile#) value(cFileToIP#).
         iOsError# = os-error.
       end. 
