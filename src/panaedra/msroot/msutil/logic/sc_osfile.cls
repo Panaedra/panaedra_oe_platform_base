@@ -566,20 +566,19 @@ class panaedra.msroot.msutil.logic.sc_osfile
       
     define variable bReturn# as logical no-undo.  
       
-    if sc_environment:bLiveEnv 
-      or not sc_environment:cEnv matches "*tst*" 
-      or not valid-object(oUnittestClassIP#) then
-      undo, throw new c_panaedraexception(
-        55502505,
-        sc_lang:oEnglish,
-        substitute("Unit tests should be run on a *tst* environment. TestID='&1'", sc_environment:cEnv)
-        ).
-    else 
+    if sc_environment:bUnittestEnv 
+       and valid-object(oUnittestClassIP#) then
       bReturn# = _sys_PutIniValueUnittest(
         cIniFileIP#, 
         cSectionIP#, 
         cParameterIP#, 
         cValueIP#
+        ).
+    else   
+      undo, throw new c_panaedraexception(
+        55502505,
+        sc_lang:oEnglish,
+        substitute("Unit tests should be run on a *tst* environment. TestID='&1'", sc_environment:cEnv)
         ).
         
     return bReturn#.    

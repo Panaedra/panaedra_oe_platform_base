@@ -213,6 +213,43 @@ class panaedra.msroot.msutil.logic.sc_environment:
     end get.
     protected set.
 
+
+  define static property bUnittestEnv as logical no-undo init ?
+    public get:
+      
+      define variable cUnittestMoreEnv# as character no-undo.
+      
+      if bUnittestEnv = ? then 
+      do:
+        
+        if cEnv matches "*tst*" then
+          bUnittestEnv = true.
+        else do:
+          
+          if bLiveEnv then        
+            undo, throw new c_panaedraexception(
+              99908944,
+              sc_lang:oEnglish,
+              substitute("Running of unit tests in a live environment is NEVER allowed. TestID='&1'", cEnv)
+              ).
+          
+          cUnittestMoreEnv# = os-getenv("UNITTEST_MORE_ENV"). /* For developers who temporarily want to unittest in a different test or stage environment */
+          if length(cUnittestMoreEnv#) > 0 and logical(cUnittestMoreEnv#) then 
+            bUnittestEnv = true.
+          else
+            undo, throw new c_panaedraexception(
+              99908945,
+              sc_lang:oEnglish,
+              substitute("Running of unit tests other than tst environment is not allowed (or use UNITTEST_MORE_ENV) TestID='&1'", cEnv)
+              ).
+          
+        end.    
+        
+      end.
+      return bUnittestEnv.
+    end get.
+    protected set.
+
   
   define static property bBatchMode as logical no-undo init ?
     public get:

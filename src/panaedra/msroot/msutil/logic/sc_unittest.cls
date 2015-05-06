@@ -443,11 +443,11 @@ class panaedra.msroot.msutil.logic.sc_unittest
         undo, throw new c_panaedraexception(
           99958112,
           sc_lang:oEnglish,
-          substitute("Unit tests should be run on a *tst* environment. TestID='&1'", cTestIDIP#)).
+          substitute("Unit tests should be run on a *tst* environment. (or use env.var UNITTEST_MORE_ENV) TestID='&1'", cTestIDIP#)).
       else 
       do:
         message 
-          substitute("Unit tests should be run on a *tst* environment. TestID='&1'", cTestIDIP#) skip
+          substitute("Unit tests should be run on a *tst* environment. (or use env.var UNITTEST_MORE_ENV) TestID='&1'", cTestIDIP#) skip
           "Do you want to continue?"
           view-as alert-box buttons yes-no update bRunOnNonTstOkay.
         if not bRunOnNonTstOkay then 
