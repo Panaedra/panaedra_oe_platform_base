@@ -49,7 +49,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     index dtmExpire dtmExpire.
 
 
-  define protected static temp-table ttUnittestINIfile no-undo
+  define protected static temp-table ttUnittestINIfile /* wel undo */
     field cIniFile   as character 
     field cSection   as character 
     field cParameter as character 
