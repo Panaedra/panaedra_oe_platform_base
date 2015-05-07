@@ -225,24 +225,10 @@ class panaedra.msroot.msutil.logic.sc_environment:
         if cEnv matches "*tst*" then
           bUnittestEnv = true.
         else do:
-          
-          if bLiveEnv then        
-            undo, throw new c_panaedraexception(
-              99908944,
-              sc_lang:oEnglish,
-              substitute("Running of unit tests in a live environment is NEVER allowed. TestID='&1'", cEnv)
-              ).
-          
-          cUnittestMoreEnv# = os-getenv("UNITTEST_MORE_ENV"). /* For developers who temporarily want to unittest in a different test or stage environment */
+          /* For developers who temporarily want to unittest in a different test or stage environment */
+          cUnittestMoreEnv# = os-getenv("UNITTEST_MORE_ENV"). 
           if length(cUnittestMoreEnv#) > 0 and logical(cUnittestMoreEnv#) then 
             bUnittestEnv = true.
-          else
-            undo, throw new c_panaedraexception(
-              99908945,
-              sc_lang:oEnglish,
-              substitute("Running of unit tests other than tst environment is not allowed (or use UNITTEST_MORE_ENV) TestID='&1'", cEnv)
-              ).
-          
         end.    
         
       end.

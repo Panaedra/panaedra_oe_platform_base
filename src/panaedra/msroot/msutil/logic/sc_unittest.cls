@@ -430,14 +430,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
         sc_lang:oEnglish,
         substitute("Running of unit tests in a live environment is NEVER allowed. TestID='&1'", cTestIDIP#)).
     
-    cUnittestMoreEnv# = os-getenv("UNITTEST_MORE_ENV"). /* For developers who temporarily want to unittest in a different test or stage environment */
-    
-    if length(cUnittestMoreEnv#) > 0 and logical(cUnittestMoreEnv#) then 
-    do:
-      bUnittestMoreEnv# = true.
-    end.
-    
-    if (not bUnittestMoreEnv#) and (not sc_environment:cEnv matches "*tst*") then 
+    if sc_environment:bUnittestEnv <> true then 
     do:
       if sc_environment:bBatchMode then
         undo, throw new c_panaedraexception(
