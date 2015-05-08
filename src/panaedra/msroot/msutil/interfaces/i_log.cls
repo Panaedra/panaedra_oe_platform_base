@@ -51,6 +51,7 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   method public void WriteStatusInit(hQueryIP# as handle, hBufferReportIP# as handle).
   method public void WriteStatusHeader(hBufferReportIP# as handle).
   method public void WriteStatusLnBuf(hBufferReportIP# as handle).
+  method public void WriteStatusLnBuf(hBufferReportIP# as handle, bErrorMsgToErrorCpyIP# as logical).
   
   /* write a snapshot file. the separate snapshot file will be overwritten with each call.
    * suffix:  Optional. If you need one: give a SHORT tag (4 to 6 chars) that will be appended 
