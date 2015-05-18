@@ -222,7 +222,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
       if bUnittestEnv = ? then 
       do:
         
-        if cEnv matches "*tst*" then
+        if logical(sc_boot:SessionParameter("Unittest")) then
           bUnittestEnv = true.
         else do:
           /* For developers who temporarily want to unittest in a different test or stage environment */

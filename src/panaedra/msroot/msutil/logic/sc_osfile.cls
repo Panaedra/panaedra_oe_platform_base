@@ -450,8 +450,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     define buffer b-ttUnittestINIfile for ttUnittestINIfile.
     
     /* unittests?  in that case lookup the INI entry in a temp-table. */
-    if not sc_environment:bLiveEnv 
-       and sc_environment:cEnv matches "*tst*" then
+    if sc_environment:bUnittestEnv then
     do:
       
       find first b-ttUnittestINIfile where
@@ -535,8 +534,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     
     /* check if were called from a unittest procedure,
        forced by procedure filenaming conventions */  
-    if valid-handle(hProcedureIP#) 
-       and hProcedureIP#:name matches "*unittest*" then
+    if sc_environment:bUnittestEnv then
       bReturn# = _sys_PutIniValueUnittest(
         cIniFileIP#, 
         cSectionIP#, 
