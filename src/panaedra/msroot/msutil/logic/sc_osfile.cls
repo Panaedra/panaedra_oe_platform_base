@@ -450,7 +450,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     define buffer b-ttUnittestINIfile for ttUnittestINIfile.
     
     /* unittests?  in that case lookup the INI entry in a temp-table. */
-    if sc_environment:bUnittestEnv then
+    if sc_environment:bUnittestRunning then
     do:
       
       find first b-ttUnittestINIfile where
@@ -519,7 +519,22 @@ class panaedra.msroot.msutil.logic.sc_osfile
     return cRet#.
   
   end method. /* GetIniValue */
-
+  
+  
+  method public static void ClearIniValuesUnittest(
+    /* Clear the in-memory INI value cache used by unittests */
+    oUnittestClientIP# as i_unittest_client):
+    
+    if (not valid-object(oUnittestClientIP#)) then
+      undo, throw new c_panaedraexception(
+        99927885,
+        sc_lang:oEnglish,
+        "Emptying ttUnittestINIfile is only allowed for unit tests.").
+    
+    empty temp-table ttUnittestINIfile.
+  
+  end method. /* ClearIniValuesUnittest */
+  
 
   method public static logical PutIniValueUnittest(
     /* PutIniValue for use in unittest.p procedures */
@@ -534,7 +549,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     
     /* check if were called from a unittest procedure,
        forced by procedure filenaming conventions */  
-    if sc_environment:bUnittestEnv then
+    if sc_environment:bUnittestRunning then
       bReturn# = _sys_PutIniValueUnittest(
         cIniFileIP#, 
         cSectionIP#, 
@@ -555,17 +570,17 @@ class panaedra.msroot.msutil.logic.sc_osfile
 
   method public static logical PutIniValueUnittest(
     /* PutIniValue for use from unittests.cls classes */
-    oUnittestClassIP# as i_unittest_client,
-    cIniFileIP#       as char, 
-    cSectionIP#       as char, 
-    cParameterIP#     as char, 
-    cValueIP#         as char
+    oUnittestClientIP# as i_unittest_client,
+    cIniFileIP#        as char, 
+    cSectionIP#        as char, 
+    cParameterIP#      as char, 
+    cValueIP#          as char
     ):
       
     define variable bReturn# as logical no-undo.  
       
-    if sc_environment:bUnittestEnv 
-       and valid-object(oUnittestClassIP#) then
+    if sc_environment:bUnittestRunning 
+       and valid-object(oUnittestClientIP#) then
       bReturn# = _sys_PutIniValueUnittest(
         cIniFileIP#, 
         cSectionIP#, 

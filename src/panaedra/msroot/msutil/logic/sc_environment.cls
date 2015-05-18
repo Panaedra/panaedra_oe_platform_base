@@ -215,14 +215,12 @@ class panaedra.msroot.msutil.logic.sc_environment:
 
 
   define static property bUnittestEnv as logical no-undo init ?
+    /* Note: also see bUnittestRunning (below). bUnittestRunning can change during the session, bUnittestEnv can not. */
     public get:
-      
       define variable cUnittestMoreEnv# as character no-undo.
-      
       if bUnittestEnv = ? then 
       do:
-        
-        if logical(sc_boot:SessionParameter("Unittest")) then
+        if cEnv matches "*tst*" then
           bUnittestEnv = true.
         else do:
           /* For developers who temporarily want to unittest in a different test or stage environment */
@@ -230,12 +228,17 @@ class panaedra.msroot.msutil.logic.sc_environment:
           if length(cUnittestMoreEnv#) > 0 and logical(cUnittestMoreEnv#) then 
             bUnittestEnv = true.
         end.    
-        
       end.
       return bUnittestEnv.
     end get.
     protected set.
 
+  
+  define static property bUnittestRunning as logical no-undo
+    /* Note: also see bUnittestEnv (above). bUnittestRunning can change during the session, bUnittestEnv can not.  */
+    public get.
+    protected set.
+  
   
   define static property bBatchMode as logical no-undo init ?
     public get:
@@ -948,6 +951,30 @@ class panaedra.msroot.msutil.logic.sc_environment:
     return cRet#.
         
   end method. /* GetUserIdStrong */
+  
+  
+  method public static void SetUnittestRunning(
+  
+    /* Set bUnittestRunning to a new value. Changes (a.o.) INI value read to in-memory instead of from os-file. */
+    
+    oUnittestClientIP# as i_unittest_client,
+    bValueIP#          as logical):
+      
+    if sc_environment:bLiveEnv then
+      undo, throw new c_panaedraexception(
+        99927886,
+        sc_lang:oEnglish,
+        "Calling this method is not allowed in live environments.").
+      
+    if bValueIP# = true and (not valid-object(oUnittestClientIP#)) then
+      undo, throw new c_panaedraexception(
+        99927887,
+        sc_lang:oEnglish,
+        "Setting UnittestRunning to true is only allowed for unit tests.").
+    
+    bUnittestRunning = bValueIP#.
+    
+  end method. /* SetUnittestRunning */
   
 end class.
 

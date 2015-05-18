@@ -1059,8 +1059,21 @@ class panaedra.msroot.msutil.logic.sc_unittest
       cEntry# = entry(iTell#,cSvUnittestsIP#).
       
       if cEntry# > "" then 
-      do:
+      do on error undo, throw:
+        
+        /* Clear in-memory INI values set by unit tests */
+        sc_osfile:ClearIniValuesUnittest(oUnittestClientIP#).
+        
+        /* Set the bUnittestRunning property. From now on, INI values are read from memory instead of from os file. */
+        sc_environment:SetUnittestRunning(oUnittestClientIP#, true).
+        
+        /* Execute the unittest */  
         oUnittestClientIP#:ExecuteUnittest(cEntry#).
+        
+        finally:
+          sc_environment:SetUnittestRunning(oUnittestClientIP#, false).  
+        end finally.
+        
       end.
       
     end. /* iTell# = 1 to num-entries(cSvUnittestsIP#) */ 
@@ -1144,6 +1157,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
   method protected static void RunLastTestAgain():
   
     define buffer b-ttSessionUnittest for ttSessionUnittest.
+    
+    define variable oUnittestClient# as i_unittest_client no-undo.
   
     find b-ttSessionUnittest where b-ttSessionUnittest.cTestID = cCurrentGlobalTestID no-error.
   
@@ -1155,12 +1170,27 @@ class panaedra.msroot.msutil.logic.sc_unittest
         ).
     
     if b-ttSessionUnittest.oLastTestClass <> ? then 
-    do:
+    do on error undo, throw:
+      
       /* NOTE: ShouldHave: this 'broadcast' solution is not a preferred solution, quick&dirty. 
          What it should be: a unittest-info object passed to the constructor of the unittest. 
          TW+_PPL_UNDISCLOSED_ Nov 2013. */
       sc_eventbroadcaster:FireEvent("evt@UnitTestRerunMemcheck", b-ttSessionUnittest.oLastTestClass).
-      cast(b-ttSessionUnittest.oLastTestClass,i_unittest_client):ExecuteUnittest(b-ttSessionUnittest.cTestID).
+      oUnittestClient# = cast(b-ttSessionUnittest.oLastTestClass,i_unittest_client).
+      
+      /* Clear in-memory INI values set by unit tests */
+      sc_osfile:ClearIniValuesUnittest(oUnittestClient#).
+      
+      /* Set the bUnittestRunning property. From now on, INI values are read from memory instead of from os file. */
+      sc_environment:SetUnittestRunning(oUnittestClient#, true).
+      
+      /* Execute the unittest */  
+      oUnittestClient#:ExecuteUnittest(b-ttSessionUnittest.cTestID).
+      
+      finally:
+        sc_environment:SetUnittestRunning(oUnittestClient#, false).  
+      end finally.
+      
     end.
     else
       run value(b-ttSessionUnittest.cLastTestProc).
