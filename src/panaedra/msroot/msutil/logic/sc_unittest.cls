@@ -81,6 +81,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
   
   define public static    variable sys_cGreeting         as character   no-undo.
   define public static    variable sys_mGreeting         as memptr      no-undo.
+  
+  define protected static variable oUnittestClientDummy as i_unittest_client no-undo.
 
   define static property hUtServerSocket as handle no-undo
     public get:
@@ -1037,8 +1039,24 @@ class panaedra.msroot.msutil.logic.sc_unittest
       /* Run alle unittests in this class */
       RunUnittestsInClass(oUnittestClient#, cSvUnittests#).
     end.
-    else
+    else do on error undo, throw:
+      
+      if not valid-object(oUnittestClientDummy) then
+        oUnittestClientDummy = new sc_unittest_stub().
+      
+      /* Clear in-memory INI values set by unit tests */
+      sc_osfile:ClearIniValuesUnittest(oUnittestClientDummy).
+      
+      /* Set the bUnittestRunning property. From now on, INI values are read from memory instead of from os file. */
+      sc_environment:SetUnittestRunning(oUnittestClientDummy, true).
+        
       run value(cFullPathIP#).
+      
+      finally:
+        sc_environment:SetUnittestRunning(oUnittestClientDummy, false).  
+      end finally.
+
+    end.
       
     finally:
       bBusyUnittesting = false.
