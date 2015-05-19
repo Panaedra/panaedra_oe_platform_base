@@ -1210,8 +1210,24 @@ class panaedra.msroot.msutil.logic.sc_unittest
       end finally.
       
     end.
-    else
+    else do on error undo, throw:
+      
+      if not valid-object(oUnittestClientDummy) then
+        oUnittestClientDummy = new sc_unittest_stub().
+      
+      /* Clear in-memory INI values set by unit tests */
+      sc_osfile:ClearIniValuesUnittest(oUnittestClientDummy).
+      
+      /* Set the bUnittestRunning property. From now on, INI values are read from memory instead of from os file. */
+      sc_environment:SetUnittestRunning(oUnittestClientDummy, true).
+        
       run value(b-ttSessionUnittest.cLastTestProc).
+      
+      finally:
+        sc_environment:SetUnittestRunning(oUnittestClientDummy, false).  
+      end finally.
+      
+    end.
   
   end method. /* RunLastTestAgain */
   
