@@ -340,6 +340,34 @@ class panaedra.msroot.msutil.logic.sc_messagebox
   end method. /* Show; type_debug , variable extent */
 
 
+  method public static void Show(hBufferIP# as handle):
+
+    define variable iTel# as integer   no-undo.
+    define variable cMsg# as character no-undo.
+
+    if valid-handle(hBufferIP#) and hBufferIP#:type = "BUFFER" then
+    do:
+  
+      cMsg# = substitute("Inhoud buffer &1:", hBufferIP#:name).
+  
+      if hBufferIP#:available then  
+        do iTel# = 1 to hBufferIP#:num-fields:
+          cMsg# = cMsg# + substitute("~n&1: &2", hBufferIP#:buffer-field(iTel#):name, hBufferIP#:buffer-field(iTel#):buffer-value).  
+        end.    
+      
+      else
+        cMsg# = cMsg# + "~nnot available".
+
+    end.
+
+    else 
+      cMsg# = "Invalid parameter".
+
+    Show(sc_messageboxtype:oDebug, cMsg#). 
+         
+  end method. /* Show; type_debug , variable extent */
+
+
   method public void _sys_MsgBoxDbg(
 
     cMsgIP# as char ):
