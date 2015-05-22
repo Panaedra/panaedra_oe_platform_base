@@ -500,10 +500,10 @@ class panaedra.msroot.msutil.logic.sc_osfile
           end.
           
         end.
-      
-        input stream s-alg-in close.
-      
+            
         finally:
+          
+          input stream s-alg-in close.
         
           /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
            * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
@@ -519,8 +519,62 @@ class panaedra.msroot.msutil.logic.sc_osfile
     return cRet#.
   
   end method. /* GetIniValue */
+    
+
+  method public static logical IsIniSectionAvailable(
+
+    /* Is the given section available in the ini. */
+    
+    cIniIP#     as character, 
+    cSectionIP# as character):
   
+    define variable cLine#        as character no-undo.
+    define variable bAvailable#   as logical   no-undo.
+    define variable iSaveLastkey# as integer   no-undo.
+    
+    define buffer b-ttUnittestINIfile for ttUnittestINIfile.
+    
+    /* unittests?  in that case lookup the INI entry in a temp-table. */
+    if sc_environment:bUnittestRunning then
+    do:
+
+      bAvailable# = can-find(first b-ttUnittestINIfile where
+        b-ttUnittestINIfile.cIniFile = cIniIP#
+        and b-ttUnittestINIfile.cSection = cSectionIP#
+        ).        
+      
+    end.
+    else do on error undo, throw:  /* default flow from INI file */
+
+      iSaveLastkey# = lastkey. /* Remember the lastkey code */ 
+
+      file-info:file-name = cIniIP#.
+    
+      if file-info:full-pathname = ? then return ?.
+     
+      input stream s-alg-in from value(file-info:full-pathname).
+    
+      searchLine:
+      repeat while not bAvailable# on error undo, throw: 
+
+        import stream s-alg-in unformatted cLine#.  /* codeQok#7126 */
+
+        bAvailable# = (trim(cLine#) begins "[" + cSectionIP# + "]"). 
+        
+      end.
+
+      finally:     
+        input stream s-alg-in close.                                                
+        last-event:set-lastkey(0, iSaveLastkey#).  
+      end finally.
+
+    end. /* else */
+    
+    return bAvailable#.
   
+  end method. /* IsIniSectionAvailable */
+  
+
   method public static void ClearIniValuesUnittest(
     /* Clear the in-memory INI value cache used by unittests */
     oUnittestClientIP# as i_unittest_client):
