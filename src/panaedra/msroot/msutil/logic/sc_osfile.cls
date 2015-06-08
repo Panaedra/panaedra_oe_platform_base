@@ -632,7 +632,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     ):
       
     define variable bReturn# as logical no-undo.  
-      
+
     if sc_environment:bUnittestRunning 
        and valid-object(oUnittestClientIP#) then
       bReturn# = _sys_PutIniValueUnittest(
