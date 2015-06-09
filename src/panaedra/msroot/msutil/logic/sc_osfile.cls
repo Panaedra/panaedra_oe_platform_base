@@ -520,6 +520,83 @@ class panaedra.msroot.msutil.logic.sc_osfile
   
   end method. /* GetIniValue */
     
+    
+  method public static character GetIniAllSections(
+
+    /* returns cSv section headers from INI files.
+     * Note: the INI file must end with a linefeed.
+     */
+    cIniIP#     as character 
+    ):
+  
+    define variable cLine#        as character no-undo.
+    define variable iIndex#       as integer   no-undo.
+    define variable cSection#     as character no-undo.
+    define variable cReturn#      as character no-undo.
+    define variable iSaveLastkey# as integer   no-undo.
+    
+    define buffer b-ttUnittestINIfile for ttUnittestINIfile.
+    
+    /* unittests?  in that case lookup the INI entry in a temp-table. */
+    if sc_environment:bUnittestRunning then
+    do:
+      
+      for each b-ttUnittestINIfile no-lock where
+        b-ttUnittestINIfile.cIniFile = cIniIP#
+        on error undo, throw:
+        cReturn# = cReturn# + "," + b-ttUnittestINIfile.cSection.
+      end.
+      
+    end.
+    else do: /* default flow from INI file */
+    
+      do on error undo, throw:
+            
+        iSaveLastkey# = lastkey. /* Remember the lastkey code */ 
+       
+        file-info:file-name = cIniIP#.
+      
+        if file-info:full-pathname = ? then return ?.
+       
+        input stream s-alg-in from value(file-info:full-pathname).
+      
+        searchLine:
+        repeat on error undo, throw:
+          import stream s-alg-in unformatted cLine#. /* codeQok#7126 */
+          cLine# = left-trim(cLine#).
+          if cLine# begins ";" or cLine# = "" then next.
+          if cLine# begins "[" then 
+          do:
+            iIndex# = 
+            index(cLine#,"]").
+            if iIndex# > 0 then 
+            do:
+              cSection# = substring(cLine#,2,iIndex# - 2).
+              cReturn# = cReturn# + "," + cSection#.
+            end.
+          end.
+        end.
+            
+        finally:
+          
+          input stream s-alg-in close.
+        
+          /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
+           * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
+                             
+          last-event:set-lastkey(0, iSaveLastkey#).  
+                                                    
+        end finally.
+        
+      end. /* do */
+      
+    end. /* else */
+    
+    return left-trim(cReturn#, ",").
+  
+  end method. /* GetIniValue */
+    
+    
 
   method public static logical IsIniSectionAvailable(
 
