@@ -521,6 +521,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
   end method. /* GetIniValue */
     
     
+  @panaedraannotation file(unittest="yes").    
   method public static character GetIniAllSections(
 
     /* returns cSv section headers from INI files.
