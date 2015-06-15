@@ -595,7 +595,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     
     return left-trim(cReturn#, ",").
   
-  end method. /* GetIniValue */
+  end method. /* GetIniAllSections */
     
     
 
