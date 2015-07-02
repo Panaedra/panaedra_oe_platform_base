@@ -265,14 +265,6 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
-  /* _TERM_UNDISCLOSED_queue directory */
-  define public static property c_TERM_UNDISCLOSED_queueDir as character no-undo 
-    get():
-      if not bTtPathInitialized then TtPathInitialize().
-      return c_TERM_UNDISCLOSED_queueDir.
-    end get.
-    protected set.
-  
   /* Assembly directory */
   define public static property cAssemblyDir as character no-undo init ?
     get():
@@ -424,7 +416,6 @@ class panaedra.msroot.msutil.logic.sc_path:
       cDataExchangeDir     = FillPathProperty(GetScPathEnv(), "cDataExchangeDir",opsys).
       cVanWanDir           = FillPathProperty(GetScPathEnv(), "cVanWanDir",opsys).
       cNaarWanDir          = FillPathProperty(GetScPathEnv(), "cNaarWanDir",opsys).
-      c_TERM_UNDISCLOSED_queueDir  = FillPathProperty(GetScPathEnv(), "c_TERM_UNDISCLOSED_queueDir",opsys).
       cPclDir              = FillPathProperty(GetScPathEnv(), "cPclDir",opsys).
     end.
     
