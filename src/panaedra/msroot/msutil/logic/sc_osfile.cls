@@ -177,6 +177,13 @@ class panaedra.msroot.msutil.logic.sc_osfile
   @panaedraannotation file(unittest="yes").
   method public static void CreateEmptyFile(cFileIP# as character):
     
+    CreateFileWithContent(cFileIP#,"").
+          
+  end method. /* CreateEmptyFile */
+
+
+  method public static void CreateFileWithContent(cFileIP# as character, cTextIP# as character):
+    
     file-info:file-name = cFileIP#.
 
     if file-info:full-pathname = ? then 
@@ -184,13 +191,13 @@ class panaedra.msroot.msutil.logic.sc_osfile
 
       if sc_path:PathExists(sc_path:SplitGetFileDir(cFileIP#)) then
       do:
-  
         output stream s-alg-out to value(cFileIP#).
+        if length(cTextIP#) > 0 then
+          put stream s-alg-out unformatted cTextIP# skip.  
         output stream s-alg-out close.  
   
         if search(cFileIP#) = ? then
           undo, throw new Progress.Lang.AppError(subst("&1 couldn't be created", cFileIP#), 99951938).
-
       end.
       else
         undo, throw new Progress.Lang.AppError(subst("&1 couldn't be created", cFileIP#), 99953938).
@@ -204,6 +211,47 @@ class panaedra.msroot.msutil.logic.sc_osfile
     end finally.
       
   end method. /* CreateEmptyFile */
+  
+  
+  method public static logical FileHasOneLineWithCRLF(cFileIP# as character):
+    
+    define variable bFileHasOneLineWithCRLF# as logical   no-undo.
+    define variable cLineWithCRLF#           as character no-undo.
+    define variable iSaveLastkey#            as integer   no-undo.
+
+
+    iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */
+
+    if opsys = "unix" then 
+    do:
+    
+      input thru value("grep -r $'~\r' " + cFileIP#) no-echo.
+      repeat on error undo, throw:
+        import unformatted cLineWithCRLF#. /* codeQok#7126  */
+        leave. 
+      end.
+      input close.
+
+      if length(cLineWithCRLF#) > 0 then
+        bFileHasOneLineWithCRLF# = true.
+    end.
+    else
+      undo, throw new c_panaedraexception(
+        50458933,
+        sc_lang:oEnglish,
+        substitute("Not implemented yet")
+        ).
+    
+    return bFileHasOneLineWithCRLF#.
+    
+    finally:
+      /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
+       * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
+      last-event:set-lastkey(0, iSaveLastkey#).
+    end finally.
+  
+    
+  end method. /* FileHasOneLineWithCRLF */
 
 
   method static public void GetFileNamesInDirectory(    
@@ -463,7 +511,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
         cRet# = b-ttUnittestINIfile.cValue. 
       
     end.
-    else do: /* default flow from INI file */
+    else 
+    do: /* default flow from INI file */
     
       do on error undo, throw:
             
@@ -549,7 +598,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
       end.
       
     end.
-    else do: /* default flow from INI file */
+    else 
+    do: /* default flow from INI file */
     
       do on error undo, throw:
             
@@ -622,7 +672,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
         ).        
       
     end.
-    else do on error undo, throw:  /* default flow from INI file */
+    else 
+    do on error undo, throw:  /* default flow from INI file */
 
       iSaveLastkey# = lastkey. /* Remember the lastkey code */ 
 
@@ -712,7 +763,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     define variable bReturn# as logical no-undo.  
 
     if sc_environment:bUnittestRunning 
-       and valid-object(oUnittestClientIP#) then
+      and valid-object(oUnittestClientIP#) then
       bReturn# = _sys_PutIniValueUnittest(
         cIniFileIP#, 
         cSectionIP#, 
@@ -762,7 +813,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
       
       assign
         b-ttUnittestINIfile.cValue = cValueIP#
-        bReturn# = true
+        bReturn#                   = true
         .
       release b-ttUnittestINIfile.
     end.      
@@ -1291,7 +1342,6 @@ class panaedra.msroot.msutil.logic.sc_osfile
         sc_lang:oEnglish,
         substitute("Not implemented yet")
         ).
-  
   end method. /* FlipFileToWin */
   
   
