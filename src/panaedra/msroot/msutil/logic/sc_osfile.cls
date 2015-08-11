@@ -177,27 +177,32 @@ class panaedra.msroot.msutil.logic.sc_osfile
   @panaedraannotation file(unittest="yes").
   method public static void CreateEmptyFile(cFileIP# as character):
     
-    CreateFileWithContent(cFileIP#,"").
+    CreateEmptyFile(cFileIP#, false).
           
   end method. /* CreateEmptyFile */
 
 
-  method public static void CreateFileWithContent(cFileIP# as character, cTextIP# as character):
+  @panaedraannotation file(unittest="yes").
+  method public static void CreateEmptyFile(
+    cFileIP#      as character, 
+    bOverwriteIP# as logical
+    ):
     
-    file-info:file-name = cFileIP#.
+    if bOverwriteIP# and FileExists(cFileIP#) then
+      DeleteFile(cFileIP#).
 
-    if file-info:full-pathname = ? then 
+    if not FileExists(cFileIP#) then 
     do:
 
       if sc_path:PathExists(sc_path:SplitGetFileDir(cFileIP#)) then
       do:
+
         output stream s-alg-out to value(cFileIP#).
-        if length(cTextIP#) > 0 then
-          put stream s-alg-out unformatted cTextIP# skip.  
         output stream s-alg-out close.  
   
         if search(cFileIP#) = ? then
           undo, throw new Progress.Lang.AppError(subst("&1 couldn't be created", cFileIP#), 99951938).
+
       end.
       else
         undo, throw new Progress.Lang.AppError(subst("&1 couldn't be created", cFileIP#), 99953938).
@@ -209,7 +214,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     finally:
       output stream s-alg-out close.  
     end finally.
-      
+          
   end method. /* CreateEmptyFile */
   
   
@@ -219,21 +224,20 @@ class panaedra.msroot.msutil.logic.sc_osfile
     define variable cLineWithCRLF#           as character no-undo.
     define variable iSaveLastkey#            as integer   no-undo.
 
-
     iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */
 
     if opsys = "unix" then 
     do:
     
-      input thru value("grep -r $'~\r' " + cFileIP#) no-echo.
+      input stream s-alg-in thru value("grep -r $'~\r' " + cFileIP#) no-echo.
+
       repeat on error undo, throw:
-        import unformatted cLineWithCRLF#. /* codeQok#7126  */
-        leave. 
+        import stream s-alg-in unformatted cLineWithCRLF#. /* codeQok#7126  */
       end.
-      input close.
 
       if length(cLineWithCRLF#) > 0 then
         bFileHasOneLineWithCRLF# = true.
+
     end.
     else
       undo, throw new c_panaedraexception(
@@ -245,12 +249,15 @@ class panaedra.msroot.msutil.logic.sc_osfile
     return bFileHasOneLineWithCRLF#.
     
     finally:
+
+      input stream s-alg-in close.
+
       /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
        * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
       last-event:set-lastkey(0, iSaveLastkey#).
+
     end finally.
-  
-    
+      
   end method. /* FileHasOneLineWithCRLF */
 
 
@@ -1423,7 +1430,83 @@ class panaedra.msroot.msutil.logic.sc_osfile
     return cReturn#. 
   
   end method. /* OsErrorDescription */
+
+
+  @panaedraannotation file(unittest="yes").
+  method public static void WriteAllLines(
+    input cFileIP#      as character, 
+    input bOverwriteIP# as logical,
+    input cLinesIP#     as character extent
+    ): 
+
+    define variable iLine# as integer   no-undo.
   
+    CreateEmptyFile(cFileIP#, bOverwriteIP#).
+  
+    output stream s-alg-out to value(cFileIP#).
+
+    do iLine# = 1 to extent(cLinesIP#):     
+
+      if length(cLinesIP#[iLine#]) > 0 then
+        put stream s-alg-out unformatted cLinesIP#[iLine#] skip.
+      else
+        put stream s-alg-out unformatted skip(1).
+        
+    end.
+    
+    finally:
+      output stream s-alg-out close.             
+    end finally.
+  
+  end method.  /* WriteAllLines */
+    
+
+  @panaedraannotation file(unittest="yes").
+  method public static void ReadAllLines(
+    input  cFileIP#  as character, 
+    output cLinesOP# as character extent
+    ): 
+
+    define variable iLine#        as integer   no-undo.
+    define variable cLine#        as character no-undo.
+    define variable iLines#       as integer   no-undo.
+    define variable iSaveLastkey# as integer   no-undo.
+
+    if FileExists(cFileIP#) then
+    do on error undo, throw:
+
+      iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */
+
+      input stream s-alg-in from value(cFileIP#).
+
+      repeat on error undo, throw:      
+        import stream s-alg-in unformatted cLine#. /* codeQok#7126  */
+        iLines# = iLines# + 1.            
+      end.
+
+      extent (cLinesOP#) = iLines#.
+
+      input stream s-alg-in close.  
+      input stream s-alg-in from value(cFileIP#).
+
+      repeat iLine# = 1 to iLines#  on error undo, throw:
+        import stream s-alg-in unformatted cLinesOP#[iLine#]. /* codeQok#7126  */
+      end.
+
+      finally:
+  
+        input stream s-alg-in close.  
+  
+        /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
+         * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
+        last-event:set-lastkey(0, iSaveLastkey#).
+  
+      end finally.
+      
+    end.  
+  
+  end method.  /* ReadAllLines */
+
 end class.
 
 /* EOF */ 
