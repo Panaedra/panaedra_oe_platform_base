@@ -24,6 +24,10 @@ class panaedra.msroot.msutil.logic.sc_path:
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, "$Revision: 22 $", "{&sourcecontrolversions}").
   end constructor.
+
+  constructor protected sc_path(
+    input oParamIP# as i_unittest_param):
+  end constructor.  
   /******************************* $NoKeywords:  $ *****************************/  
   
   define protected static variable bIniInitialized    as logical                                 no-undo.
@@ -790,15 +794,11 @@ class panaedra.msroot.msutil.logic.sc_path:
   
   
   method public static void DelTree(cDirIP# as character):
-    
-    sc_osfile:DeleteAllFilesInDir(cDirIP#,"*",true).
-    
-    os-delete value(cDirIP#). 
+
+    os-delete value(cDirIP#) recursive.
+
     if os-error > 0 then 
-    do:
-      if opsys = "win32" then
-        os-command silent value(subst('rmdir /Q /S "&1"', cDirIP#)).
-    end.
+      undo, throw new Progress.Lang.AppError(subst("Directory &1 could not be deleted.", cDirIP#), 99950020).
     
   end method. /* DelTree */
   
