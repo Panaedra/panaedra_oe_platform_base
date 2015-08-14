@@ -30,7 +30,10 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
 
   method protected static void CreateOrOverwriteRecord_Implement(
   
-    /* Find or create record and fill data. */
+    /* Find or create record and fill data.
+       
+       With the cSvKeyFieldsAndValuesIP# parameter the where clause of the find is constructed
+     */
   
     input hBufferIP#                 as handle,    
     input cSvKeyFieldsAndValuesIP#   as character,  /* veld1=a,veld2=1 */
@@ -44,36 +47,38 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
     define variable iTell#              as integer   no-undo.
     define variable cValue#             as character no-undo.
     define variable cSvFieldsAndValues# as character no-undo.
-    
-    /* Construct the where clause */
-    do iTell# = 1 to num-entries(cSvKeyFieldsAndValuesIP#, cSeperatorIP#):
-      
-      assign
-        cEntry# = entry(iTell#, cSvKeyFieldsAndValuesIP#, cSeperatorIP#)
-        hField# = hBufferIP#:buffer-field(entry(1, cEntry#, "="))
-        cValue# = substring(cEntry#, index(cEntry#, "=") + 1)
-        cWhere# = substitute("&1 &2 &3 = &4",
-                             cWhere#,
-                             string(iTell# = 1, "where/ and"),
-                             hField#:name,
-                             (if hField#:data-type = "character" then quoter(cValue#) else cValue#) 
-                            )
-        .
-      
-    end.
 
     do transaction on error undo, throw: /* codeQok#7103 */     
 
-      if length(hBufferIP#:keys) > 0 and hBufferIP#:keys <> "rowid" then
+      /* Try to find the record with the given key-values */
+      if length(cSvKeyFieldsAndValuesIP#) > 0 then
       do:
+    
+        /* Construct the where clause */
+        do iTell# = 1 to num-entries(cSvKeyFieldsAndValuesIP#, cSeperatorIP#):
+          
+          assign
+            cEntry# = entry(iTell#, cSvKeyFieldsAndValuesIP#, cSeperatorIP#)
+            hField# = hBufferIP#:buffer-field(entry(1, cEntry#, "="))
+            cValue# = substring(cEntry#, index(cEntry#, "=") + 1)
+            cWhere# = substitute("&1 &2 &3 = &4",
+                                 cWhere#,
+                                 string(iTell# = 1, "where/ and"),
+                                 hField#:name,
+                                 (if hField#:data-type = "character" then quoter(cValue#) else cValue#) 
+                                )
+            .
+          
+        end. /* do iTell# = 1 */
 
         hBufferIP#:find-unique (cWhere#, exclusive-lock, no-wait) no-error. /* codeQok#7102 */
 
         if hBufferIP#:ambiguous then 
           undo, throw new c_panaedraexception(99913109, sc_lang:oEnglish, substitute("Key not unique (&1 &2)", hBufferIP#:table, cWhere#)).
       
-      end.
+      end. /* if */
       
+      /* If the record is not found, create it */
       if not hBufferIP#:available then
       do:
         hBufferIP#:buffer-create().
@@ -101,11 +106,12 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
             ).            
         end catch.
 
-      end.
+      end. /* do iTell# = 1 */
 
     end.  /* transaction */
 
-    hBufferIP#:find-current(no-lock). /* Make sure the record is available*/
+    /* Make sure the record is available*/
+    hBufferIP#:find-current(no-lock). 
       
   end method.  /* CreateOrOverwriteRecord_Implement */  
 
@@ -122,11 +128,12 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
     define variable cSvKeyFieldsAndValues#   as character no-undo.
     define variable cSvOtherFieldsAndValues# as character no-undo.
 
-    /* Split the fieldlist in a list with keyfields and a list with other fields */
+    /* Split the fieldlist in a list with primary keyfields (for constructing the where clause later) and a list with the other fields */
     do iTell# = 1 to num-entries(cSvFieldsAndValuesIP#, cSeperatorIP#):
 
       cEntry# = entry(iTell#, cSvFieldsAndValuesIP#, cSeperatorIP#).
 
+      /* keys = "rowid" when there is no primary key defined */
       if length(hBufferIP#:keys) > 0 and hBufferIP#:keys <> "rowid" and lookup(entry(1, cEntry#, "="), hBufferIP#:keys) > 0 then
         cSvKeyFieldsAndValues# = cSvKeyFieldsAndValues# + cSeperatorIP# + cEntry#.
       else
