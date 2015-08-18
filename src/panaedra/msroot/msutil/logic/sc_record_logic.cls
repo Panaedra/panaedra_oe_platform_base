@@ -35,18 +35,24 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
        With the cSvKeyFieldsAndValuesIP# parameter the where clause of the find is constructed
      */
   
-    input hBufferIP#                 as handle,    
-    input cSvKeyFieldsAndValuesIP#   as character,  /* veld1=a,veld2=1 */
-    input cSvOtherFieldsAndValuesIP# as character,  /* idem */
-    input cSeperatorIP#              as character
+    input  hBufferIP#                 as handle,    
+    input  cSvKeyFieldsAndValuesIP#   as character,  /* format: veld1=a,veld2=1 */
+    input  cSvOtherFieldsAndValuesIP# as character,  /* format: veld1=a,veld2=1 */
+    input  cSeperatorIP#              as character,
+    output cSvOldValues#              as character   /* format: veld1=a,veld2=1 */
     ):
 
     define variable hField#             as handle    no-undo.
     define variable cEntry#             as character no-undo.    
     define variable cWhere#             as character no-undo.    
+    define variable cField#             as character no-undo.
     define variable iTell#              as integer   no-undo.
     define variable cValue#             as character no-undo.
     define variable cSvFieldsAndValues# as character no-undo.
+    define variable iIndex#             as integer   no-undo.
+    define variable iMinIndex#          as integer   no-undo.
+    define variable iMaxIndex#          as integer   no-undo.
+    define variable cOldValue#          as character no-undo.
 
     do transaction on error undo, throw: /* codeQok#7103 */     
 
@@ -91,11 +97,42 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
       do iTell# = 1 to num-entries(cSvFieldsAndValues#, cSeperatorIP#) on error undo, throw:
         
         assign
-          cEntry#              = entry(iTell#, cSvFieldsAndValues#, cSeperatorIP#)
-          cValue#              = substring(cEntry#, index(cEntry#, "=") + 1)
-          hField#              = hBufferIP#:buffer-field(entry(1, cEntry#, "="))
-          hField#:buffer-value = cValue#
+          cEntry#    = entry(iTell#, cSvFieldsAndValues#, cSeperatorIP#)
+          cField#    = entry(1, cEntry#, "=")
+          cValue#    = substring(cEntry#, index(cEntry#, "=") + 1)
+          iMinIndex# = 0
+          iMinIndex# = 0
           .
+
+        if cField# matches "*[*]" then
+          assign
+            iMinIndex# = int(trim(substring(cField#, index(cField#, "[")), "[]"))
+            iMaxIndex# = iMinIndex#
+            cField#    = substring(cField#, 1, index(cField#, "[") - 1)
+            .
+                    
+        hField# = hBufferIP#:buffer-field(cField#).          
+
+        if iMinIndex# = 0 and hField#:extent > 0 then
+          assign
+            iMinIndex# = 1
+            iMaxIndex# = hField#:extent
+            .
+        
+        do iIndex# = iMinIndex# to iMaxIndex#:
+
+          cOldValue# = string(hField#:buffer-value(iIndex#)).       
+
+          if cValue# <> cOldValue# then
+            assign
+              hField#:buffer-value(iIndex#) = cValue#
+              cSvOldValues# = cSvOldValues# 
+                            + (if cSvOldValues# > "" then cSeperatorIP# else "") 
+                            + cField#
+                            + (if iIndex# > 0 then substitute("[&1]", iIndex#) else "") 
+              .
+
+        end.
 
         catch oError# as Progress.Lang.Error:
           undo, throw new c_panaedraexception(99913110,
@@ -110,7 +147,7 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
 
     end.  /* transaction */
 
-    /* Make sure the record is available*/
+    /* Make sure the record is available */
     hBufferIP#:find-current(no-lock). 
       
   end method.  /* CreateOrOverwriteRecord_Implement */  
@@ -118,9 +155,10 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
 
   method protected static void CreateOrOverwriteRecord_Implement(
 
-    input hBufferIP#            as handle,    
-    input cSvFieldsAndValuesIP# as character,
-    input cSeperatorIP#         as character
+    input  hBufferIP#            as handle,    
+    input  cSvFieldsAndValuesIP# as character,  /* format: veld1=a,veld2=1 */
+    input  cSeperatorIP#         as character,
+    output cSvOldValues#         as character   /* format: veld1=a,veld2=1 */
     ):
 
     define variable iTell#                   as integer   no-undo.
@@ -146,10 +184,24 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
       cSvOtherFieldsAndValues# = left-trim(cSvOtherFieldsAndValues#, cSeperatorIP#)
       .
         
-    CreateOrOverwriteRecord_Implement(hBufferIP#, cSvKeyFieldsAndValues#, cSvOtherFieldsAndValues#, cSeperatorIP#). 
+    CreateOrOverwriteRecord_Implement(hBufferIP#, cSvKeyFieldsAndValues#, cSvOtherFieldsAndValues#, cSeperatorIP#, output cSvOldValues#). 
   
-  end method.  /* CreateOrOverwriteRecord_Implement */
+  end method.  /* CreateOrOverwriteRecord_Implement | overload without seperate keyvalues*/
 
+
+  method protected static void CreateOrOverwriteRecord_Implement(
+
+    input  hBufferIP#            as handle,    
+    input  cSvFieldsAndValuesIP# as character,  /* format: veld1=a,veld2=1 */
+    input  cSeperatorIP#         as character
+    ):
+
+    define variable cSvOldValues# as character no-undo.
+
+    CreateOrOverwriteRecord_Implement(hBufferIP#, cSvFieldsAndValuesIP#, cSeperatorIP#, output cSvOldValues#). 
+  
+  end method. /* CreateOrOverwriteRecord_Implement | overload without cSvOldValues*/
+  
 end class.
 
 /* EOF */ 
