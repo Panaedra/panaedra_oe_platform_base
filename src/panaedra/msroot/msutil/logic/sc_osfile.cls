@@ -48,15 +48,17 @@ class panaedra.msroot.msutil.logic.sc_osfile
     field dtmExpire as datetime-tz
     index dtmExpire dtmExpire.
 
-
   define protected static temp-table ttUnittestINIfile /* wel undo */
     field cIniFile   as character 
     field cSection   as character 
     field cParameter as character 
     field cValue     as character
     index prim is primary unique cIniFile cSection cParameter
-    .
-  
+    .  
+
+  define protected static temp-table ttIniValue no-undo 
+    field cParameter as character
+    field cValue     as character.
 
   define protected static variable oSingleton    as sc_osfile no-undo.
   define protected static variable hTtFileNative as handle    no-undo.
@@ -1506,6 +1508,75 @@ class panaedra.msroot.msutil.logic.sc_osfile
     end.  
   
   end method.  /* ReadAllLines */
+
+
+  method public static void GetIniValues(
+    input  cIniFileIP# as character, 
+    input  cSectionIP# as character, 
+    output table for ttIniValue
+  ):
+  
+    define variable cLines# as character no-undo extent.
+    define variable cLine#  as character no-undo.
+    define variable iLine#  as integer   no-undo.
+    define variable bAdd#   as logical   no-undo.
+  
+    define buffer b-ttIniValue        for ttIniValue.    
+    define buffer b-ttUnittestINIfile for ttUnittestINIfile.
+
+    empty temp-table ttIniValue.
+
+    if sc_environment:bUnittestRunning then
+    do:
+    
+      for each b-ttUnittestINIfile 
+        where b-ttUnittestINIfile.cIniFile = cIniFileIP#
+        and   b-ttUnittestINIfile.cSection = cSectionIP#
+        on error undo, throw:
+
+        create b-ttIniValue.
+        assign
+          b-ttIniValue.cParameter = b-ttUnittestINIfile.cParameter
+          b-ttIniValue.cValue     = b-ttUnittestINIfile.cValue
+          . 
+        release b-ttIniValue. 
+
+      end.        
+      
+    end. /* bUnittestRunning */
+
+    else 
+    do: /* default flow from INI file */
+  
+      ReadAllLines(cIniFileIP#, output cLines#).
+    
+      do iLine# = 1 to extent(cLines#): 
+  
+        cLine# = trim(cLines#[iLine#]).
+  
+        if cLine# = substitute("[&1]", cSectionIP#) then
+          bAdd# = true.
+        else if cLine# begins ";" then
+          next.
+        else if bAdd# and cLine# begins "[" then
+          leave.
+        else if bAdd# and cLine# matches "*=*" then
+        do:
+        
+          create b-ttIniValue.
+          assign
+            b-ttIniValue.cParameter = entry(1, cLine#, "=")
+            b-ttIniValue.cValue     = substring(cLine#, index(cLine#, "=") + 1)
+            . 
+          release b-ttIniValue. 
+        
+        end.
+        
+      end.
+    
+    end. /* not bUnittestRunning */
+      
+  end method. /* GetIniValues */
 
 end class.
 
