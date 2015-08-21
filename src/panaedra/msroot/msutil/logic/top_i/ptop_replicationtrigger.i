@@ -15,7 +15,7 @@
 routine-level on error undo, throw.
 
 /* Switch HqtActive to false before commit */
-&glob HqtActive false
+{panaedra/msroot/msutil/logic/sc_mshqtimestamp_active.i}
 
 {panaedra/msroot/msutil/logic/sc_mshqtimestamp_pp.i}
 
