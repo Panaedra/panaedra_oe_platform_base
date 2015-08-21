@@ -173,6 +173,7 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
   
   end method. /* GetRecordBuffer */
 
+
   method protected static void SetBufferValues_Implement(
   
     input  hBufferIP#            as handle,    
@@ -181,16 +182,16 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
     output cSvOldValues#         as character   /* format: veld1=a,veld2=1 */
     ):
 
-    define variable hField#             as handle    no-undo.
-    define variable cEntry#             as character no-undo.    
-    define variable cWhere#             as character no-undo.    
-    define variable cField#             as character no-undo.
-    define variable iTell#              as integer   no-undo.
-    define variable cValue#             as character no-undo.
-    define variable iIndex#             as integer   no-undo.
-    define variable iMinIndex#          as integer   no-undo.
-    define variable iMaxIndex#          as integer   no-undo.
-    define variable cOldValue#          as character no-undo.
+    define variable hField#    as handle    no-undo.
+    define variable cEntry#    as character no-undo.    
+    define variable cWhere#    as character no-undo.    
+    define variable cField#    as character no-undo.
+    define variable iTell#     as integer   no-undo.
+    define variable cValue#    as character no-undo.
+    define variable iIndex#    as integer   no-undo.
+    define variable iMinIndex# as integer   no-undo.
+    define variable iMaxIndex# as integer   no-undo.
+    define variable cOldValue# as character no-undo.
 
     do transaction on error undo, throw: /* codeQok#7103 */     
 
