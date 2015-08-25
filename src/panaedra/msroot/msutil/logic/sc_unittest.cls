@@ -964,21 +964,6 @@ class panaedra.msroot.msutil.logic.sc_unittest
     b_each:
     for each b-ttFile on error undo, throw:
       
-      b_run:
-      do
-        on error  undo, throw
-        on stop   undo b_run, retry b_run
-        on endkey undo b_run, leave b_each:
-          
-        if retry then 
-        do:
-          undo, throw new c_panaedraexception(
-            99948119,
-            sc_lang:oEnglish,
-            substitute("Error: Stop condition encountered for &1", b-ttFile.cFullPath)
-            ).
-        end.  
-        
         RunSingleUnittest(b-ttFile.cFullPath).  
         
       end.
