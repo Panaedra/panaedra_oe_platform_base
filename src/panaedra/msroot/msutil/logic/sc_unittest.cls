@@ -936,6 +936,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
     cSvSourcedirsIP# as character
     ):
     
+    LogMessage("Begin RunAllUnittests").
+    
     define variable iTell# as integer no-undo.
     
     define buffer b-ttFile            for ttFile.
@@ -989,6 +991,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
       end catch.
       
     end.
+    
+    LogMessage("End RunAllUnittests").
     
     
     finally:
