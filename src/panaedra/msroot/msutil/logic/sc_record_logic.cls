@@ -39,7 +39,8 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
     input  cSvKeyFieldsAndValuesIP#   as character,  /* format: veld1=a,veld2=1 */
     input  cSvOtherFieldsAndValuesIP# as character,  /* format: veld1=a,veld2=1 */
     input  cSeperatorIP#              as character,
-    output cSvOldValues#              as character   /* format: veld1=a,veld2=1 */
+    input  bSaveOldValuesIP#          as logical,
+    output cSvOldValuesOP#            as character   /* format: veld1=a,veld2=1 */
     ):
 
     define variable cSvFieldsAndValues# as character no-undo.
@@ -53,21 +54,23 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
 
       /* GetUniqueRecordBuffer returns an unlocked buffer therefore lock it now */
       if hBufferIP#:available then
+      do:
         hBufferIP#:find-current (exclusive-lock, no-wait). /* codeQok#7102 */    
-        
+        /* Save the values of all(!) the fields in the record so we can eventual restore them later */
+        if bSaveOldValuesIP# then
+          cSvOldValuesOP# = GetBufferValues(hBufferIP#, cSeperatorIP#).
+      end.        
+
       /* If the record is not found, create it */
       else
-      do:
         hBufferIP#:buffer-create().
-        hBufferIP#:private-data = "new".
-      end.
 
       assign
         rBuffer#            = hBufferIP#:rowid
         cSvFieldsAndValues# = trim(substitute("&1&3&2", cSvKeyFieldsAndValuesIP#, cSvOtherFieldsAndValuesIP#, cSeperatorIP#), cSeperatorIP#)
         .
 
-      SetBufferValues_Implement(hBufferIP#, cSvFieldsAndValues#, cSeperatorIP#, output cSvOldValues#).
+      SetBufferValues(hBufferIP#, cSvFieldsAndValues#, cSeperatorIP#).
 
       /* Make sure the record is available */
       hBufferIP#:buffer-release(). /* When you skip the release it can cause problems with temp-tables */
@@ -87,7 +90,8 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
     input  hBufferIP#            as handle,    
     input  cSvFieldsAndValuesIP# as character,  /* format: veld1=a,veld2=1 */
     input  cSeperatorIP#         as character,
-    output cSvOldValues#         as character   /* format: veld1=a,veld2=1 */
+    input  bSaveOldValuesIP#     as logical,
+    output cSvOldValuesOP#       as character   /* format: veld1=a,veld2=1 */
     ):
 
     define variable iTell#                   as integer   no-undo.
@@ -113,23 +117,9 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
       cSvOtherFieldsAndValues# = left-trim(cSvOtherFieldsAndValues#, cSeperatorIP#)
       .
         
-    CreateOrOverwriteRecord_Implement(hBufferIP#, cSvKeyFieldsAndValues#, cSvOtherFieldsAndValues#, cSeperatorIP#, output cSvOldValues#). 
+    CreateOrOverwriteRecord_Implement(hBufferIP#, cSvKeyFieldsAndValues#, cSvOtherFieldsAndValues#, cSeperatorIP#, bSaveOldValuesIP#, output cSvOldValuesOP#). 
   
   end method.  /* CreateOrOverwriteRecord_Implement | overload without seperate keyvalues*/
-
-
-  method protected static void CreateOrOverwriteRecord_Implement(
-
-    input  hBufferIP#            as handle,    
-    input  cSvFieldsAndValuesIP# as character,  /* format: veld1=a,veld2=1 */
-    input  cSeperatorIP#         as character
-    ):
-
-    define variable cDummy# as character no-undo.
-
-    CreateOrOverwriteRecord_Implement(hBufferIP#, cSvFieldsAndValuesIP#, cSeperatorIP#, output cDummy#). 
-  
-  end method. /* CreateOrOverwriteRecord_Implement | overload without cSvOldValues*/
 
 
   method protected static handle GetUniqueRecordBuffer(
@@ -171,15 +161,14 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
     if hBufferIP#:ambiguous then 
       undo, throw new c_panaedraexception(99913109, sc_lang:oEnglish, substitute("Key not unique (&1 &2)", hBufferIP#:table, cWhere#)).
   
-  end method. /* GetRecordBuffer */
+  end method. /* GetUniqueRecordBuffer */
 
 
-  method protected static void SetBufferValues_Implement(
+  method public static void SetBufferValues(
   
     input  hBufferIP#            as handle,    
     input  cSvFieldsAndValuesIP# as character,  /* format: veld1=a,veld2=1 */
-    input  cSeperatorIP#         as character,
-    output cSvOldValues#         as character   /* format: veld1=a,veld2=1 */
+    input  cSeperatorIP#         as character
     ):
 
     define variable hField#    as handle    no-undo.
@@ -191,7 +180,6 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
     define variable iIndex#    as integer   no-undo.
     define variable iMinIndex# as integer   no-undo.
     define variable iMaxIndex# as integer   no-undo.
-    define variable cOldValue# as character no-undo.
 
     do transaction on error undo, throw: /* codeQok#7103 */     
 
@@ -201,10 +189,13 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
         assign
           cEntry#    = entry(iTell#, cSvFieldsAndValuesIP#, cSeperatorIP#)
           cField#    = entry(1, cEntry#, "=")
-          cValue#    = substring(cEntry#, index(cEntry#, "=") + 1)
           iMinIndex# = 0
           iMinIndex# = 0
           .
+
+        /* If the GetBufferValue is used to make the cSvFieldsAndValuesIP# string and a value of a buffer field
+           contains the seperator character*/  
+        cValue# = replace(substring(cEntry#, index(cEntry#, "=") + 1), chr(10), cSeperatorIP#).
 
         if cField# matches "*[*]" then
           assign
@@ -215,6 +206,7 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
                     
         hField# = hBufferIP#:buffer-field(cField#).          
 
+        /* If the field is an extent but no index is given then all entries wil get the value */
         if iMinIndex# = 0 and hField#:extent > 0 then
           assign
             iMinIndex# = 1
@@ -222,18 +214,7 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
             .
         
         do iIndex# = iMinIndex# to iMaxIndex#:
-
-          cOldValue# = string(hField#:buffer-value(iIndex#)).       
-
-          if cValue# <> cOldValue# then
-            assign
-              hField#:buffer-value(iIndex#) = cValue#
-              cSvOldValues# = cSvOldValues# 
-                            + (if cSvOldValues# > "" then cSeperatorIP# else "") 
-                            + cField#
-                            + (if iIndex# > 0 then substitute("[&1]", iIndex#) else "") 
-              .
-
+          hField#:buffer-value(iIndex#) = cValue#.
         end.
 
         catch oError# as Progress.Lang.Error:
@@ -254,21 +235,53 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
 
     end.  /* transaction */
       
-  end method.  /* SetBufferValues_Implement */  
+  end method.  /* SetBufferValues */  
 
+
+  method public static character GetBufferValues(
   
-  method protected static void SetBufferValues_Implement(
-    input  hBufferIP#            as handle,    
-    input  cSvFieldsAndValuesIP# as character,  /* format: veld1=a,veld2=1 */
-    input  cSeperatorIP#         as character
+    /* Returns the values of all the fields in a buffer.
+       For example: "_DATA_=1|cusnm=_TERM_UNDISCLOSED_"
+       If the value of the field contains the seperator character that character is replace with chr(10).
+       When the value are restored with the SetBufferValues method, chr(10) is replaced back. 
+     */
+  
+    input  hBufferIP#    as handle,    
+    input  cSeperatorIP# as character
     ):
 
-    define variable cDummy# as character no-undo.
+    define variable cSvFieldsValues# as character no-undo.
+    define variable iField#          as integer   no-undo.
+    define variable hField#          as handle    no-undo.
+    define variable iIndex#          as integer   no-undo.
+    define variable iMinIndex#       as integer   no-undo.
+    define variable iMaxIndex#       as integer   no-undo.
+    define variable cValue#          as character no-undo.
 
-    SetBufferValues_Implement(hBufferIP#, cSvFieldsAndValuesIP#, cSeperatorIP#, output cDummy#).
+    do iField# = 1 to hBufferIP#:num-fields:
 
-  end method.  /* SetBufferValues_Implement | without cSvOldValues output parameter */ 
+      assign
+        hField#    = hBufferIP#:buffer-field(iField#)
+        iMinIndex# = (if hField#:extent > 0 then 1 else 0)
+        iMaxIndex# = hField#:extent
+        .         
+
+      do iIndex# = iMinIndex# to iMaxIndex#:
+        
+        cValue# = replace(hField#:buffer-value(iIndex#), cSeperatorIP#, chr(10)).
+                
+        cSvFieldsValues# = cSvFieldsValues# 
+                         + (if iField# > 1 then cSeperatorIP# else "")
+                         + substitute("&1&2=&3", hField#:name, (if iIndex# > 0 then substitute("[&1]", iIndex#) else ""), cValue#).
+
+      end. 
+
+    end. /* do iField# = 1 to ... */
     
+    return cSvFieldsValues#.
+  
+  end method. /* GetBufferValues */    
+
 end class.
 
 /* EOF */ 
