@@ -1081,7 +1081,6 @@ class panaedra.msroot.msutil.logic.sc_unittest
     do iTell# = 1 to num-entries(cSvUnittestsIP#):
       cEntry# = entry(iTell#,cSvUnittestsIP#).
       
-      
       if cEntry# > "" then 
       do on error undo, throw:
         
