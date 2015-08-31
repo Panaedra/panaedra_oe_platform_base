@@ -1578,6 +1578,16 @@ class panaedra.msroot.msutil.logic.sc_osfile
       
   end method. /* GetIniValues */
 
+
+  method public static character ChangeExtension
+    (input cFilenameIOP#     as character,
+     input cNewExtentsionIP# as character
+    ):
+  
+    return substring(cFilenameIOP#, 1, r-index(cFilenameIOP#, ".")) + left-trim(cNewExtentsionIP#, ".").
+      
+  end method. /* ChangeExtension */
+
 end class.
 
 /* EOF */ 
