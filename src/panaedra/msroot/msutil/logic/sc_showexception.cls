@@ -227,7 +227,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
     iError# = oErrorIP#:GetMessageNum(1).
   
-    if iError# = 0 or iError# = ? then iError# = 99948192. /* Nothing better to do than give a unique error number */
+    if iError# = 0 or iError# = ? or length(string(iError#)) > 8 then iError# = 99948192. /* Nothing better to do than give a unique error number */
   
     if type-of(oErrorIP#, c_panaedraexception) then 
     do:
