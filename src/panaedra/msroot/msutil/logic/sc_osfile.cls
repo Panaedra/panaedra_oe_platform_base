@@ -1464,9 +1464,13 @@ class panaedra.msroot.msutil.logic.sc_osfile
     
 
   @panaedraannotation file(unittest="yes").
-  method public static void ReadAllLines(
-    input  cFileIP#  as character, 
-    output cLinesOP# as character extent
+  method public static void ReadLines(
+
+    /* Read the first .. lines of a file into an array*/
+
+    input  cFileIP#   as character,
+    input  iMaxLines# as integer,          /* -999 is all lines (use ReadAllLines) */ 
+    output cLinesOP#  as character extent
     ): 
 
     define variable iLine#        as integer   no-undo.
@@ -1474,7 +1478,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     define variable iLines#       as integer   no-undo.
     define variable iSaveLastkey# as integer   no-undo.
 
-    if FileExists(cFileIP#) then
+    if FileExists(cFileIP#) and (iMaxLines# > 0 or iMaxLines# = -999) then
     do on error undo, throw:
 
       iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */
@@ -1483,7 +1487,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
 
       repeat on error undo, throw:      
         import stream s-alg-in unformatted cLine#. /* codeQok#7126  */
-        iLines# = iLines# + 1.            
+        iLines# = iLines# + 1.        
+        if iMaxLines# <> -999 and iLines# > iMaxLines# then leave.     
       end.
 
       extent (cLinesOP#) = iLines#.
@@ -1505,7 +1510,21 @@ class panaedra.msroot.msutil.logic.sc_osfile
   
       end finally.
       
-    end.  
+    end. /* FileExists */  
+  
+  end method.  /* ReadAllLines */
+
+    
+  @panaedraannotation file(unittest="yes").
+  method public static void ReadAllLines(
+  
+    /* Read all the lines of a file into an array */
+  
+    input  cFileIP#  as character, 
+    output cLinesOP# as character extent
+    ): 
+
+    ReadLines(cFileIP#, -999 /* all lines */, output cLinesOP#). 
   
   end method.  /* ReadAllLines */
 
