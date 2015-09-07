@@ -1491,7 +1491,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
         if iMaxLines# <> -999 and iLines# > iMaxLines# then leave.     
       end.
 
-      extent (cLinesOP#) = iLines#.
+      if iLines# > 0 then /* setting extent to 0 throws an error */
+        extent (cLinesOP#) = iLines#.
 
       input stream s-alg-in close.  
       input stream s-alg-in from value(cFileIP#).
