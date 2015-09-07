@@ -28,12 +28,53 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
   end constructor. /* sc_record_logic */ 
 
 
+  method protected static void CreateRecord_Implement(
+  
+    /* Create record and fill data.
+       Throws an error if the records already exists.       
+    */
+  
+    input  hBufferIP#            as handle,    
+    input  cSvFieldsAndValuesIP# as character,  /* format: veld1=a,veld2=1 */
+    input  cSeperatorIP#         as character
+    ):
+
+    define variable rBuffer#            as rowid     no-undo.
+
+    do transaction on error undo, throw: /* codeQok#7103 */     
+
+      hBufferIP#:buffer-create().
+
+      rBuffer# = hBufferIP#:rowid.
+
+      SetBufferValues(hBufferIP#, cSvFieldsAndValuesIP#, cSeperatorIP#).
+
+      /* Make sure the record is available */
+      hBufferIP#:buffer-release(). /* When you skip the release it can cause problems with temp-tables */
+      hBufferIP#:find-by-rowid(rBuffer#, exclusive-lock). /* codeQok#7102 */
+
+    end.  /* transaction */
+      
+  end method.  /* CreateRecord_Implement */  
+
+
+  method protected static void CreateRecord_Implement(
+  
+    input hBufferIP#            as handle,    
+    input cSvFieldsAndValuesIP# as character  /* format: veld1=a,veld2=1 */
+    ):
+
+    CreateRecord_Implement(hBufferIP#, cSvFieldsAndValuesIP#, ",").
+    
+  end method.  /* CreateRecord_Implement | seperator = "," */  
+
+
   method protected static void CreateOrOverwriteRecord_Implement(
   
     /* Find or create record and fill data.       
        With the cSvKeyFieldsAndValuesIP# parameter the where clause of the find is constructed.
        Returns an unlocked buffer. (Even if it was locked).
-     */
+    */
   
     input  hBufferIP#                 as handle,    
     input  cSvKeyFieldsAndValuesIP#   as character,  /* format: veld1=a,veld2=1 */
@@ -119,7 +160,7 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
         
     CreateOrOverwriteRecord_Implement(hBufferIP#, cSvKeyFieldsAndValues#, cSvOtherFieldsAndValues#, cSeperatorIP#, bSaveOldValuesIP#, output cSvOldValuesOP#). 
   
-  end method.  /* CreateOrOverwriteRecord_Implement | overload without seperate keyvalues*/
+  end method.  /* CreateOrOverwriteRecord_Implement | overload without seperate keyvalues */
 
 
   method protected static handle GetUniqueRecordBuffer(
@@ -131,30 +172,11 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
     input cSeperatorIP#            as character  
     ):
 
-    define variable iTell#  as integer   no-undo.
-    define variable hField# as handle    no-undo.
-    define variable cEntry# as character no-undo.    
     define variable cWhere# as character no-undo.    
-    define variable cValue# as character no-undo.
 
     hBufferIP#:buffer-release().
 
-    /* Construct the where clause */
-    do iTell# = 1 to num-entries(cSvKeyFieldsAndValuesIP#, cSeperatorIP#):
-      
-      assign
-        cEntry# = entry(iTell#, cSvKeyFieldsAndValuesIP#, cSeperatorIP#)
-        hField# = hBufferIP#:buffer-field(entry(1, cEntry#, "="))
-        cValue# = substring(cEntry#, index(cEntry#, "=") + 1)
-        cWhere# = substitute("&1 &2 &3 = &4",
-                             cWhere#,
-                             string(iTell# = 1, "where/ and"),
-                             hField#:name,
-                             (if hField#:data-type = "character" then quoter(cValue#) else cValue#) 
-                            )
-        .
-      
-    end. /* do iTell# = 1 to ... */
+    cWhere# = GetWhereClause(hBufferIP#, cSvKeyFieldsAndValuesIP#, cSeperatorIP#).
 
     hBufferIP#:find-unique(cWhere#, no-lock) no-error.
 
@@ -166,9 +188,9 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
 
   method public static void SetBufferValues(
   
-    input  hBufferIP#            as handle,    
-    input  cSvFieldsAndValuesIP# as character,  /* format: veld1=a,veld2=1 */
-    input  cSeperatorIP#         as character
+    input hBufferIP#            as handle,    
+    input cSvFieldsAndValuesIP# as character,  /* format: veld1=a,veld2=1 */
+    input cSeperatorIP#         as character
     ):
 
     define variable hField#    as handle    no-undo.
@@ -193,8 +215,6 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
           iMinIndex# = 0
           .
 
-        /* If the GetBufferValue is used to make the cSvFieldsAndValuesIP# string and a value of a buffer field
-           contains the seperator character*/  
         cValue# = replace(substring(cEntry#, index(cEntry#, "=") + 1), chr(10), cSeperatorIP#).
 
         if cField# matches "*[*]" then
@@ -214,7 +234,7 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
             .
         
         do iIndex# = iMinIndex# to iMaxIndex#:
-          hField#:buffer-value(iIndex#) = cValue#.
+          SetBufferFieldValue(hField#, iIndex#, cValue#).
         end.
 
         catch oError# as Progress.Lang.Error:
@@ -246,8 +266,8 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
        When the value are restored with the SetBufferValues method, chr(10) is replaced back. 
      */
   
-    input  hBufferIP#    as handle,    
-    input  cSeperatorIP# as character
+    input hBufferIP#    as handle,    
+    input cSeperatorIP# as character
     ):
 
     define variable cSvFieldsValues# as character no-undo.
@@ -281,6 +301,74 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
     return cSvFieldsValues#.
   
   end method. /* GetBufferValues */    
+
+
+  method protected static character GetWhereClause(
+    input hBufferIP#               as handle,
+    input cSvKeyFieldsAndValuesIP# as character,
+    input cSeperatorIP#            as character
+    ):
+
+    define variable iTell#  as integer   no-undo.
+    define variable hField# as handle    no-undo.
+    define variable cEntry# as character no-undo.    
+    define variable cValue# as character no-undo.
+    define variable cWhere# as character no-undo.
+
+    /* Construct the where clause */
+    do iTell# = 1 to num-entries(cSvKeyFieldsAndValuesIP#, cSeperatorIP#):
+      
+      assign
+        cEntry# = entry(iTell#, cSvKeyFieldsAndValuesIP#, cSeperatorIP#)
+        hField# = hBufferIP#:buffer-field(entry(1, cEntry#, "="))
+        cValue# = substring(cEntry#, index(cEntry#, "=") + 1)
+        cWhere# = substitute("&1 &2 &3 = &4",
+                             cWhere#,
+                             string(iTell# = 1, "where/ and"),
+                             hField#:name,
+                             (if hField#:data-type = "character" then quoter(cValue#) else cValue#) 
+                            )
+        .
+      
+    end. /* do iTell# = 1 to ... */
+  
+    return cWhere#.
+  
+  end method. /* GetWhereClause */
+
+
+  method protected static void SetBufferFieldValue(
+    input hFieldIP# as handle,
+    input iIndexIP# as integer,
+    input cValueIP# as character
+    ):
+
+    case hFieldIP#:data-type:
+      
+      when "data" or when "datetime" or when "datetime-tz" then
+      do:
+
+        case cValueIP#:
+
+          when "today" then
+            hFieldIP#:buffer-value(iIndexIP#) = today.
+
+          when "now" then
+            hFieldIP#:buffer-value(iIndexIP#) = today.
+
+          otherwise  
+            hFieldIP#:buffer-value(iIndexIP#) = cValueIP#.
+                     
+        end case.
+        
+      end.
+      
+      otherwise  
+        hFieldIP#:buffer-value(iIndexIP#) = cValueIP#.
+
+    end case.
+    
+  end method. /* SetBufferFieldValue */
 
 end class.
 
