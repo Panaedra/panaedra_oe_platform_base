@@ -7,6 +7,7 @@ using panaedra.msroot.msmonitor.logic.*.
 &if opsys <> "unix" and "{&window-system}" <> "tty" &then
 using System.*.
 using System.Windows.Forms.*.
+using panaedra.msroot.msutil.view.*.
 &endif
 
 class panaedra.msroot.msutil.logic.sc_showexception:
@@ -29,12 +30,12 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
+  define protected static variable cSvDisabledErrorNumbers as character                 no-undo.
+  
   &if opsys <> "unix" and "{&window-system}" <> "tty" &then
-  define protected static variable oForm as panaedra.msroot.msutil.view.c_dotnetformshowexception no-undo.
+  define protected static variable oForm                   as c_dotnetformshowexception no-undo.
   &endif
 
-  define protected static variable cSvDisabledErrorNumbers as character no-undo.
-  
   define static property iNumShowExceptions as int64 no-undo initial 0
     public    get.
     protected set.
@@ -77,6 +78,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     ShowException("",oErrorIP#).
       
   end method. /* ShowException, simple overload */
+  
 
   &if opsys <> "unix" &then
   method public static void ShowException(
@@ -93,12 +95,13 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   method public static void ShowException(
     
     /* Default exception handling for DOTNET errors. 
-       Since oe11.1, dotnet exceptions can't be handled transparently anymore, probably a progress bug.
-       Example error:
-       A variable of class 'System.Reflection.ReflectionTypeLoadException' cannot be assigned to a variable of class 'Progress.Lang.Error'. (13448)
-       Workaround:
-       Implement an extra catch block for System.Exception, and call this overload.
-    */
+     * Since oe11.1, dotnet exceptions can't be handled transparently anymore, probably a progress bug.
+     * Example error:
+     * A variable of class 'System.Reflection.ReflectionTypeLoadException' cannot be assigned to a variable of class 'Progress.Lang.Error'. (13448)
+     * Workaround:
+     * Implement an extra catch block for System.Exception, and call this overload.
+     */
+    
     input cExtraMessageIP# as character,
     input oDotnetErrorIP#  as System.Exception):
     
@@ -107,10 +110,10 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     define variable cMessage#         as character                                     no-undo.
     define variable cCallStack#       as character                                     no-undo.
     
-    iNumShowExceptions = iNumShowExceptions + 1.
-    
-    cMessage# = subst("&1", oDotnetErrorIP#:ToString()).
-    cCallStack# = oDotnetErrorIP#:CallStack. /* codeQok#7120 */
+    assign
+      iNumShowExceptions = iNumShowExceptions + 1
+      cMessage#          = subst("&1", oDotnetErrorIP#:ToString())
+      cCallStack#        = oDotnetErrorIP#:CallStack. /* codeQok#7120 */
     
     if type-of(oDotnetErrorIP#, System.Reflection.ReflectionTypeLoadException) then 
     do:
@@ -134,6 +137,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       )).
 
   end method. /* ShowException; message + dotnet exception */
+  
   &endif /* opsys <> unix */
 
 
@@ -230,8 +234,9 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     define variable cExceptionCallStackLastEntry# as character        no-undo.
     define variable oPanaedraError#                  as c_panaedraexception no-undo.
     
-    iError# = oErrorIP#:GetMessageNum(1).
-    iNumShowExceptions = iNumShowExceptions + 1.
+    assign
+      iError#            = oErrorIP#:GetMessageNum(1)
+      iNumShowExceptions = iNumShowExceptions + 1.
 
     if lookup(string(iError#), cSvDisabledErrorNumbers) = 0 then
     do: 
@@ -523,6 +528,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   end method. /* ExceptionMsgToStringSub */
   &endif /* not opsys = unix */
   
+  
   method protected static character ExceptionMsgToStringSub(
     
     /* Get only "message" info from an exception (omit the callstack) and put it in a simple string codeQok#7120 */
@@ -554,13 +560,14 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
   end method. /* ExceptionMsgToStringSub */
   
+  
   &if not opsys = "unix" &then
   method public static character ExceptionCallStackLastEntry(
     
     /* This is a method, because behaviour is different between oe10 and oe11+.
-     
-       "Last" means: last called code block just before the exception occurred.
-    */
+     *
+     * "Last" means: last called code block just before the exception occurred.
+     */
     
     oErrorIP# as System.Exception):
       
@@ -586,9 +593,9 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   method public static character ExceptionCallStackLastEntry(
     
     /* This is a method, because behaviour is different between oe10 and oe11+.
-     
-       "Last" means: last called code block just before the exception occurred.
-    */
+     *
+     * "Last" means: last called code block just before the exception occurred.
+     */
     
     oErrorIP# as Progress.Lang.Error):
       
@@ -614,7 +621,8 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   method public static character GetCallStack(
     
     /* Uses apiproxyexception to give back extended callstack    codeQok#7120
-       wich has appserver bounderies */
+     * wich has appserver bounderies 
+     */
        
     oExceptionIP# as System.Exception
     ):
@@ -634,7 +642,8 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   method public static character GetCallStack(
     
     /* Uses apiproxyexception to give back extended callstack    codeQok#7120
-       wich has appserver bounderies */
+     * wich has appserver bounderies 
+     */
        
     oExceptionIP# as Progress.Lang.Error
     ):
@@ -723,7 +732,6 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
   
   &if opsys <> "unix" and "{&window-system}" <> "tty" &then
-  
   method protected static void ShowFormSafe():
     
     do on error undo, throw
@@ -742,44 +750,49 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     end.
     
   end method.
-  
   &endif /* unix/tty */
   
 
   method public static logical DisableShowExceptionForUnittest(
-    /* Prevent ShowException from working for specific unittest cases */
+  
+    /* Prevent ShowException from working for specific unittest cases. 
+     * Use iNumShowExceptions to check if it would have fired in real life. 
+     */
+    
     input oUnittestClientIP# as i_unittest_client,
-    input iExceptionIdIP#    as integer
-    ):
+    input iExceptionIdIP#    as integer):
     
     if sc_environment:bUnittestRunning and valid-object(oUnittestClientIP#) then    
       cSvDisabledErrorNumbers = sc_string_csv:CsvAddLastUnique(cSvDisabledErrorNumbers, string(iExceptionIdIP#)).
     else   
       undo, throw new c_panaedraexception(
-        55502506,
+        99912506,
         sc_lang:oEnglish,
-        "DisableShowExceptionForUnittest() is not used in a unittest."
+        "DisableShowExceptionForUnittest() is used outside of unittesting."
         ).
       
-  end method. /* HideExceptionUnittest */
+  end method. /* DisableShowExceptionForUnittest */
   
 
   method public static logical EnableShowExceptionForUnittest(
-    /* Undo prevent ShowException from working for specific unittest cases */
+  
+    /* Undo prevent ShowException from working for specific unittest cases. 
+     * Put in finally block in your unit test. 
+     */
+    
     input oUnittestClientIP# as i_unittest_client,
-    input iExceptionIdIP#    as integer
-    ):
+    input iExceptionIdIP#    as integer):
     
     if sc_environment:bUnittestRunning and valid-object(oUnittestClientIP#) then    
       cSvDisabledErrorNumbers = sc_string_csv:CsvRemoveValue(cSvDisabledErrorNumbers, string(iExceptionIdIP#)).
     else   
       undo, throw new c_panaedraexception(
-        55502507,
+        99912507,
         sc_lang:oEnglish,
-        "EnableShowExceptionForUnittest() is not used in a unittest."
+        "EnableShowExceptionForUnittest() is used outside of unittesting."
         ).
 
-  end method. /* HideExceptionUnittest */
+  end method. /* EnableShowExceptionForUnittest */
 
 end class.
 
