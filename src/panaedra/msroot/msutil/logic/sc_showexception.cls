@@ -33,32 +33,38 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   define protected static variable oForm as panaedra.msroot.msutil.view.c_dotnetformshowexception no-undo.
   &endif
 
+  define protected static variable cSvDisabledErrorNumbers as character no-undo.
+  
+  define static property iNumShowExceptions as int64 no-undo initial 0
+    public    get.
+    protected set.
+
   method public static void ShowException(
-    input iErrorIP# as integer,
-    input cErrorIP# as character,
+    input iErrorIP#    as integer,
+    input cErrorIP#    as character,
     input oLanguageIP# as i_language_dutch):
 
     ShowException(
       new c_panaedraexception(
-        iErrorIP#,
-        oLanguageIP#,
-        substitute("Zie: '&1'", cErrorIP#) /* codeQok#7104 */
-        )).
+      iErrorIP#,
+      oLanguageIP#,
+      substitute("Zie: '&1'", cErrorIP#) /* codeQok#7104 */
+      )).
     
   end method. /* ShowException | NL: input errornr and text */
   
   
   method public static void ShowException(
-    input iErrorIP# as integer,
-    input cErrorIP# as character,
+    input iErrorIP#    as integer,
+    input cErrorIP#    as character,
     input oLanguageIP# as i_language_english):
 
     ShowException(
       new c_panaedraexception(
-        iErrorIP#,
-        oLanguageIP#,
-        substitute("See: '&1'", cErrorIP#)
-        )).
+      iErrorIP#,
+      oLanguageIP#,
+      substitute("See: '&1'", cErrorIP#)
+      )).
     
   end method. /* ShowException | EN: input errornr and text */
   
@@ -94,12 +100,14 @@ class panaedra.msroot.msutil.logic.sc_showexception:
        Implement an extra catch block for System.Exception, and call this overload.
     */
     input cExtraMessageIP# as character,
-    input oDotnetErrorIP# as System.Exception):
+    input oDotnetErrorIP#  as System.Exception):
     
     define variable oReflectionError# as System.Reflection.ReflectionTypeLoadException no-undo.
     
     define variable cMessage#         as character                                     no-undo.
     define variable cCallStack#       as character                                     no-undo.
+    
+    iNumShowExceptions = iNumShowExceptions + 1.
     
     cMessage# = subst("&1", oDotnetErrorIP#:ToString()).
     cCallStack# = oDotnetErrorIP#:CallStack. /* codeQok#7120 */
@@ -136,10 +144,8 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     input cExtraMessageIP# as character,
     input oErrorIP#        as Progress.Lang.Error):
     
-    define variable bKeepNative# as logical no-undo.
-    
     if sc_environment:bBatchMode then 
-      ShowExceptionBroadcastedImplement(false, cExtraMessageIP#, oErrorIP#).      
+      ShowExceptionBroadcasted_Implement(false, cExtraMessageIP#, oErrorIP#).      
     
     else /* no batchmode */
       /* To screen or default output, no external routes */
@@ -157,10 +163,10 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     ShowExceptionBroadcasted(
       bShowToTtyUserIP#,
       new c_panaedraexception(
-        iErrorIP#,
-        oLanguageIP#,
-        substitute("Zie: '&1'", cErrorIP#) /* codeQok#7104 */
-        )).
+      iErrorIP#,
+      oLanguageIP#,
+      substitute("Zie: '&1'", cErrorIP#) /* codeQok#7104 */
+      )).
     
   end method. /* ShowExceptionBroadcasted | NL: input errornr and text */
   
@@ -174,10 +180,10 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     ShowExceptionBroadcasted(
       bShowToTtyUserIP#,
       new c_panaedraexception(
-        iErrorIP#,
-        oLanguageIP#,
-        substitute("See: '&1'", cErrorIP#)
-        )).
+      iErrorIP#,
+      oLanguageIP#,
+      substitute("See: '&1'", cErrorIP#)
+      )).
     
   end method. /* ShowExceptionBroadcasted | EN: input errornr and text */
   
@@ -198,12 +204,12 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     input cExtraMessageIP#  as character,
     input oErrorIP#         as Progress.Lang.Error):
         
-    ShowExceptionBroadcastedImplement(bShowToTtyUserIP#, cExtraMessageIP#, oErrorIP#).
+    ShowExceptionBroadcasted_Implement(bShowToTtyUserIP#, cExtraMessageIP#, oErrorIP#).
         
   end method. /* ShowExceptionBroadcasted */
 
 
-  method protected static void ShowExceptionBroadcastedImplement(
+  method protected static void ShowExceptionBroadcasted_Implement(
     
     /* Like ShowException, but even in a TTY session, the message is *ALWAYS*
        sent to sc_msmon_feedback, and *OPTIONALLY* shown to the user.
@@ -213,7 +219,6 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     input cExtraMessageIP#  as character,
     input oErrorIP#         as Progress.Lang.Error):
     
-    define variable bKeepNative#                  as logical          no-undo.
     define variable bSuccess#                     as logical          no-undo.
     define variable cEventID#                     as character        no-undo. /* EventID is meant to be used in (for example) url's to link 
                                                                                   to documentation. Here we set it to something that is as 
@@ -226,54 +231,60 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     define variable oPanaedraError#                  as c_panaedraexception no-undo.
     
     iError# = oErrorIP#:GetMessageNum(1).
-  
-    if iError# = 0 or iError# = ? or length(string(iError#)) > 8 then iError# = 99948192. /* Nothing better to do than give a unique error number */
-  
-    if type-of(oErrorIP#, c_panaedraexception) then 
-    do:
+    iNumShowExceptions = iNumShowExceptions + 1.
 
-      oPanaedraError# = cast(oErrorIP#,c_panaedraexception).
-
-      if valid-object(oPanaedraError#:oRecordStatus) then 
-      do:
-        /* A record status has a table, this is useful in the ID */
-        if length(oPanaedraError#:oRecordStatus:cTablename) > 0 then
-          cEventID# = "_" + oPanaedraError#:oRecordStatus:cTablename.
-        bUseStackForID# = false.  
-      end.
-      else
-        bUseStackForID# = false.
-
-    end.
-    else 
-      bUseStackForID# = true.
+    if lookup(string(iError#), cSvDisabledErrorNumbers) = 0 then
+    do: 
+      
+      if iError# = 0 or iError# = ? or length(string(iError#)) > 8 then iError# = 99948192. /* Nothing better to do than give a unique error number */
     
-    cExceptionCallStackLastEntry# = ExceptionCallStackLastEntry(oErrorIP#).
+      if type-of(oErrorIP#, c_panaedraexception) then 
+      do:
   
-    if bUseStackForID# then
-      cEventID# = cExceptionCallStackLastEntry# + cEventID#.
-    else
-      cEventID# = subst("Loc_&1",string(iError#,"99999999")) + cEventID#.
-      
-    if length(cExtraMessageIP#) > 0 then
-      cExtraMessageIP# = cExtraMessageIP# + "~n".
-    else /* in case of unknown value */
-      cExtraMessageIP# = "".  
-      
-    cExtraMessageIP# = cExtraMessageIP# + sc_showexception:ExceptionMsgToString(oErrorIP#).  
+        oPanaedraError# = cast(oErrorIP#,c_panaedraexception).
   
-    bSuccess# = 
-      sc_msmon_feedback:HandleEvent(
-      "ShowException",                /* Event */
-      cEventID#,                      /* ID */
-      cExceptionCallStackLastEntry#,
-      cExtraMessageIP#,
-      oErrorIP#).
-
-    if bShowToTtyUserIP# or bSuccess# = false then
-      ShowExceptionKeepNative(cExtraMessageIP#, oErrorIP#). 
-
-  end method. /* ShowExceptionBroadcastedImplement */
+        if valid-object(oPanaedraError#:oRecordStatus) then 
+        do:
+          /* A record status has a table, this is useful in the ID */
+          if length(oPanaedraError#:oRecordStatus:cTablename) > 0 then
+            cEventID# = "_" + oPanaedraError#:oRecordStatus:cTablename.
+          bUseStackForID# = false.  
+        end.
+        else
+          bUseStackForID# = false.
+  
+      end.
+      else 
+        bUseStackForID# = true.
+      
+      cExceptionCallStackLastEntry# = ExceptionCallStackLastEntry(oErrorIP#).
+    
+      if bUseStackForID# then
+        cEventID# = cExceptionCallStackLastEntry# + cEventID#.
+      else
+        cEventID# = subst("Loc_&1",string(iError#,"99999999")) + cEventID#.
+        
+      if length(cExtraMessageIP#) > 0 then
+        cExtraMessageIP# = cExtraMessageIP# + "~n".
+      else /* in case of unknown value */
+        cExtraMessageIP# = "".  
+        
+      cExtraMessageIP# = cExtraMessageIP# + sc_showexception:ExceptionMsgToString(oErrorIP#).  
+    
+      bSuccess# = 
+        sc_msmon_feedback:HandleEvent(
+        "ShowException",                /* Event */
+        cEventID#,                      /* ID */
+        cExceptionCallStackLastEntry#,
+        cExtraMessageIP#,
+        oErrorIP#).
+  
+      if bShowToTtyUserIP# or bSuccess# = false then
+        ShowExceptionKeepNative(cExtraMessageIP#, oErrorIP#). 
+    
+    end. /* if lookup ... */
+    
+  end method. /* ShowExceptionBroadcasted_Implement */
 
 
   method public static void ShowExceptionKeepNative(
@@ -295,7 +306,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     */
     
     input cExtraMessageIP# as character,
-    input ex as Progress.Lang.Error):
+    input ex               as Progress.Lang.Error):
     
     &if opsys <> "unix" and "{&window-system}" <> "tty" &then
     
@@ -317,7 +328,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
         
         catch oError# as Progress.Lang.Error :
           /* Possible input blocking, just show message. */
-          ShowExceptionKeepNativeImplement(cExtraMessageIP#,ex).    
+          ShowExceptionKeepNative_Implement(cExtraMessageIP#,ex).    
         end catch.
         
       end.
@@ -327,7 +338,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     else
       &endif /* Not unix/tty */
     
-      ShowExceptionKeepNativeImplement(cExtraMessageIP#,ex).
+      ShowExceptionKeepNative_Implement(cExtraMessageIP#,ex).
     
     
     finally:
@@ -345,39 +356,45 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   end method. /* ShowExceptionKeepNative */
   
   
-  method protected static void ShowExceptionKeepNativeImplement(
+  method protected static void ShowExceptionKeepNative_Implement(
     input cExtraMessageIP# as character,
-    input oErrorIP# as Progress.Lang.Error):
+    input oErrorIP#        as Progress.Lang.Error):
 
     /* The following code is used on win32 as well as unix */
     
     define variable cLastProgram# as character no-undo.
     define variable cMessage#     as character no-undo.
-    define variable iTell#        as integer   no-undo.
     
-    assign
-      cLastProgram# = GetSessionCallStack()
-      cLastProgram# = entry(num-entries(cLastProgram#,chr(10)), cLastProgram#, chr(10))
-      cLastProgram# = entry(num-entries(cLastProgram#," ")    , cLastProgram#, " ").
+    iNumShowExceptions = iNumShowExceptions + 1.        
+
+    if lookup(string(oErrorIP#:GetMessageNum(1)), cSvDisabledErrorNumbers) = 0 then
+    do: 
+
+      assign
+        cLastProgram# = GetSessionCallStack()
+        cLastProgram# = entry(num-entries(cLastProgram#,chr(10)), cLastProgram#, chr(10))
+        cLastProgram# = entry(num-entries(cLastProgram#," ")    , cLastProgram#, " ").
+      
+      if length(cLastProgram#) >= 60 then
+        cLastProgram# = "..." + 
+          substring(cLastProgram#, length(cLastProgram#) - 59).
+      
+      if length(cExtraMessageIP#) > 0 then
+        cMessage# = cExtraMessageIP# + chr(10).
+      
+      cMessage# = cMessage# + sc_showexception:ExceptionMsgToString(oErrorIP#).
+      
+      message 
+        sc_messagebox:MessageToDisplayableMessage(
+        subst("&1~n&2~n&3",
+        cMessage#,
+        GetCallStack(oErrorIP#),
+        cLastProgram#))
+        view-as alert-box title "Panaedra " + string(now,"99-99-99 hh:mm:ss").
     
-    if length(cLastProgram#) >= 60 then
-      cLastProgram# = "..." + 
-        substring(cLastProgram#, length(cLastProgram#) - 59).
-    
-    if length(cExtraMessageIP#) > 0 then
-      cMessage# = cExtraMessageIP# + chr(10).
-    
-    cMessage# = cMessage# + sc_showexception:ExceptionMsgToString(oErrorIP#).
-    
-    message 
-      sc_messagebox:MessageToDisplayableMessage(
-      subst("&1~n&2~n&3",
-      cMessage#,
-      GetCallStack(oErrorIP#),
-      cLastProgram#))
-      view-as alert-box title "Panaedra " + string(now,"99-99-99 hh:mm:ss").
-  
-  end method. /* ShowExceptionKeepNativeImplement */
+    end. /* if lookup ... */
+      
+  end method. /* ShowExceptionKeepNative_Implement */
 
   &if not opsys = "unix" &then
   method public static character ExceptionToString(
@@ -386,10 +403,8 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
     input oErrorIP# as System.Exception):
 
-    define variable cLastProgram#       as character           no-undo.
-    define variable cMessage#           as character           no-undo.
-    define variable iTell#              as integer             no-undo.
-    define variable oApiProxyException# as c_apiproxyexception no-undo.
+    define variable cLastProgram# as character no-undo.
+    define variable cMessage#     as character no-undo.
     
     assign
       cLastProgram# = GetSessionCallStack()
@@ -413,10 +428,8 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
     input oErrorIP# as Progress.Lang.Error):
 
-    define variable cLastProgram#       as character           no-undo.
-    define variable cMessage#           as character           no-undo.
-    define variable iTell#              as integer             no-undo.
-    define variable oApiProxyException# as c_apiproxyexception no-undo.
+    define variable cLastProgram# as character no-undo.
+    define variable cMessage#     as character no-undo.
     
     assign
       cLastProgram# = GetSessionCallStack()
@@ -440,7 +453,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
     input oErrorIP# as System.Exception):
 
-    define variable cMessage#           as character           no-undo.
+    define variable cMessage# as character no-undo.
     
     cMessage# = ExceptionMsgToStringSub(oErrorIP#).
     
@@ -455,11 +468,9 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
     input oErrorIP# as Progress.Lang.Error):
 
-    define variable cMessage#           as character           no-undo.
-    define variable cMessageInner#      as character           no-undo.
-    
-    define variable oPanaedraException#    as c_panaedraexception    no-undo.
-    define variable oApiProxyException# as c_apiproxyexception no-undo.
+    define variable cMessage#        as character        no-undo.
+    define variable cMessageInner#   as character        no-undo.    
+    define variable oPanaedraException# as c_panaedraexception no-undo.
     
     cMessage# = ExceptionMsgToStringSub(oErrorIP#).
     
@@ -486,9 +497,8 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
     input oErrorIP# as System.Exception):
 
-    define variable cLastProgram# as character no-undo.
-    define variable cMessage#     as character no-undo.
-    define variable iTell#        as integer   no-undo.
+    define variable cMessage# as character no-undo.
+    define variable iTell#    as integer   no-undo.
     
     do iTell# = 1 to oErrorIP#:NumMessages on error undo, throw:
       
@@ -519,9 +529,8 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
     input oErrorIP# as Progress.Lang.Error):
 
-    define variable cLastProgram# as character no-undo.
-    define variable cMessage#     as character no-undo.
-    define variable iTell#        as integer   no-undo.
+    define variable cMessage# as character no-undo.
+    define variable iTell#    as integer   no-undo.
     
     do iTell# = 1 to oErrorIP#:NumMessages on error undo, throw:
       
@@ -610,7 +619,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     oExceptionIP# as System.Exception
     ):
     
-    define variable cCallstack#         as character           no-undo.
+    define variable cCallstack# as character no-undo.
      
     if length(oExceptionIP#:CallStack) > 0 then /* codeQok#7120 */ 
       cCallstack# = oExceptionIP#:CallStack. /* codeQok#7120 */
@@ -734,7 +743,43 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
   end method.
   
-&endif /* unix/tty */
+  &endif /* unix/tty */
+  
+
+  method public static logical DisableShowExceptionForUnittest(
+    /* Prevent ShowException from working for specific unittest cases */
+    input oUnittestClientIP# as i_unittest_client,
+    input iExceptionIdIP#    as integer
+    ):
+    
+    if sc_environment:bUnittestRunning and valid-object(oUnittestClientIP#) then    
+      cSvDisabledErrorNumbers = sc_string_csv:CsvAddLastUnique(cSvDisabledErrorNumbers, string(iExceptionIdIP#)).
+    else   
+      undo, throw new c_panaedraexception(
+        55502506,
+        sc_lang:oEnglish,
+        "DisableShowExceptionForUnittest() is not used in a unittest."
+        ).
+      
+  end method. /* HideExceptionUnittest */
+  
+
+  method public static logical EnableShowExceptionForUnittest(
+    /* Undo prevent ShowException from working for specific unittest cases */
+    input oUnittestClientIP# as i_unittest_client,
+    input iExceptionIdIP#    as integer
+    ):
+    
+    if sc_environment:bUnittestRunning and valid-object(oUnittestClientIP#) then    
+      cSvDisabledErrorNumbers = sc_string_csv:CsvRemoveValue(cSvDisabledErrorNumbers, string(iExceptionIdIP#)).
+    else   
+      undo, throw new c_panaedraexception(
+        55502507,
+        sc_lang:oEnglish,
+        "EnableShowExceptionForUnittest() is not used in a unittest."
+        ).
+
+  end method. /* HideExceptionUnittest */
 
 end class.
 
