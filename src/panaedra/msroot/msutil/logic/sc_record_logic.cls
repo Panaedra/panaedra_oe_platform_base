@@ -212,7 +212,7 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
           cEntry#    = entry(iTell#, cSvFieldsAndValuesIP#, cSeperatorIP#)
           cField#    = entry(1, cEntry#, "=")
           iMinIndex# = 0
-          iMinIndex# = 0
+          iMaxIndex# = 0
           .
 
         cValue# = replace(substring(cEntry#, index(cEntry#, "=") + 1), chr(10), cSeperatorIP#).
