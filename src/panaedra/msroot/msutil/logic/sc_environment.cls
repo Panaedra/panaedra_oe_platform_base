@@ -124,7 +124,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
       if cDevTokenID = ? then 
       do:
         cDevTokenID = sc_string_substitute:ExpandOsEnv("%DevToken%").
-        if cDevTokenID = ? or length(trim(cDevTokenID)) = 0 then cDevTokenID = "".
+        if cDevTokenID = ? or cDevTokenID = "%DevToken%" or length(trim(cDevTokenID)) = 0 then cDevTokenID = "".
       end.
       return cDevTokenID.
     end get.
