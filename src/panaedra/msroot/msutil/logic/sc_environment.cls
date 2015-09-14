@@ -119,6 +119,18 @@ class panaedra.msroot.msutil.logic.sc_environment:
     protected set.
   
   
+  define static property cDevTokenID as character no-undo /* DevToken user ID, for developers */ initial ?
+    public get:
+      if cDevTokenID = ? then 
+      do:
+        cDevTokenID = sc_string_substitute:ExpandOsEnv("%DevToken%").
+        if cDevTokenID = ? or length(trim(cDevTokenID)) = 0 then cDevTokenID = "".
+      end.
+      return cDevTokenID.
+    end get.
+    protected set.
+    
+  
   define static property dtmStarted as datetime-tz no-undo 
     public get.
     protected set.
