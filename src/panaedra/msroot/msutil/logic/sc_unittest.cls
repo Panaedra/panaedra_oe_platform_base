@@ -66,23 +66,23 @@ class panaedra.msroot.msutil.logic.sc_unittest
     field dtmLastPing       as datetime-tz
     index hProc is primary unique hProc
     index cSockGuid is unique     cSockGuid.
-
-  define protected static variable oSingleton            as sc_unittest no-undo.
-  define protected static variable cLogFile              as character   no-undo.
-  define protected static variable cPreviousGlobalTestID as character   no-undo.
-  define protected static variable cCurrentGlobalTestID  as character   no-undo.
-  define protected static variable bFirstOfTwo           as logical     no-undo. /* If a unittest has finished okay, it's run a second time for memleak check. Stored in bFirstOfTwo. */
-  define protected static variable bRunOnNonTstOkay      as logical     no-undo.
-  define protected static variable bBusyUnittesting      as logical     no-undo.
-  define protected static variable hProcUtServerSocket   as handle      no-undo.
-  define public static    variable sys_iUtServerPorts    as integer     no-undo extent 10 initial [11990,11991,11992,11993,11994,11995,11996,11997,11998,11999]. /* We want full port numbers, no range, for grepability */
-  define public static    variable sys_iUtServerPort     as integer     no-undo.
-  define public static    variable sys_hServerFlush      as handle      no-undo.
+    
+  define protected static variable oSingleton            as sc_unittest       no-undo.
+  define protected static variable cLogFile              as character         no-undo.
+  define protected static variable cPreviousGlobalTestID as character         no-undo.
+  define protected static variable cCurrentGlobalTestID  as character         no-undo.
+  define protected static variable bFirstOfTwo           as logical           no-undo. /* If a unittest has finished okay, it's run a second time for memleak check. Stored in bFirstOfTwo. */
+  define protected static variable bRunOnNonTstOkay      as logical           no-undo.
+  define protected static variable bBusyUnittesting      as logical           no-undo.
+  define protected static variable hProcUtServerSocket   as handle            no-undo.
+  define public static    variable sys_iUtServerPorts    as integer           no-undo extent 10 initial [11990,11991,11992,11993,11994,11995,11996,11997,11998,11999]. /* We want full port numbers, no range, for grepability */
+  define public static    variable sys_iUtServerPort     as integer           no-undo.
+  define public static    variable sys_hServerFlush      as handle            no-undo.
   
-  define public static    variable sys_cGreeting         as character   no-undo.
-  define public static    variable sys_mGreeting         as memptr      no-undo.
+  define public static    variable sys_cGreeting         as character         no-undo.
+  define public static    variable sys_mGreeting         as memptr            no-undo.
   
-  define protected static variable oUnittestClientDummy as i_unittest_client no-undo.
+  define protected static variable oUnittestClientDummy  as i_unittest_client no-undo.
 
   define static property hUtServerSocket as handle no-undo
     public get:
@@ -770,11 +770,20 @@ class panaedra.msroot.msutil.logic.sc_unittest
     input cMessageIP# as character
     ):
       
+    define variable cDevTokenID# as character no-undo.
+      
     if cMessageIP# > "" then 
     do:
       
-      if cLogFile = "" then  
-        cLogFile = sc_path:cLogVoortgangDir + subst("unittest_&1_&2.log", sc_environment:cEnv, sc_date_timestamp:cTimeStamp_Short_DateAndTime).
+      if cLogFile = "" then 
+      do:
+        assign
+          cDevTokenID# = lc(sc_environment:cDevTokenID)  
+          cLogFile     = sc_path:cLogVoortgangDir + subst("unittest&1_&2_&3.log", 
+            if length(cDevTokenID#) > 0 then "_" + cDevTokenID# else "", 
+            sc_environment:cEnv, 
+            sc_date_timestamp:cTimeStamp_Short_DateAndTime).
+      end.
     
       output to value(cLogFile) append.
       put unformatted cMessageIP# skip(0).
@@ -1043,7 +1052,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
       /* Run alle unittests in this class */
       RunUnittestsInClass(oUnittestClient#, cSvUnittests#).
     end.
-    else do on error undo, throw:
+    else 
+    do on error undo, throw:
       
       if not valid-object(oUnittestClientDummy) then
         oUnittestClientDummy = new sc_unittest_stub().
@@ -1061,7 +1071,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
       end finally.
 
     end.
-      
+    
     finally:
       bBusyUnittesting = false.
     end finally.
@@ -1215,7 +1225,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
       end finally.
       
     end.
-    else do on error undo, throw:
+    else 
+    do on error undo, throw:
       
       if not valid-object(oUnittestClientDummy) then
         oUnittestClientDummy = new sc_unittest_stub().
