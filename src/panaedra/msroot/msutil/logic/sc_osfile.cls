@@ -728,6 +728,25 @@ class panaedra.msroot.msutil.logic.sc_osfile
   end method. /* ClearIniValuesUnittest */
   
 
+  method public static void LogIniValuesUnittest(
+    /* Log the in-memory INI value cache used by unittests to file */
+    oUnittestClientIP# as i_unittest_client):
+    
+    if (not valid-object(oUnittestClientIP#)) then
+      undo, throw new c_panaedraexception(
+        99927886,
+        sc_lang:oEnglish,
+        "Logging ttUnittestINIfile is only allowed for unit tests.").
+    
+    output to value(sc_path:cLogDir + substitute("unittest-ini_&1_&2.log", guid, sc_date_timestamp:cTimeStamp_Short_DateAndTime)).
+    for each ttUnittestINIfile on error undo, throw:
+      export ttUnittestINIfile.
+    end.
+    output close.
+  
+  end method. /* LogIniValuesUnittest */
+  
+
   method public static logical PutIniValueUnittest(
     /* PutIniValue for use in unittest.p procedures */
     hProcedureIP#     as handle,
