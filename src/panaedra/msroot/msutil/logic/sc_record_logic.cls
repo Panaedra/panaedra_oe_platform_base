@@ -354,7 +354,7 @@ class panaedra.msroot.msutil.logic.sc_record_logic:
             hFieldIP#:buffer-value(iIndexIP#) = today.
 
           when "now" then
-            hFieldIP#:buffer-value(iIndexIP#) = today.
+            hFieldIP#:buffer-value(iIndexIP#) = now.
 
           otherwise  
             hFieldIP#:buffer-value(iIndexIP#) = cValueIP#.
