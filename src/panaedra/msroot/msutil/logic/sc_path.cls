@@ -214,6 +214,22 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
+  /* VanXmap directory */
+  define public static property cVanXmapDir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cVanXmapDir.
+    end get.
+    protected set.
+  
+  /* NaarXmap directory */
+  define public static property cNaarXmapDir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cNaarXmapDir.
+    end get.
+    protected set.
+  
   define protected static variable bNaarWebDirInitialized as logical no-undo.
   
   /* Systeem naarweb directory */
@@ -420,6 +436,8 @@ class panaedra.msroot.msutil.logic.sc_path:
       cDataExchangeDir     = FillPathProperty(GetScPathEnv(), "cDataExchangeDir",opsys).
       cVanWanDir           = FillPathProperty(GetScPathEnv(), "cVanWanDir",opsys).
       cNaarWanDir          = FillPathProperty(GetScPathEnv(), "cNaarWanDir",opsys).
+      cVanXmapDir          = FillPathProperty(GetScPathEnv(), "cVanXmapDir",opsys).
+      cNaarXmapDir         = FillPathProperty(GetScPathEnv(), "cNaarXmapDir",opsys).
       cPclDir              = FillPathProperty(GetScPathEnv(), "cPclDir",opsys).
     end.
     
@@ -843,6 +861,8 @@ class panaedra.msroot.msutil.logic.sc_path:
     if index(cPathStringIOP#,"[:cVanWanDir:]"       ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanWanDir:]"       ,sc_path:cVanWanDir       ).
     if index(cPathStringIOP#,"[:cWorkDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cWorkDir:]"         ,sc_path:cWorkDir         ).
     if index(cPathStringIOP#,"[:bLiveEnv:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:bLiveEnv:]"         ,if sc_environment:bLiveEnv then "live" else "nonlive").
+    if index(cPathStringIOP#,"[:cVanXmapDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanXmapDir:]"      ,sc_path:cVanXmapDir      ).
+    if index(cPathStringIOP#,"[:cNaarXmapDir:]"     ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarXmapDir:]"     ,sc_path:cNaarXmapDir     ).
     if index(cPathStringIOP#,"[:cPclDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cPclDir:]"          ,sc_path:cPclDir          ).
 
   end method. /* ReplacePathTokens */
