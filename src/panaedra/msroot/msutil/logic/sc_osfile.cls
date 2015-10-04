@@ -1627,6 +1627,66 @@ class panaedra.msroot.msutil.logic.sc_osfile
       
   end method. /* ChangeExtension */
 
+
+  method public static logical HasGenericBinaryExtension(
+    
+    /* Check if the file has a commonly used binary extension, like "zip" or "jpg".
+       The file does not have to exist.
+       
+       Note: This function can never cover all scenario's, only use as a presumption.
+     */
+    
+    input cFilenameIP# as character):
+    
+    define variable bRet# as logical   no-undo.
+    define variable cExt# as character no-undo.
+  
+    cExt# = sc_path:SplitGetFileExt(cFilenameIP#).
+    
+    if (cExt# = "zip"
+      or cExt# = "7z"
+      or cExt# = "rar"
+      or cExt# = "lz4"
+      or cExt# = "jar"
+      or cExt# = "class"
+      or cExt# = "rpm"
+      or cExt# = "cpio"
+      or cExt# = "pdb"
+      or cExt# = "so"
+      or cExt# = "o"
+      or cExt# = "a"
+      or cExt# = "r"
+      or cExt# = "pyc"
+      or cExt# = "pyo"
+      or cExt# = "pyd"
+      or cExt# = "exe"
+      or cExt# = "dll"
+      or cExt# = "resx"
+      or cExt# = "_3DP_"
+      or cExt# = "png"
+      or cExt# = "jpg"
+      or cExt# = "jpeg"
+      or cExt# = "gif"
+      or cExt# = "ico"
+      or cExt# = "tif"
+      or cExt# = "tiff"
+      or cExt# = "bmp"
+      or cExt# = "xls"
+      or cExt# = "xlsx"
+      or cExt# = "doc"
+      or cExt# = "docx"
+      or cExt# = "dot"
+      or cExt# = "dotx"
+      or cExt# = "ppt"
+      or cExt# = "pptx"
+      or cExt# = "db"
+      or cExt# = "sqlite"
+      ) then bRet# = true.
+            
+    return bRet#.       
+      
+  end method. /* HasGenericBinaryExtension */
+
 end class.
 
 /* EOF */ 
