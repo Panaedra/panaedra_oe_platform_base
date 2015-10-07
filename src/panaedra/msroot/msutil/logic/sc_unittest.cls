@@ -1033,45 +1033,49 @@ class panaedra.msroot.msutil.logic.sc_unittest
     
     bBusyUnittesting = true. 
 
-    /* Needed for special unittest constructor in c_*_unittests.cls */
-    if not valid-object(oSingleton) then
-      oSingleton = new sc_unittest(). 
-    
-    LogMessage(subst("Start unittest: &1 &2",iso-date(now), cFullPathIP#)).
-        
-    sc_eventbroadcaster:FireEvent("evt@unittest@run", cFullPathIP#).
+    do on error undo, leave on endkey undo, leave on stop undo, leave:
 
-    if cFullPathIP# matches "*~~.cls" then
-    do:
-      /* If the unittest is a class, get the relative class name and create an object from it */
-      oUnittestClient# = dynamic-new(sc_path:SplitGetClassName(sc_path:Full2PartialPath(cFullPathIP#)) /* en .cls er af */) (oSingleton).
-          
-      /* Get a lists of all units in this class */
-      oUnittestClient#:GetUnittests(output cSvUnittests#).
-          
-      /* Run alle unittests in this class */
-      RunUnittestsInClass(oUnittestClient#, cSvUnittests#).
-    end.
-    else 
-    do on error undo, throw:
-      
-      if not valid-object(oUnittestClientDummy) then
-        oUnittestClientDummy = new sc_unittest_stub().
-      
-      /* Clear in-memory INI values set by unit tests */
-      sc_osfile:ClearIniValuesUnittest(oUnittestClientDummy).
-      
-      /* Set the bUnittestRunning property. From now on, INI values are read from memory instead of from os file. */
-      sc_environment:SetUnittestRunning(oUnittestClientDummy, true).
-        
-      run value(cFullPathIP#).
-      
-      finally:
-        sc_environment:SetUnittestRunning(oUnittestClientDummy, false).  
-      end finally.
-
-    end.
+      /* Needed for special unittest constructor in c_*_unittests.cls */
+      if not valid-object(oSingleton) then
+        oSingleton = new sc_unittest(). 
     
+      LogMessage(subst("Start unittest: &1 &2",iso-date(now), cFullPathIP#)).
+        
+      sc_eventbroadcaster:FireEvent("evt@unittest@run", cFullPathIP#).
+
+      if cFullPathIP# matches "*~~.cls" then
+      do:
+        /* If the unittest is a class, get the relative class name and create an object from it */
+        oUnittestClient# = dynamic-new(sc_path:SplitGetClassName(sc_path:Full2PartialPath(cFullPathIP#)) /* en .cls er af */) (oSingleton).
+          
+        /* Get a lists of all units in this class */
+        oUnittestClient#:GetUnittests(output cSvUnittests#).
+          
+        /* Run alle unittests in this class */
+        RunUnittestsInClass(oUnittestClient#, cSvUnittests#).
+      end.
+      else 
+      do on error undo, throw:
+      
+        if not valid-object(oUnittestClientDummy) then
+          oUnittestClientDummy = new sc_unittest_stub().
+      
+        /* Clear in-memory INI values set by unit tests */
+        sc_osfile:ClearIniValuesUnittest(oUnittestClientDummy).
+      
+        /* Set the bUnittestRunning property. From now on, INI values are read from memory instead of from os file. */
+        sc_environment:SetUnittestRunning(oUnittestClientDummy, true).
+        
+        run value(cFullPathIP#).
+      
+        finally:
+          sc_environment:SetUnittestRunning(oUnittestClientDummy, false).  
+        end finally.
+
+      end.
+
+    end. /* do on error ... */    
+
     finally:
       bBusyUnittesting = false.
     end finally.
