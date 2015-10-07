@@ -1047,10 +1047,10 @@ class panaedra.msroot.msutil.logic.sc_unittest
       do:
         /* If the unittest is a class, get the relative class name and create an object from it */
         oUnittestClient# = dynamic-new(sc_path:SplitGetClassName(sc_path:Full2PartialPath(cFullPathIP#)) /* en .cls er af */) (oSingleton).
-          
+
         /* Get a lists of all units in this class */
         oUnittestClient#:GetUnittests(output cSvUnittests#).
-          
+
         /* Run alle unittests in this class */
         RunUnittestsInClass(oUnittestClient#, cSvUnittests#).
       end.
