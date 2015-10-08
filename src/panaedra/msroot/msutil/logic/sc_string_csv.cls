@@ -591,6 +591,91 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     return cCsv#.
     
   end method. /* CsvAddLastUnique ; any delimiter */
+
+  
+  method public static character ConvertBufferToCsvHeaderStringString(
+    
+    /* A very simple way to export buffer field names to  csv header 
+       form a csv header. Note: extents are supported. */
+      
+    input hBufferIP#    as handle, 
+    input cDelimiterIP# as character
+    ): 
+      
+    define variable cSvHeader#  as character no-undo.
+    define variable cFieldname# as character no-undo.
+    define variable hField#     as handle    no-undo.
+    define variable iField#     as integer   no-undo.
+    
+    do iField# = 1 to hBufferIP#:num-fields 
+      on error undo, throw: 
+
+      hField# = hBufferIP#:buffer-field(iField#). 
+      
+      if hField#:extent = 0 then  
+      do:
+        
+        if length(hField#:label) > 0 then
+          cFieldname# = hField#:label. 
+        else
+          cFieldname# = hField#:name. 
+        
+        cSvHeader# = substitute("&1&2&3", cSvHeader#, cDelimiterIP#, cFieldname#).
+
+      end. /* hField#:extent == 0 */
+   
+    end. /* do iField# = 1 to hBuffIP#:num-fields */
+    
+    return trim(cSvHeader#, cDelimiterIP#). 
+  
+  end method. 
+  
+  
+  method public static character ConvertBufferToCsvStringString(
+   
+    /* A very simple way to convert buffer field names
+       to a csv string header. Note: extents are not supported.
+       */ 
+      
+    input hBufferIP#    as handle, 
+    input cDelimiterIP# as character
+    ): 
+      
+    define variable cSvLine# as character no-undo.
+    define variable cValue#  as character no-undo.
+    define variable cFormat# as character no-undo.
+    define variable hField#  as handle    no-undo.
+    define variable iField#  as integer   no-undo.
+    
+    do iField# = 1 to hBufferIP#:num-fields 
+      on error undo, throw: 
+
+      hField# = hBufferIP#:buffer-field(iField#). 
+      
+      if hField#:extent = 0 then  
+      do:
+        
+        if length(hField#:help) > 0 then 
+        do: 
+          cFormat# = trim(sc_string_csv:getParam(hField#:help,"format")).
+          if length(cFormat#) > 0 then 
+            cValue# = trim(string(hfield#:buffer-value, cFormat#)).
+        end.
+        else 
+          cValue# = hfield#:buffer-value.
+          
+        if hfield#:buffer-value = ? then 
+         cValue# = "". 
+          
+        cSvLine# = substitute("&1&2&3", cSvLine#, cDelimiterIP#, cValue#).
+        
+      end. /* hField#:extent == 0 */
+   
+    end. /* do iField# = 1 to hBuffIP#:num-fields */
+    
+    return trim(cSvLine#, cDelimiterIP#). 
+  
+  end method. /* ConvertBufferToCsv */
   
 end class. 
 
