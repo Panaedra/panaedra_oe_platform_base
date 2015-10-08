@@ -37,7 +37,26 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     field iValue as integer
     index iValue is primary iValue.
 
+  
+  method public static character GetParam(
+  
+    cParamIP#   as character, 
+    cTokenIP#   as character, 
+    cDefaultIP# as character 
+    ):
+      
+    define variable cReturn# as character no-undo.
+  
+    cReturn# = GetParam(cParamIP#, cTokenIP#). 
 
+    if length(cReturn#) = 0 then
+      cReturn# = cDefaultIP#. 
+
+    return cReturn#.
+  
+  end method. /* GetParam */
+  
+  
   method public static character GetParam(
     cParamIP# as character, 
     cTokenIP# as character):
@@ -593,7 +612,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
   end method. /* CsvAddLastUnique ; any delimiter */
 
   
-  method public static character ConvertBufferToCsvHeaderStringString(
+  method public static character ConvertBufferToHeaderCsvString(
     
     /* A very simple way to export buffer field names to  csv header 
        form a csv header. Note: extents are supported. */
@@ -628,10 +647,10 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     
     return trim(cSvHeader#, cDelimiterIP#). 
   
-  end method. 
+  end method. /* ConvertBufferToHeaderCsvString */
   
   
-  method public static character ConvertBufferToCsvStringString(
+  method public static character ConvertBufferToCsvString(
    
     /* A very simple way to convert buffer field names
        to a csv string header. Note: extents are not supported.
@@ -665,7 +684,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
           cValue# = hfield#:buffer-value.
           
         if hfield#:buffer-value = ? then 
-         cValue# = "". 
+          cValue# = "". 
           
         cSvLine# = substitute("&1&2&3", cSvLine#, cDelimiterIP#, cValue#).
         
@@ -675,7 +694,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     
     return trim(cSvLine#, cDelimiterIP#). 
   
-  end method. /* ConvertBufferToCsv */
+  end method. /* ConvertBufferToCsvString */
   
 end class. 
 
