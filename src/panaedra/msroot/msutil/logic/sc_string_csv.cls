@@ -626,6 +626,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     define variable hField#     as handle    no-undo.
     define variable iField#     as integer   no-undo.
     
+    cSvHeader# = fill(cDelimiterIP#, hBufferIP#:num-fields).  
+    
     do iField# = 1 to hBufferIP#:num-fields 
       on error undo, throw: 
 
@@ -639,7 +641,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
         else
           cFieldname# = hField#:name. 
         
-        cSvHeader# = substitute("&1&2&3", cSvHeader#, cDelimiterIP#, cFieldname#).
+        entry(iField#, cSvHeader#, cDelimiterIP#) = string(cFieldname#). 
 
       end. /* hField#:extent == 0 */
    
@@ -666,6 +668,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     define variable hField#  as handle    no-undo.
     define variable iField#  as integer   no-undo.
     
+    cSvLine# = fill(cDelimiterIP#, hBufferIP#:num-fields).  
+    
     do iField# = 1 to hBufferIP#:num-fields 
       on error undo, throw: 
 
@@ -685,8 +689,8 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
           
         if hfield#:buffer-value = ? then 
           cValue# = "". 
-          
-        cSvLine# = substitute("&1&2&3", cSvLine#, cDelimiterIP#, cValue#).
+        
+        entry(iField#, cSvLine#, cDelimiterIP#) = string(cValue#). 
         
       end. /* hField#:extent == 0 */
    
