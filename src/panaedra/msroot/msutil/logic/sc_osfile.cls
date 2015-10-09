@@ -1460,7 +1460,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     input cLinesIP#     as character extent
     ): 
 
-    define variable iLine# as integer   no-undo.
+    define variable iLine# as integer no-undo.
   
     CreateEmptyFile(cFileIP#, bOverwriteIP#).
   
@@ -1480,16 +1480,78 @@ class panaedra.msroot.msutil.logic.sc_osfile
     end finally.
   
   end method.  /* WriteAllLines */
+
+
+  method public static void WriteAllLines(
+    input cFileIP#      as character, 
+    input bOverwriteIP# as logical,
+    input cLinesIP#     as longchar extent
+    ): 
+
+    define variable iLine# as integer   no-undo.
+    define variable cLine# as character no-undo.
+  
+    CreateEmptyFile(cFileIP#, bOverwriteIP#).
+  
+    output stream s-alg-out to value(cFileIP#).
+
+    do iLine# = 1 to extent(cLinesIP#):     
+
+      if length(cLinesIP#[iLine#]) > 0 then
+      do:
+        cLine# = cLinesIP#[iLine#].
+        put stream s-alg-out unformatted cLine# skip.
+      end.
+      else
+        put stream s-alg-out unformatted skip(1).
+
+    end.
+    
+    finally:
+      output stream s-alg-out close.             
+    end finally.
+  
+  end method.  /* WriteAllLines */
     
 
   @panaedraannotation file(unittest="yes").
   method public static void ReadLines(
 
-    /* Read the first .. lines of a file into an array*/
+    /* Read the first .. lines of a file into an array */
+    /* WARNING: use the longchar overload if you're not sure how much data will be returned */
+
+    input  cFileIP#   as character,
+    input  iMaxLines# as integer,
+    output cLinesOP#  as character extent
+    ): 
+
+    define variable cLines# as longchar no-undo extent.
+    define variable iTell#  as integer  no-undo.
+
+    ReadLines(cFileIP#, iMaxLines#, cLines#).
+
+    if extent(cLines#) > 0 then
+    do:
+      
+      extent(cLinesOP#) = extent(cLines#).
+      
+      do iTell# = 1 to extent(cLines#):
+        cLinesOP#[iTell#] = cLines#[iTell#].      
+      end.
+      
+    end.
+
+  end.    
+
+
+  @panaedraannotation file(unittest="yes").
+  method public static void ReadLines(
+
+    /* Read the first .. lines of a file into an array */
 
     input  cFileIP#   as character,
     input  iMaxLines# as integer,          /* -999 is all lines (use ReadAllLines) */ 
-    output cLinesOP#  as character extent
+    output cLinesOP#  as longchar extent
     ): 
 
     define variable iLine#        as integer   no-undo.
@@ -1517,7 +1579,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
       input stream s-alg-in from value(cFileIP#).
 
       repeat iLine# = 1 to iLines#  on error undo, throw:
-        import stream s-alg-in unformatted cLinesOP#[iLine#]. /* codeQok#7126  */
+        import stream s-alg-in unformatted cLine#. /* codeQok#7126  */
+        cLinesOP#[iLine#] = cLine#.
       end.
 
       finally:
@@ -1532,7 +1595,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
       
     end. /* FileExists */  
   
-  end method.  /* ReadAllLines */
+  end method.  /* ReadLines */
 
     
   @panaedraannotation file(unittest="yes").
@@ -1541,12 +1604,58 @@ class panaedra.msroot.msutil.logic.sc_osfile
     /* Read all the lines of a file into an array */
   
     input  cFileIP#  as character, 
-    output cLinesOP# as character extent
+    output cLinesOP# as longchar extent
     ): 
 
     ReadLines(cFileIP#, -999 /* all lines */, output cLinesOP#). 
   
   end method.  /* ReadAllLines */
+
+
+  @panaedraannotation file(unittest="yes").
+  method public static void GetLastLine(
+
+    /* Read the first .. lines of a file into an array */
+    /* Returns ? if the file is empty or does not exist */
+
+    input  cFileIP#     as character,
+    output cLastLineOP# as character
+    ): 
+
+    define variable cLine#        as character no-undo.
+    define variable iSaveLastkey# as integer   no-undo.
+
+    assign
+      cLastLineOP# = ?.
+      cLine#       = ?
+      .
+
+    if FileExists(cFileIP#) then
+    do on error undo, throw:
+
+      iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */
+
+      input stream s-alg-in from value(cFileIP#).
+
+      repeat on error undo, throw:      
+        import stream s-alg-in unformatted cLine#. /* codeQok#7126  */
+      end.
+
+      cLastLineOP# = cLine#.
+
+      finally:
+  
+        input stream s-alg-in close.  
+  
+        /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
+         * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
+        last-event:set-lastkey(0, iSaveLastkey#).
+  
+      end finally.
+      
+    end. /* FileExists */  
+  
+  end method.  /* GetLastLine */
 
 
   method public static void GetIniValues(
@@ -1555,7 +1664,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     output table for ttIniValue
   ):
   
-    define variable cLines# as character no-undo extent.
+    define variable cLines# as longchar  no-undo extent.
     define variable cLine#  as character no-undo.
     define variable iLine#  as integer   no-undo.
     define variable bAdd#   as logical   no-undo.
