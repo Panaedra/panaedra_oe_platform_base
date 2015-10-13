@@ -690,7 +690,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
           if bUseFormat# then 
             cValue# = string(hfield#:buffer-value, cFormat#).
           
-          if sc_string_csv:getParam(hField#:help, "DisplayNumbersAsStrings") = "yes" then 
+          if sc_string_csv:getParam(hField#:help, "DisplayAsStringInExcel") = "yes" then 
             cValue# = substitute('="&1"', if bUseFormat# then cValue# else hfield#:buffer-value). 
     
         end. 
