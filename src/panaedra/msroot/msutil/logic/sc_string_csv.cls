@@ -626,7 +626,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     define variable hField#     as handle    no-undo.
     define variable iField#     as integer   no-undo.
     
-    cSvHeader# = fill(cDelimiterIP#, hBufferIP#:num-fields).  
+    cSvHeader# = fill(cDelimiterIP#, hBufferIP#:num-fields - 1).  
     
     do iField# = 1 to hBufferIP#:num-fields 
       on error undo, throw: 
@@ -647,7 +647,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
    
     end. /* do iField# = 1 to hBuffIP#:num-fields */
     
-    return trim(cSvHeader#, cDelimiterIP#). 
+    return cSvHeader#. 
   
   end method. /* ConvertBufferToHeaderCsvString */
   
@@ -669,7 +669,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     define variable iField#     as integer   no-undo.
     define variable bUseFormat# as logical   no-undo.
     
-    cSvLine# = fill(cDelimiterIP#, hBufferIP#:num-fields).  
+    cSvLine# = fill(cDelimiterIP#, hBufferIP#:num-fields - 1).  
     
     do iField# = 1 to hBufferIP#:num-fields 
       on error undo, throw: 
@@ -678,37 +678,41 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
       
       if hField#:extent = 0 then  
       do:
-        
-        if length(hField#:help) > 0 then 
-        do:
-          
-          assign  
-            cFormat#    = trim(sc_string_csv:getParam(hField#:help,"format"))
-            bUseFormat# = length(cFormat#) > 0
-            . 
-          
-          if bUseFormat# then 
-            cValue# = string(hfield#:buffer-value, cFormat#).
-          
-          if sc_string_csv:getParam(hField#:help, "DisplayAsStringInExcel") = "yes" then 
-            cValue# = substitute('="&1"', if bUseFormat# then cValue# else hfield#:buffer-value). 
-    
-        end. 
-        else 
-          cValue# = hfield#:buffer-value.
-      
+
         if hfield#:buffer-value = ? then 
           cValue# = "". 
-        
+
+        else
+        do:
+
+          if length(hField#:help) > 0 then
+          do:          
+
+            assign  
+              cFormat#    = trim(sc_string_csv:getParam(hField#:help,"format"))
+              bUseFormat# = length(cFormat#) > 0
+              cValue#     = (if bUseFormat# then string(hfield#:buffer-value, cFormat#) else string(hfield#:buffer-value))
+              . 
+          
+            if sc_string_csv:getParam(hField#:help, "DisplayAsStringInExcel") = "yes" then 
+              cValue# = substitute('="&1"', cValue#). 
+                    
+          end.
+          else
+            cValue# = string(hfield#:buffer-value).
+          
+          cValue# = trim(replace(cValue#, cDelimiterIP#, "")).
+
+        end.
+            
         assign 
-          cValue#                                 = replace(cValue#, cDelimiterIP#, "")
           entry(iField#, cSvLine#, cDelimiterIP#) = cValue#. 
         
       end. /* hField#:extent = 0 */
    
     end. /* do iField# = 1 to hBuffIP#:num-fields */
     
-    return trim(cSvLine#, cDelimiterIP#). 
+    return cSvLine#. 
   
   end method. /* ConvertBufferToCsvString */
   
