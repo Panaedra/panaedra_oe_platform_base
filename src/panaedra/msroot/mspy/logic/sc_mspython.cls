@@ -34,9 +34,8 @@ class panaedra.msroot.mspy.logic.sc_mspython:
       May be called multiple times, does nothing if already initialized.
     */
     
-    define variable oOvid#     as sc_mspython     no-undo.
-    define variable oPy#       as c_mspython_call no-undo.
-    define variable cDevToken# as character no-undo.
+    define variable oOvid# as sc_mspython     no-undo.
+    define variable oPy#   as c_mspython_call no-undo.
     
     {panaedra/msroot/msutil/logic/sc_unix_set_libpath.i}
     
@@ -55,11 +54,7 @@ class panaedra.msroot.mspy.logic.sc_mspython:
         
         oPythonSysInterpreter = new c_mspython_sys_interpreter(oOvid#).
         oPythonSysInterpreter:QxPy_InitializeInterpreter().
-
-        cDevToken# = sc_environment:GetOsEnv("DevToken"). 
-        if cDevToken# = "testA" or cDevToken# = "testB" then 
-          cDevToken# = "". 
-
+        
         /* Send environment of Progress to the Python environment, as a Python dict */
         oPy# = new c_mspython_call("inherit-env","sc_environment","_InheritAblEnvironmentSettings","panaedra.msroot.msutil.logic.").
         oPy#:clobDataIn = 
@@ -88,9 +83,8 @@ class panaedra.msroot.mspy.logic.sc_mspython:
           subst("'cSessionGuidShort'  : '&1',", sc_environment:cSessionGuidShort) +
           subst("'cSessionGuidRemote' : '&1',", sc_environment:cSessionGuidRemote) +
           subst("'cWorkPath'          : '&1',", sc_boot:SessionParameter("WorkPath")) +
-          subst("'cDevToken'          : '&1',", cDevToken#) +
+          subst("'cDevToken'          : '&1',", sc_environment:GetOsEnv("DevToken") ) +
           "~}".
-        
         oPy#:PyRunU().
       end.
     end.
