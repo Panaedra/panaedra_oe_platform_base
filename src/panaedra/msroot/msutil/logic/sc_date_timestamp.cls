@@ -13,7 +13,7 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
 
       Description: Date and time timestamp functionality
       
-                   Shouldhave: some of these methods should be moved to the newer class sc_datetime.cls.
+                   Shouldhave: some of these methods should be moved to the newer class sc_datetime_logic.cls.
 
   \*****************************  Include Files ********************************/
 
