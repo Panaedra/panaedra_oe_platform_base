@@ -617,8 +617,9 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     /* A very simple way to export buffer field names to  csv header 
        form a csv header. Note: extents are not supported. */
       
-    input hBufferIP#    as handle, 
-    input cDelimiterIP# as character
+    input hBufferIP#         as handle, 
+    input cDelimiterIP#      as character,
+    input bUseFieldLabelsIP# as logical    
     ): 
       
     define variable cSvHeader#  as character no-undo.
@@ -636,7 +637,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
       if hField#:extent = 0 then  
       do:
         
-        if length(hField#:label) > 0 then
+        if bUseFieldLabelsIP# and length(hField#:label) > 0 then
           cFieldname# = hField#:label. 
         else
           cFieldname# = hField#:name. 
