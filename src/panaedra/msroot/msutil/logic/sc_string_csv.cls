@@ -716,7 +716,27 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     return cSvLine#. 
   
   end method. /* ConvertBufferToCsvString */
+
   
+  method public static character ConvertStringToCsv(
+  
+    /* Converts a string to csv with delimiter ""
+    ex. "ab cde fg hhhh" returns "a,b, ,c,d,e, ,f,g, ,h,h,h,h" */
+    input cStringIP# as character
+    
+    ):
+  
+    define variable iChar#        as integer   no-undo.
+    define variable cSvReturn# as character no-undo.
+  
+    do iChar# = 1 to length(cStringIP#):
+      cSvReturn# = cSvReturn# + (if length(cSvReturn#) > 0 then "," else "") + substring(cStringIP#,iChar#,1).
+    end.
+  
+    return cSvReturn#.
+  
+  end method. /* ConvertStringToCsv */
+      
 end class. 
 
 /* EOF */

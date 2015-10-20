@@ -30,7 +30,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
   method public void GetUnittests(
     output cSvUnittestsOP# as character):
      
-    cSvUnittestsOP# = "UT_CsvGetJoinList,UT_CsvRemoveValue,UT_CsvRemoveLastValue,UT_CsvSortListNumeric".
+    cSvUnittestsOP# = "UT_CsvGetJoinList,UT_CsvRemoveValue,UT_CsvRemoveLastValue,UT_CsvSortListNumeric,UT_ConvertStringToCsv".
     
   end method. /* GetUnittests */
  
@@ -43,6 +43,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
       when "UT_CsvRemoveValue"    then UT_CsvRemoveValue(cUnittestIP#).
       when "UT_CsvRemoveLastValue"    then UT_CsvRemoveLastValue(cUnittestIP#).
       when "UT_CsvSortListNumeric"    then UT_CsvSortListNumeric(cUnittestIP#).
+      when "UT_ConvertStringToCsv"    then UT_ConvertStringToCsv(cUnittestIP#).
     end case.
     
   end method. /* ExecuteUnittest */
@@ -95,6 +96,34 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
     end catch.
 
   end method. /* UT_CsvSortListNumeric */   
+  
+  
+  method public void UT_ConvertStringToCsv(
+    cUnittestIP# as character):
+      
+    sc_unittest:UnittestInit(this-object, cUnittestIP#).
+    
+    unittest1:
+    do transaction on error undo, throw:
+      
+      sc_unittest:Assert(
+        "CsvSortListNumeric_00001_01",
+        "list 1",
+        ConvertStringToCsv("ab cde fg hhhh"),
+        "1,2,3,4"
+        ).
+
+      undo unittest1, leave unittest1.
+    
+    end.
+    
+    sc_unittest:UnittestFinish(this-object, cUnittestIP#).
+
+    catch oError# as Progress.Lang.Error:
+      sc_unittest:OnException(cUnittestIP#,oError#).
+    end catch.
+
+  end method. /* UT_ConvertStringToCsv */   
   
   
   method public void UT_CsvGetJoinList(
