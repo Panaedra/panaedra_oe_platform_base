@@ -20,8 +20,12 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
   end constructor.
+  
+  constructor protected sc_datetime_logic(
+    input oParamIP# as i_unittest_param):
+  end constructor.  
   /******************************* $NoKeywords:  $ *****************************/
-
+ 
   method public static int GetTime(dtmInputIP# as datetime-tz):
     
     return integer(truncate(mtime(dtmInputIP#) / 1000.0, 0)).
@@ -307,6 +311,7 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   end method. /* GetThisWeeksFriday */ 
   
   
+  @panaedraannotation file(unittest="yes").
   method public static datetime-tz GetNextWorkday(
     /* returns the next workday, in other words: skips the weekends */
     dtmValueIP# as datetime-tz
