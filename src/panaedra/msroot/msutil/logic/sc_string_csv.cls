@@ -726,7 +726,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     
     ):
   
-    define variable iChar#        as integer   no-undo.
+    define variable iChar#     as integer   no-undo.
     define variable cSvReturn# as character no-undo.
   
     do iChar# = 1 to length(cStringIP#):

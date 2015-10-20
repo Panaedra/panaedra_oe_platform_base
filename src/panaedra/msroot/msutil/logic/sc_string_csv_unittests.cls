@@ -110,7 +110,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
         "CsvSortListNumeric_00001_01",
         "list 1",
         ConvertStringToCsv("ab cde fg hhhh"),
-        "1,2,3,4"
+        "a,b, ,c,d,e, ,f,g, ,h,h,h,h"
         ).
 
       undo unittest1, leave unittest1.
