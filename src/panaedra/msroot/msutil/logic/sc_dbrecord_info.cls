@@ -432,7 +432,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
         GetTransactionInfo(ldbname(iDb#), ttLock.iLockUsr,   output ttLock.iTransactionNum, output ttLock.dtmSince, output ttLock.cTransStat).
         
         assign
-          ttLock.cSince          = sc_datetime:GetTimeHH_FCMPNY_S(ttLock.dtmSince)
+          ttLock.cSince          = sc_datetime_logic:GetTimeHH_FCMPNY_S(ttLock.dtmSince)
           ttLock.cWhoInfo        = sc_environment:GetWorkstationDescription(ttLock.cDevice)
           ttLock.cCommandLineRaw = sc_environment:GetCommandLine(ttLock.iPid). 
           
