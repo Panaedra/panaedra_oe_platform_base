@@ -28,6 +28,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   /******************************* $NoKeywords:  $ *****************************/
 
   define stream str-in.
+  define stream str-os. 
   
   define protected static variable bSessionGuidSet as logical   no-undo.
   define protected static variable cBootProcedure  as character no-undo.
@@ -144,6 +145,16 @@ class panaedra.msroot.msutil.logic.sc_environment:
       return cEnv.
     end get.
     protected set.
+  
+  define static property cOs as character no-undo initial ? 
+    public get: 
+      if cOs = ? then 
+      do:
+        cOs = opsys. 
+      end. 
+      return cOs.
+    end get.    
+    protected set. 
 
   define static property cLang as character no-undo 
     public get:
@@ -234,7 +245,8 @@ class panaedra.msroot.msutil.logic.sc_environment:
       do:
         if cEnv matches "*tst*" then
           bUnittestEnv = true.
-        else do:
+        else 
+        do:
           /* For developers who temporarily want to unittest in a different test or stage environment */
           cUnittestMoreEnv# = os-getenv("UNITTEST_MORE_ENV"). 
           if length(cUnittestMoreEnv#) > 0 and logical(cUnittestMoreEnv#) then 
@@ -987,6 +999,61 @@ class panaedra.msroot.msutil.logic.sc_environment:
     bUnittestRunning = bValueIP#.
     
   end method. /* SetUnittestRunning */
+  
+  
+  method public static void CallPythonpathSet(
+  
+    input cLoginIP# as character   
+    ):
+    
+    define variable cCommand#     as character no-undo.
+    define variable cLine#        as character no-undo.
+    define variable cPythonpath#  as character no-undo.
+    define variable iSaveLastkey# as integer no-undo.
+    
+    cCommand# = substitute('. $SCRIPTS/EchoPythonpathSet.sh &1', cLoginIP#). 
+    
+    if IsUnix() then 
+    do on error undo, leave: 
+
+      iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */
+
+      input stream str-os through value(cCommand#).
+
+      repeat on error undo, throw: 
+        import stream str-os unformatted cLine#. /* codeQok#7126 */
+        if trim(cLine#) > "" then cPythonpath# = cPythonpath# + " " + cLine#.
+      end.
+      
+      if length(cPythonpath#) > 0 then  
+        sc_unix:SetEnvironmentValue("PYTHONPATH",cPythonpath#).
+      
+      finally:
+        
+        input stream str-os close.
+        
+        /* The first argument is to determine the event-type (0) to read the last pressed set keypress event.
+         * last-event:set-lastkey is set back to the remembered keycode in iSaveLastkey# */
+        last-event:set-lastkey(0, iSaveLastkey#).
+        
+      end finally.
+          
+    end. /* do */
+    else
+      undo, throw new c_panaedraexception(
+        99984819,
+        sc_lang:oEnglish,
+        substitute("See: '&1'", "CallPythonpathSet is not supported on non UNIX operating systems.")
+        ).
+  
+  end method. /* SetPythonpath */
+  
+  
+  method public static logical IsUnix():
+    
+    return sc_environment:cOs = "unix". 
+    
+  end method. /* IsOsUnix */
   
 end class.
 
