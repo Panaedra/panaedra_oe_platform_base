@@ -1046,7 +1046,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
         substitute("See: '&1'", "CallPythonpathSet is not supported on non UNIX operating systems.")
         ).
   
-  end method. /* SetPythonpath */
+  end method. /* CallPythonpathSet */
   
   
   method public static logical IsUnix():
