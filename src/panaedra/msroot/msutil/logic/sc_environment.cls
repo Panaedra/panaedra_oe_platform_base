@@ -27,6 +27,10 @@ class panaedra.msroot.msutil.logic.sc_environment:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
+  constructor protected sc_environment(
+    input oParamIP# as i_unittest_param):
+  end constructor.  
+
   define stream str-in.
   define stream str-os. 
   
@@ -146,13 +150,13 @@ class panaedra.msroot.msutil.logic.sc_environment:
     end get.
     protected set.
   
-  define static property cOs as character no-undo initial ? 
+  define static property cOpSys as character no-undo initial ? 
     public get: 
-      if cOs = ? then 
+      if cOpSys = ? then 
       do:
-        cOs = opsys. 
+        cOpSys = opsys. 
       end. 
-      return cOs.
+      return cOpSys.
     end get.    
     protected set. 
 
@@ -1009,7 +1013,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     define variable cCommand#     as character no-undo.
     define variable cLine#        as character no-undo.
     define variable cPythonpath#  as character no-undo.
-    define variable iSaveLastkey# as integer no-undo.
+    define variable iSaveLastkey# as integer   no-undo.
     
     cCommand# = substitute('. $SCRIPTS/EchoPythonpathSet.sh &1', cLoginIP#). 
     
@@ -1051,7 +1055,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   
   method public static logical IsUnix():
     
-    return sc_environment:cOs = "unix". 
+    return sc_environment:cOpSys = "unix". 
     
   end method. /* IsUnix */
   
