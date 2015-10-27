@@ -1053,7 +1053,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     return sc_environment:cOs = "unix". 
     
-  end method. /* IsOsUnix */
+  end method. /* IsUnix */
   
 end class.
 
