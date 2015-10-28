@@ -1005,9 +1005,12 @@ class panaedra.msroot.msutil.logic.sc_environment:
   end method. /* SetUnittestRunning */
   
   
+  @panaedraannotation file(unittest="yes").
   method public static void CallPythonpathSet(
   
-    input cLoginIP# as character   
+    /* FREF@77475c73b: When changs are made CallPythonpathSet review PythonpathSet */
+  
+    input cWorkPathIP# as character   
     ):
     
     define variable cCommand#     as character no-undo.
@@ -1015,7 +1018,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     define variable cPythonpath#  as character no-undo.
     define variable iSaveLastkey# as integer   no-undo.
     
-    cCommand# = substitute('. $SCRIPTS/EchoPythonpathSet.sh &1', cLoginIP#). 
+    cCommand# = substitute('. $SCRIPTS/EchoPythonpathSet.sh &1', cWorkPathIP#). 
     
     if IsUnix() then 
     do on error undo, leave: 
