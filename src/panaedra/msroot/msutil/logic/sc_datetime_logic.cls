@@ -330,6 +330,33 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   
   end method. /* GetNextWorkday */   
   
+  @panaedraannotation file(unittest="yes").
+  method public static datetime-tz FirstPossibleDeliveryDay(
+    /* returns the first delivery day:
+       today <= 16:00, returns today
+       today >  16:00, returns tomorrow
+       +
+       Saterday and Sunday return Monday */
+    dtmValueIP# as datetime-tz,
+    cTimeIP# as char
+    ):
+      
+    define variable dtmReturn# as datetime-tz no-undo.
+    
+    /* After 16:00, delivery will be the next (working) day */
+    if cTimeIP# >= "16:00" then
+      dtmValueIP# = dtmValueIP# + 1.
+    
+    assign
+      /* To see if the calculated date is a working date, 
+         we use the function GetNextWorkday, substracting one day from the calculated date.
+         E.g. for "today" we call GetNextWorkday using "yesterday". */ 
+      dtmReturn# = GetNextWorkday(dtmValueIP# - 1).
+    
+    return dtmReturn#.
+  
+  end method. /* FirstPossibleDeliveryDay */   
+  
   
   method public static character GetWeekdayChar(
     /* Return a character representing today (ma di wo do.....) */
