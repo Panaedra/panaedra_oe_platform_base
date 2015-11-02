@@ -14,7 +14,7 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
       Description: Generic methods for datetime and datetime-tz
 
   \*****************************  Include Files ********************************/
-
+{panaedra/msroot/msutil/logic/def/def_weekdays.i &class=class} 
   /************************  Source control constructor ************************/
   constructor public sc_datetime_logic(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
@@ -25,7 +25,17 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     input oParamIP# as i_unittest_param):
   end constructor.  
   /******************************* $NoKeywords:  $ *****************************/
- 
+  
+  method public static logical IsWorkday(
+  
+    input iWeekdayIP# as integer 
+    ):
+      
+    return iWeekdayIP# >= {&monday} and iWeekdayIP# <= {&friday}.   
+  
+  end method. /* IsWorkday */
+  
+  
   method public static int GetTime(dtmInputIP# as datetime-tz):
     
     return integer(truncate(mtime(dtmInputIP#) / 1000.0, 0)).
@@ -104,9 +114,9 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
 
     return 
       if dtmInputIP# <> ? then
-        string(day(dtmInputIP#), "99")
-          + cSepIP#
-          + string(month(dtmInputIP#), "99")
+      string(day(dtmInputIP#), "99")
+      + cSepIP#
+      + string(month(dtmInputIP#), "99")
       else "".
   
   end method. /* GetDateDDMM */
