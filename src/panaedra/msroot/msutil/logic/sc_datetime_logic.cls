@@ -344,7 +344,7 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     define variable dtmReturn# as datetime-tz no-undo.
     
     /* After 16:00, delivery will be the next (working) day */
-    if cTimeIP# > "16:00" then
+    if cTimeIP# >= "16:00" then
       dtmValueIP# = dtmValueIP# + 1.
     
     assign
