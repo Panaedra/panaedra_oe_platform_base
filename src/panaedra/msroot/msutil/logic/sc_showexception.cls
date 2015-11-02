@@ -360,6 +360,11 @@ class panaedra.msroot.msutil.logic.sc_showexception:
     
   end method. /* ShowExceptionKeepNative */
   
+
+  method public static void ResetNumShowExceptions():
+    iNumShowExceptions = 0.
+  end method. /* ResetNumShowExceptions */
+
   
   method protected static void ShowExceptionKeepNative_Implement(
     input cExtraMessageIP# as character,
