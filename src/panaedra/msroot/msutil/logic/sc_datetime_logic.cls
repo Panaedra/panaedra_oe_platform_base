@@ -340,11 +340,32 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   
   end method. /* GetNextWorkday */   
   
+  
   @panaedraannotation file(unittest="yes").
   method public static datetime-tz FirstPossibleDeliveryDay(
+    /* NOTE: this overload doesn't take the time into account!
+       For _TERM_UNDISCLOSED_, time is of importance (so use the an other overload):
+       today <   16:00, returns today
+       today >=  16:00, returns tomorrow
+       +
+       Saterday and Sunday return Monday */
+    dtmValueIP# as datetime-tz
+    ):
+    
+      /* To see if the calculated date is a working date, 
+         we use the function GetNextWorkday, substracting one day from the calculated date.
+         E.g. for "today" we call GetNextWorkday using "yesterday". */ 
+      return GetNextWorkday(dtmValueIP# - 1).
+      
+  end method. /* FirstPossibleDeliveryDay */   
+  
+  
+  @panaedraannotation file(unittest="yes").
+  method public static datetime-tz FirstPossibleDeliveryDay(
+    /* FirstPossibleDeliveryDay Overload date,time */
     /* returns the first delivery day:
-       today <= 16:00, returns today
-       today >  16:00, returns tomorrow
+       today <  16:00, returns today
+       today >= 16:00, returns tomorrow
        +
        Saterday and Sunday return Monday */
     dtmValueIP# as datetime-tz,
@@ -357,15 +378,26 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     if cTimeIP# >= "16:00" then
       dtmValueIP# = dtmValueIP# + 1.
     
-    assign
+    return FirstPossibleDeliveryDay(dtmValueIP#).
+  
+  end method. /* FirstPossibleDeliveryDay Overload date,time */
+  
+  
+  @panaedraannotation file(unittest="yes").
+  method public static datetime-tz FirstPossibleDeliveryDay():
+    /* FirstPossibleDeliveryDay Overload without parameters */
+    /* returns the first delivery day (based on current system day/time):
+       today <   16:00, returns today
+       today >=  16:00, returns tomorrow
+       +
+       Saterday and Sunday return Monday */
+    
       /* To see if the calculated date is a working date, 
          we use the function GetNextWorkday, substracting one day from the calculated date.
          E.g. for "today" we call GetNextWorkday using "yesterday". */ 
-      dtmReturn# = GetNextWorkday(dtmValueIP# - 1).
-    
-    return dtmReturn#.
-  
-  end method. /* FirstPossibleDeliveryDay */   
+      return FirstPossibleDeliveryDay(today, string(time,"hh:mm")).
+      
+  end method. /* FirstPossibleDeliveryDay Overload without parameters */   
   
   
   method public static character GetWeekdayChar(
