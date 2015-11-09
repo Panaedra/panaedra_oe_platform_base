@@ -39,7 +39,11 @@ class panaedra.msroot.msutil.logic.sc_environment:
   define public static    variable bDebugLogAsync  as logical   no-undo.
   define public static    variable oLog            as i_log     no-undo.
   define public static    variable cRemoteUserID   as character no-undo.
-  
+  define public static    variable bTestmode       as logical   no-undo.    
+
+  destructor public sc_environment():
+    if valid-object(oLog) then delete object oLog no-error.
+  end destructor.  
 
   define static property cCodepageNative as character no-undo init ?
     public get:
@@ -1061,6 +1065,14 @@ class panaedra.msroot.msutil.logic.sc_environment:
     return sc_environment:cOpSys = "unix". 
     
   end method. /* IsUnix */
+
+
+  method public static void WriteLog(cStringIP# as character):
+  
+    if valid-object(oLog) then
+      oLog:WriteStatusLn(cStringIP#).
+  
+  end method. /* WriteLog */
   
 end class.
 
