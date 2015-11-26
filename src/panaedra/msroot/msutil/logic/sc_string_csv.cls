@@ -62,7 +62,20 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
       else ?
       ).
   
-  end method. /* GetValueByKey */  
+  end method. /* GetValueByKey ; overload with cKeyIP# as characder */   
+
+
+  method public static character GetValueByKey(
+  
+    /* Input key value pairs csv string like "A=11,AB=22,C=333,D=4444" */ 
+  
+    input cSvKeyValuePairIP# as character, 
+    input iKeyIP#            as integer
+    ):
+    
+    return  GetValueByKey(cSvKeyValuePairIP#, string(iKeyIP#)). 
+  
+  end method. /* GetValueByKey ; overload with iKeyIP# as integer */  
 
   
   method public static character GetParam(
