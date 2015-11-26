@@ -30,7 +30,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
   method public void GetUnittests(
     output cSvUnittestsOP# as character):
      
-    cSvUnittestsOP# = "UT_CsvGetJoinList,UT_CsvRemoveValue,UT_CsvRemoveLastValue,UT_CsvSortListNumeric,UT_ConvertStringToCsv".
+    cSvUnittestsOP# = "UT_CsvGetJoinList,UT_CsvRemoveValue,UT_CsvRemoveLastValue,UT_CsvSortListNumeric,UT_ConvertStringToCsv,UT_GetValueByKey".
     
   end method. /* GetUnittests */
  
@@ -39,11 +39,12 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
     cUnittestIP# as character):
 
     case cUnittestIP#:
-      when "UT_CsvGetJoinList" then UT_CsvGetJoinList(cUnittestIP#).
-      when "UT_CsvRemoveValue"    then UT_CsvRemoveValue(cUnittestIP#).
-      when "UT_CsvRemoveLastValue"    then UT_CsvRemoveLastValue(cUnittestIP#).
-      when "UT_CsvSortListNumeric"    then UT_CsvSortListNumeric(cUnittestIP#).
-      when "UT_ConvertStringToCsv"    then UT_ConvertStringToCsv(cUnittestIP#).
+      when "UT_CsvGetJoinList"     then UT_CsvGetJoinList(cUnittestIP#).
+      when "UT_CsvRemoveValue"     then UT_CsvRemoveValue(cUnittestIP#).
+      when "UT_CsvRemoveLastValue" then UT_CsvRemoveLastValue(cUnittestIP#).
+      when "UT_CsvSortListNumeric" then UT_CsvSortListNumeric(cUnittestIP#).
+      when "UT_ConvertStringToCsv" then UT_ConvertStringToCsv(cUnittestIP#).
+      when "UT_GetValueByKey"      then UT_GetValueByKey(cUnittestIP#).
     end case.
     
   end method. /* ExecuteUnittest */
@@ -311,13 +312,39 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
   end method.  /* UT_CsvRemoveValue */
 
 
-  method protected void CreateUnittestData(input cUnittestIP# as character):
-    
-    case cUnittestIP#:
+  method public void UT_GetValueByKey(
+    cUnittestIP# as character):
+  
+    sc_unittest:UnittestInit(this-object, cUnittestIP#).
+  
+    sc_unittest:Assert(
+      "GetValueByKey_00001_001",
+      "Key met 1 char",
+      GetValueByKey("A=11,B=22,C=333,D=4444", "D"), 
+      "4444"
+      ).
       
-    end case.
+    sc_unittest:Assert(
+      "GetValueByKey_00002_001",
+      "Key met 2 chars",
+      GetValueByKey("A=11,AB=22,C=333,D=4444", "AB"),
+      "22"
+      ).
         
-  end method. /* CreateUnittestData */
+    sc_unittest:Assert(
+      "GetValueByKey_00003_001",
+      "Key met 3 chars, maar is niet aanwezig",
+      GetValueByKey("A=11,AB=22,C=333,D=4444", "ABC"),
+      ?
+      ).   
+        
+    sc_unittest:UnittestFinish(this-object, cUnittestIP#).
+  
+    catch oError# as Progress.Lang.Error:
+      sc_unittest:OnException(cUnittestIP#,oError#).
+    end catch.
+  
+  end method. /* UT_GetValueByKey */   
 
 end class.
 

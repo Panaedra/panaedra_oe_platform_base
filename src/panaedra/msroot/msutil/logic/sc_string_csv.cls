@@ -38,6 +38,33 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     index iValue is primary iValue.
 
   
+  @panaedraannotation file(unittest="yes").
+  method public static character GetValueByKey(
+  
+    /* Input key value pairs csv string like "A=11,AB=22,C=333,D=4444" */ 
+  
+    input cSvKeyValuePairIP# as character, 
+    input cKeyIP#            as character
+    ):
+    
+    define variable iIndex# as integer no-undo. 
+    
+    iIndex# = (
+      if   cSvKeyValuePairIP# begins cKeyIP# + "=" 
+      then 1 /* Got lucky, key is on the first string position */
+      else 
+        index("," + cSvKeyValuePairIP#, substitute(",&1=", cKeyIP#))
+      ).
+  
+    return (
+      if iIndex# > 0 
+      then entry(1,substring(cSvKeyValuePairIP#, iIndex# + length(cKeyIP#) + 1)) 
+      else ?
+      ).
+  
+  end method. /* GetValueByKey */  
+
+  
   method public static character GetParam(
   
     cParamIP#   as character, 
@@ -92,13 +119,13 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
       
     /* Like SetParam, but read-write to a subset in the token value.
        You may use the following wildcard: asterisk plus end-delimiter.
-      
+        
        I.e. " [Param1] sub1 = yes | sub2 = no | sub3 = value [Param2] value2 " 
           with
           "Param1", "sub1 =*|", "sub1 = no"
           will be 
           " [Param1] sub1 = no | sub2 = no | sub3 = value [Param2] value2 "
-       
+         
        The new parameter string is returned.
     */
   
