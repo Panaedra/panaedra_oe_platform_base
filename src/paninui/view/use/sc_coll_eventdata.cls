@@ -404,12 +404,13 @@ class paninui.view.use.sc_coll_eventdata
     cWidgetNameIP#            as character,
     cEventTypeIP#             as character):
 
-    define variable oWidget#              as Progress.Lang.Object          no-undo.
-    define variable oBindingSource#       as Progress.Lang.Object          no-undo.
-    define variable oBindingSourceStrong# as c_bindingsource               no-undo.
-    define variable bDummy#               as logical                       no-undo.
-    define variable oFormsCombobox#       as System.Windows.Forms.ComboBox no-undo.
-    define variable oFormsTextbox#        as System.Windows.Forms.TextBox  no-undo.
+    define variable oWidget#              as Progress.Lang.Object                no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object                no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource                     no-undo.
+    define variable bDummy#               as logical                             no-undo.
+    define variable oFormsCombobox#       as System.Windows.Forms.ComboBox       no-undo.
+    define variable oFormsTextbox#        as System.Windows.Forms.TextBox        no-undo.
+    define variable oFormsDateTimePicker# as System.Windows.Forms.DateTimePicker no-undo. 
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -420,7 +421,7 @@ class paninui.view.use.sc_coll_eventdata
       assign
         cWidgetNameIP# = replace(cWidgetNameIP#,"_",".")
         oWidget#       = sc_coll_widgetdata:GetWidget(iPackIDIP#,"combobox",?,cWidgetNameIP#, output bDummy#).
-
+      
       if oWidget# <> ? then 
       do:
         
@@ -480,7 +481,6 @@ class paninui.view.use.sc_coll_eventdata
         end. /* ComboBox */
         else 
         do:
-          
           if type-of(oWidget#,System.Windows.Forms.TextBox) then 
           do:
             
@@ -502,6 +502,32 @@ class paninui.view.use.sc_coll_eventdata
             
           end. /* TextBox */
           
+          if type-of(oWidget#,System.Windows.Forms.DateTimePicker) then 
+          do: 
+
+            oFormsDateTimePicker# = cast(oWidget#, System.Windows.Forms.DateTimePicker).
+            if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then
+            do:
+              
+              case cEventTypeIP#:
+              
+                when "ValueChanged" 
+                then 
+                  do:
+                    oFormsDateTimePicker#:ValueChanged:Subscribe(oSingleton:OnEventArgsHandler_ValueChanged).
+                  end.
+                when "TextChanged" 
+                then 
+                  do:
+                    oFormsDateTimePicker#:ValueChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+                  end.
+              
+              end case. /* cEventTypeIP# */
+              
+            end. /* not can-find(first ttUiEvent */
+           
+          end. /* DateTimePicker */
+
         end. /* Other type */
         
         return ItemAddImplement(
@@ -1002,15 +1028,16 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_TextChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix#    as logical                           no-undo.
-    define variable oComboBox#      as System.Windows.Forms.ComboBox     no-undo.
-    define variable oTextBox#       as System.Windows.Forms.TextBox      no-undo.
-    define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
+    define variable bEclipseFix#     as logical                             no-undo.
+    define variable oComboBox#       as System.Windows.Forms.ComboBox       no-undo.
+    define variable oTextBox#        as System.Windows.Forms.TextBox        no-undo.
+    define variable oDateTimePicker# as System.Windows.Forms.DateTimePicker no-undo. 
+    define variable oUiValue#        as paninui.view.interfaces.i_uivalue   no-undo.
 
-    define variable bFirst#         as logical                           no-undo init true.
-    define variable oFocus#         as Progress.Lang.Object              no-undo.
-    define variable iFocusPackID#   as int64                             no-undo.
-    define variable cFocusLinkName# as character                         no-undo.
+    define variable bFirst#          as logical                             no-undo init true.
+    define variable oFocus#          as Progress.Lang.Object                no-undo.
+    define variable iFocusPackID#    as int64                               no-undo.
+    define variable cFocusLinkName#  as character                           no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -1043,6 +1070,14 @@ class paninui.view.use.sc_coll_eventdata
 
             sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
           end.
+          else if type-of(oSender#, System.Windows.Forms.DateTimePicker) then 
+            do:
+              assign 
+                oDateTimePicker# = cast(oSender#, System.Windows.Forms.DateTimePicker)
+                oUiValue#        = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oDateTimePicker#, oDateTimePicker#:Name,""), oDateTimePicker#:Enabled, oDateTimePicker#:Visible, oDateTimePicker#:Text).
+              .
+              sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata_combobox("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).  
+            end.   
         
       end.
       
@@ -1286,6 +1321,51 @@ class paninui.view.use.sc_coll_eventdata
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
+      end.
+      
+      catch ex as Progress.Lang.Error:
+        /* Catch needed in all .NET events */
+        sc_showexception:ShowException(ex).
+      end catch.
+    
+    end.
+    
+  end method. /* OnEventArgsHandler_DropDownClosed */ 
+  
+  
+  method private void OnEventArgsHandler_ValueChanged(oSender# as System.Object, oArgs# as System.EventArgs):
+                                                     
+    define variable oDateTimePicker# as System.Windows.Forms.DateTimePicker no-undo.
+    define variable oUiValue#        as paninui.view.interfaces.i_uivalue   no-undo.
+
+    define variable bFirst#          as logical                             no-undo init true.
+    define variable oFocus#          as Progress.Lang.Object                no-undo.
+    define variable iFocusPackID#    as int64                               no-undo.
+    define variable cFocusLinkName#  as character                           no-undo.
+    
+    define buffer ttUiEvent for ttUiEvent.
+
+    do for ttUiEvent on error undo, throw:
+      
+      for each ttUiEvent where ttUiEvent.oWidget = oSender# and ttUiEvent.cEventType = "ValueChanged"
+        on error undo,throw:
+        if bFirst# then 
+        do:
+          bFirst# = false.
+          oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
+          paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+        end.  
+        
+        if type-of(oSender#, System.Windows.Forms.DateTimePicker) then 
+        do:
+          assign 
+            oDateTimePicker# = cast(oSender#, System.Windows.Forms.DateTimePicker)
+            oUiValue#        = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oDateTimePicker#, oDateTimePicker#:Name,""), oDateTimePicker#:Enabled, oDateTimePicker#:Visible, oDateTimePicker#:Text).
+          .
+          
+          sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata_combobox("", "", ?, ttUiEvent.iPackID,iFocusPackID#,? )).  
+        end.
+     
       end.
       
       catch ex as Progress.Lang.Error:
