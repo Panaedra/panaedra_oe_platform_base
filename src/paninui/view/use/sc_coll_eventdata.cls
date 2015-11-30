@@ -489,13 +489,12 @@ class paninui.view.use.sc_coll_eventdata
             do:
                
               case cEventTypeIP#:
-              
                 when "TextChanged" 
                 then 
-                  do:
                     oFormsTextBox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
-                  end.
-              
+                when "KeyDown" 
+                then 
+                    oFormsTextBox#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).
               end case.
               
             end. /* First ttUiEvent */
