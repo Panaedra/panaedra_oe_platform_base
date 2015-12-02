@@ -474,9 +474,6 @@ class paninui.view.use.sc_coll_eventdata
               when "DropDownClosed" 
               then oFormsCombobox#:DropDownClosed:Subscribe(oSingleton:OnEventArgsHandler_DropDownClosed).
               
-              when "KeyDown" 
-              then oFormsCombobox#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).
-              
             end case.
             
           end. /* First ttUiEvent */
@@ -484,10 +481,9 @@ class paninui.view.use.sc_coll_eventdata
         end. /* ComboBox */
         else 
         do:
-          
           if type-of(oWidget#,System.Windows.Forms.TextBox) then 
           do:
-             
+            
             oFormsTextbox# = cast(oWidget#,System.Windows.Forms.TextBox).
             if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
             do:
@@ -496,16 +492,9 @@ class paninui.view.use.sc_coll_eventdata
                 when "TextChanged" 
                 then 
                     oFormsTextBox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
-                when "DelayedTextChanged" then
-                do: 
-                  if type-of(oFormsTextbox#,paninui.view.loose.widgets.c_forms_delayed_textbox) then
-                    cast(oFormsTextbox#,paninui.view.loose.widgets.c_forms_delayed_textbox):DelayedTextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
-                end.
                 when "KeyDown" 
                 then 
-                do: 
-                   oFormsTextBox#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).
-                end.     
+                    oFormsTextBox#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).
               end case.
               
             end. /* First ttUiEvent */
