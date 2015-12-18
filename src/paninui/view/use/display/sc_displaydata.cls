@@ -356,8 +356,6 @@ class paninui.view.use.display.sc_displaydata   :
     
     cDataRef# = panaedra.msroot.msutil.logic.sc_string_prefixsuffix:GetPrefix(oQryIP#:sys__hQuery:get-buffer-handle(1):name, output cRemainder#).
     
-    cDataRef# = cRemainder#.
-    
     if not bIsDisplayLinkedOP# then
     do:
       if type-of(oWidget#, System.Windows.Forms.ComboBox) then
@@ -376,6 +374,10 @@ class paninui.view.use.display.sc_displaydata   :
         
         oComboBox#:DisplayMember = oQryIP#:hDisplayField[1]:name.
         
+        if extent(oQryIP#:hKeyField) > 0 and 
+           valid-handle(oQryIP#:hKeyField[1]) then            
+          oComboBox#:ValueMember = oQryIP#:hKeyField[1]:name.
+        else
         if num-entries(cDataRef#,".") >= 2 then
           oComboBox#:ValueMember   = subst("iID&1", entry(1,cDataRef#,".")).
         else 
