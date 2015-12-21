@@ -408,6 +408,7 @@ class paninui.view.use.sc_coll_eventdata
     define variable oBindingSource#       as Progress.Lang.Object                no-undo.
     define variable oBindingSourceStrong# as c_bindingsource                     no-undo.
     define variable bDummy#               as logical                             no-undo.
+    define variable oFormsListControl#    as System.Windows.Forms.ListControl    no-undo.
     define variable oFormsCombobox#       as System.Windows.Forms.ComboBox       no-undo.
     define variable oFormsTextbox#        as System.Windows.Forms.TextBox        no-undo.
     define variable oFormsDateTimePicker# as System.Windows.Forms.DateTimePicker no-undo. 
@@ -444,14 +445,10 @@ class paninui.view.use.sc_coll_eventdata
         
         if type-of(oWidget#,System.Windows.Forms.ComboBox) then 
         do:
-          
           oFormsCombobox# = cast(oWidget#,System.Windows.Forms.ComboBox).
           if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
           do: 
             case cEventTypeIP#:
-              
-              when "TextChanged" then 
-                oFormsCombobox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
               
               when "DelayedTextChanged" then
                 do: 
@@ -462,17 +459,33 @@ class paninui.view.use.sc_coll_eventdata
               when "SelectionChangeCommitted" 
               then oFormsCombobox#:SelectionChangeCommitted:Subscribe(oSingleton:OnEventArgsHandler_SelectionChangeCommitted).
               
-              when "SelectedValueChanged" 
-              then oFormsCombobox#:SelectedValueChanged:Subscribe(oSingleton:OnEventArgsHandler_SelectedValueChanged).
-              
-              when "SelectedIndexChanged" 
-              then oFormsCombobox#:SelectedIndexChanged:Subscribe(oSingleton:OnEventArgsHandler_SelectedIndexChanged).
-              
               when "DropDown" 
               then oFormsCombobox#:DropDown:Subscribe(oSingleton:OnEventArgsHandler_DropDown).
               
               when "DropDownClosed" 
               then oFormsCombobox#:DropDownClosed:Subscribe(oSingleton:OnEventArgsHandler_DropDownClosed).
+              
+            end case.
+          
+          end.   
+        end. 
+        
+        if type-of(oWidget#,System.Windows.Forms.ListControl) then 
+        do:
+          
+          oFormsListControl# = cast(oWidget#,System.Windows.Forms.ListControl).
+          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+          do: 
+            case cEventTypeIP#:
+              
+              when "TextChanged" then 
+                oFormsListControl#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+              
+              when "SelectedValueChanged" 
+              then oFormsListControl#:SelectedValueChanged:Subscribe(oSingleton:OnEventArgsHandler_SelectedValueChanged).
+              
+              when "SelectedValueChanged" 
+              then oFormsListControl#:SelectedValueChanged:Subscribe(oSingleton:OnEventArgsHandler_SelectedValueChanged).
               
             end case.
             
@@ -491,10 +504,10 @@ class paninui.view.use.sc_coll_eventdata
               case cEventTypeIP#:
                 when "TextChanged" 
                 then 
-                    oFormsTextBox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+                  oFormsTextBox#:TextChanged:Subscribe(oSingleton:OnEventArgsHandler_TextChanged).
                 when "KeyDown" 
                 then 
-                    oFormsTextBox#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).
+                  oFormsTextBox#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).
               end case.
               
             end. /* First ttUiEvent */
@@ -1028,7 +1041,7 @@ class paninui.view.use.sc_coll_eventdata
   method private void OnEventArgsHandler_TextChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
     define variable bEclipseFix#     as logical                             no-undo.
-    define variable oComboBox#       as System.Windows.Forms.ComboBox       no-undo.
+    define variable oComboBox#       as System.Windows.Forms.ListControl    no-undo.
     define variable oTextBox#        as System.Windows.Forms.TextBox        no-undo.
     define variable oDateTimePicker# as System.Windows.Forms.DateTimePicker no-undo. 
     define variable oUiValue#        as paninui.view.interfaces.i_uivalue   no-undo.
@@ -1053,10 +1066,10 @@ class paninui.view.use.sc_coll_eventdata
           oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
           paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
         end.  
-        if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+        if type-of(oSender#, System.Windows.Forms.ListControl) then 
         do:
           assign
-            oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
+            oComboBox# = cast(oSender#, System.Windows.Forms.ListControl)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
 
           sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata_combobox("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
@@ -1093,7 +1106,7 @@ class paninui.view.use.sc_coll_eventdata
   method private void OnEventArgsHandler_SelectionChangeCommitted(oSender# as System.Object, oArgs# as System.EventArgs):
     
     define variable bEclipseFix#      as logical                                        no-undo.
-    define variable oComboBox#        as System.Windows.Forms.ComboBox                  no-undo.
+    define variable oComboBox#        as System.Windows.Forms.ListControl               no-undo.
     define variable oUiValue#         as paninui.view.interfaces.i_uivalue              no-undo.
     define variable oUiValueCombobox# as paninui.view.use.events.c_uivalue_combobox     no-undo.
     define variable oUiEventData#     as paninui.view.use.events.c_uieventdata_combobox no-undo.
@@ -1109,10 +1122,10 @@ class paninui.view.use.sc_coll_eventdata
     
     do for ttUiEvent on error undo, throw:
       
-      if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+      if type-of(oSender#, System.Windows.Forms.ListControl) then 
       do:
         assign
-          oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox).
+          oComboBox# = cast(oSender#, System.Windows.Forms.ListControl).
       end.
 
       b_selectionchangecommitted:
@@ -1128,7 +1141,7 @@ class paninui.view.use.sc_coll_eventdata
         
         oUiEventData# = new paninui.view.use.events.c_uieventdata_combobox("","",?,ttUiEvent.iPackID,iFocusPackID#,?).
         
-        if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+        if type-of(oSender#, System.Windows.Forms.ListControl) then 
         do:
           assign
             oUiValueCombobox# = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue)))
@@ -1162,7 +1175,7 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_SelectedValueChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable oComboBox#      as System.Windows.Forms.ComboBox     no-undo.
+    define variable oComboBox#      as System.Windows.Forms.ListControl  no-undo.
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
 
     define variable bFirst#         as logical                           no-undo init true.
@@ -1182,10 +1195,10 @@ class paninui.view.use.sc_coll_eventdata
           oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
           paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
         end.  
-        if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+        if type-of(oSender#, System.Windows.Forms.ListControl) then 
         do:
           assign
-            oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
+            oComboBox# = cast(oSender#, System.Windows.Forms.ListControl)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
@@ -1203,7 +1216,7 @@ class paninui.view.use.sc_coll_eventdata
     
   method private void OnEventArgsHandler_SelectedIndexChanged(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable oComboBox#      as System.Windows.Forms.ComboBox     no-undo.
+    define variable oComboBox#      as System.Windows.Forms.ListControl  no-undo.
     define variable oTabControl#    as System.Windows.Forms.TabControl   no-undo.
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
 
@@ -1224,10 +1237,10 @@ class paninui.view.use.sc_coll_eventdata
           oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
           paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
         end.  
-        if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+        if type-of(oSender#, System.Windows.Forms.ListControl) then 
         do:
           assign
-            oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
+            oComboBox# = cast(oSender#, System.Windows.Forms.ListControl)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(oComboBox#:SelectedValue:ToString())).
         end.
         else
@@ -1252,7 +1265,7 @@ class paninui.view.use.sc_coll_eventdata
     
   method private void OnEventArgsHandler_DropDown(oSender# as System.Object, oArgs# as System.EventArgs):
                                                      
-    define variable oComboBox#      as System.Windows.Forms.ComboBox     no-undo.
+    define variable oComboBox#      as System.Windows.Forms.ListControl  no-undo.
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
 
     define variable bFirst#         as logical                           no-undo init true.
@@ -1272,10 +1285,10 @@ class paninui.view.use.sc_coll_eventdata
           oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
           paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
         end.  
-        if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+        if type-of(oSender#, System.Windows.Forms.ListControl) then 
         do:
           assign
-            oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
+            oComboBox# = cast(oSender#, System.Windows.Forms.ListControl)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
@@ -1293,7 +1306,7 @@ class paninui.view.use.sc_coll_eventdata
     
   method private void OnEventArgsHandler_DropDownClosed(oSender# as System.Object, oArgs# as System.EventArgs):
                                                      
-    define variable oComboBox#      as System.Windows.Forms.ComboBox     no-undo.
+    define variable oComboBox#      as System.Windows.Forms.ListControl  no-undo.
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
 
     define variable bFirst#         as logical                           no-undo init true.
@@ -1313,10 +1326,10 @@ class paninui.view.use.sc_coll_eventdata
           oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
           paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
         end.  
-        if type-of(oSender#, System.Windows.Forms.ComboBox) then 
+        if type-of(oSender#, System.Windows.Forms.ListControl) then 
         do:
           assign
-            oComboBox# = cast(oSender#, System.Windows.Forms.ComboBox)
+            oComboBox# = cast(oSender#, System.Windows.Forms.ListControl)
             oUiValue#  = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oComboBox#,oComboBox#:Name,""), oComboBox#:Enabled, oComboBox#:Visible, oComboBox#:Text, int64(string(oComboBox#:SelectedValue))).
         end.
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
