@@ -80,7 +80,7 @@ class paninui.view.use.display.sc_displaydata   :
         do: 
           if entry(1,oChildNames#[iTell#],".") = cLinkName#
             or
-            ( cLinkNameAlt# > "" and entry(1,oChildNames#[iTell#],".") = cLinkNameAlt#)
+            (length(cLinkNameAlt#) > 0 and entry(1,oChildNames#[iTell#],".") = cLinkNameAlt#)
             then 
           do:
             if entry(1,oChildNames#[iTell#],".") = cLinkName# then cLinkNameAlt#. /* Specific buffer name is found, 
@@ -346,7 +346,7 @@ class paninui.view.use.display.sc_displaydata   :
     define variable bIsDisplayLinkedOP# as logical                       no-undo.
     define variable oBindingSource#     as c_bindingsource               no-undo.
     define variable oWidget#            as Progress.Lang.Object          no-undo.
-    define variable oComboBox#          as System.Windows.Forms.ComboBox no-undo.
+    define variable oComboBox#          as System.Windows.Forms.ListControl no-undo.
     define variable cBase#              as character                     no-undo.
     define variable cDataRef#           as character                     no-undo.
     define variable cRemainder#         as character                     no-undo.
@@ -358,9 +358,9 @@ class paninui.view.use.display.sc_displaydata   :
     
     if not bIsDisplayLinkedOP# then
     do:
-      if type-of(oWidget#, System.Windows.Forms.ComboBox) then
+      if type-of(oWidget#, System.Windows.Forms.ListControl) then
       do:
-        oComboBox# = cast(oWidget#, System.Windows.Forms.ComboBox).
+        oComboBox# = cast(oWidget#, System.Windows.Forms.ListControl).
         oBindingSource# = oQryIP#:sys__oBindingSource.
         if not valid-object(oBindingSource#) then 
         do:
