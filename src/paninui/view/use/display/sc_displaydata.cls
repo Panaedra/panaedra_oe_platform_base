@@ -80,7 +80,7 @@ class paninui.view.use.display.sc_displaydata   :
         do: 
           if entry(1,oChildNames#[iTell#],".") = cLinkName#
             or
-            ( cLinkNameAlt# > "" and entry(1,oChildNames#[iTell#],".") = cLinkNameAlt#)
+            (length(cLinkNameAlt#) > 0 and entry(1,oChildNames#[iTell#],".") = cLinkNameAlt#)
             then 
           do:
             if entry(1,oChildNames#[iTell#],".") = cLinkName# then cLinkNameAlt#. /* Specific buffer name is found, 
@@ -343,26 +343,24 @@ class paninui.view.use.display.sc_displaydata   :
     cWidgetNameIP#   as character,
     oQryIP#          as i_qry):
 
-    define variable bIsDisplayLinkedOP# as logical                       no-undo.
-    define variable oBindingSource#     as c_bindingsource               no-undo.
-    define variable oWidget#            as Progress.Lang.Object          no-undo.
-    define variable oComboBox#          as System.Windows.Forms.ComboBox no-undo.
-    define variable cBase#              as character                     no-undo.
-    define variable cDataRef#           as character                     no-undo.
-    define variable cRemainder#         as character                     no-undo.
-    define variable cCased#             as character                     no-undo.
+    define variable bIsDisplayLinkedOP# as logical                          no-undo.
+    define variable oBindingSource#     as c_bindingsource                  no-undo.
+    define variable oWidget#            as Progress.Lang.Object             no-undo.
+    define variable oComboBox#          as System.Windows.Forms.ListControl no-undo.
+    define variable cBase#              as character                        no-undo.
+    define variable cDataRef#           as character                        no-undo.
+    define variable cRemainder#         as character                        no-undo.
+    define variable cCased#             as character                        no-undo.
 
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", ?, cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
     cDataRef# = panaedra.msroot.msutil.logic.sc_string_prefixsuffix:GetPrefix(oQryIP#:sys__hQuery:get-buffer-handle(1):name, output cRemainder#).
     
-    cDataRef# = cRemainder#.
-    
     if not bIsDisplayLinkedOP# then
     do:
-      if type-of(oWidget#, System.Windows.Forms.ComboBox) then
+      if type-of(oWidget#, System.Windows.Forms.ListControl) then
       do:
-        oComboBox# = cast(oWidget#, System.Windows.Forms.ComboBox).
+        oComboBox# = cast(oWidget#, System.Windows.Forms.ListControl).
         oBindingSource# = oQryIP#:sys__oBindingSource.
         if not valid-object(oBindingSource#) then 
         do:
@@ -376,18 +374,22 @@ class paninui.view.use.display.sc_displaydata   :
         
         oComboBox#:DisplayMember = oQryIP#:hDisplayField[1]:name.
         
-        if num-entries(cDataRef#,".") >= 2 then
-          oComboBox#:ValueMember   = subst("iID&1", entry(1,cDataRef#,".")).
-        else 
-        do:
-          cCased# = sc_dbtrig:GetCased(oQryIP#:sys__hQuery:get-buffer-handle(1)).
-          do on error undo, throw:
-            oComboBox#:ValueMember   = subst("iID&1", cCased#).
-            catch ex as Progress.Lang.Error :
-              undo, throw new Progress.Lang.AppError(subst("ValueMember of combobox could not be set. Does your temp-table contain a &1 field?", subst("iID&1", cCased#)), 99950823).
-            end catch.
+        if extent(oQryIP#:hKeyField) <> ? and 
+          valid-handle(oQryIP#:hKeyField[1]) then            
+          oComboBox#:ValueMember = oQryIP#:hKeyField[1]:name.
+        else
+          if num-entries(cDataRef#,".") >= 2 then
+            oComboBox#:ValueMember   = subst("iID&1", entry(1,cDataRef#,".")).
+          else 
+          do:
+            cCased# = sc_dbtrig:GetCased(oQryIP#:sys__hQuery:get-buffer-handle(1)).
+            do on error undo, throw:
+              oComboBox#:ValueMember   = subst("iID&1", cCased#).
+              catch ex as Progress.Lang.Error :
+                undo, throw new Progress.Lang.AppError(subst("ValueMember of combobox could not be set. Does your temp-table contain a &1 field?", subst("iID&1", cCased#)), 99950823).
+              end catch.
+            end.
           end.
-        end.
       end.
       sc_coll_widgetdata:SetDisplayLinked(oWidget#).
     end.
@@ -714,7 +716,7 @@ class paninui.view.use.display.sc_displaydata   :
     define variable oWidget#            as Progress.Lang.Object                    no-undo.
     define variable oFormsGrid#         as System.Windows.Forms.DataGridView       no-undo.
     define variable oFormsGridColumn#   as System.Windows.Forms.DataGridViewColumn no-undo.
-    define variable cWidgetItemName#    as character no-undo.
+    define variable cWidgetItemName#    as character                               no-undo.
 
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "grid", cWidgetNameIP#, output bIsDisplayLinkedOP#).
     
@@ -955,7 +957,7 @@ class paninui.view.use.display.sc_displaydata   :
             end case.
             
           otherwise  
-            bEnumProperty# = no.
+          bEnumProperty# = no.
           
         end case.     
          
