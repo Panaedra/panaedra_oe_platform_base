@@ -80,7 +80,7 @@ class paninui.view.use.display.sc_displaydata   :
         do: 
           if entry(1,oChildNames#[iTell#],".") = cLinkName#
             or
-            (length(cLinkNameAlt#) > 0 and entry(1,oChildNames#[iTell#],".") = cLinkNameAlt#)
+            ( cLinkNameAlt# > "" and entry(1,oChildNames#[iTell#],".") = cLinkNameAlt#)
             then 
           do:
             if entry(1,oChildNames#[iTell#],".") = cLinkName# then cLinkNameAlt#. /* Specific buffer name is found, 
@@ -346,7 +346,7 @@ class paninui.view.use.display.sc_displaydata   :
     define variable bIsDisplayLinkedOP# as logical                       no-undo.
     define variable oBindingSource#     as c_bindingsource               no-undo.
     define variable oWidget#            as Progress.Lang.Object          no-undo.
-    define variable oComboBox#          as System.Windows.Forms.ListControl no-undo.
+    define variable oComboBox#          as System.Windows.Forms.ComboBox no-undo.
     define variable cBase#              as character                     no-undo.
     define variable cDataRef#           as character                     no-undo.
     define variable cRemainder#         as character                     no-undo.
@@ -356,11 +356,13 @@ class paninui.view.use.display.sc_displaydata   :
     
     cDataRef# = panaedra.msroot.msutil.logic.sc_string_prefixsuffix:GetPrefix(oQryIP#:sys__hQuery:get-buffer-handle(1):name, output cRemainder#).
     
+    cDataRef# = cRemainder#.
+    
     if not bIsDisplayLinkedOP# then
     do:
-      if type-of(oWidget#, System.Windows.Forms.ListControl) then
+      if type-of(oWidget#, System.Windows.Forms.ComboBox) then
       do:
-        oComboBox# = cast(oWidget#, System.Windows.Forms.ListControl).
+        oComboBox# = cast(oWidget#, System.Windows.Forms.ComboBox).
         oBindingSource# = oQryIP#:sys__oBindingSource.
         if not valid-object(oBindingSource#) then 
         do:
@@ -374,10 +376,6 @@ class paninui.view.use.display.sc_displaydata   :
         
         oComboBox#:DisplayMember = oQryIP#:hDisplayField[1]:name.
         
-        if extent(oQryIP#:hKeyField) > 0 and 
-           valid-handle(oQryIP#:hKeyField[1]) then            
-          oComboBox#:ValueMember = oQryIP#:hKeyField[1]:name.
-        else
         if num-entries(cDataRef#,".") >= 2 then
           oComboBox#:ValueMember   = subst("iID&1", entry(1,cDataRef#,".")).
         else 
