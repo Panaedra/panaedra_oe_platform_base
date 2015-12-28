@@ -106,6 +106,27 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
   end method. /* getKeyfields */
   
   
+  method public static character GetFieldnames(
+    /* Return the field-names of a table */
+    input hBufferIP# as handle 
+    ):
+
+    define variable iIndex#       as int       no-undo.
+    define variable hField#       as handle    no-undo.
+    define variable cSvFieldnames as character no-undo.
+    
+    do iIndex# = 1 to hBufferIP#:num-fields:
+      hField# = hBufferIP#:buffer-field (iIndex#).
+      cSvFieldnames = cSvFieldnames + "," + hField#:name.
+    end.
+    
+    cSvFieldnames = trim(cSvFieldnames,",").
+
+    return cSvFieldnames.    
+  
+  end method. /* GetFieldNames */
+  
+  
   method public static character GetKeyFieldValues(
     input hBufferIP# as handle,
     input cSeparatorCharIP# as character
@@ -200,11 +221,11 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
           hField#:buffer-value = string(cValueIP#).
         
         otherwise
-          undo, throw new c_panaedraexception(
-            99950104,
-            sc_lang:oEnglish,
-            substitute("Datatype '&1' not implemented (yet).", hField#:data-type)
-            ).
+        undo, throw new c_panaedraexception(
+          99950104,
+          sc_lang:oEnglish,
+          substitute("Datatype '&1' not implemented (yet).", hField#:data-type)
+          ).
       end case.
       
     end.  
