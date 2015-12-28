@@ -11,13 +11,13 @@
 /******************************* $NoKeywords:  $ *****************************/
 
 &if opsys = "win32" &then
-&glob qx_python_dll "E:\work\eclipse\11.1A\python_core\PCbuild\qx_python.dll"
+&glob qx_python_dll "panaedra_pythonbridge_python2_x86.dll"
 &else
 &glob qx_python_dll "panaedra/msroot/mspy/bin/aix_64/panaedra_pythonbridge.so"
 &endif
 
 &if opsys = "win32" &then
-&glob PythonExePath "E:\work\eclipse\11.1A\python_core\PCbuild\python.exe"
+&glob PythonExePath "D:\Program Files\xbin_dev_shared\python\2.7\python.exe"
 &else
 &glob PythonExePath "/usr/bin/python2.7"
 &endif
@@ -56,6 +56,7 @@ end procedure.
 
 &scop RunPy1 ~
   define input parameter        iPyObjectOP#      as long             no-undo. ~
+  define input parameter        iInputLenIP#      as int64            no-undo. ~
   define input parameter        clobInputOP#      as handle to memptr no-undo. ~
   define input-output parameter mOutputOP#        as handle to memptr no-undo. ~
   define input parameter        iOutputAllocSize# as int64            no-undo. ~
@@ -77,6 +78,7 @@ end procedure.
 
 &scop RunPy2 ~
   define input parameter        iPyObjectOP#      as long             no-undo. ~
+  define input parameter        iInputLenIP#      as int64            no-undo. ~
   define input parameter        clobInputOP#      as handle to memptr no-undo. ~
   define output parameter       iOutputLenOP#     as int64            no-undo. ~
   define input-output parameter mErrorOP#         as handle to memptr no-undo. ~
