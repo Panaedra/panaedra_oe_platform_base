@@ -248,7 +248,7 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     set-size(mInput) = 0.
     copy-lob clobDataIn to mInput. /* Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
     
-    run QxPy_RunCompiledPyCodeUnbuffered in hProcEvalPython (iPyObjectIP#, input mInput, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
+    run QxPy_RunCompiledPyCodeUnbuffered in hProcEvalPython (iPyObjectIP#, get-size(mInput), input mInput, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
     
     set-size(mInput) = 0.
     
@@ -299,7 +299,7 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     set-size(mInput) = 0.
     copy-lob clobDataIn to mInput. /* Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
     
-    run QxPy_RunCompiledPyCodeUnbufferedB in hProcEvalPython (iPyObjectIP#, input mInput, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
+    run QxPy_RunCompiledPyCodeUnbufferedB in hProcEvalPython (iPyObjectIP#, get-size(mInput), mInput, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
     
     set-size(mInput) = 0.
     
@@ -351,7 +351,7 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     set-size(mInput) = 0.
     copy-lob clobDataIn to mInput. /* Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
     
-    run QxPy_RunCompiledPyCodeUnbufferedBB in hProcEvalPython (iPyObjectIP#, input mInput, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
+    run QxPy_RunCompiledPyCodeUnbufferedBB in hProcEvalPython (iPyObjectIP#, get-size(mInput), mInput, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
     
     set-size(mInput) = 0.
     
