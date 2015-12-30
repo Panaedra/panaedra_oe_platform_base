@@ -65,8 +65,7 @@
         paninui.view.interfaces.sc_widgettype:i_~{~&JoinUiWidget}, ~~n~
         this-object:iPackID, this-object:iFrmLogicID, ~~n~
         iDelegateID#, ~{~&JoinUiLogicObject}, "~{~&JoinUiWidgetName}", "~{~&JoinUiEvent}"  ~{&JoinUiEventOptions}). ~~n~
-&glob JoinUiEventCodeFooter ~~n~
-    /*Ctrl-I-Fix*/ ~~n
+&glob JoinUiEventCodeFooter
 using Progress.Lang.*.
 using paninui.view.init.delegates.* from assembly. 
 using paninui.view.enums.* from assembly. 
