@@ -34,7 +34,6 @@
 
 \**************************** End of Dvcs_ Header ****************************/
 &endif &glob ~
-    /*Ctrl-I-Fix*/ ~~n~
     sourcecontrolversions {&sourcecontrolversions} | paninui_logic_includes_c_frmlg_eventhandling_i $Revision: 7 $
 &if no &then 
 /*$NoKeywords:  $*/ 
@@ -66,8 +65,8 @@
         paninui.view.interfaces.sc_widgettype:i_~{~&JoinUiWidget}, ~~n~
         this-object:iPackID, this-object:iFrmLogicID, ~~n~
         iDelegateID#, ~{~&JoinUiLogicObject}, "~{~&JoinUiWidgetName}", "~{~&JoinUiEvent}"  ~{&JoinUiEventOptions}). ~~n~
-&glob JoinUiEventCodeFooter 
-/*Ctrl-I-Fix*/ ~~n~
+&glob JoinUiEventCodeFooter ~~n~
+    /*Ctrl-I-Fix*/ ~~n
 using Progress.Lang.*.
 using paninui.view.init.delegates.* from assembly. 
 using paninui.view.enums.* from assembly. 
