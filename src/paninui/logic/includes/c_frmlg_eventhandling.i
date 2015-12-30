@@ -26,9 +26,15 @@
                 
                  This include's formatting (no linebreaks between commands, no EOF tag, and the ~~n's) is
                  optimized for neat preprocessed code.
+                 
+          Notes: "Ctrl-I-Fix" fixes formatting errors in the Eclipse OpenEdge editor, when pressing Ctrl-I 
+                 which auto-indents the source code. The fix is very sensitive; " Ctrl-I-Fix " does not work 
+                 as comment, and "Ctrl-I-Fix" (without spaces) *does* work. OE11.3win32 2015Q4. 
+                 The fix was especially needed for the JoinUiExceptionCatches preprocessor in frame logic classes.
 
 \**************************** End of Dvcs_ Header ****************************/
 &endif &glob ~
+    /*Ctrl-I-Fix*/ ~~n~
     sourcecontrolversions {&sourcecontrolversions} | paninui_logic_includes_c_frmlg_eventhandling_i $Revision: 7 $
 &if no &then 
 /*$NoKeywords:  $*/ 
@@ -36,18 +42,22 @@
     System.Object
 &glob JoinUiCallParm oNullIP# as {&JoinUiNull} 
 &glob JoinUiEventClass ~
+    /*Ctrl-I-Fix*/ ~~n~
     inherits tool.c-frm-join_base implements tool.i-frm-join
 &glob JoinUiEventCodeHeader ~
+    /*Ctrl-I-Fix*/ ~~n~
     def var o-joinhelp as c_delegate_helper no-undo. ~~n~
     def var iDelegateID# as int64 no-undo.
 &glob JoinUiExceptionCatches ~
+    /*Ctrl-I-Fix*/ ~~n~
     catch oException# as System.Exception: ~~n~
       sc_showexception:ShowException(oException#). ~~n~
     end catch. ~~n~
     catch oError# as Progress.Lang.Error: ~~n~
       sc_showexception:ShowException(oError#). ~~n~
-    end catch.
+    end catch. ~~n
 &glob JoinUiEventCode ~~n~
+    /*Ctrl-I-Fix*/ ~~n~
     o-joinhelp = sc_coll_delegatedata:JoinInit(this-object,c_eventtype:~{&JoinUiWidget}_~{&JoinUiEvent}). ~~n~
     o-joinhelp:JoinEvent:subscribe(On_~{&JoinUiWidget}_~{&JoinUiWidgetName}_~{&JoinUiEvent}). ~~n~
     iDelegateID# = sc_coll_delegatedata:JoinFinish(this-object,o-joinhelp). ~~n~
@@ -57,6 +67,7 @@
         this-object:iPackID, this-object:iFrmLogicID, ~~n~
         iDelegateID#, ~{~&JoinUiLogicObject}, "~{~&JoinUiWidgetName}", "~{~&JoinUiEvent}"  ~{&JoinUiEventOptions}). ~~n~
 &glob JoinUiEventCodeFooter 
+/*Ctrl-I-Fix*/ ~~n~
 using Progress.Lang.*.
 using paninui.view.init.delegates.* from assembly. 
 using paninui.view.enums.* from assembly. 
@@ -67,6 +78,7 @@ using paninui.view.use.display.*.
 using paninui.view.use.events.*. 
 using paninui.view.interfaces.*.
 &else
+/*Ctrl-I-Fix*/ ~~n~
 using paninui.view.use.*.
 using paninui.view.use.display.*.
 using paninui.view.use.events.*. 
