@@ -107,20 +107,22 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
 
 
   method public static character GetFieldnames(
-    /* Return the field-names of a table */
-    input hBufferIP# as handle 
-    ):
-
-    return GetFieldnames(hBufferIP#,",").    
   
-  end method. /* GetFieldnames */
+    /* Return a list of field-names from a buffer */
+    
+    input hBufferIP# as handle):
+
+    return GetFieldnames(hBufferIP#, ",").
+  
+  end method. /* GetFieldnames ; simple overload with ',' (comma) as delimiter */
   
   
   method public static character GetFieldnames(
-    /* Return the field-names of a table */
-    input hBufferIP# as handle,
-    input cDelimiterIP# as character 
-    ):
+  
+    /* Return a list of field-names from a buffer */
+    
+    input hBufferIP#    as handle,
+    input cDelimiterIP# as character):
 
     define variable iIndex#        as int       no-undo.
     define variable hField#        as handle    no-undo.
@@ -128,11 +130,11 @@ class panaedra.msroot.msutil.logic.sc_bufferfield:
     
     do iIndex# = 1 to hBufferIP#:num-fields:
       assign
-        hField#        = hBufferIP#:buffer-field (iIndex#)
-        cSvFieldnames# = cSvFieldnames# + cDelimiterIP# + hField#:name.
+        hField#        = hBufferIP#:buffer-field(iIndex#)
+        cSvFieldnames# = cSvFieldnames# + cDelimiterIP# + trim(substitute("&1", hField#:name)).
     end.
     
-    cSvFieldnames# = trim(cSvFieldnames#,cDelimiterIP#).
+    cSvFieldnames# = trim(cSvFieldnames#, cDelimiterIP#).
 
     return cSvFieldnames#.    
   
