@@ -236,6 +236,23 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
   end method. /* PyRunU */
   
   
+  method public void PyRunMU(
+    input iDataLenIP#  as integer, 
+    input mDataIP#     as memptr):
+
+    /* Unbuffered / memptr in / clob out , see header in next method called. */
+    
+    QxPy_RunCompiledPyCodeUnbufferedM(iId, iDataLenIP#, mDataIP#).
+
+    if clobError > "" then
+      undo, throw new c_panaedraexception(
+        99937291,
+        sc_lang:oEnglish,
+        substitute("&1", substring(clobError,1,1000))). /* We don't apply formatting, the python exception is already formatted. */
+    
+  end method. /* PyRunU */
+  
+  
   method public void QxPy_RunCompiledPyCodeUnbuffered(
   
     /* Run compiled python code. cInputIP in python is a unicode object */
@@ -251,6 +268,35 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     run QxPy_RunCompiledPyCodeUnbuffered in hProcEvalPython (iPyObjectIP#, get-size(mInput), input mInput, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
     
     set-size(mInput) = 0.
+    
+    if iOutputLen > 0 then
+      clobOutput = get-string(mOutput, 1, iOutputLen).
+      &if false &then
+      /* This should be more correct (with convert to cpinternal), but gives the following error: 
+         copy-lob mOutput starting at 1 for iOutputLen to clobOutput. 
+         gives (OE10.2B04,OE11.2,OE11.2SP01) Cannot copy large object starting at 1 for 17 bytes when object size is 0. (11305)*/
+      /* Note on mOutput : set-size to 0 not needed, memptr lives in python, ABL does not even know the size. */    
+      &endif
+    else
+      clobOutput = "".
+      
+    if iErrorLen > 0 then
+      clobError = get-string(mError, 1, iErrorLen).
+    else
+      clobError = "".
+      
+  end method. /* QxPy_RunCompiledPyCodeUnbuffered */
+  
+  
+  method public void QxPy_RunCompiledPyCodeUnbufferedM(
+  
+    /* Run compiled python code. cInputIP in python is a unicode object */
+
+    input iPyObjectIP# as integer,
+    input iDataLenIP#  as integer,
+    input mDataIP#     as memptr):
+      
+    run QxPy_RunCompiledPyCodeUnbuffered in hProcEvalPython (iPyObjectIP#, iDataLenIP#, input mDataIP#, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
     
     if iOutputLen > 0 then
       clobOutput = get-string(mOutput, 1, iOutputLen).
