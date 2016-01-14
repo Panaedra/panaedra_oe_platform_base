@@ -29,12 +29,13 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
   define protected static variable hProcEvalPython as handle    no-undo.
   define protected static variable iNumInstances   as integer   no-undo.
 
-  define public           variable clobDataIn      as longchar  no-undo.
+  define public           variable clobDataIn      as longchar  no-undo. /* Note: Use either clobDataIn or blobDataIn    */
+  define public           variable blobDataIn      as memptr    no-undo. /* Note: Use either clobDataIn or blobDataIn    */
+  define public           variable iLenBlobDataIn  as int64     no-undo. /* Note: only used when blobDataIn has size > 0 */
   define public           variable clobOutput      as longchar  no-undo.
   define public           variable clobError       as longchar  no-undo.
   define protected        variable mError          as memptr    no-undo.
   define public           variable iErrorLen       as int64     no-undo.
-  define protected        variable mInput          as memptr    no-undo.
   define protected        variable mOutput         as memptr    no-undo.
   define public           variable iOutputLen      as int64     no-undo.
   define public           variable clobPyCode      as longchar  no-undo.
@@ -236,67 +237,29 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
   end method. /* PyRunU */
   
   
-  method public void PyRunMU(
-    input iDataLenIP#  as integer, 
-    input mDataIP#     as memptr):
-
-    /* Unbuffered / memptr in / clob out , see header in next method called. */
-    
-    QxPy_RunCompiledPyCodeUnbufferedM(iId, iDataLenIP#, mDataIP#).
-
-    if clobError > "" then
-      undo, throw new c_panaedraexception(
-        99937291,
-        sc_lang:oEnglish,
-        substitute("&1", substring(clobError,1,1000))). /* We don't apply formatting, the python exception is already formatted. */
-    
-  end method. /* PyRunU */
-  
-  
   method public void QxPy_RunCompiledPyCodeUnbuffered(
   
     /* Run compiled python code. cInputIP in python is a unicode object */
 
     input iPyObjectIP# as integer):
-
-    if clobDataIn = "" or clobDataIn = ? then
-      clobDataIn = " ". /* Some data needed (one space), otherwise OE complains about uninitialized memptr */
-    
-    set-size(mInput) = 0.
-    copy-lob clobDataIn to mInput. /* Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
-    
-    run QxPy_RunCompiledPyCodeUnbuffered in hProcEvalPython (iPyObjectIP#, get-size(mInput), input mInput, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
-    
-    set-size(mInput) = 0.
-    
-    if iOutputLen > 0 then
-      clobOutput = get-string(mOutput, 1, iOutputLen).
-      &if false &then
-      /* This should be more correct (with convert to cpinternal), but gives the following error: 
-         copy-lob mOutput starting at 1 for iOutputLen to clobOutput. 
-         gives (OE10.2B04,OE11.2,OE11.2SP01) Cannot copy large object starting at 1 for 17 bytes when object size is 0. (11305)*/
-      /* Note on mOutput : set-size to 0 not needed, memptr lives in python, ABL does not even know the size. */    
-      &endif
-    else
-      clobOutput = "".
       
-    if iErrorLen > 0 then
-      clobError = get-string(mError, 1, iErrorLen).
-    else
-      clobError = "".
-      
-  end method. /* QxPy_RunCompiledPyCodeUnbuffered */
-  
-  
-  method public void QxPy_RunCompiledPyCodeUnbufferedM(
-  
-    /* Run compiled python code. cInputIP in python is a unicode object */
-
-    input iPyObjectIP# as integer,
-    input iDataLenIP#  as integer,
-    input mDataIP#     as memptr):
-      
-    run QxPy_RunCompiledPyCodeUnbuffered in hProcEvalPython (iPyObjectIP#, iDataLenIP#, input mDataIP#, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
+    define variable bUseBlobDataIn# as logical no-undo.
+    
+    bUseBlobDataIn# = (iLenBlobDataIn > 0 and get-size(blobDataIn) > 0).
+    
+    if not bUseBlobDataIn# then
+    do:
+      if clobDataIn = "" or clobDataIn = ? then
+        clobDataIn = " ". /* Some data needed (one space), otherwise OE complains about uninitialized memptr */
+      set-size(blobDataIn) = 0.
+      copy-lob clobDataIn to blobDataIn. /* Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
+      iLenBlobDataIn = get-size(blobDataIn).
+    end.
+    
+    run QxPy_RunCompiledPyCodeUnbuffered in hProcEvalPython (iPyObjectIP#, iLenBlobDataIn, blobDataIn, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
+    
+    if not bUseBlobDataIn# then
+      set-size(blobDataIn) = 0.
     
     if iOutputLen > 0 then
       clobOutput = get-string(mOutput, 1, iOutputLen).
@@ -338,16 +301,23 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     
     input iPyObjectIP# as integer):
     
-
-    if clobDataIn = "" or clobDataIn = ? then
-      clobDataIn = " ". /* Some data needed (one space), otherwise OE complains about uninitialized memptr */
+    define variable bUseBlobDataIn# as logical no-undo.
     
-    set-size(mInput) = 0.
-    copy-lob clobDataIn to mInput. /* Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
+    bUseBlobDataIn# = (iLenBlobDataIn > 0 and get-size(blobDataIn) > 0).
     
-    run QxPy_RunCompiledPyCodeUnbufferedB in hProcEvalPython (iPyObjectIP#, get-size(mInput), mInput, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
+    if not bUseBlobDataIn# then
+    do:
+      if clobDataIn = "" or clobDataIn = ? then
+        clobDataIn = " ". /* Some data needed (one space), otherwise OE complains about uninitialized memptr */
+      set-size(blobDataIn) = 0.
+      copy-lob clobDataIn to blobDataIn. /* Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
+      iLenBlobDataIn = get-size(blobDataIn).
+    end.
     
-    set-size(mInput) = 0.
+    run QxPy_RunCompiledPyCodeUnbufferedB in hProcEvalPython (iPyObjectIP#, iLenBlobDataIn, blobDataIn, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
+    
+    if not bUseBlobDataIn# then
+      set-size(blobDataIn) = 0.
     
     if iOutputLen > 0 then
       clobOutput = get-string(mOutput, 1, min(iOutputLen,31500)).
@@ -391,15 +361,23 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     input iPyObjectIP# as integer):
     
 
-    if clobDataIn = "" or clobDataIn = ? then
-      clobDataIn = " ". /* Some data needed (one space), otherwise OE complains about uninitialized memptr */
+    define variable bUseBlobDataIn# as logical no-undo.
     
-    set-size(mInput) = 0.
-    copy-lob clobDataIn to mInput. /* Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
+    bUseBlobDataIn# = (iLenBlobDataIn > 0 and get-size(blobDataIn) > 0).
     
-    run QxPy_RunCompiledPyCodeUnbufferedBB in hProcEvalPython (iPyObjectIP#, get-size(mInput), mInput, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
+    if not bUseBlobDataIn# then
+    do:
+      if clobDataIn = "" or clobDataIn = ? then
+        clobDataIn = " ". /* Some data needed (one space), otherwise OE complains about uninitialized memptr */
+      set-size(blobDataIn) = 0.
+      copy-lob clobDataIn to blobDataIn. /* Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
+      iLenBlobDataIn = get-size(blobDataIn).
+    end.
     
-    set-size(mInput) = 0.
+    run QxPy_RunCompiledPyCodeUnbufferedBB in hProcEvalPython (iPyObjectIP#, iLenBlobDataIn, blobDataIn, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
+    
+    if not bUseBlobDataIn# then
+      set-size(blobDataIn) = 0.
     
     if iOutputLen > 0 then
       clobOutput = get-string(mOutput, 1, iOutputLen).
