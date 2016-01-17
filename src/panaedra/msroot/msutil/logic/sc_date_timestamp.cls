@@ -32,6 +32,11 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
       return replace(replace(replace(substring(iso-date(now),1,23),":",""),".",""),"-","").
     end get.
 
+  define public static property cTimeStamp_Short_CCYYMMDDmmssuuu as character no-undo get:
+      /* Same as cTimeStamp_Short_DateAndTime, but without the 'T' in the middle. For backward compatibility with the old datelib.p dynamic-function("TimeStamp",today,"DTM","") */
+      return replace(replace(replace(replace(substring(iso-date(now),1,23),":",""),".",""),"-",""),"T","").
+    end get.
+
   define public static property cTimeStamp_Readable_Date as character no-undo get:
       return replace(replace(replace(substring(iso-date(now),1,10),":","_"),".","_"),"-","_").
     end get.
