@@ -33,11 +33,11 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
   define public           variable blobDataIn      as memptr    no-undo. /* Note: Use either clobDataIn or blobDataIn    */
   define public           variable iLenBlobDataIn  as int64     no-undo. /* Note: only used when blobDataIn has size > 0 */
   define public           variable clobOutput      as longchar  no-undo.
+  define public           variable blobOutput      as memptr    no-undo.
+  define public           variable iOutputLen      as int64     no-undo.
   define public           variable clobError       as longchar  no-undo.
   define protected        variable mError          as memptr    no-undo.
   define public           variable iErrorLen       as int64     no-undo.
-  define protected        variable mOutput         as memptr    no-undo.
-  define public           variable iOutputLen      as int64     no-undo.
   define public           variable clobPyCode      as longchar  no-undo.
   
   define protected static variable cSvId           as character no-undo. /* We use a csv instead of a temp-table. This is quicker up until about 200 entries. */
@@ -256,18 +256,18 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
       iLenBlobDataIn = get-size(blobDataIn).
     end.
     
-    run QxPy_RunCompiledPyCodeUnbuffered in hProcEvalPython (iPyObjectIP#, iLenBlobDataIn, blobDataIn, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
+    run QxPy_RunCompiledPyCodeUnbuffered in hProcEvalPython (iPyObjectIP#, iLenBlobDataIn, blobDataIn, output iOutputLen, input-output mError, output iErrorLen, output blobOutput).
     
     if not bUseBlobDataIn# then
       set-size(blobDataIn) = 0.
     
     if iOutputLen > 0 then
-      clobOutput = get-string(mOutput, 1, iOutputLen).
+      clobOutput = get-string(blobOutput, 1, iOutputLen).
       &if false &then
       /* This should be more correct (with convert to cpinternal), but gives the following error: 
-         copy-lob mOutput starting at 1 for iOutputLen to clobOutput. 
+         copy-lob blobOutput starting at 1 for iOutputLen to clobOutput. 
          gives (OE10.2B04,OE11.2,OE11.2SP01) Cannot copy large object starting at 1 for 17 bytes when object size is 0. (11305)*/
-      /* Note on mOutput : set-size to 0 not needed, memptr lives in python, ABL does not even know the size. */    
+      /* Note on blobOutput : set-size to 0 not needed, memptr lives in python, ABL does not even know the size. */    
       &endif
     else
       clobOutput = "".
@@ -314,18 +314,18 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
       iLenBlobDataIn = get-size(blobDataIn).
     end.
     
-    run QxPy_RunCompiledPyCodeUnbufferedB in hProcEvalPython (iPyObjectIP#, iLenBlobDataIn, blobDataIn, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
+    run QxPy_RunCompiledPyCodeUnbufferedB in hProcEvalPython (iPyObjectIP#, iLenBlobDataIn, blobDataIn, output iOutputLen, input-output mError, output iErrorLen, output blobOutput).
     
     if not bUseBlobDataIn# then
       set-size(blobDataIn) = 0.
     
     if iOutputLen > 0 then
-      clobOutput = get-string(mOutput, 1, min(iOutputLen,31500)).
+      clobOutput = get-string(blobOutput, 1, min(iOutputLen,31500)).
       &if false &then
       /* This should be more correct (with convert to cpinternal), but gives the following error: 
-         copy-lob mOutput starting at 1 for iOutputLen to clobOutput. 
+         copy-lob blobOutput starting at 1 for iOutputLen to clobOutput. 
          gives (OE10.2B04,OE11.2,OE11.2SP01) Cannot copy large object starting at 1 for 17 bytes when object size is 0. (11305)*/
-      /* Note on mOutput : set-size to 0 not needed, memptr lives in python, ABL does not even know the size. */    
+      /* Note on blobOutput : set-size to 0 not needed, memptr lives in python, ABL does not even know the size. */    
       &endif
     else
       clobOutput = "".
@@ -360,7 +360,6 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     
     input iPyObjectIP# as integer):
     
-
     define variable bUseBlobDataIn# as logical no-undo.
     
     bUseBlobDataIn# = (iLenBlobDataIn > 0 and get-size(blobDataIn) > 0).
@@ -374,18 +373,20 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
       iLenBlobDataIn = get-size(blobDataIn).
     end.
     
-    run QxPy_RunCompiledPyCodeUnbufferedBB in hProcEvalPython (iPyObjectIP#, iLenBlobDataIn, blobDataIn, output iOutputLen, input-output mError, output iErrorLen, output mOutput).
+    run QxPy_RunCompiledPyCodeUnbufferedBB in hProcEvalPython (iPyObjectIP#, iLenBlobDataIn, blobDataIn, output iOutputLen, input-output mError, output iErrorLen, output blobOutput).
     
     if not bUseBlobDataIn# then
       set-size(blobDataIn) = 0.
     
-    if iOutputLen > 0 then
-      clobOutput = get-string(mOutput, 1, iOutputLen).
+    if iOutputLen > 0 
+      and (not bUseBlobDataIn#) /* Note: If the caller uses blob data, and uses "bytearray in / bytearray out", it will expect to find the binary data in blobOutput, not clobOutput */
+      then
+      clobOutput = get-string(blobOutput, 1, iOutputLen).
       &if false &then
       /* This should be more correct (with convert to cpinternal), but gives the following error: 
-         copy-lob mOutput starting at 1 for iOutputLen to clobOutput. 
+         copy-lob blobOutput starting at 1 for iOutputLen to clobOutput. 
          gives (OE10.2B04,OE11.2,OE11.2SP01) Cannot copy large object starting at 1 for 17 bytes when object size is 0. (11305)*/
-      /* Note on mOutput : set-size to 0 not needed, memptr lives in python, ABL does not even know the size. */    
+      /* Note on blobOutput : set-size to 0 not needed, memptr lives in python, ABL does not even know the size. */    
       &endif
     else
       clobOutput = "".
