@@ -31,7 +31,7 @@ if (not panaedra.msroot.msutil.logic.sc_environment:bLiveEnv) and (opsys = "win3
 if panaedra.msroot.msutil.logic.sc_environment:bLiveEnv
   or 
   /* Tst environment: replication active for automatic unit tests (no DevToken) */
-  (trim(subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#"))," ?") = "") 
+  (panaedra.msroot.msutil.logic.sc_environment:cEnv = "tst" and trim(subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#"))," ?") = "") 
   or 
   /* testT DevToken: _TOOLING_ always active (testT has own endpoint) */
   (subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*testT*") 
