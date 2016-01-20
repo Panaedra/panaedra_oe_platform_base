@@ -942,7 +942,8 @@ class panaedra.msroot.msutil.logic.sc_unittest
     
     /* Run all unit tests that are found in the supplied propath entries */
   
-    cSvSourcedirsIP# as character
+    cSvSourcedirsIP# as character,
+    cMatchesIP#      as character /* Pass an empty string for all unittests */
     ):
     
     LogMessage("Begin RunAllUnittests").
@@ -960,10 +961,10 @@ class panaedra.msroot.msutil.logic.sc_unittest
     
     /* Collect all unittests */    
     do iTell# = 1 to num-entries(cSvSourcedirsIP#):
-      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_unittest~~.p", yes,  output table ttFile append).
-      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_unittests~~.cls", yes,  output table ttFile append).
-      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_ftest~~.p", yes,  output table ttFile append).
-      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), "*_ftests~~.cls", yes,  output table ttFile append).
+      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), cMatchesIP# + "*_unittest~~.p", yes,  output table ttFile append).
+      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), cMatchesIP# + "*_unittests~~.cls", yes,  output table ttFile append).
+      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), cMatchesIP# + "*_ftest~~.p", yes,  output table ttFile append).
+      sc_osfile:GetFileNamesInDirectory(entry(iTell#,cSvSourcedirsIP#), cMatchesIP# + "*_ftests~~.cls", yes,  output table ttFile append).
     end.
     
     /* Cleanup */
