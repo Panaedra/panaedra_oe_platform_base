@@ -35,6 +35,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected static variable hDsContext       as handle                         no-undo.
+  define public    static variable cPackMsDeployAsk as character                      no-undo initial "panaedra.msroot.msdeploy.pack.c_pack_msdeploy_ask". /* Can be set to a customized msdeploy 'ask' pack. */
   define public    static variable bExceptions      as logical                        no-undo.
   
   &if opsys = "win32" and not {&paninui_tty} = true &then
@@ -49,6 +50,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     
     /* Remove previous exception messages */
     empty temp-table ttExceptions.
+    
     empty temp-table ttCallStack.
 
     AddVersionsToDsContext(dataset dsContext by-reference).
@@ -196,7 +198,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
           bMsDeployPackIsShown = false.
           
           if not valid-object(oMsDeployAskPack) then do:
-            oMsDeployAskPack = panaedra.msroot.mspack.logic.sc_packcfg:NewPack("panaedra.msroot.msdeploy.pack.c_pack_msdeploy_ask").
+            oMsDeployAskPack = panaedra.msroot.mspack.logic.sc_packcfg:NewPack(cPackMsDeployAsk).
             oMsDeployAskPack:LoadPack(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow, ? /* Directly on mdi */).
             oMsDeployAskPack:ShowPack().
           end.
