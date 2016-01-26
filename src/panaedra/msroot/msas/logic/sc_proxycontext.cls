@@ -197,9 +197,6 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
           
           bMsDeployPackIsShown = false.
           
-          message "sc_proxycontext cPackMsDeployAsk" cPackMsDeployAsk
-            view-as alert-box.
-          
           if not valid-object(oMsDeployAskPack) then do:
             oMsDeployAskPack = panaedra.msroot.mspack.logic.sc_packcfg:NewPack(cPackMsDeployAsk).
             oMsDeployAskPack:LoadPack(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow, ? /* Directly on mdi */).
