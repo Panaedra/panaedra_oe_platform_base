@@ -333,7 +333,7 @@ class paninui.view.use.sc_coll_widgetdata
       then cLinkPrefixIP# = WidgetNameToLinkName(?, cLinkPrefixIP#, "").
     
     /* Make sure there will be a dot between prefix and linkname */  
-    if cLinkPrefixIP# > "" 
+    if length(trim(cLinkPrefixIP#)) > 0 
       and substring(cLinkPrefixIP#,length(cLinkPrefixIP#),1) <> "." 
       and (not cWidgetNameIP# begins "__") 
       then cWidgetNameIP# = "__" + cWidgetNameIP#.
@@ -541,7 +541,7 @@ class paninui.view.use.sc_coll_widgetdata
         end.
       end.
       
-      if sc_environment:IsIdeRunning() then
+      if sc_environment:IsIdeRunning() and length(trim(sc_environment:cDeployID)) = 0 then
         sc_developerfeedback:DevMsg(
           subst("Not necessarily a bug: Widget '&1/&2/&3/&4' requested but not present.",
           iPackIdIP#,     
@@ -614,7 +614,7 @@ class paninui.view.use.sc_coll_widgetdata
         
     end.
 
-    if sc_environment:IsIdeRunning() then
+    if sc_environment:IsIdeRunning() and length(trim(sc_environment:cDeployID)) = 0 then
       sc_developerfeedback:DevMsg(
         subst("Not necessarily a bug: Widget '&1/&2/&3/&4' requested but not present.",
         iPackIdIP#,     

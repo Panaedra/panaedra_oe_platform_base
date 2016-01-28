@@ -777,15 +777,15 @@ class panaedra.msroot.msutil.logic.sc_environment:
   method public static logical IsIdeRunning():
   
     /* Checks if an IDE (like Eclipse) is running this session. */
-  
+
     /* If it's a seperate Eclipse session, we can use an environment variable */
     if length(os-getenv("ECLIPSE_PROJECT")) > 0 then return true.
-    
-    /* Otherwise check the boot procedure */    
-    
-    return GetBootProcedure() matches "*/eclipse/*".
+
+    /* Otherwise check the boot procedure */
+
+    return GetBootProcedure() matches "* /eclipse/ *".
       
-  end method. /* IsIdeRunning */  
+  end method. /* IsIdeRunning */
 
 
   method public static character GetBootProcedure():
@@ -808,7 +808,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     return cBootProcedure.
       
-  end method. /* IsIdeRunning */  
+  end method. /* GetBootProcedure */  
 
   
   method protected static character GetIpAddress():
