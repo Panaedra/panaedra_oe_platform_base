@@ -668,6 +668,18 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
   end method. /* UiRefreshRecord ; + row entry in the query */
 
 
+  method public void UiAssignRecord():
+    
+    define variable oBindingSource# as c_bindingsource no-undo.
+    
+    oBindingSource# = GetActiveBindingsource().
+    
+    if valid-object(oBindingSource#) then 
+      oBindingSource#:Assign().
+
+  end method. /* UiAssignRecord */
+
+  
   method public void UiRefreshAll():
     
     UiRefreshAllImplement("").
