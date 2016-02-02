@@ -290,6 +290,11 @@ class paninui.view.init.display.c_bindingsource
 
   end method. /* Refresh */
     
+
+  method public void Assign():
+
+  end method. /* Assign */
+    
   
   method public void RefreshAll():
 
