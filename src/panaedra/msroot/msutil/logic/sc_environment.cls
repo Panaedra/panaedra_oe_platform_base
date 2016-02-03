@@ -124,6 +124,18 @@ class panaedra.msroot.msutil.logic.sc_environment:
     protected set.
   
   
+  define static property cUiMode as character no-undo /* [UiMode] parameter. Some possible values: "AppServer" , "GUI" , "CHUI" */ initial ?
+    public get:
+      if cUiMode = ? then 
+      do:
+        cUiMode = sc_boot:SessionParameter("UiMode").
+        if cUiMode = ? then cUiMode = "".
+      end.
+      return cUiMode.
+    end get.
+    protected set.
+  
+  
   define static property cDevTokenID as character no-undo /* DevToken user ID, for developers */ initial ?
     public get:
       if cDevTokenID = ? then 
