@@ -783,7 +783,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
 
     /* Otherwise check the boot procedure */
 
-    return GetBootProcedure() matches "* /eclipse/ *".
+    return GetBootProcedure() matches "*/eclipse/*".
       
   end method. /* IsIdeRunning */
 
