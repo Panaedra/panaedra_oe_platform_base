@@ -126,7 +126,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   
   define static property cUiMode as character no-undo /* [UiMode] parameter. Some possible values: "AppServer" , "GUI" , "CHUI" */ initial ?
     public get:
-      if cUiMode = ? then 
+      if cUiMode = ? then
       do:
         cUiMode = sc_boot:SessionParameter("UiMode").
         if cUiMode = ? then cUiMode = "".
