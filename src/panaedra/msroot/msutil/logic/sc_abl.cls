@@ -23,8 +23,6 @@ class panaedra.msroot.msutil.logic.sc_abl   :
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  define public static variable iMinInt          as integer no-undo init -2147483648.
-  define public static variable iMaxInt          as integer no-undo init 2147483647.
   define public static variable bNoProcessEvents as logical no-undo.
 
 
@@ -34,13 +32,13 @@ class panaedra.msroot.msutil.logic.sc_abl   :
     
     /*
        CPU friendly sleep in milliseconds for inside a do while true loopwith a process events.
-	   
+     
        In AIX 5.2, reduced CPU load from 47.8% to around 2.7% with a sleep 
        of 10 ms, to around 0.8% with a sleep of 100 ms.
        So the perl script gives a bit of overhead (say 2% CPU), but we don't 
        have an external (shared object or HLC) at the moment.
        For now - as good as it gets.
-	   
+     
        os-command silent 
          value("/progress/scripts/usleep.pl "
          +
@@ -49,7 +47,7 @@ class panaedra.msroot.msutil.logic.sc_abl   :
          + " 1> /dev/null 2> /dev/null").
     
        TW 20070807
-	    
+      
     */
     
     /* TW 20110224, we have a shared object implementation now, that's much more efficient. */
@@ -59,14 +57,14 @@ class panaedra.msroot.msutil.logic.sc_abl   :
     &else
 
     /*
-	  
+    
      CPU friendly sleep in milliseconds for inside a do while true loop with a process events.
-	   
+     
      In WinXPSP2 Intel E6600/4GB, reduced CPU load from 50.0% (dual core!) to 0.00% with a sleep 
      of 10 ms, and also 0.00% with a sleep of 1 ms.
-	   
+     
      TW 20070807
-	    
+      
     */
     
     sc_win32:MicroSleep(iMillisecondsIP#). /* Also valid in win32 tty, no dotnet is used */
