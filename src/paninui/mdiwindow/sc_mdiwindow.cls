@@ -1,29 +1,21 @@
 using paninui.*.
 using paninui.view.interfaces.*.
 using paninui.view.init.display.*.
+
 using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class paninui.mdiwindow.sc_mdiwindow: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/mdiwindow/sc_mdiwindow.cls $ 
-          Version: $Revision: 2 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 20:27:12+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Static methods to start up and maintain an MDI window.
                    Needed in the ABL -p startup procedure.
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_mdiwindow(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define public static property oFirstMdiWindow as Progress.Lang.Object no-undo 
@@ -90,8 +82,24 @@ class paninui.mdiwindow.sc_mdiwindow:
       oForm#:Load:subscribe(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oSgt:MdiOnLoad).
       oForm#:Shown:subscribe(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oSgt:MdiOnShown).
     end.
-
-    wait-for System.Windows.Forms.Application:Run(oForm#). 
+    
+    do on error undo, throw
+      on stop undo, retry:
+        
+      wait-for System.Windows.Forms.Application:Run(oForm#).
+      
+      if retry then
+        undo, throw new c_panaedraexception(
+          99949228,
+          sc_lang:oEnglish,
+          "Application:Run() loop has ended (stop condition)."
+          ).
+      
+      catch oError# as Progress.Lang.Error:
+        sc_showexception:ShowException(oError#).  
+      end catch.
+      
+    end. 
 
   end method. /* StartNewMdiWindow */
 
