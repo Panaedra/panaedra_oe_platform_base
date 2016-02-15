@@ -419,7 +419,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     
     do iTell# = 1 to num-entries(cListIP#,cDelimIP#) transaction: /* codeQok#7103 */
 
-      if not sc_string_analysys:IsInteger(entry(iTell#,cListIP#,cDelimIP#)) then
+      if not sc_string_analysis:IsInteger(entry(iTell#,cListIP#,cDelimIP#)) then
         undo, throw new c_panaedraexception(
           99936548,
           sc_lang:oDutch,
