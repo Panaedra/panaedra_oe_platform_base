@@ -517,6 +517,72 @@ class paninui.view.use.display.sc_displaydata   :
   end method. /* SetUiValue ; direct version with no OVID# for widgettype. Can cause (predictable) name clashes; btnTryout and cbTryout for example. */
 
 
+  method public static void SetUiValueByHandle(
+    
+    /* Directly set any property of a widget (by object handle) to a new value, without databinding.
+     * Returns the pack ID and linkname, because this 'by handle' is used in specific 'all-packs' 
+     * cases, which makes debugging and feedback easier, and increases the "I know what I'm doing" 
+     * awareness.
+     */
+    
+    oWidgetIP#          as Progress.Lang.Object,
+    cPropertyIP#        as character,
+    cValueIP#           as character,
+    output iPackIdOP#   as int64,
+    output cLinkNameOP# as character):
+
+    if valid-object(oWidgetIP#) then do:
+      sc_coll_widgetdata:GetWidgetByHandle(oWidgetIP#, output iPackIdOP#, output cLinkNameOP#).
+      SetUiValueImplement(oWidgetIP#, cPropertyIP#, cValueIP#).
+    end.
+
+  end method. /* SetUiValueByHandle ; direct version when you already have the widget object handle. */
+
+
+  method public static void SetUiValueByHandle(
+    
+    /* Directly set any property of a widget (by object handle) to a new value, without databinding.
+     * Returns the pack ID and linkname, because this 'by handle' is used in specific 'all-packs' 
+     * cases, which makes debugging and feedback easier, and increases the "I know what I'm doing" 
+     * awareness.
+     */
+    
+    oWidgetIP#          as Progress.Lang.Object,
+    cPropertyIP#        as character,
+    iValueIP#           as integer,
+    output iPackIdOP#   as int64,
+    output cLinkNameOP# as character):
+
+    if valid-object(oWidgetIP#) then do:
+      sc_coll_widgetdata:GetWidgetByHandle(oWidgetIP#, output iPackIdOP#, output cLinkNameOP#).
+      SetUiValueImplement(oWidgetIP#, cPropertyIP#, iValueIP#).
+    end.
+
+  end method. /* SetUiValueByHandle ; direct version when you already have the widget object handle. */
+
+
+  method public static void SetUiValueByHandle(
+    
+    /* Directly set any property of a widget (by object handle) to a new value, without databinding.
+     * Returns the pack ID and linkname, because this 'by handle' is used in specific 'all-packs' 
+     * cases, which makes debugging and feedback easier, and increases the "I know what I'm doing" 
+     * awareness.
+     */
+    
+    oWidgetIP#          as Progress.Lang.Object,
+    cPropertyIP#        as character,
+    bValueIP#           as logical,
+    output iPackIdOP#   as int64,
+    output cLinkNameOP# as character):
+
+    if valid-object(oWidgetIP#) then do:
+      sc_coll_widgetdata:GetWidgetByHandle(oWidgetIP#, output iPackIdOP#, output cLinkNameOP#).
+      SetUiValueImplement(oWidgetIP#, cPropertyIP#, bValueIP#).
+    end.
+
+  end method. /* SetUiValueByHandle ; direct version when you already have the widget object handle. */
+
+
   method public static void SetUiValue(
     
     /* Directly set any property of a combobox widget to a new value, without databinding.

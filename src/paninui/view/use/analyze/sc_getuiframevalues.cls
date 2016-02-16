@@ -29,14 +29,8 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
 
   method public static character GetUiValue(
     
-    /* Directly set any property of any widget to a new value, without databinding.
-       For example: 
-       Visible property to "false", 
-       Text property to "Mr Johnson", 
-       or BackColor property to "MediumUrgency". (*) Naming real colors is dependant on locale 
-                                                     and *not* suitable for the database logic layer.
-                                                     Color indicators should be (per-user-or-environment-)
-                                                     mapped in the view layer.
+    /* Directly get any property value of any widget as character, without databinding.
+       See SetUiValue for examples.
      */
     
     oFrmLogicIP#    as i_frmlogic,
@@ -59,7 +53,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
 
   method public static character GetUiValue(
     
-    /* Directly set any property of a combobox widget to a new value, without databinding.
+    /* Directly get any property value of a combobox widget, without databinding.
        See the overload without OVID# parameter for more information.
      */
     

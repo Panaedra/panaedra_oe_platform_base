@@ -1,23 +1,19 @@
+using panaedra.msroot.msutil.logic.*.
+using panaedra.msroot.msutil.interfaces.*.
+using paninui.view.interfaces.*.
+using paninui.view.use.*.
+
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
+{paninui/logic/includes/preproc_dotnetclasses.i &class=class}
 
 class paninui.view.use.analyze.sc_analyzewidget   : 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/view/use/analyze/sc_analyzewidget.cls $ 
-          Version: $Revision: 2 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:14+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Analysis on widgets of any UI technology
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_analyzewidget(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   method public static character IsOfUiTechnology(oWidgetIP# as Progress.Lang.Object):
@@ -28,6 +24,8 @@ class paninui.view.use.analyze.sc_analyzewidget   :
     
     define variable bDetermined# as logical   no-undo.
     define variable cReturn#     as character no-undo.
+    
+    &if {&paninui_tty} = false &then
     
     /* Check for WPF */
     if not bDetermined# and type-of(oWidgetIP#, System.Windows.UIElement) then 
@@ -46,6 +44,8 @@ class paninui.view.use.analyze.sc_analyzewidget   :
       assign
         bDetermined# = true 
         cReturn#     = "windows_forms".
+    
+    &endif
       
     /* We don't know what this is, must be non-dotnet */
     if not bDetermined# then 
@@ -56,6 +56,38 @@ class paninui.view.use.analyze.sc_analyzewidget   :
     return cReturn#.
 
   end method. /* IsOfUiTechnology */
+  
+
+  method public static logical IsCtrlAFixNecessary(
+    
+    /* Check if the Ctrl+A fix (to select all text) is necessary.
+       See: http://stackoverflow.com/questions/16197915/how-can-i-allow-ctrla-with-textbox-in-winform
+       And: https://msdn.microsoft.com/en-us/library/system.windows.forms.textboxbase.shortcutsenabled.aspx (remark on Multiline)
+     */
+    
+    oWidgetIP# as Progress.Lang.Object):
+    
+    define variable bReturn#  as logical                      no-undo.
+    
+    &if {&paninui_tty} = false &then
+    
+    define variable oTextBox# as System.Windows.Forms.TextBox no-undo.
+
+    if valid-object(oWidgetIP#) then 
+    do:
+      
+      if type-of(oWidgetIP#, System.Windows.Forms.TextBox) then 
+      do:
+        oTextBox# = cast(oWidgetIP#, System.Windows.Forms.TextBox).
+        bReturn# = (oTextBox#:ShortcutsEnabled and oTextBox#:Multiline).
+      end.
+    end.
+    
+    &endif
+    
+    return bReturn#.
+    
+  end method. /* IsCtrlAFixNecessary ; ComboBox */
 
 end class.
 
