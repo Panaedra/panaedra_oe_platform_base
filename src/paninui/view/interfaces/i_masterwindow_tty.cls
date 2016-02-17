@@ -1,14 +1,10 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_interface.i} 
+{paninui/logic/includes/preproc_dotnetclasses.i}
 using paninui.view.interfaces.*.
 
 interface paninui.view.interfaces.i_masterwindow_tty:  
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/view/interfaces/i_masterwindow_tty.cls $ 
-          Version: $Revision: 3 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-08-22 15:30:38+02:00 $ 
-    Date Modified: $Modtime: 2010-08-22 15:13:04+02:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: paninui.dll i_masterwindow stub for tty/unix
 
@@ -24,7 +20,7 @@ interface paninui.view.interfaces.i_masterwindow_tty:
   define property bIsShown          as logical       no-undo get.
   
   method public void AddFrameToMainContainer (oFrmIP# as i_uiframe_tty).
-  method public void AddSubframeToWidget(oWdgParentIP# as System.Object, oFrmChildIP# as i_uiframe_tty).
+  method public void AddSubframeToWidget(oWdgParentIP# as {&System.Object}, oFrmChildIP# as i_uiframe_tty).
   method public void SetStatusBarInfo (cLocationIP# as character, cMessageIP# as character).
 
 end interface.
