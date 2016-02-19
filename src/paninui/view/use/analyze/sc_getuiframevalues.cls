@@ -1,4 +1,6 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
+{paninui/logic/includes/preproc_dotnetclasses.i}
+
 using paninui.view.interfaces.*.
 using paninui.view.use.*.
 using paninui.view.init.display.*.
@@ -283,8 +285,8 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     cPropertyIP#     as character,
     output cValueOP# as character):
 
-    define variable oControl# as System.Object no-undo.
-    define variable oValue#   as System.Object no-undo.
+    define variable oControl# as {&System.Object} no-undo.
+    define variable oValue#   as {&System.Object} no-undo.
 
     /* We only support Text or Int objects for cValueIP#, and we can convert this to other objects
        later in time 
@@ -292,8 +294,10 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     */
     if valid-object(oWidgetIP#) then 
     do:
-      oControl# = cast(oWidgetIP#, System.Object).
+      oControl# = cast(oWidgetIP#, {&System.Object}).
+      &if {&paninui_tty} = false &then
       paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oControl#, cPropertyIP#, output oValue#).
+      &endif
       cValueOP# = string(oValue#).
     end.
 
@@ -309,8 +313,8 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     cPropertyIP#     as character,
     output iValueOP# as integer):
 
-    define variable oControl# as System.Object no-undo.
-    define variable oValue#   as System.Object no-undo.
+    define variable oControl# as {&System.Object} no-undo.
+    define variable oValue#   as {&System.Object} no-undo.
 
     /* We only support Text or Int objects for cValueIP#, and we can convert this to other objects
        later in time 
@@ -318,8 +322,10 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     */
     if valid-object(oWidgetIP#) then 
     do:
-      oControl# = cast(oWidgetIP#, System.Object).
+      oControl# = cast(oWidgetIP#, {&System.Object}).
+      &if {&paninui_tty} = false &then
       paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oControl#, cPropertyIP#, output oValue#).
+      &endif
       /* Cast to string is necessary, for example with property "FirstDisplayedScrollingRowIndex" .
          Otherwise, we get a meaningless handle in the iValueOP#.
       */
@@ -338,8 +344,8 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     cPropertyIP#       as character,
     output dtmValueOP# as datetime-tz):
 
-    define variable oControl# as System.Object no-undo.
-    define variable oValue#   as System.Object no-undo.
+    define variable oControl# as {&System.Object} no-undo.
+    define variable oValue#   as {&System.Object} no-undo.
 
     /* We only support Text or Int objects for cValueIP#, and we can convert this to other objects
        later in time 
@@ -347,7 +353,8 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     */
     if valid-object(oWidgetIP#) then 
     do:
-      oControl# = cast(oWidgetIP#, System.Object).
+      oControl# = cast(oWidgetIP#, {&System.Object}).
+      &if {&paninui_tty} = false &then
       paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oControl#, cPropertyIP#, output oValue#).
       &if int(entry(1, proversion, ".")) >= 11 and int(entry(2, proversion, ".")) >= 3 &then /* OE11.3+ */  
       dtmValueOP# = oValue#.
@@ -359,6 +366,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
       define variable oDateTime# as System.DateTime no-undo.
       oDateTime# = cast(cast(oValue#,Progress.Lang.Object),System.DateTime).
       dtmValueOP# = datetime-tz(oDateTime#:Month,oDateTime#:Day,oDateTime#:Year,oDateTime#:Hour,oDateTime#:Minute,oDateTime#:Second,oDateTime#:MilliSecond).
+      &endif
       &endif
     end.
 
@@ -376,18 +384,13 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     
     define variable oSelectionOP#         as paninui.view.use.events.c_uivalue_selection             no-undo.
     
-    define variable oValue#               as System.Object                                           no-undo.
+    define variable oValue#               as {&System.Object}                                           no-undo.
 
-    define variable oFormsGrid#           as System.Windows.Forms.DataGridView                       no-undo.
     define variable bFirst#               as logical                                                 no-undo init true.
     define variable iRow#                 as integer                                                 no-undo.
     define variable iCell#                as integer                                                 no-undo.
-    define variable oGridSelection_Rows#  as System.Windows.Forms.DataGridViewSelectedRowCollection  no-undo.
-    define variable oGridSelection_Cells# as System.Windows.Forms.DataGridViewSelectedCellCollection no-undo.
-    define variable oGridCell#            as System.Windows.Forms.DataGridViewCell                   no-undo.
     define variable iCellsToRows#         as int64                                                   no-undo extent. 
     define variable iMaxExtent#           as integer                                                 no-undo.
-    define variable oOwningRow#           as System.Windows.Forms.DataGridViewRow                    no-undo.
     define variable iGenericID#           as int64                                                   no-undo.
     define variable cIDFieldName#         as character                                               no-undo.
  
@@ -395,7 +398,15 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     do:
       undo, throw new AppError(subst("For GetUiValueSelection, Property should be 'Rows' at this moment. '&1'.", cPropertyIP#), 99950123).
     end.
+    
+    &if {&paninui_tty} = false &then
  
+    define variable oFormsGrid#           as System.Windows.Forms.DataGridView                       no-undo.
+    define variable oGridSelection_Rows#  as System.Windows.Forms.DataGridViewSelectedRowCollection  no-undo.
+    define variable oGridSelection_Cells# as System.Windows.Forms.DataGridViewSelectedCellCollection no-undo.
+    define variable oGridCell#            as System.Windows.Forms.DataGridViewCell                   no-undo.
+    define variable oOwningRow#           as System.Windows.Forms.DataGridViewRow                    no-undo.
+    
     /* The grid selection is abstracted to a c_uivalue_selection object. 
     */
     if valid-object(oWidgetIP#) and type-of(oWidgetIP#, System.Windows.Forms.DataGridView) then 
@@ -481,6 +492,8 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
         end.
       end.
     end.
+    
+    &endif
     
     return oSelectionOP#.
     
