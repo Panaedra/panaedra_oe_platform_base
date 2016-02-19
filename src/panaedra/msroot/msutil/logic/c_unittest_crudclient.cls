@@ -180,7 +180,8 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
       subst("~003prepinc~004&1",       cPrepIncrement        ) + 
       "~012"
       ).
-    sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 5000, output bClientGuidFeedbackOkay#, output cFeedback#).
+    /* Pauze was 5000 milliseconden. Naar 30000 verhoogd i.v.m. traagheid op srv-ota door bijv. teruglezen backup */  
+    sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 30000, output bClientGuidFeedbackOkay#, output cFeedback#).
     
     if bClientGuidFeedbackOkay# = false then
       undo, throw new c_panaedraexception(99028162, sc_lang:oEnglish, substitute("UnitTest crudclient client did not respond to FullCrudUpd() in '&1' ms.", 5000)).
