@@ -32,7 +32,7 @@ interface paninui.pack.interfaces.i_pack:
   
   method logical    LoadPack (
     oMdiWindowIP# as {&i_masterwindow},
-    oWdgParentIP# as System.Object).
+    oWdgParentIP# as {&System.Object}).
 
   method void       ShowPack ().
   method void       HidePack ().
