@@ -90,7 +90,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     
     if hField# <> ? then 
     do:
-      if hField#:buffer-value > "" then. /* not "" or ? */
+      if sc_data:HasValue(hField#:buffer-value) then. /* not "" or ? */
       else hField#:buffer-value = NewGUID().
     end. 
     
@@ -312,7 +312,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     if not bInitialized then 
     do:
       bInitialized = true.
-      if panaedra.msroot.msutil.logic.sc_boot:cBootSessionParameter > "" then.
+      if sc_data:HasValue(panaedra.msroot.msutil.logic.sc_boot:cBootSessionParameter) then.
       else panaedra.msroot.msutil.logic.sc_boot:cBootSessionParameter = sc_string_substitute:ExpandOsEnv(session:parameter).
       bDbLayer = lookup(panaedra.msroot.msutil.logic.sc_boot:SessionParameter("Layer"),"all,db,db_r,db_u") > 0.
       if bDbLayer = ? then bDbLayer = false.
@@ -363,7 +363,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
         buffer b-tt_CCMPNY_selectie:handle, 
         "Li_CCMPNY_Selectie", /* Cased name                 */
         "_CCMPNY_selectie",   /* DB Table name, or '(none)' */
-        "l_root",          /* Namespace root             */
+        "l_root",          /* Namespace root             */ codeQok#7116
         "li_TERM_UNDISCLOSED_",       /* Namespace groupdir         */
         "li").             /* Namespace key              */    
     
@@ -412,6 +412,24 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
   end method. /* GetCased */
 
   
+  method public static logical IsPanaedraized(hBuffIP# as handle):
+
+    define buffer b-ttTableInfo for ttTableInfo.
+    
+    /* N.B. buffer or temp-table handle has no help attribute. 
+       We use the help string (or GetProp/SetProp) of the first field of the (temp-)table buffer. 
+    */
+
+    if hBuffIP#:table-handle <> ? then 
+      GetTtInfo(buffer b-ttTableInfo, hBuffIP#).
+    else 
+      GetDbInfo(false /* Does not have to be Panaedra Compliant */, buffer b-ttTableInfo, hBuffIP#).
+    
+    return avail b-ttTableInfo and sc_data:HasValue(b-ttTableInfo.cCased).
+    
+  end method. /* IsPanaedraized */
+
+  
   method public static character GetNonCased(hBuffIP# as handle):
 
     define variable cNonCased#   as character no-undo.
@@ -435,7 +453,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     */
     cNonCased# = sc_prop:GetProp(hFirstField#,"TableAlias").
 
-    if cNonCased# > "" then.
+    if sc_data:HasValue(cNonCased#) then.
     else 
     do:
       if hBuffIP#:table-handle <> ? then 
@@ -507,7 +525,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
     end.
     
     finally:
-      if valid-handle(hBuff#) then delete object hBuff#.	
+      if valid-handle(hBuff#) then delete object hBuff#.
     end finally.
         
   end method. /* GetDbInfo */
@@ -619,14 +637,14 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
           "panaedra/" 
           + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
           + b-ttTableInfo.cNsGroupdir + "/db_u/" +
-          subst("sc_&1_&2onwriteordelete_u.cls",cNsKey#, (if cNsDatabaseGroup# > "" then cNsDatabaseGroup# + "_" else "")).
+          subst("sc_&1_&2onwriteordelete_u.cls",cNsKey#, (if sc_data:HasValue(cNsDatabaseGroup#) then cNsDatabaseGroup# + "_" else "")).
         if file-info:full-pathname = ? then 
         do:
           file-info:file-name = 
             "panaedra/" 
             + (if b-ttTableInfo.cNsSubroot = "(none)" then "" else b-ttTableInfo.cNsSubroot + "/")
             + b-ttTableInfo.cNsGroupdir + "/db_u/" +
-            subst("sc_&1_&2onwriteordelete_u.r",cNsKey#, (if cNsDatabaseGroup# > "" then cNsDatabaseGroup# + "_" else "")).
+            subst("sc_&1_&2onwriteordelete_u.r",cNsKey#, (if sc_data:HasValue(cNsDatabaseGroup#) then cNsDatabaseGroup# + "_" else "")).
         end.
         if file-info:full-pathname <> ? then 
         do:
@@ -886,7 +904,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
       cErrorIP# = substring(cErrorIP#,1,iIndex# - 1).
     end.
     
-    if cFields# > "" then 
+    if sc_data:HasValue(cFields#) then
     do:
       iExtent# = num-entries(cFields#).
       do iTell# = 1 to num-entries(cFields#):
@@ -895,7 +913,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
         if hBuffOldIP# <> ? then 
         do:
           cOldValue# = trim(string(hBuffOldIP#:buffer-field(cFieldNames#[iTell#]):buffer-value)).
-          if cOldValue# > "" and cOldValue# <> cFieldValues#[iTell#]
+          if sc_data:HasValue(cOldValue#) and cOldValue# <> cFieldValues#[iTell#]
             then cFieldValues#[iTell#] = cOldValue# + " -> " + cFieldValues#[iTell#].
         end. 
       end.
