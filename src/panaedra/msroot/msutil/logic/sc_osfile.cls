@@ -415,8 +415,17 @@ class panaedra.msroot.msutil.logic.sc_osfile
    
     if file-info:full-pathname > "" and opsys = "unix" then 
     do:
-      os-command silent value("chmod 664 "      + file-info:full-pathname + " 1> /dev/null 2> /dev/null") no-error.
-      os-command silent value("chgrp dlc_user " + file-info:full-pathname + " 1> /dev/null 2> /dev/null") no-error.
+      if file-info:type = "F" then
+      do:
+        os-command silent value("chmod 664 "      + file-info:full-pathname + " 1> /dev/null 2> /dev/null") no-error.
+        os-command silent value("chgrp dlc_user " + file-info:full-pathname + " 1> /dev/null 2> /dev/null") no-error.
+      end.
+      else
+        undo, throw new c_panaedraexception(
+          50458934,
+          sc_lang:oEnglish,
+          substitute("Correct file rights not possible, input is not a file.")
+          ).
     end.
 
   end method. /* CorrectFileRights */
@@ -1198,7 +1207,6 @@ class panaedra.msroot.msutil.logic.sc_osfile
   
   end method. /* GetFileModDatetime */
   
-  
   method public static integer GetFileByteSize(cFileIP# as character):
     
     define variable iReturn# as integer no-undo.
@@ -1627,7 +1635,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
 
     assign
       cLastLineOP# = ?.
-      cLine#       = ?
+    cLine#       = ?
       .
 
     if FileExists(cFileIP#) then
@@ -1662,7 +1670,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     input  cIniFileIP# as character, 
     input  cSectionIP# as character, 
     output table for ttIniValue
-  ):
+    ):
   
     define variable cLines# as longchar  no-undo extent.
     define variable cLine#  as character no-undo.
@@ -1705,20 +1713,20 @@ class panaedra.msroot.msutil.logic.sc_osfile
         if cLine# = substitute("[&1]", cSectionIP#) then
           bAdd# = true.
         else if cLine# begins ";" then
-          next.
-        else if bAdd# and cLine# begins "[" then
-          leave.
-        else if bAdd# and cLine# matches "*=*" then
-        do:
+            next.
+          else if bAdd# and cLine# begins "[" then
+              leave.
+            else if bAdd# and cLine# matches "*=*" then
+              do:
         
-          create b-ttIniValue.
-          assign
-            b-ttIniValue.cParameter = entry(1, cLine#, "=")
-            b-ttIniValue.cValue     = substring(cLine#, index(cLine#, "=") + 1)
-            . 
-          release b-ttIniValue. 
+                create b-ttIniValue.
+                assign
+                  b-ttIniValue.cParameter = entry(1, cLine#, "=")
+                  b-ttIniValue.cValue     = substring(cLine#, index(cLine#, "=") + 1)
+                  . 
+                release b-ttIniValue. 
         
-        end.
+              end.
         
       end.
     
@@ -1729,7 +1737,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
 
   method public static character ChangeExtension
     (input cFilenameIOP#     as character,
-     input cNewExtentsionIP# as character
+    input cNewExtentsionIP# as character
     ):
   
     return substring(cFilenameIOP#, 1, r-index(cFilenameIOP#, ".")) + left-trim(cNewExtentsionIP#, ".").
