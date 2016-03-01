@@ -415,7 +415,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
    
     if file-info:full-pathname > "" and opsys = "unix" then 
     do:
-      if file-info:type = "F" then
+      if file-info:file-type begins "F" then
       do:
         os-command silent value("chmod 664 "      + file-info:full-pathname + " 1> /dev/null 2> /dev/null") no-error.
         os-command silent value("chgrp dlc_user " + file-info:full-pathname + " 1> /dev/null 2> /dev/null") no-error.
