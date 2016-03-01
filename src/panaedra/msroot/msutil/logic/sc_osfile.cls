@@ -424,7 +424,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
         undo, throw new c_panaedraexception(
           50458934,
           sc_lang:oEnglish,
-          substitute("Correct file rights not possible, input is not a file.")
+          substitute("Correct file rights not possible, input is not a file: &1", cFileIP#)
           ).
     end.
 
