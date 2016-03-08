@@ -405,7 +405,29 @@ class panaedra.msroot.msutil.logic.sc_osfile
 
   end method. /* GetFileNamesInDirectorySub */
 
-
+  
+  method public static void MakeExecutableForAll(input cFileIP# as character):
+  
+    file-info:file-name = cFileIP#.
+   
+    if file-info:full-pathname > "" and opsys = "unix" then 
+    do:
+      if file-info:file-type begins "F" then
+      do:
+        os-command silent value("chmod 777 "      + file-info:full-pathname + " 1> /dev/null 2> /dev/null") no-error.
+        os-command silent value("chgrp dlc_user " + file-info:full-pathname + " 1> /dev/null 2> /dev/null") no-error.
+      end.
+      else
+        undo, throw new c_panaedraexception(
+          50458935,
+          sc_lang:oEnglish,
+          substitute("Correct file rights not possible, input is not a file: &1", cFileIP#)
+          ).
+    end.
+  
+  end method. /* MakeExecutableForAll */
+  
+  
   method public static void CorrectFileRights(input cFileIP# as character):
   
     /* Correct the os file rights (especially important for batch processes that run as root).
