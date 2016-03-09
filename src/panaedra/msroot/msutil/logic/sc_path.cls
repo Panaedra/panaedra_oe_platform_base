@@ -182,6 +182,14 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
+  /* Nonstatic vcs dev scripts directory */
+  define public static property cVcsdevScriptsNonstatic as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cVcsdevScriptsNonstatic.
+    end get.
+    protected set.
+  
   /* Deploy binaries directory */
   define public static property cDeployBinariesDir as character no-undo 
     get():
@@ -422,23 +430,24 @@ class panaedra.msroot.msutil.logic.sc_path:
       sc_config:ReadXml(temp-table ttPath:handle,
         /* Note: the getter of cIniDir initializes cIniDir automatically */ 
         cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config").
-      cSysteemDir          = FillPathProperty(GetScPathEnv(), "cSysteemDir",opsys).
-      cLogDir              = FillPathProperty(GetScPathEnv(), "cLogDir",opsys).
-      cLogverboseDir       = FillPathProperty(GetScPathEnv(), "cLogverboseDir",opsys).
-      if cLogverboseDir = ? or cLogverboseDir = "" or cLogverboseDir = "?" or cLogverboseDir = cWorkDir then
-        cLogverboseDir       = FillPathProperty(GetScPathEnv(), "cLogVoortgangDir",opsys).
-      cNoSweatDir          = FillPathProperty(GetScPathEnv(), "cNoSweatDir",opsys).
-      c_SRVR_Dir          = FillPathProperty(GetScPathEnv(), "c_SRVR_Dir",opsys).
-      cNonstaticDir        = FillPathProperty(GetScPathEnv(), "cNonstaticDir",opsys).
-      cDeployBinariesDir   = FillPathProperty(GetScPathEnv(), "cDeployBinariesDir",opsys).
-      cDeployTargetRootDir = FillPathProperty(GetScPathEnv(), "cDeployTargetRootDir",opsys).
-      cDataRecoveryDir     = FillPathProperty(GetScPathEnv(), "cDataRecoveryDir",opsys).
-      cDataExchangeDir     = FillPathProperty(GetScPathEnv(), "cDataExchangeDir",opsys).
-      cVanWanDir           = FillPathProperty(GetScPathEnv(), "cVanWanDir",opsys).
-      cNaarWanDir          = FillPathProperty(GetScPathEnv(), "cNaarWanDir",opsys).
-      cVanXmapDir          = FillPathProperty(GetScPathEnv(), "cVanXmapDir",opsys).
-      cNaarXmapDir         = FillPathProperty(GetScPathEnv(), "cNaarXmapDir",opsys).
-      cPclDir              = FillPathProperty(GetScPathEnv(), "cPclDir",opsys).
+      cSysteemDir             = FillPathProperty(GetScPathEnv(), "cSysteemDir",opsys).
+      cLogDir                 = FillPathProperty(GetScPathEnv(), "cLogDir",opsys).
+      cLogverboseDir          = FillPathProperty(GetScPathEnv(), "cLogverboseDir",opsys).
+      if cLogverboseDir = ?    or cLogverboseDir = "" or cLogverboseDir = "?" or cLogverboseDir = cWorkDir then
+        cLogverboseDir          = FillPathProperty(GetScPathEnv(), "cLogVoortgangDir",opsys).
+      cNoSweatDir             = FillPathProperty(GetScPathEnv(), "cNoSweatDir",opsys).
+      c_SRVR_Dir             = FillPathProperty(GetScPathEnv(), "c_SRVR_Dir",opsys).
+      cNonstaticDir           = FillPathProperty(GetScPathEnv(), "cNonstaticDir",opsys).
+      cVcsdevScriptsNonstatic = FillPathProperty(GetScPathEnv(), "cVcsdevScriptsNonstatic",opsys).
+      cDeployBinariesDir      = FillPathProperty(GetScPathEnv(), "cDeployBinariesDir",opsys).
+      cDeployTargetRootDir    = FillPathProperty(GetScPathEnv(), "cDeployTargetRootDir",opsys).
+      cDataRecoveryDir        = FillPathProperty(GetScPathEnv(), "cDataRecoveryDir",opsys).
+      cDataExchangeDir        = FillPathProperty(GetScPathEnv(), "cDataExchangeDir",opsys).
+      cVanWanDir              = FillPathProperty(GetScPathEnv(), "cVanWanDir",opsys).
+      cNaarWanDir             = FillPathProperty(GetScPathEnv(), "cNaarWanDir",opsys).
+      cVanXmapDir             = FillPathProperty(GetScPathEnv(), "cVanXmapDir",opsys).
+      cNaarXmapDir            = FillPathProperty(GetScPathEnv(), "cNaarXmapDir",opsys).
+      cPclDir                 = FillPathProperty(GetScPathEnv(), "cPclDir",opsys).
     end.
     
   end method. /* TtPathInitialize */
