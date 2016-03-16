@@ -66,10 +66,12 @@ class panaedra.msroot.msutil.logic.c_unittest_recordlock inherits c_unittest_con
     end.
     
     sc_unittest:_sys_SocketClientSend(cUtClientGuid, subst("ACTION~004LOCKIT~003TASKGUID~004&1~003ldbname~004&2~003table~004&3~003rowid~004&4~012", cGuid#, cLdbname, cTable, rRowid)).
-    sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 5000, output bClientGuidFeedbackOkay#, output cFeedback#).
+    
+    /* Pauze was 5000 milliseconden. Naar 30000 verhoogd i.v.m. traagheid op srv-ota door bijv. teruglezen backup */  
+    sc_unittest:_sys_SocketClientTaskGuidWait(cUtClientGuid, cGuid#, 30000, output bClientGuidFeedbackOkay#, output cFeedback#).
     
     if bClientGuidFeedbackOkay# = false then
-      undo, throw new c_panaedraexception(99028162, sc_lang:oEnglish, substitute("UnitTest recordlock client did not respond to LockIt() in '&1' ms.", 5000)).
+      undo, throw new c_panaedraexception(99028162, sc_lang:oEnglish, substitute("UnitTest recordlock client did not respond to LockIt() in '&1' ms.", 30000)).
       
     if cFeedback# = ? or cFeedback# <> "LockSucceeded~004yes" then
       undo, throw new c_panaedraexception(99028163, sc_lang:oEnglish, substitute("LockIt remote:'&1'", cFeedback#)).
