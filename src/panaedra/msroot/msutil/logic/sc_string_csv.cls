@@ -219,6 +219,23 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     
   end method. /* SetParam */
  
+  
+  method public static character SetParam(    
+    cParamIP# as character, 
+    cTokenIP# as character,
+    iValueIP# as integer
+    ):
+    
+    /* Set a parameter to the supplied value. 
+       Existing values are overwritten.
+       Example: " [Param1] value1 [Param2] value2 " will be " [Param1] valuenieuw [Param2] value2 "
+       The new parameter string is returned.
+    */
+    
+    return sc_string_csv:SetSubParam(cParamIP#, cTokenIP#, "", string(iValueIP#)).
+    
+  end method. /* SetParam */
+  
  
   method public static character CsvGetJoinList(
     csvOneIP#   as character, 
