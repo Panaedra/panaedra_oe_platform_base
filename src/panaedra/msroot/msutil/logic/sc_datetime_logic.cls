@@ -16,11 +16,6 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   \*****************************  Include Files ********************************/
 {panaedra/msroot/msutil/logic/def/def_weekdays.i &class=class} 
 
-  define public static property dtToday as date no-undo 
-    get:
-      return today.   
-    end get. 
-    protected set. 
 
   /************************  Source control constructor ************************/
   constructor public sc_datetime_logic(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
@@ -33,6 +28,20 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   end constructor.  
   /******************************* $NoKeywords:  $ *****************************/
  
+  define public static property dtToday as date no-undo 
+    get:
+      return today.   
+    end get. 
+    protected set. 
+
+  
+  define public static property dtmNow as datetime-tz no-undo 
+    get:
+      return now.   
+    end get. 
+    protected set. 
+  
+  
  
   method public static character GetWeekdayChar(
     /* Return a character representing today (ma di wo do.....) */
