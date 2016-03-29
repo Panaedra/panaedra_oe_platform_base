@@ -217,7 +217,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     
     return sc_string_csv:SetSubParam(cParamIP#, cTokenIP#, "", cValueIP#).
     
-  end method. /* SetParam */
+  end method. /* SetParam ; character value input parameter */
  
   
   method public static character SetParam(    
@@ -232,9 +232,9 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
        The new parameter string is returned.
     */
     
-    return sc_string_csv:SetSubParam(cParamIP#, cTokenIP#, "", string(iValueIP#)).
+    return sc_string_csv:SetSubParam(cParamIP#, cTokenIP#, "", subst("&1", iValueIP#)). /* subst in plaats van string(iValueIP#) , ivm unknown value. */
     
-  end method. /* SetParam */
+  end method. /* SetParam ; integer value input parameter */
   
  
   method public static character CsvGetJoinList(
