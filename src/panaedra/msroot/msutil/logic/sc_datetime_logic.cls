@@ -28,9 +28,16 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   end constructor.  
   /******************************* $NoKeywords:  $ *****************************/
  
-  define public static property dtToday as date no-undo 
+    define public static property dtToday as date no-undo 
     get:
-      return today.   
+      
+      define variable dToday# as date no-undo init today.
+      
+      if sc_boot:SessionParameter("VirtualSystemDate") <> ? then do on error undo, throw: 
+        assign dToday# = date(sc_boot:SessionParameter("VirtualSystemDate")).
+      end.
+        
+      return dToday#.   
     end get. 
     protected set. 
 
