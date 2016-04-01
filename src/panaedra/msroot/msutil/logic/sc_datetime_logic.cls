@@ -1,43 +1,47 @@
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
+
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
-{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.sc_datetime_logic: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: Generic methods for datetime and datetime-tz
 
   \*****************************  Include Files ********************************/
-{panaedra/msroot/msutil/logic/def/def_weekdays.i &class=class} 
 
-
-  /************************  Source control constructor ************************/
-  constructor public sc_datetime_logic(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
-  
   constructor protected sc_datetime_logic(
     input oParamIP# as i_unittest_param):
-  end constructor.  
+  end constructor.
+    
   /******************************* $NoKeywords:  $ *****************************/
- 
-    define public static property dtToday as date no-undo 
+
+{panaedra/msroot/msutil/logic/def/def_weekdays.i &class=class} 
+
+  define protected static variable bParameterInUse# as logical no-undo init ?. 
+  define protected static variable dtVirtualDate#   as date    no-undo.
+
+  define public static property dtToday as date no-undo 
     get:
       
-      define variable dToday# as date no-undo init today.
-      
-      if sc_boot:SessionParameter("VirtualSystemDate") <> ? then do on error undo, throw: 
-        assign dToday# = date(sc_boot:SessionParameter("VirtualSystemDate")).
+      if bParameterInUse# = ? then
+      do: 
+        bParameterInUse# = sc_boot:SessionParameter("VirtualSystemDate") <> ?.
+        if bParameterInUse# then 
+        do on error undo, throw: 
+          dtVirtualDate# = date(sc_boot:SessionParameter("VirtualSystemDate")).
+          catch oError# as Progress.Lang.Error:
+            sc_showexception:ShowException(oError#).
+            bParameterInUse# = false.  /* vanaf nu niet meer proberen om foute datum te gebruiken */  
+          end catch.
+        end.   
       end.
+      if bParameterInUse# then
+        return dtVirtualDate#.
+      else        
+        return today.
         
-      return dToday#.   
     end get. 
     protected set. 
 
@@ -355,6 +359,8 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     
   end method. /* GetWeekdayChar */
   
+
 end class.
 
 /* EOF */ 
+
