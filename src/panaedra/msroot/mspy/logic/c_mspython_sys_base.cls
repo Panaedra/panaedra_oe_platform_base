@@ -6,24 +6,16 @@ using panaedra.msroot.mspy.logic.*.
 
 class panaedra.msroot.mspy.logic.c_mspython_sys_base: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: Python base class, to execute logic in the private python interpreter. 
                    Uses sc_mspython.cls
+                   
+ FREF@d981b49da++: Set-size of external-allocated memptr with multiple external ABL calls. This set-size is for ABL bookkeeping only. Since it's an external MEMPTR, the ABL leaves the content of the memptr untouched. The ABL has a bug however: when making multiple external calls, it "sticks" on a recent value, which can be smaller than iOutputLen. Therefore we lie, and set it to the maximum int value. Be careful with boundary checks. 2016Q2 OE11.3SP02 win32 TW.
 
   \*****************************  Include Files ********************************/
   {panaedra/msroot/mspy/logic/sc_mspython_externals_def.i &protected=protected &static=static &OnlyPreprocessorDefs=true}
 
-  /************************  Source control constructor ************************/
-  constructor public c_mspython_sys_base(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected static variable hProcEvalPython as handle    no-undo.
@@ -261,14 +253,17 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     if not bUseBlobDataIn# then
       set-size(blobDataIn) = 0.
     
-    if iOutputLen > 0 then
+    if iOutputLen > 0 then do:
+      set-size(blobOutput) = sc_data:iMaxInt /* Note: Should be iOutputLen, see FREF@d981b49da */.
       clobOutput = get-string(blobOutput, 1, iOutputLen).
       &if false &then
       /* This should be more correct (with convert to cpinternal), but gives the following error: 
          copy-lob blobOutput starting at 1 for iOutputLen to clobOutput. 
          gives (OE10.2B04,OE11.2,OE11.2SP01) Cannot copy large object starting at 1 for 17 bytes when object size is 0. (11305)*/
       /* Note on blobOutput : set-size to 0 not needed, memptr lives in python, ABL does not even know the size. */    
+      /* New info 2016Q1: set-size to iOutputLen solves it, memptr lives in python, ABL needs to know the size. set-size does not reset the data in this scenario. */    
       &endif
+    end.
     else
       clobOutput = "".
       
@@ -319,14 +314,13 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     if not bUseBlobDataIn# then
       set-size(blobDataIn) = 0.
     
-    if iOutputLen > 0 then
+    if iOutputLen > 0 then do:
+      set-size(blobOutput) = sc_data:iMaxInt /* Note: Should be iOutputLen, see FREF@d981b49da */.
       clobOutput = get-string(blobOutput, 1, min(iOutputLen,31500)).
       &if false &then
-      /* This should be more correct (with convert to cpinternal), but gives the following error: 
-         copy-lob blobOutput starting at 1 for iOutputLen to clobOutput. 
-         gives (OE10.2B04,OE11.2,OE11.2SP01) Cannot copy large object starting at 1 for 17 bytes when object size is 0. (11305)*/
-      /* Note on blobOutput : set-size to 0 not needed, memptr lives in python, ABL does not even know the size. */    
+      /* This should be more correct ... (see comment above) */    
       &endif
+    end.
     else
       clobOutput = "".
       
@@ -378,16 +372,17 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
     if not bUseBlobDataIn# then
       set-size(blobDataIn) = 0.
     
-    if iOutputLen > 0 
-      and (not bUseBlobDataIn#) /* Note: If the caller uses blob data, and uses "bytearray in / bytearray out", it will expect to find the binary data in blobOutput, not clobOutput */
-      then
-      clobOutput = get-string(blobOutput, 1, iOutputLen).
-      &if false &then
-      /* This should be more correct (with convert to cpinternal), but gives the following error: 
-         copy-lob blobOutput starting at 1 for iOutputLen to clobOutput. 
-         gives (OE10.2B04,OE11.2,OE11.2SP01) Cannot copy large object starting at 1 for 17 bytes when object size is 0. (11305)*/
-      /* Note on blobOutput : set-size to 0 not needed, memptr lives in python, ABL does not even know the size. */    
-      &endif
+    if iOutputLen > 0 then do:
+      set-size(blobOutput) = sc_data:iMaxInt /* Note: Should be iOutputLen, see FREF@d981b49da */.
+      if (not bUseBlobDataIn#) /* Note: If the caller uses blob data, and uses "bytearray in / bytearray out", it will expect to find the binary data in blobOutput, not clobOutput */
+        then
+        clobOutput = get-string(blobOutput, 1, iOutputLen).
+        &if false &then
+        /* This should be more correct ... (see comment above) */     
+        &endif
+      else
+        clobOutput = "".
+    end.
     else
       clobOutput = "".
     
