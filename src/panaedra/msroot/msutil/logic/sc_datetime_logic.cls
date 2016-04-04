@@ -19,25 +19,25 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
 
 {panaedra/msroot/msutil/logic/def/def_weekdays.i &class=class} 
 
-  define protected static variable bParameterInUse# as logical no-undo init ?. 
+  define protected static variable bVirtualDateInUse# as logical no-undo init ?. 
   define protected static variable dtVirtualDate#   as date    no-undo.
 
   define public static property dtToday as date no-undo 
     get:
       
-      if bParameterInUse# = ? then
+      if bVirtualDateInUse# = ? then
       do: 
-        bParameterInUse# = sc_boot:SessionParameter("VirtualSystemDate") <> ?.
-        if bParameterInUse# then 
+        bVirtualDateInUse# = sc_boot:SessionParameter("VirtualSystemDate") <> ?.
+        if bVirtualDateInUse# then 
         do on error undo, throw: 
           dtVirtualDate# = date(sc_boot:SessionParameter("VirtualSystemDate")).
           catch oError# as Progress.Lang.Error:
             sc_showexception:ShowException(oError#).
-            bParameterInUse# = false.  /* vanaf nu niet meer proberen om foute datum te gebruiken */  
+            bVirtualDateInUse# = false.  /* vanaf nu niet meer proberen om foute datum te gebruiken */  
           end catch.
         end.   
       end.
-      if bParameterInUse# then
+      if bVirtualDateInUse# then
         return dtVirtualDate#.
       else        
         return today.
