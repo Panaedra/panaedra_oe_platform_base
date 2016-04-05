@@ -104,6 +104,7 @@ class panaedra.msroot.msutil.logic.sc_boot:
       create t-sesspara.
       t-sesspara.cToken = trim(entry(1,cEntr,"]")).
       t-sesspara.cValue = trim(entry(2,cEntr,"]")) no-error.
+      release t-sesspara.
     end.
 
   end method. /* BuildTsesspara */
