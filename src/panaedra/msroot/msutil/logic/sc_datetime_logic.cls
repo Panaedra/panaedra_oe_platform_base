@@ -54,6 +54,229 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     end get. 
     protected set. 
   
+  method public static logical IsWorkday(
+  
+    input iWeekdayIP# as integer 
+    ):
+      
+    return iWeekdayIP# >= {&monday} and iWeekdayIP# <= {&friday}.   
+  
+  end method. /* IsWorkday */
+  
+  
+  method public static int GetTime(dtmInputIP# as datetime-tz):
+    
+    return integer(truncate(mtime(dtmInputIP#) / 1000.0, 0)).
+  
+  end method. /* GetTime */
+
+
+  method public static character GetTimeHHMM(dtmInputIP# as datetime-tz):
+  
+    return string(GetTime(dtmInputIP#),"hh:mm").
+  
+  end method. /* GetTimeHHMM */
+
+
+  method public static character GetTimeHH_FCMPNY_S(dtmInputIP# as datetime-tz):
+  
+    return string(GetTime(dtmInputIP#),"hh:mm:ss").
+  
+  end method. /* GetTimeHH_FCMPNY_S */
+  
+  
+  method public static character GetTimeHH_FCMPNY_SFFF(dtmInputIP# as datetime-tz):
+  
+    return replace(replace(substring(string(dtmInputIP#,"99/99/9999 HH:MM:SS.SSS"),12),":",""),",","").
+  
+  end method. /* GetTimeHH_FCMPNY_SFFF */
+  
+  
+  method public static character GetDateYYMMDD (input dtValueIP# as date) :
+      
+    if dtValueIP# <> ? then  
+      return substring(string(year(dtValueIP#)), 3)
+        + string(month(dtValueIP#), "99")
+        + string(day(dtValueIP#), "99").
+        
+  end method. /* GetDateYYMMDD */
+  
+  
+  method public static character GetDateDDMMYY (input dtValueIP# as date) :
+      
+    if dtValueIP# <> ? then  
+      return 
+        string(day(dtValueIP#), "99")
+        + string(month(dtValueIP#), "99")
+        + substring(string(year(dtValueIP#)), 3).
+        
+  end method. /* GetDateDDMMYY */
+  
+  
+  method public static character GetDateCCYYMMDD (input dtValueIP# as date) :
+      
+    if dtValueIP# <> ? then  
+      return string(year(dtValueIP#), "9999")
+        + string(month(dtValueIP#), "99")
+        + string(day(dtValueIP#), "99").
+        
+  end method. /* GetDateCCYYMMDD */
+
+
+  method public static character GetDateDDMM(
+    
+    /* Returns an character in DD-MM format */
+    
+    dtInputIP# as datetime-tz):
+
+    return GetDateDDMM(dtInputIP#, "-").
+  
+  end method. /* GetDateDDMM */
+
+  
+  method public static character GetDateDDMM(
+    
+    /* Returns an character in DD-MM format; with specified seperator */
+  
+    dtmInputIP# as datetime-tz, cSepIP# as character):
+
+    return 
+      if dtmInputIP# <> ? then
+      string(day(dtmInputIP#), "99")
+      + cSepIP#
+      + string(month(dtmInputIP#), "99")
+      else "".
+  
+  end method. /* GetDateDDMM */
+  
+
+
+  method public static character GetDateDDMMYY(
+    
+    /* Returns an character in DD-MM-YY format */
+    
+    dtInputIP# as datetime-tz):
+
+    return GetDateDDMMYY(dtInputIP#, "-").
+  
+  end method. /* GetDateDDMMYY */
+
+  
+  method public static character GetDateDDMMYY(
+    
+    /* Returns an character in DD-MM-YY format; with specified seperator */
+  
+    dtmInputIP# as datetime-tz, cSepIP# as character):
+
+    return string(day(dtmInputIP#), "99")
+      + cSepIP#
+      + string(month(dtmInputIP#), "99")
+      + cSepIP#
+      + substring(string(year(dtmInputIP#), "9999"), 3)
+      .
+  
+  end method. /* GetDateDDMMYY */
+  
+  
+  method public static integer GetDateCCYYWW(
+    /* was: dat2week() uit datelib.p 
+       returns year and week number */
+    dtDateIP# as date
+    ):
+  
+    if dtDateIP# = ? then return 0.
+    
+    return integer(1 +
+      if dtDateIP# - weekday(dtDateIP# - 1) + 8 > date(1,4,year(dtDateIP#) + 1)
+      then ((year(dtDateIP#) + 1) * 100)
+      else if dtDateIP# - weekday(dtDateIP# - 1) + 8 <= date(1,4,year(dtDateIP#))
+      then (truncate((dtDateIP# - date(1,1,year(dtDateIP#) - 1) + 4 -
+      weekday(dtDateIP# - 1)) / 7,0) + (year(dtDateIP#) - 1) * 100)
+      else (truncate((dtDateIP# - date(1,1,year(dtDateIP#)) + 4 -
+      weekday(dtDateIP# - 1)) / 7,0) + year(dtDateIP#) * 100)
+      ).
+  
+  end method. /* GetDateCCYYWW */
+  
+  
+  method public static character GetReadableDelta(input dtmDateTimeIP# as datetime):
+    
+    define variable cReturn#   as character no-undo.    
+    define variable cDateTime# as character no-undo.
+    
+    cDateTime# = string(dtmDateTimeIP#,"99-99-9999 HH:MM:SS.SSS").
+    
+    cReturn# = 
+      subst("&1d &2h&3m&4s&5",
+      string(day(dtmDateTimeIP#) - day(sc_date_timestamp:dtDeltaNull),"999"),
+      string(substring(string(cDateTime#),12,2),"99"),
+      string(substring(string(cDateTime#),15,2),"99"),
+      string(substring(string(cDateTime#),18,2),"99"),
+      if substring(string(cDateTime#),21,3) = "000" then "" else substring(string(cDateTime#),21,3) + "ms"). 
+    
+    return cReturn#.
+    
+  end method. /* GetReadableDelta */  
+  
+  
+  method public static character GetReadableDelta(
+    input dtmOneIP# as datetime-tz, 
+    input dtmTwoIP# as datetime-tz):
+    
+    define variable iMs#      as integer   no-undo.
+    define variable dtmDelta# as datetime  no-undo.
+    define variable cReturn#  as character no-undo.    
+    
+    iMs# = interval(dtmTwoIP#,dtmOneIP#,"milliseconds").
+    
+    dtmDelta# = sc_date_timestamp:TimezoneInterval(iMs#).
+    
+    return GetReadableDelta(dtmDelta#).
+    
+  end method. /* GetReadableDelta */
+  
+
+  method public static character DutchAbvMonth(
+    input dtmInputIP# as datetime-tz
+    ):
+    
+    define variable iMonth#  as integer   no-undo.
+    define variable cReturn# as character no-undo.
+    
+    iMonth# = month(dtmInputIP#). 
+    case iMonth#:
+      
+      when 1 then 
+        cReturn# = "Jan".
+      when 2 then 
+        cReturn# = "Feb".
+      when 3 then 
+        cReturn# = "Mrt".
+      when 4 then 
+        cReturn# = "Apr".
+      when 5 then 
+        cReturn# = "Mei".
+      when 6 then 
+        cReturn# = "Jun".
+      when 7 then 
+        cReturn# = "Jul".
+      when 8 then 
+        cReturn# = "Aug".
+      when 9 then 
+        cReturn# = "Sep".
+      when 10 then 
+        cReturn# = "Okt".
+      when 11 then 
+        cReturn# = "Nov".
+      when 12 then 
+        cReturn# = "Dec".
+      
+    end case. 
+    
+    return cReturn#.
+  
+  end method. /* DutchAbvDate */
+  
   
   method public static character GetWeekdayChar(
     /* Return a character representing today (ma di wo do.....) */
