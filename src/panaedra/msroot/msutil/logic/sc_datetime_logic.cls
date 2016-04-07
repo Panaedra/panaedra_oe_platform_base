@@ -360,7 +360,18 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     
   end method. /* GetWeekdayChar */
   
-
+  
+  @panaedraannotation file(unittest="yes").
+  method public static logical IsLastDayOfMonth(input dtDateIP# as date):
+    
+    define variable bIsLastDayOfMonth# as logical no-undo.
+    
+    bIsLastDayOfMonth# = day(dtDateIP# + 1) = 1.
+    
+    return bIsLastDayOfMonth#.
+    
+  end method. /* IsLastDayOfMonth */
+  
 end class.
 
 /* EOF */ 
