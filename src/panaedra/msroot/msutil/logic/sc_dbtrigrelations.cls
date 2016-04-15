@@ -63,6 +63,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrigrelations:
         create ttCacheLoadedModules.
         assign 
           ttCacheLoadedModules.cModule = cNsGroupdir#.
+        release ttCacheLoadedModules.
         
         cFileName# = lc("panaedra/" 
           + (if hBuffTableInfoIP#::cNsSubroot = "(none)" then "" else hBuffTableInfoIP#::cNsSubroot + "/") 
