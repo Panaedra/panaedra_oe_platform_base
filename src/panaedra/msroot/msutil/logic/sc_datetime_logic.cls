@@ -19,31 +19,49 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
 
 {panaedra/msroot/msutil/logic/def/def_weekdays.i &class=class} 
 
-  define protected static variable bVirtualDateInUse as logical no-undo init ?. 
-  define protected static variable dtVirtualDate     as date    no-undo.
-
-  define public static property dtToday as date no-undo 
-    get:
+  define static property bVirtualDateInUse as logical no-undo init ?
+    public get:
+      /* Quick test:
+         EXTRAPARAM='[VirtualSystemDate] 1-1-2015' $SCRIPTS/TestTTest -c "message sc_datetime_logic:bVirtualDateInUse view-as alert-box. "
+      */
       define variable cVirtualSystemDateParam# as character no-undo.
-      
       if bVirtualDateInUse = ? then
-      do:
+        assign
+          cVirtualSystemDateParam# = sc_boot:SessionParameter("VirtualSystemDate")
+          bVirtualDateInUse        = sc_data:HasValue(cVirtualSystemDateParam#).
+      return bVirtualDateInUse.
+    end get.
+    protected set.
+  
+   
+  define static property dtVirtualDate as date no-undo initial ?
+    public get:
+      /* Quick test:
+         EXTRAPARAM='[VirtualSystemDate] 1-1-2015' $SCRIPTS/TestTTest -c "message sc_datetime_logic:dtVirtualDate view-as alert-box. "
+      */
+      define variable cVirtualSystemDateParam# as character no-undo.
+      if dtVirtualDate = ? then do:
         cVirtualSystemDateParam# = sc_boot:SessionParameter("VirtualSystemDate").
-
-        bVirtualDateInUse = sc_data:HasValue(cVirtualSystemDateParam#).
-        if bVirtualDateInUse then
         do on error undo, throw:
           dtVirtualDate = date(cVirtualSystemDateParam#).
           catch oError# as Progress.Lang.Error:
             sc_showexception:ShowException(oError#).
-            bVirtualDateInUse = false.  /* vanaf nu niet meer proberen om foute datum te gebruiken */
+            bVirtualDateInUse = false.  /* From now on, don't try to use this invalid virtual date */
           end catch.
         end.
       end.
-      if bVirtualDateInUse then
-        return dtVirtualDate.
-      else
-        return today.
+      return dtVirtualDate.
+    end get.
+    protected set.
+
+
+  define static property dtToday as date no-undo initial ? 
+    public get:
+      /* Quick test:
+         EXTRAPARAM='[VirtualSystemDate] 1-1-2015' $SCRIPTS/TestTTest -c "message sc_datetime_logic:dtToday view-as alert-box. "
+      */
+      if bVirtualDateInUse and dtVirtualDate <> ? then return dtVirtualDate.
+      else return today.
     end get. 
     protected set. 
 
@@ -278,6 +296,116 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   end method. /* DutchAbvDate */
   
   
+  method public static date StringCCYYMMDD2Date(
+    input cValueIP# as character
+    ):
+      
+    define variable dtReturn# as date no-undo.  
+      
+    assign 
+      dtReturn# = date(
+        int(substring(cValueIP#, 5, 2)),
+        int(substring(cValueIP#, 7, 2)),
+        int(substring(cValueIP#, 1, 4))
+        ) no-error.  
+    return dtReturn#.    
+  
+  end method. /* StringCCYYMMDD2Date */
+      
+
+  method public static date GetThisWeeksMonday(
+    dtDateIP# as date
+    ):
+    
+    define variable dtReturn# as date no-undo.  
+    
+    case weekday(dtDateIP#):
+    
+      /* Weekday 1 is a sunday */
+      when 1 then 
+        dtReturn# = dtDateIP# + 1.
+      when 2 then 
+        dtReturn# = dtDateIP# .
+      otherwise 
+      dtReturn# = dtDateIP# - weekday(dtDateIP# - 2).
+    
+    end. /* weekday */
+      
+    return dtReturn#.
+    
+  end method. /* GetThisWeeksMonday */  
+
+
+  method public static date GetThisWeeksFriday(
+    dtDateIP# as date
+    ):
+    
+    define variable dtReturn# as date no-undo.
+
+    case weekday(dtDateIP#):
+    
+      /* Weekday 1 is a sunday */
+      when 1 then 
+        dtReturn# = dtDateIP# + 5.
+      when 2 then 
+        dtReturn# = dtDateIP# + 4.
+      when 3 then 
+        dtReturn# = dtDateIP# + 3.
+      when 4 then 
+        dtReturn# = dtDateIP# + 2.
+      when 5 then 
+        dtReturn# = dtDateIP# + 1.
+      when 6 then 
+        dtReturn# = dtDateIP# .
+      when 7 then 
+        dtReturn# = dtDateIP# - 1.  
+    
+    end. /* weekday */
+    
+    return dtReturn#.
+    
+  end method. /* GetThisWeeksFriday */ 
+  
+  
+  @panaedraannotation file(unittest="yes").
+  method public static date GetNextWorkday(
+    /* returns the next workday, in other words: skips the weekends */
+    dtValueIP# as date
+    ):
+      
+    define variable dtReturn# as date no-undo.
+    
+    dtReturn# = add-interval(dtValueIP#, 1, "days").
+    
+    /* skip saturday/sunday */
+    do while lookup(string(weekday(dtReturn#)), "1,7") > 0 :
+      dtReturn# = add-interval(dtReturn#, 1, "days").
+    end.
+    
+    return dtReturn#.
+  
+  end method. /* GetNextWorkday */   
+  
+  
+  method public static date GetPreviousWorkday(
+    /* returns the previous workday, in other words: skips the weekends going backwards */
+    dtValueIP# as date
+    ):
+      
+    define variable dtReturn# as date no-undo.
+    
+    dtReturn# = add-interval(dtValueIP#, -1, "days").
+    
+    /* skip saturday/sunday */
+    do while lookup(string(weekday(dtReturn#)), "1,7") > 0 :
+      dtReturn# = add-interval(dtReturn#, -1, "days").
+    end.
+    
+    return dtReturn#.
+  
+  end method. /* GetPreviousWorkday */
+
+     
   method public static character GetWeekdayChar(
     /* Return a character representing today (ma di wo do.....) */
     input dtDateIP#       as date,
