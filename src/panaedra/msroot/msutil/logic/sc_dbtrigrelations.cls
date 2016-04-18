@@ -46,6 +46,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrigrelations:
     define buffer b-ttMsdrDbtrigTables     for ttMsdrDbtrigTables.
     define buffer b-ttMsdrTriggerLink      for ttMsdrTriggerLink.
     define buffer b-done-ttMsdrTriggerLink for ttMsdrTriggerLink.
+    define buffer b-ttCacheLoadedModules   for ttCacheLoadedModules.
     
     if not can-find(first b-ttMsdrDbtrigTables) then 
     do:
@@ -57,13 +58,13 @@ class panaedra.msroot.msutil.logic.sc_dbtrigrelations:
 
     if not can-find(first b-ttMsdrDbtrigTables where b-ttMsdrDbtrigTables.cModule = cNsGroupdir#) then 
     do:
-      find first ttCacheLoadedModules where ttCacheLoadedModules.cModule = cNsGroupdir# no-error.
-      if not avail ttCacheLoadedModules then 
+      find first b-ttCacheLoadedModules where b-ttCacheLoadedModules.cModule = cNsGroupdir# no-error.
+      if not avail b-ttCacheLoadedModules then 
       do:
-        create ttCacheLoadedModules.
+        create b-ttCacheLoadedModules.
         assign 
-          ttCacheLoadedModules.cModule = cNsGroupdir#.
-        release ttCacheLoadedModules.
+          b-ttCacheLoadedModules.cModule = cNsGroupdir#.
+        release b-ttCacheLoadedModules.
         
         cFileName# = lc("panaedra/" 
           + (if hBuffTableInfoIP#::cNsSubroot = "(none)" then "" else hBuffTableInfoIP#::cNsSubroot + "/") 
