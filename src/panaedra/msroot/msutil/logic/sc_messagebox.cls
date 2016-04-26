@@ -23,7 +23,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
                    using panaedra.msroot.msutil.interfaces.*.
                    
                    (Eclipse macro 'bbmes'):
-                   sc_messagebox_win32:Show(sc_messagebox_win32type:Simple, "Here's my message").
+                   sc_messagebox:Show(sc_messageboxtype:Simple, "Here's my message").
 
   \*****************************  Include Files ********************************/
 
