@@ -503,19 +503,20 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
 
   @panaedraannotation file(unittest="yes").
   method public static date GetLastDateOfMonth(
-  input iYearIP# as integer,
-  input iMonthIP# as integer
-  ):
+    input iYearIP# as integer,
+    input iMonthIP# as integer
+    ):
     
-    define variable dLastDateOfMonth# as date no-undo.
-    define variable dDate# as date no-undo.
-    define variable iDay# as integer no-undo.
+    define variable dLastDateOfMonth# as date    no-undo.
+    define variable dDate#            as date    no-undo.
+    define variable iDay#             as integer no-undo.
     
     do iDay# = 27 to 31:
       
       dDate# = date(iMonthIP#,iDay#,iYearIP#).  
 
-      if day(dDate# + 1) = 1 then do:
+      if day(dDate# + 1) = 1 then 
+      do:
         dLastDateOfMonth# = dDate#.
         leave.     
       end.  
@@ -525,6 +526,7 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     return dLastDateOfMonth#.
     
   end method. /* IsLastDayOfMonth */
+  
   
 end class.
 
