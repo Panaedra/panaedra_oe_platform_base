@@ -179,6 +179,14 @@ class panaedra.msroot.msutil.logic.sc_messagebox
   end method. /* Show; simple */
 
 
+  method public static void Show(oTypeOVID# as i_messageboxtype_asalertbox, cMsgIP# as character):
+    
+    message cMsgIP#
+      view-as alert-box.
+    
+  end method. /* Show; simple */
+
+
   method public static void Show(oTypeOVID# as i_messageboxtype_simple_ontop, cMsgIP# as character):
 
     sc_environment:SetWaitState("panaedra.msroot.msutil.logic.sc_messagebox", false).
