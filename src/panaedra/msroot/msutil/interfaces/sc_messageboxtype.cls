@@ -27,6 +27,7 @@ class panaedra.msroot.msutil.interfaces.sc_messageboxtype:
   define public static property YesNo_OnTop  as i_messageboxtype_yesno_ontop   no-undo get.
   define public static property oDebug       as i_messageboxtype_debug         no-undo get.
   define public static property AsAlertBox   as i_messageboxtype_asalertbox    no-undo get.
+  define public static property YesNoCancel  as i_messageboxtype_yesnocancel   no-undo get.
 
 end class.
 

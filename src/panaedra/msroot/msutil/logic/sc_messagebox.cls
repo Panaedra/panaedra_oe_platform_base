@@ -226,6 +226,18 @@ class panaedra.msroot.msutil.logic.sc_messagebox
   end method. /* Show; yesno */
 
 
+  method public static logical Show(oTypeOVID# as i_messageboxtype_yesnocancel, cMsgIP# as character, bDefaultOkayIP# as logical):
+
+    sc_environment:SetWaitState("panaedra.msroot.msutil.logic.sc_messagebox", false).
+
+    message cMsgIP#
+      view-as alert-box buttons yes-no-cancel update bDefaultOkayIP#.
+      
+    return bDefaultOkayIP#.
+    
+  end method. /* Show; yesno */
+
+
   method public static logical Show(oTypeOVID# as i_messageboxtype_yesno_ontop, cMsgIP# as character, bDefaultOkayIP# as logical):
 
     message "Not yet implemented" skip program-name(1) skip program-name(2) skip(2) cMsgIP#.
