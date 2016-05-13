@@ -984,11 +984,13 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     cValueIP#       as character):
 
-    define variable oControl#       as System.Object                 no-undo.
-    define variable oValue#         as Progress.Lang.Object          no-undo.
-    define variable bEnumProperty#  as logical                       no-undo.
+    define variable oControl#        as System.Object                       no-undo.
+    define variable oValue#          as Progress.Lang.Object                no-undo.
+    define variable bSimpleProperty# as logical                             no-undo initial true.
 
-    define variable oFormsCombobox# as System.Windows.Forms.ComboBox no-undo.
+    define variable oWpfElement#     as System.Windows.FrameworkElement     no-undo.
+    define variable oWpfRadioButton# as System.Windows.Controls.RadioButton no-undo.
+    define variable oFormsCombobox#  as System.Windows.Forms.ComboBox       no-undo.
 
     /* We only support Text objects for cValueIP#, and we can convert this to other objects
        later in time 
@@ -1001,7 +1003,7 @@ class paninui.view.use.display.sc_displaydata   :
       if type-of(oWidgetIP#, System.Windows.Forms.ComboBox) then 
       do:
         oFormsCombobox# = cast(oWidgetIP#, System.Windows.Forms.ComboBox).
-        bEnumProperty# = yes.
+        bSimpleProperty# = false.
         
         case cPropertyIP#:
           
@@ -1023,16 +1025,30 @@ class paninui.view.use.display.sc_displaydata   :
             end case.
             
           otherwise  
-          bEnumProperty# = no.
+          bSimpleProperty# = true.
           
         end case.     
          
       end. /* if type-of ... */
       
       
-      if not bEnumProperty# then
-      do: 
+      if type-of(oWidgetIP#, System.Windows.FrameworkElement) then 
+      do:
+        oWpfElement# = cast(oWidgetIP#, System.Windows.FrameworkElement).
+        case cPropertyIP#:
+          when "Name" then oWpfElement#:SetValue(System.Windows.FrameworkElement:NameProperty, cValueIP#).
+          when "Text" then do:
+            if type-of(oWpfElement#, System.Windows.Controls.RadioButton) then do:
+              oWpfRadioButton# = cast(oWpfElement#, System.Windows.Controls.RadioButton). 
+              /* oWpfRadioButton#:SetValue(oWpfRadioButton#:Tex, cValueIP#). musthave: mantis@2230 */
+            end.
+          end.
+        end case.
+      end.
       
+      if bSimpleProperty# then
+      do: 
+        
         oControl# = cast(oWidgetIP#, System.Object).
         if oValue# <> ? then
           paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cast(oValue#,System.Object)).
