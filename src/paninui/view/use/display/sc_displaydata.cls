@@ -183,8 +183,8 @@ class paninui.view.use.display.sc_displaydata   :
       if hBuffOrQueryOrRelationIP#:type <> "data-relation" then 
       do:
         hQuery# = dsIP#:top-nav-query(hBuffOrQueryOrRelationIP#:name).
-        if (hQuery# = ?) then message program-name(2) skip hBuffOrQueryOrRelationIP#:type skip "Top-level query niet gevonden."
-            view-as alert-box.
+        if (hQuery# = ?) then
+          sc_messagebox:Show(sc_messageboxtype:Simple, substitute("&1~n&2~nTop-level query not found.", program-name(2), hBuffOrQueryOrRelationIP#:type)).    
       end.
         
       else 
@@ -1042,6 +1042,14 @@ class paninui.view.use.display.sc_displaydata   :
       end.
         
     end.
+    
+    catch oException# as System.Exception:
+      sc_showexception:ShowException(oException#).  
+    end catch.
+    
+    catch oError# as Progress.Lang.Error:
+      sc_showexception:ShowException(oError#).  
+    end catch.
 
   end method. /* SetUiValueImplement ; character */
 
@@ -1070,6 +1078,14 @@ class paninui.view.use.display.sc_displaydata   :
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, iValueIP#).
     end.
 
+    catch oException# as System.Exception:
+      sc_showexception:ShowException(oException#).  
+    end catch.
+    
+    catch oError# as Progress.Lang.Error:
+      sc_showexception:ShowException(oError#).  
+    end catch.
+
   end method. /* SetUiValueImplement ; integer */
 
 
@@ -1097,6 +1113,14 @@ class paninui.view.use.display.sc_displaydata   :
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, dtmValueIP#).
     end.
 
+    catch oException# as System.Exception:
+      sc_showexception:ShowException(oException#).  
+    end catch.
+    
+    catch oError# as Progress.Lang.Error:
+      sc_showexception:ShowException(oError#).  
+    end catch.
+
   end method. /* SetUiValueImplement ; integer */
 
 
@@ -1123,6 +1147,14 @@ class paninui.view.use.display.sc_displaydata   :
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, bValueIP#).
     end.
+
+    catch oException# as System.Exception:
+      sc_showexception:ShowException(oException#).  
+    end catch.
+    
+    catch oError# as Progress.Lang.Error:
+      sc_showexception:ShowException(oError#).  
+    end catch.
 
   end method. /* SetUiValueImplement ; logical */
 
