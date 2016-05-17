@@ -657,6 +657,42 @@ class paninui.view.use.sc_coll_widgetdata
   end method. /* GetWidgetByHandle */
 
   
+  method public static Progress.Lang.Object GetWidgetByHandleAndSuffix(
+    input  oWidgetIP#   as Progress.Lang.Object,
+    input  cSuffixIP#   as character):
+    
+    /* Get a widget that is a sub-widget of the widget, by handle and suffix. 
+       Example: Pass a XX.btnMyRadioButton and "Text" to return the XX.btnMyRadioButton.Text widget. 
+    */
+
+    define variable iPackID#         as int64                no-undo.
+    define variable cLinkName#       as character            no-undo.
+    
+    define buffer ttUIFrame    for ttUIFrame.
+    define buffer ttWidgetData for ttWidgetData.
+    
+    do for ttWidgetData:
+      
+      find first ttWidgetData where ttWidgetData.oWidget = oWidgetIP# no-error.
+
+      if available ttWidgetData then 
+      do:
+        cLinkName# = substitute("&1.&2", ttWidgetData.cLinkName, cSuffixIP#).
+        find first ttUIFrame of ttWidgetData no-error.
+        iPackID# = if available ttUIFrame then ttUIFrame.iPackID else 0.
+      end.
+
+      find first ttWidgetData 
+        where ttWidgetData.iFramePackId = iPackID#
+        and   ttWidgetData.cLinkName    = cLinkName# no-error.
+
+      return if available ttWidgetData then ttWidgetData.oWidget else ?.
+        
+    end.
+    
+  end method. /* GetWidgetByHandleAndSuffix */
+
+  
   method public static {&i_uiframe} GetFrameByLinkName(cLinkNameIP# as character):
     return GetFrameByLinkName(?, cLinkNameIP#).
   end method. /* GetFrameByLinkName */

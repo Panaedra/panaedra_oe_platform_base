@@ -986,9 +986,11 @@ class paninui.view.use.display.sc_displaydata   :
 
     define variable oControl#        as System.Object                       no-undo.
     define variable oValue#          as Progress.Lang.Object                no-undo.
+    define variable oSubElement#     as Progress.Lang.Object                no-undo.
     define variable bSimpleProperty# as logical                             no-undo initial true.
 
     define variable oWpfElement#     as System.Windows.FrameworkElement     no-undo.
+    define variable oWpfSubElement#  as System.Windows.FrameworkElement     no-undo.
     define variable oWpfRadioButton# as System.Windows.Controls.RadioButton no-undo.
     define variable oFormsCombobox#  as System.Windows.Forms.ComboBox       no-undo.
 
@@ -1034,25 +1036,48 @@ class paninui.view.use.display.sc_displaydata   :
       
       if type-of(oWidgetIP#, System.Windows.FrameworkElement) then 
       do:
-        oWpfElement# = cast(oWidgetIP#, System.Windows.FrameworkElement).
+        assign
+          bSimpleProperty# = false
+          oWpfElement#     = cast(oWidgetIP#, System.Windows.FrameworkElement).
         case cPropertyIP#:
           when "Name" then oWpfElement#:SetValue(System.Windows.FrameworkElement:NameProperty, cValueIP#).
-          when "Text" then do:
-            if type-of(oWpfElement#, System.Windows.Controls.RadioButton) then do:
-              oWpfRadioButton# = cast(oWpfElement#, System.Windows.Controls.RadioButton). 
-              /* oWpfRadioButton#:SetValue(oWpfRadioButton#:Tex, cValueIP#). musthave: mantis@2230 */
-            end.
-          end.
-        end case.
+          when "Text" then 
+            do:
+              if type-of(oWpfElement#, System.Windows.Controls.RadioButton) then 
+              do:
+                oWpfRadioButton# = cast(oWpfElement#, System.Windows.Controls.RadioButton).
+                if valid-object(oWpfRadioButton#:Content) then 
+                do:
+                  if type-of(oWpfRadioButton#:Content, System.String) then 
+                  do:
+                    /* Note: The Content of this WPF RadioButton is a simple String. Set it to the new string.*/
+                    assign
+                      bSimpleProperty# = true
+                      cPropertyIP#     = "Content".
+                  end.
+                  else 
+                  do:
+                    /* Note: The Content of this WPF RadioButton is more complex. Find the Text widget by suffix.*/
+                    oSubElement# = sc_coll_widgetdata:GetWidgetByHandleAndSuffix(oWpfRadioButton#, "Text").
+                    if valid-object(oSubElement#) then 
+                    do:
+                      oWpfSubElement# = cast(oSubElement#,System.Windows.FrameworkElement).
+                      paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oWpfSubElement#, cPropertyIP#, cValueIP#).
+                    end. 
+                  end.
+                end. /* Valid Content */
+              end. /* WPF RadioButton */
+            end. /* "Text" property */
+        end case. /* cPropertyIP# */
       end.
       
       if bSimpleProperty# then
       do: 
         
         oControl# = cast(oWidgetIP#, System.Object).
-        if oValue# <> ? then
+        if oValue# <> ? then 
           paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cast(oValue#,System.Object)).
-        else
+        else 
           paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, cValueIP#).
           
       end.
