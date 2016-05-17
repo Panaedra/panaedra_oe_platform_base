@@ -984,15 +984,15 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     cValueIP#       as character):
 
-    define variable oControl#        as System.Object                       no-undo.
-    define variable oValue#          as Progress.Lang.Object                no-undo.
-    define variable oSubElement#     as Progress.Lang.Object                no-undo.
-    define variable bSimpleProperty# as logical                             no-undo initial true.
+    define variable oControl#           as System.Object                          no-undo.
+    define variable oValue#             as Progress.Lang.Object                   no-undo.
+    define variable oSubElement#        as Progress.Lang.Object                   no-undo.
+    define variable bSimpleProperty#    as logical                                no-undo initial true.
 
-    define variable oWpfElement#     as System.Windows.FrameworkElement     no-undo.
-    define variable oWpfSubElement#  as System.Windows.FrameworkElement     no-undo.
-    define variable oWpfRadioButton# as System.Windows.Controls.RadioButton no-undo.
-    define variable oFormsCombobox#  as System.Windows.Forms.ComboBox       no-undo.
+    define variable oWpfElement#        as System.Windows.FrameworkElement        no-undo.
+    define variable oWpfSubElement#     as System.Windows.FrameworkElement        no-undo.
+    define variable oWpfContentControl# as System.Windows.Controls.ContentControl no-undo.
+    define variable oFormsCombobox#     as System.Windows.Forms.ComboBox          no-undo.
 
     /* We only support Text objects for cValueIP#, and we can convert this to other objects
        later in time 
@@ -1036,40 +1036,57 @@ class paninui.view.use.display.sc_displaydata   :
       
       if type-of(oWidgetIP#, System.Windows.FrameworkElement) then 
       do:
+        
         assign
           bSimpleProperty# = false
           oWpfElement#     = cast(oWidgetIP#, System.Windows.FrameworkElement).
+        
         case cPropertyIP#:
+          
           when "Name" then oWpfElement#:SetValue(System.Windows.FrameworkElement:NameProperty, cValueIP#).
-          when "Text" then 
+          
+          when "Text" then
+           
             do:
-              if type-of(oWpfElement#, System.Windows.Controls.RadioButton) then 
+              if type-of(oWpfElement#, System.Windows.Controls.ContentControl) then 
               do:
-                oWpfRadioButton# = cast(oWpfElement#, System.Windows.Controls.RadioButton).
-                if valid-object(oWpfRadioButton#:Content) then 
+                
+                oWpfContentControl# = cast(oWpfElement#, System.Windows.Controls.ContentControl).
+                
+                if type-of(oWpfElement#, System.Windows.Controls.Primitives.ButtonBase) then
+                  cValueIP# = replace(cValueIP#,"&","_"). /* Note: WPF uses underscore for mnemonics. ShouldHave: make this work for double ampersands / escaping */
+                  
+                if valid-object(oWpfContentControl#:Content) then 
                 do:
-                  if type-of(oWpfRadioButton#:Content, System.String) then 
+                  
+                  if type-of(oWpfContentControl#:Content, System.String) then 
                   do:
-                    /* Note: The Content of this WPF RadioButton is a simple String. Set it to the new string.*/
+                    /* Note: The Content of this WPF Control is a simple String. Set it to the new string.*/
                     assign
                       bSimpleProperty# = true
                       cPropertyIP#     = "Content".
                   end.
+                  
                   else 
                   do:
-                    /* Note: The Content of this WPF RadioButton is more complex. Find the Text widget by suffix.*/
-                    oSubElement# = sc_coll_widgetdata:GetWidgetByHandleAndSuffix(oWpfRadioButton#, "Text").
+                    /* Note: The Content of this WPF Control is more complex. Find the Text widget by suffix.*/
+                    oSubElement# = sc_coll_widgetdata:GetWidgetByHandleAndSuffix(oWpfContentControl#, "Text").
                     if valid-object(oSubElement#) then 
                     do:
                       oWpfSubElement# = cast(oSubElement#,System.Windows.FrameworkElement).
                       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oWpfSubElement#, cPropertyIP#, cValueIP#).
                     end. 
                   end.
+                  
                 end. /* Valid Content */
-              end. /* WPF RadioButton */
+                
+              end. /* WPF Widget with Content attribute */
+              
             end. /* "Text" property */
+            
         end case. /* cPropertyIP# */
-      end.
+        
+      end. /* WPF element */
       
       if bSimpleProperty# then
       do: 
@@ -1177,7 +1194,7 @@ class paninui.view.use.display.sc_displaydata   :
     define variable oControl# as System.Object        no-undo.
     define variable cDummy#   as character            no-undo.
     define variable oValue#   as Progress.Lang.Object no-undo.
-
+    
     /* We only support Text objects for cValueIP#, and we can convert this to other objects
        later in time 
        (I.e. "green" to Color object etc.; in WPF we can use existing Type Converters) 
@@ -1186,7 +1203,25 @@ class paninui.view.use.display.sc_displaydata   :
     do:
       RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oValue#).
       oControl# = cast(oWidgetIP#, System.Object).
-      paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, bValueIP#).
+      
+      case cPropertyIP#:
+        when "Visible" then 
+          do:
+            if type-of(oWidgetIP#,System.Windows.FrameworkElement) then 
+            do:
+              case bValueIP#:
+                when ? then paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, "Visibility", System.Windows.Visibility:Hidden).
+                when false then paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, "Visibility", System.Windows.Visibility:Collapsed).
+                when true then paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, "Visibility", System.Windows.Visibility:Visible).
+              end case.
+            end. 
+            else
+              paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, bValueIP#).
+          end.
+        otherwise
+        paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, bValueIP#).
+      end case.
+      
     end.
 
     catch oException# as System.Exception:
