@@ -616,10 +616,11 @@ class paninui.view.use.display.sc_displaydata   :
     cWidgetNameIP#  as character,
     cPropertyIP#    as character):
       
-    define variable bIsDisplayLinkedOP# as logical                      no-undo.
-    define variable oWidget#            as Progress.Lang.Object         no-undo.
-    define variable cSvAllowed#         as character                    no-undo init "Focus".
-    define variable oFormsControl#      as System.Windows.Forms.Control no-undo.
+    define variable bIsDisplayLinkedOP# as logical                         no-undo.
+    define variable oWidget#            as Progress.Lang.Object            no-undo.
+    define variable cSvAllowed#         as character                       no-undo init "Focus".
+    define variable oFormsControl#      as System.Windows.Forms.Control    no-undo.
+    define variable oWpfElement#        as System.Windows.FrameworkElement no-undo.
     
     if lookup(cPropertyIP#, cSvAllowed#) > 0 then 
     do:
@@ -629,9 +630,15 @@ class paninui.view.use.display.sc_displaydata   :
       if valid-object(oWidget#) then 
       do:
         
-        if type-of(oWidget#, System.Windows.Forms.Control) then 
-        do:
+        if type-of(oWidget#, System.Windows.Forms.Control) then
           oFormsControl# = cast(oWidget#, System.Windows.Forms.Control).
+        
+        else
+        do:
+          if type-of(oWidget#, System.Windows.FrameworkElement) then
+          do:
+            oWpfElement# = cast(oWidget#, System.Windows.FrameworkElement).
+          end.
         end.
         
         case cPropertyIP#: 
@@ -639,11 +646,14 @@ class paninui.view.use.display.sc_displaydata   :
           when "Focus" then 
             do:
               if oFormsControl# <> ? then oFormsControl#:Focus().
+              if oWpfElement# <> ? then oWpfElement#:Focus().
             end.
             
         end case.
-      end.
-    end.
+        
+      end. /* valid-object */
+      
+    end. /* allowed property */
     else 
       undo, throw new Progress.Lang.AppError(subst("Invalid property without value: '&1'", cPropertyIP#),99950017).
     
