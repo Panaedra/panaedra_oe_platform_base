@@ -269,16 +269,16 @@ class paninui.view.use.sc_coll_eventdata
     cWidgetNameIP#          as character,
     cEventTypeIP#           as character):
 
-    define variable oWidget#              as Progress.Lang.Object               no-undo.
-    define variable oBindingSource#       as Progress.Lang.Object               no-undo.
-    define variable oBindingSourceStrong# as c_bindingsource                    no-undo.
-    define variable bDummy#               as logical                            no-undo.
-    define variable oFormsButton#         as System.Windows.Forms.Button        no-undo.
-    define variable oFormsCheckBox#       as System.Windows.Forms.CheckBox      no-undo.
-    define variable oWpfButton#           as System.Windows.Controls.Button     no-undo.
-    define variable oFormsMenuItem#       as System.Windows.Controls.MenuItem   no-undo.
-    define variable oFormsToolStripItem#  as System.Windows.Forms.ToolStripItem no-undo.
-    define variable oFormsRadioButton#    as System.Windows.Forms.RadioButton   no-undo.
+    define variable oWidget#              as Progress.Lang.Object                          no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object                          no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource                               no-undo.
+    define variable bDummy#               as logical                                       no-undo.
+    define variable oFormsButton#         as System.Windows.Forms.Button                   no-undo.
+    define variable oFormsCheckBox#       as System.Windows.Forms.CheckBox                 no-undo.
+    define variable oWpfButton#           as System.Windows.Controls.Primitives.ButtonBase no-undo.
+    define variable oFormsMenuItem#       as System.Windows.Controls.MenuItem              no-undo.
+    define variable oFormsToolStripItem#  as System.Windows.Forms.ToolStripItem            no-undo.
+    define variable oFormsRadioButton#    as System.Windows.Forms.RadioButton              no-undo.
     
     
     define buffer ttUiEvent for ttUiEvent.
@@ -343,10 +343,10 @@ class paninui.view.use.sc_coll_eventdata
             
         end.
         
-        if type-of(oWidget#,System.Windows.Controls.Button) then 
+        if type-of(oWidget#,System.Windows.Controls.Primitives.ButtonBase) then 
         do:
           
-          oWpfButton# = cast(oWidget#,System.Windows.Controls.Button).
+          oWpfButton# = cast(oWidget#,System.Windows.Controls.Primitives.ButtonBase).
           if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
             case cEventTypeIP#:
               when "Press" then oWpfButton#:Click:Subscribe(oSingleton:OnEventArgsHandler_Press).
@@ -944,19 +944,19 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_Press(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable bEclipseFix#             as logical                                no-undo.
-    define variable oCheckBox#               as System.Windows.Forms.CheckBox          no-undo.
-    define variable oFormsButton#            as System.Windows.Forms.Button            no-undo.
-    define variable oFormsToolStripItem#     as System.Windows.Forms.ToolStripItem     no-undo.
-    define variable oFormsToolStripMenuItem# as System.Windows.Forms.ToolStripMenuItem no-undo.
-    define variable oWpfButton#              as System.Windows.Controls.Button         no-undo.
-    define variable oUiValue#                as paninui.view.interfaces.i_uivalue      no-undo.
-    define variable bInvokePrepared#         as logical                                no-undo.
+    define variable bEclipseFix#             as logical                                       no-undo.
+    define variable oCheckBox#               as System.Windows.Forms.CheckBox                 no-undo.
+    define variable oFormsButton#            as System.Windows.Forms.Button                   no-undo.
+    define variable oFormsToolStripItem#     as System.Windows.Forms.ToolStripItem            no-undo.
+    define variable oFormsToolStripMenuItem# as System.Windows.Forms.ToolStripMenuItem        no-undo.
+    define variable oWpfButton#              as System.Windows.Controls.Primitives.ButtonBase no-undo.
+    define variable oUiValue#                as paninui.view.interfaces.i_uivalue             no-undo.
+    define variable bInvokePrepared#         as logical                                       no-undo.
 
-    define variable bFirst#                  as logical                                no-undo init true.
-    define variable oFocus#                  as Progress.Lang.Object                   no-undo.
-    define variable iFocusPackID#            as int64                                  no-undo.
-    define variable cFocusLinkName#          as character                              no-undo.
+    define variable bFirst#                  as logical                                       no-undo init true.
+    define variable oFocus#                  as Progress.Lang.Object                          no-undo.
+    define variable iFocusPackID#            as int64                                         no-undo.
+    define variable cFocusLinkName#          as character                                     no-undo.
         
     define buffer ttUiEvent for ttUiEvent.
     
@@ -983,11 +983,11 @@ class paninui.view.use.sc_coll_eventdata
             oUiValue#        = new c_uivalue_button(sc_coll_widgetdata:WidgetNameToLinkName(oCheckBox#, oFormsButton#:Name, ""), oFormsButton#:Enabled, oFormsButton#:Visible, false).
         end.
         
-        if not bInvokePrepared# and type-of(oSender#, System.Windows.Controls.Button) then 
+        if not bInvokePrepared# and type-of(oSender#, System.Windows.Controls.Primitives.ButtonBase) then 
         do:
           assign
             bInvokePrepared# = true
-            oWpfButton#      = cast(oSender#, System.Windows.Controls.Button)
+            oWpfButton#      = cast(oSender#, System.Windows.Controls.Primitives.ButtonBase)
             oUiValue#        = new c_uivalue_button(sc_coll_widgetdata:WidgetNameToLinkName(oCheckBox#, oWpfButton#:Name, ""), oWpfButton#:IsEnabled, oWpfButton#:IsVisible, false).
         end.
         
