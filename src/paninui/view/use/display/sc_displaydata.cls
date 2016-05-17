@@ -1251,6 +1251,8 @@ class paninui.view.use.display.sc_displaydata   :
         case cPropertyIOP#:
           when "Enabled" then 
             cPropertyIOP# = "IsEnabled".
+          when "Checked" then 
+            cPropertyIOP# = "IsChecked".
         end case.
         
       when "windows_forms" then
