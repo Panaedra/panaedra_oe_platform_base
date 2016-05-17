@@ -352,7 +352,7 @@ class paninui.view.use.sc_coll_eventdata
               when "Press" then oWpfButton#:Click:Subscribe(oSingleton:OnEventArgsHandler_Press).
             end case.
             
-        end.
+        end. /* pok pok */
         
         if type-of(oWidget#,System.Windows.Controls.MenuItem) then 
         do:
@@ -404,14 +404,16 @@ class paninui.view.use.sc_coll_eventdata
     cWidgetNameIP#            as character,
     cEventTypeIP#             as character):
 
-    define variable oWidget#              as Progress.Lang.Object                no-undo.
-    define variable oBindingSource#       as Progress.Lang.Object                no-undo.
-    define variable oBindingSourceStrong# as c_bindingsource                     no-undo.
-    define variable bDummy#               as logical                             no-undo.
-    define variable oFormsListControl#    as System.Windows.Forms.ListControl    no-undo.
-    define variable oFormsCombobox#       as System.Windows.Forms.ComboBox       no-undo.
-    define variable oFormsTextbox#        as System.Windows.Forms.TextBox        no-undo.
-    define variable oFormsDateTimePicker# as System.Windows.Forms.DateTimePicker no-undo. 
+    define variable oWidget#              as Progress.Lang.Object                           no-undo.
+    define variable oBindingSource#       as Progress.Lang.Object                           no-undo.
+    define variable oBindingSourceStrong# as c_bindingsource                                no-undo.
+    define variable bDummy#               as logical                                        no-undo.
+    define variable oFormsListControl#    as System.Windows.Forms.ListControl               no-undo.
+    define variable oFormsCombobox#       as System.Windows.Forms.ComboBox                  no-undo.
+    define variable oFormsTextbox#        as System.Windows.Forms.TextBox                   no-undo.
+    define variable oFormsDateTimePicker# as System.Windows.Forms.DateTimePicker            no-undo. 
+    define variable oWpfTextBoxBase#      as System.Windows.Controls.Primitives.TextBoxBase no-undo.
+    define variable oWpfSelector#         as System.Windows.Controls.Primitives.Selector    no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
     
@@ -515,7 +517,72 @@ class paninui.view.use.sc_coll_eventdata
               
           end. /* First ttUiEvent */
             
-        end. /* TextBox */
+        end. /* TextBox (Forms) */
+          
+        /* ItemsControl / Combobox (WPF) */  
+        if type-of(oWidget#, System.Windows.Controls.Combobox) then 
+        do:
+
+          oWpfSelector# = cast(oWidget#, System.Windows.Controls.Combobox).
+          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+          do:
+            
+            case cEventTypeIP#:
+              when "TextChanged"
+              then 
+                do:
+                  
+/*                  oWpfSelector#:AddHandler(System.Windows.Controls.Primitives.TextBoxBase:TextChangedEvent, new System.Windows.Controls.TextChangedEventHandler(oSingleton:OnEventArgsHandler_TextChanged)).*/
+                  
+                end.
+              when "KeyDown" 
+              then
+                do: 
+                /*                oWpfSelector#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).*/
+                end.
+            end case.
+              
+          end. /* First ttUiEvent */
+            
+        end. /* ItemsControl / ComboBox (WPF) */
+        
+        /* TextBox (WPF) */
+        if type-of(oWidget#,System.Windows.Controls.Primitives.TextBoxBase) then 
+        do:
+          
+          oWpfTextBoxBase# = cast(oWidget#,System.Windows.Controls.Primitives.TextBoxBase).
+          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
+          do:
+               
+            case cEventTypeIP#:
+              when "TextChanged" 
+              then 
+                oWpfTextBoxBase#:TextChanged:subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+              when "KeyDown" 
+              then 
+              do: 
+/*                oWpfTextBoxBase#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).*/
+                end. 
+            end case.
+              
+          end. /* First ttUiEvent */
+            
+        end. /* TextBoxBase (WPF) */
+        
+        
+        
+        /*        if type-of(oWidget#,System.Windows.Controls.Primitives.ButtonBase) then                                            */
+        /*        do:                                                                                                                */
+        /*                                                                                                                           */
+        /*          oWpfButton# = cast(oWidget#,System.Windows.Controls.Primitives.ButtonBase).                                      */
+        /*          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then*/
+        /*            case cEventTypeIP#:                                                                                            */
+        /*              when "Press" then oWpfButton#:Click:Subscribe(oSingleton:OnEventArgsHandler_Press).                          */
+        /*            end case.                                                                                                      */
+        /*                                                                                                                           */
+        /*        end. /* pok pok */                                                                                                 */
+        
+        
           
         if type-of(oWidget#,System.Windows.Forms.DateTimePicker) then 
         do: 
@@ -1043,17 +1110,21 @@ class paninui.view.use.sc_coll_eventdata
     
     define variable bEclipseFix#     as logical                             no-undo.
     define variable oComboBox#       as System.Windows.Forms.ListControl    no-undo.
-    define variable oTextBox#        as System.Windows.Forms.TextBox        no-undo.
+    define variable oFormsTextBox#   as System.Windows.Forms.TextBox        no-undo.
+    define variable oWpfTextBox#     as System.Windows.Controls.TextBox     no-undo.
+    define variable oWpfCombobox#    as System.Windows.Controls.ComboBox    no-undo.
     define variable oDateTimePicker# as System.Windows.Forms.DateTimePicker no-undo. 
     define variable oUiValue#        as paninui.view.interfaces.i_uivalue   no-undo.
-
+    
+    
     define variable bFirst#          as logical                             no-undo init true.
     define variable oFocus#          as Progress.Lang.Object                no-undo.
     define variable iFocusPackID#    as int64                               no-undo.
     define variable cFocusLinkName#  as character                           no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
-    
+    message "boe"
+      view-as alert-box.
     do for ttUiEvent on error undo, throw:
       
       for each ttUiEvent 
@@ -1066,7 +1137,7 @@ class paninui.view.use.sc_coll_eventdata
           bFirst# = false.
           oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
           paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
-        end.  
+        end.
         if type-of(oSender#, System.Windows.Forms.ListControl) then 
         do:
           assign
@@ -1078,20 +1149,42 @@ class paninui.view.use.sc_coll_eventdata
         else if type-of(oSender#, System.Windows.Forms.TextBox) then 
           do:
             assign
-              oTextBox# = cast(oSender#, System.Windows.Forms.TextBox)
-              oUiValue# = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oTextBox#,oTextBox#:Name,""), oTextBox#:Enabled, oTextBox#:Visible, oTextBox#:Text).
+              oFormsTextBox# = cast(oSender#, System.Windows.Forms.TextBox)
+              oUiValue#      = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oFormsTextBox#, oFormsTextBox#:Name,""), oFormsTextBox#:Enabled, oFormsTextBox#:Visible, oFormsTextBox#:Text).
 
             sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
           end.
-          else if type-of(oSender#, System.Windows.Forms.DateTimePicker) then 
+          else 
+          do: 
+            if type-of(oSender#, System.Windows.Forms.DateTimePicker) then 
             do:
               assign 
                 oDateTimePicker# = cast(oSender#, System.Windows.Forms.DateTimePicker)
                 oUiValue#        = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oDateTimePicker#, oDateTimePicker#:Name,""), oDateTimePicker#:Enabled, oDateTimePicker#:Visible, oDateTimePicker#:Text).
-              .
+              
               sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata_combobox("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).  
-            end.   
+            end.
+          end.
         
+        if type-of(oSender#, System.Windows.Controls.TextBox) then 
+        do:
+          assign
+            oWpfTextBox# = cast(oSender#, System.Windows.Controls.TextBox)
+            oUiValue#    = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oWpfTextBox#, oWpfTextBox#:Name,""), oWpfTextBox#:IsEnabled, oWpfTextBox#:IsVisible, oWpfTextBox#:Text).
+        
+          sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
+        end.
+        
+        if type-of(oSender#, System.Windows.Controls.Combobox) then 
+        do:
+          assign
+            oWpfCombobox# = cast(oSender#, System.Windows.Controls.Combobox)
+            oUiValue#     = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oWpfCombobox#, oWpfCombobox#:Name, ""), oWpfCombobox#:IsEnabled, oWpfCombobox#:IsVisible, oWpfCombobox#:Text).
+        
+          sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
+        end.
+        
+
       end.
       
       catch ex as Progress.Lang.Error:
@@ -1714,13 +1807,13 @@ class paninui.view.use.sc_coll_eventdata
   
   method private void OnEventArgsHandler_DoubleClick(oSender# as System.Object, oArgs# as System.EventArgs):
     
-    define variable oControl#        as System.Windows.Forms.Control      no-undo.
-    define variable oUiValue#        as paninui.view.interfaces.i_uivalue no-undo.
+    define variable oControl#       as System.Windows.Forms.Control      no-undo.
+    define variable oUiValue#       as paninui.view.interfaces.i_uivalue no-undo.
 
-    define variable bFirst#          as logical                           no-undo init true.
-    define variable oFocus#          as Progress.Lang.Object              no-undo.
-    define variable iFocusPackID#    as int64                             no-undo.
-    define variable cFocusLinkName#  as character                         no-undo.
+    define variable bFirst#         as logical                           no-undo init true.
+    define variable oFocus#         as Progress.Lang.Object              no-undo.
+    define variable iFocusPackID#   as int64                             no-undo.
+    define variable cFocusLinkName# as character                         no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
 
@@ -1743,7 +1836,7 @@ class paninui.view.use.sc_coll_eventdata
           assign 
             oControl# = cast(oSender#, System.Windows.Forms.Control)
             oUiValue# = new c_uivalue(sc_coll_widgetdata:WidgetNameToLinkName(oControl#, oControl#:Name,"")).
-            .
+          .
           
           sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, new paninui.view.use.events.c_uieventdata("", "", ?, ttUiEvent.iPackID,iFocusPackID#,? )).  
         end.
