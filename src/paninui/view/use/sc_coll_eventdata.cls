@@ -520,10 +520,10 @@ class paninui.view.use.sc_coll_eventdata
         end. /* TextBox (Forms) */
           
         /* ItemsControl / Combobox (WPF) */  
-        if type-of(oWidget#, System.Windows.Controls.Combobox) then 
+        if type-of(oWidget#, System.Windows.Controls.ComboBox) then 
         do:
 
-          oWpfSelector# = cast(oWidget#, System.Windows.Controls.Combobox).
+          oWpfSelector# = cast(oWidget#, System.Windows.Controls.ComboBox).
           if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
           do:
             
@@ -1175,10 +1175,10 @@ class paninui.view.use.sc_coll_eventdata
           sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
         end.
         
-        if type-of(oSender#, System.Windows.Controls.Combobox) then 
+        if type-of(oSender#, System.Windows.Controls.ComboBox) then 
         do:
           assign
-            oWpfCombobox# = cast(oSender#, System.Windows.Controls.Combobox)
+            oWpfCombobox# = cast(oSender#, System.Windows.Controls.ComboBox)
             oUiValue#     = new c_uivalue_combobox(sc_coll_widgetdata:WidgetNameToLinkName(oWpfCombobox#, oWpfCombobox#:Name, ""), oWpfCombobox#:IsEnabled, oWpfCombobox#:IsVisible, oWpfCombobox#:Text).
         
           sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID,oUiValue#, new paninui.view.use.events.c_uieventdata("","",?,ttUiEvent.iPackID,iFocusPackID#,?)).
