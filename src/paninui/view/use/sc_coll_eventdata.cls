@@ -352,7 +352,7 @@ class paninui.view.use.sc_coll_eventdata
               when "Press" then oWpfButton#:Click:Subscribe(oSingleton:OnEventArgsHandler_Press).
             end case.
             
-        end. /* pok pok */
+        end.
         
         if type-of(oWidget#,System.Windows.Controls.MenuItem) then 
         do:
@@ -418,12 +418,31 @@ class paninui.view.use.sc_coll_eventdata
     define buffer ttUiEvent for ttUiEvent.
     
     if oSingleton = ? then oSingleton = new sc_coll_eventdata().
-    
+
     do for ttUiEvent:
-          
+      
       assign
         cWidgetNameIP# = replace(cWidgetNameIP#,"_",".")
         oWidget#       = sc_coll_widgetdata:GetWidget(iPackIDIP#,"combobox",?,cWidgetNameIP#, output bDummy#).
+        
+      &if 0 &then
+      if type-of(oWidget#,System.Windows.FrameworkElement) then
+        message "pok WPF" cWidgetNameIP# skip
+          program-name(2) skip  
+          program-name(3) skip  
+          program-name(4) skip  
+          cast(oWidget#,System.Windows.FrameworkElement):Name skip
+          cEventTypeIP#
+          view-as alert-box.
+      else if cEventTypeIP# matches "*Key*" then
+        message "pok" cWidgetNameIP# skip
+          program-name(2) skip  
+          program-name(3) skip  
+          program-name(4) skip  
+          cast(oWidget#,System.Windows.Forms.Control):Name skip
+          cEventTypeIP#
+          view-as alert-box.
+      &endif
       
       if oWidget# <> ? then 
       do:
@@ -546,12 +565,7 @@ class paninui.view.use.sc_coll_eventdata
 /*                                                                                                                                                                                                                */
 /*        end. /* ItemsControl / ComboBox (WPF) */                                                                                                                                                                */
         
-/*        if type-of(oWidget#,System.Windows.FrameworkElement) then           */
-/*          message cast(oWidget#,System.Windows.FrameworkElement):Name skip  */
-/*            type-of(oWidget#,System.Windows.Controls.Primitives.TextBoxBase)*/
-/*            view-as alert-box.                                              */
-        
-        /* TextBox (WPF) */
+        /* TextBoxBase (WPF) */
         if type-of(oWidget#,System.Windows.Controls.Primitives.TextBoxBase) then 
         do:
           
@@ -560,14 +574,19 @@ class paninui.view.use.sc_coll_eventdata
           do:
                
             case cEventTypeIP#:
-              when "TextChanged" 
-              then 
-                  oWpfTextBoxBase#:TextChanged:subscribe(oSingleton:OnEventArgsHandler_TextChanged).
-              when "KeyDown" 
-              then 
-              do: 
-/*                oWpfTextBoxBase#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown). POK POK */
-                end. 
+              when "TextChanged"
+              then
+                oWpfTextBoxBase#:TextChanged:subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+              when "KeyDown"
+              then
+                do:
+                  oWpfTextBoxBase#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).
+                end.
+              when "KeyUp"
+              then
+                do:
+                  oWpfTextBoxBase#:KeyUp:Subscribe(oSingleton:OnEventArgsHandler_KeyUp).
+                end.
             end case.
               
           end. /* First ttUiEvent */
@@ -744,6 +763,25 @@ class paninui.view.use.sc_coll_eventdata
       
       if cWidgetNameIP# = "MdiMaster" then
         oWidget#       = paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow.
+      
+      &if 0 &then
+      if type-of(oWidget#,System.Windows.FrameworkElement) then
+        message "pok form WPF" cWidgetNameIP# skip
+          program-name(2) skip  
+          program-name(3) skip  
+          program-name(4) skip  
+          cast(oWidget#,System.Windows.FrameworkElement):Name skip
+          cEventTypeIP#
+          view-as alert-box.
+      else if cEventTypeIP# matches "*Key*" then
+        message "pok form" cWidgetNameIP# skip
+          program-name(2) skip  
+          program-name(3) skip  
+          program-name(4) skip  
+          cast(oWidget#,System.Windows.Forms.Control):Name skip
+          cEventTypeIP#
+          view-as alert-box.
+      &endif
         
       if oWidget# <> ? then 
       do:
