@@ -519,32 +519,37 @@ class paninui.view.use.sc_coll_eventdata
             
         end. /* TextBox (Forms) */
           
-        /* ItemsControl / Combobox (WPF) */  
-        if type-of(oWidget#, System.Windows.Controls.ComboBox) then 
-        do:
-
-          oWpfSelector# = cast(oWidget#, System.Windows.Controls.ComboBox).
-          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then 
-          do:
-            
-            case cEventTypeIP#:
-              when "TextChanged"
-              then 
-                do:
-                  
-/*                  oWpfSelector#:AddHandler(System.Windows.Controls.Primitives.TextBoxBase:TextChangedEvent, new System.Windows.Controls.TextChangedEventHandler(oSingleton:OnEventArgsHandler_TextChanged)).*/
-                  
-                end.
-              when "KeyDown" 
-              then
-                do: 
-                /*                oWpfSelector#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).*/
-                end.
-            end case.
-              
-          end. /* First ttUiEvent */
-            
-        end. /* ItemsControl / ComboBox (WPF) */
+/*        /* ItemsControl / Combobox (WPF) */    pok pok                                                                                                                                                                 */
+/*        if type-of(oWidget#, System.Windows.Controls.ComboBox) then                                                                                                                                             */
+/*        do:                                                                                                                                                                                                     */
+/*                                                                                                                                                                                                                */
+/*          oWpfSelector# = cast(oWidget#, System.Windows.Controls.ComboBox).                                                                                                                                     */
+/*          if not can-find(first ttUiEvent where ttUiEvent.oWidget = oWidget# and ttUiEvent.cEventType = cEventTypeIP#) then                                                                                     */
+/*          do:                                                                                                                                                                                                   */
+/*                                                                                                                                                                                                                */
+/*            case cEventTypeIP#:                                                                                                                                                                                 */
+/*              when "TextChanged"                                                                                                                                                                                */
+/*              then                                                                                                                                                                                              */
+/*                do:                                                                                                                                                                                             */
+/*                                                                                                                                                                                                                */
+/*/*                  oWpfSelector#:AddHandler(System.Windows.Controls.Primitives.TextBoxBase:TextChangedEvent, new System.Windows.Controls.TextChangedEventHandler(oSingleton:OnEventArgsHandler_TextChanged)).*/*/
+/*                                                                                                                                                                                                                */
+/*                end.                                                                                                                                                                                            */
+/*              when "KeyDown"                                                                                                                                                                                    */
+/*              then                                                                                                                                                                                              */
+/*                do:                                                                                                                                                                                             */
+/*                /*                oWpfSelector#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).*/                                                                                                     */
+/*                end.                                                                                                                                                                                            */
+/*            end case.                                                                                                                                                                                           */
+/*                                                                                                                                                                                                                */
+/*          end. /* First ttUiEvent */                                                                                                                                                                            */
+/*                                                                                                                                                                                                                */
+/*        end. /* ItemsControl / ComboBox (WPF) */                                                                                                                                                                */
+        
+/*        if type-of(oWidget#,System.Windows.FrameworkElement) then           */
+/*          message cast(oWidget#,System.Windows.FrameworkElement):Name skip  */
+/*            type-of(oWidget#,System.Windows.Controls.Primitives.TextBoxBase)*/
+/*            view-as alert-box.                                              */
         
         /* TextBox (WPF) */
         if type-of(oWidget#,System.Windows.Controls.Primitives.TextBoxBase) then 
@@ -557,11 +562,11 @@ class paninui.view.use.sc_coll_eventdata
             case cEventTypeIP#:
               when "TextChanged" 
               then 
-                oWpfTextBoxBase#:TextChanged:subscribe(oSingleton:OnEventArgsHandler_TextChanged).
+                  oWpfTextBoxBase#:TextChanged:subscribe(oSingleton:OnEventArgsHandler_TextChanged).
               when "KeyDown" 
               then 
               do: 
-/*                oWpfTextBoxBase#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown).*/
+/*                oWpfTextBoxBase#:KeyDown:Subscribe(oSingleton:OnEventArgsHandler_KeyDown). POK POK */
                 end. 
             end case.
               
@@ -570,8 +575,7 @@ class paninui.view.use.sc_coll_eventdata
         end. /* TextBoxBase (WPF) */
         
         
-        
-        /*        if type-of(oWidget#,System.Windows.Controls.Primitives.ButtonBase) then                                            */
+        /*        if type-of(oWidget#,System.Windows.Controls.Primitives.ButtonBase) then                                            POK POK */
         /*        do:                                                                                                                */
         /*                                                                                                                           */
         /*          oWpfButton# = cast(oWidget#,System.Windows.Controls.Primitives.ButtonBase).                                      */
@@ -1123,8 +1127,7 @@ class paninui.view.use.sc_coll_eventdata
     define variable cFocusLinkName#  as character                           no-undo.
     
     define buffer ttUiEvent for ttUiEvent.
-    message "boe"
-      view-as alert-box.
+    
     do for ttUiEvent on error undo, throw:
       
       for each ttUiEvent 
