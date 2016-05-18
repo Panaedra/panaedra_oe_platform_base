@@ -1091,6 +1091,12 @@ class paninui.view.use.display.sc_displaydata   :
                 end. /* Valid Content */
                 
               end. /* WPF Widget with Content attribute */
+              else do:
+                
+                /* Note: For other WPF widgets, we assume they have a direct Text property */
+                paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oWpfElement#, cPropertyIP#, cValueIP#).
+                
+              end.
               
             end. /* "Text" property */
             
