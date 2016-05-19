@@ -37,7 +37,7 @@ class paninui.view.use.analyze.sc_analyzeform:
     end.
     else 
       oFocus# = oMdiWindow#.
-      
+    
     return oFocus#.
 
   end method. /* GetFocus */
@@ -45,16 +45,30 @@ class paninui.view.use.analyze.sc_analyzeform:
   
   method protected static Progress.Lang.Object GetFocusedRecursive(oFormsContainer# as System.Windows.Forms.IContainerControl):
     
-    define variable oFormsChildContainer# as System.Windows.Forms.IContainerControl no-undo.
-    define variable oLocalFocus#          as Progress.Lang.Object                   no-undo.
+    define variable oFormsChildContainer# as System.Windows.Forms.IContainerControl       no-undo.
+    define variable oWpfElementHost#      as System.Windows.Forms.Integration.ElementHost no-undo.
+    define variable oWpfElementChild#     as System.Windows.UIElement                     no-undo.
+    define variable oLocalFocus#          as Progress.Lang.Object                         no-undo.
      
     oLocalFocus# = oFormsContainer#:ActiveControl. 
+    
+    case true:
      
-    if type-of(oLocalFocus#, System.Windows.Forms.IContainerControl) then 
-    do:
-      oFormsChildContainer# = cast(cast(oLocalFocus#,Progress.Lang.Object), System.Windows.Forms.IContainerControl).
-      return GetFocusedRecursive(oFormsChildContainer#).
-    end.
+      when type-of(oLocalFocus#, System.Windows.Forms.IContainerControl) then 
+        do:
+          oFormsChildContainer# = cast(cast(oLocalFocus#,Progress.Lang.Object), System.Windows.Forms.IContainerControl).
+          return GetFocusedRecursive(oFormsChildContainer#).
+        end.
+      
+      when type-of(oLocalFocus#, System.Windows.Forms.Integration.ElementHost) then 
+        do:
+          assign
+            oWpfElementHost#  = cast(oLocalFocus#, System.Windows.Forms.Integration.ElementHost)
+            oWpfElementChild# = oWpfElementHost#:Child.
+          return System.Windows.Input.Keyboard:FocusedElement.
+        end.
+    
+    end case.
     
     return oLocalFocus#.
 

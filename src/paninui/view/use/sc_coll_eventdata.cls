@@ -427,7 +427,7 @@ class paninui.view.use.sc_coll_eventdata
         
       &if 0 &then
       if type-of(oWidget#,System.Windows.FrameworkElement) then
-        message "pok WPF" cWidgetNameIP# skip
+        message "pok , WPF" cWidgetNameIP# skip
           program-name(2) skip  
           program-name(3) skip  
           program-name(4) skip  
@@ -435,7 +435,7 @@ class paninui.view.use.sc_coll_eventdata
           cEventTypeIP#
           view-as alert-box.
       else if cEventTypeIP# matches "*Key*" then
-        message "pok" cWidgetNameIP# skip
+        message "pok , matches *Key*" cWidgetNameIP# skip
           program-name(2) skip  
           program-name(3) skip  
           program-name(4) skip  
@@ -793,7 +793,6 @@ class paninui.view.use.sc_coll_eventdata
         
         if type-of(oWidget#,System.Windows.Forms.Form) then 
         do:
-          
           
           oFormsForm# = cast(oWidget#,System.Windows.Forms.Form).
 
@@ -1523,7 +1522,46 @@ class paninui.view.use.sc_coll_eventdata
     end.
     
   end method. /* OnEventArgsHandler_DropDownClosed */ 
+
+
+  method public static void _sys_RawInsert_EventArgsHandler_KeyPress(
+    cWidgetNameIP# as character,
+    oSender#       as System.Object, 
+    oArgs#         as System.EventArgs):
+
+    if cWidgetNameIP# = "MdiMaster" then
+      oSender# = paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow.
     
+    oSingleton:OnEventArgsHandler_KeyPress(oSender#, oArgs#).
+      
+  end method. /* _sys_RawInsert_EventArgsHandler_KeyPress */
+  
+    
+  method public static void _sys_RawInsert_EventArgsHandler_KeyDown(
+    cWidgetNameIP# as character,
+    oSender#       as System.Object, 
+    oArgs#         as System.EventArgs):
+      
+    if cWidgetNameIP# = "MdiMaster" then
+      oSender# = paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow.
+    
+    oSingleton:OnEventArgsHandler_KeyDown(oSender#, oArgs#).
+      
+  end method. /* _sys_RawInsert_EventArgsHandler_KeyDown */
+  
+    
+  method public static void _sys_RawInsert_EventArgsHandler_KeyUp(
+    cWidgetNameIP# as character,
+    oSender#       as System.Object, 
+    oArgs#         as System.EventArgs):
+
+    if cWidgetNameIP# = "MdiMaster" then
+      oSender# = paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow.
+    
+    oSingleton:OnEventArgsHandler_KeyUp(oSender#, oArgs#).
+      
+  end method. /* _sys_RawInsert_EventArgsHandler_KeyUp */
+  
     
   method private void OnEventArgsHandler_KeyPress(oSender# as System.Object, oArgs# as System.EventArgs):
     
@@ -1553,6 +1591,10 @@ class paninui.view.use.sc_coll_eventdata
           bFirst# = false.
           oFocus# = paninui.view.use.analyze.sc_analyzeform:GetFocus().
           paninui.view.use.sc_coll_widgetdata:GetWidgetByHandle(oFocus#, output iFocusPackID#, output cFocusLinkName#).
+/*          message "pok sc_coll oFocus#=" oFocus# skip*/
+/*            "iFocusPackID#" iFocusPackID# skip       */
+/*            "cFocusLinkName#" cFocusLinkName#        */
+/*            view-as alert-box.                       */
         end.  
         
         if (not ttUiEvent.bAllPacks) 
