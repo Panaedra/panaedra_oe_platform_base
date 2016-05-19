@@ -8,6 +8,7 @@ using panaedra.msroot.msdr.interfaces.*.
 using paninui.view.use.events.*.
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
+using paninui.view.use.display.*.
 
 class paninui.view.use.analyze.sc_getuiframevalues   : 
 
@@ -285,8 +286,10 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     cPropertyIP#     as character,
     output cValueOP# as character):
 
-    define variable oControl# as {&System.Object} no-undo.
-    define variable oValue#   as {&System.Object} no-undo.
+    define variable oControl#         as {&System.Object}     no-undo.
+    define variable oValue#           as {&System.Object}     no-undo.
+    define variable cDummy#           as character            no-undo.
+    define variable oTechnologyValue# as Progress.Lang.Object no-undo.
 
     /* We only support Text or Int objects for cValueIP#, and we can convert this to other objects
        later in time 
@@ -295,6 +298,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     if valid-object(oWidgetIP#) then 
     do:
       oControl# = cast(oWidgetIP#, {&System.Object}).
+      sc_displaydata:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oTechnologyValue#).
       &if {&paninui_tty} = false &then
       paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oControl#, cPropertyIP#, output oValue#).
       &endif
@@ -313,8 +317,10 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     cPropertyIP#     as character,
     output iValueOP# as integer):
 
-    define variable oControl# as {&System.Object} no-undo.
-    define variable oValue#   as {&System.Object} no-undo.
+    define variable oControl#         as {&System.Object}     no-undo.
+    define variable oValue#           as {&System.Object}     no-undo.
+    define variable cDummy#           as character            no-undo.
+    define variable oTechnologyValue# as Progress.Lang.Object no-undo.
 
     /* We only support Text or Int objects for cValueIP#, and we can convert this to other objects
        later in time 
@@ -323,6 +329,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     if valid-object(oWidgetIP#) then 
     do:
       oControl# = cast(oWidgetIP#, {&System.Object}).
+      sc_displaydata:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oTechnologyValue#).
       &if {&paninui_tty} = false &then
       paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oControl#, cPropertyIP#, output oValue#).
       &endif
@@ -344,8 +351,10 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     cPropertyIP#       as character,
     output dtmValueOP# as datetime-tz):
 
-    define variable oControl# as {&System.Object} no-undo.
-    define variable oValue#   as {&System.Object} no-undo.
+    define variable oControl#         as {&System.Object}     no-undo.
+    define variable oValue#           as {&System.Object}     no-undo.
+    define variable cDummy#           as character            no-undo.
+    define variable oTechnologyValue# as Progress.Lang.Object no-undo.
 
     /* We only support Text or Int objects for cValueIP#, and we can convert this to other objects
        later in time 
@@ -354,6 +363,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     if valid-object(oWidgetIP#) then 
     do:
       oControl# = cast(oWidgetIP#, {&System.Object}).
+      sc_displaydata:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oTechnologyValue#).
       &if {&paninui_tty} = false &then
       paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oControl#, cPropertyIP#, output oValue#).
       &if int(entry(1, proversion, ".")) >= 11 and int(entry(2, proversion, ".")) >= 3 &then /* OE11.3+ */  
