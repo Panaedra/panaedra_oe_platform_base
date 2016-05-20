@@ -1,4 +1,5 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
+
 using paninui.view.interfaces.*.
 using paninui.view.init.display.*.
 using paninui.view.use.*.
@@ -12,22 +13,12 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class paninui.view.use.display.sc_displaydata   : 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/view/use/display/sc_displaydata.cls $ 
-          Version: $Revision: 30 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-03 07:50:42+01:00 $ 
-    Date Modified: $Modtime: 2010-02-03 04:18:57+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Display data on a paninUi frame.
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_displaydata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 30 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   method public static void DisplayData (

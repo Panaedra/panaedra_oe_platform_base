@@ -1,4 +1,5 @@
-{panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i}
+
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
 using paninui.view.interfaces.*.
@@ -10,12 +11,7 @@ using paninui.view.use.analyze.*.
 
 class paninui.logic.logicbase.c_framelogic_shortcut: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/logic/logicbase/c_framelogic_shortcut.cls $ 
-          Version: $Revision: 8 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-03 07:50:42+01:00 $ 
-    Date Modified: $Modtime: 2010-02-03 04:18:17+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Provides a shortcut object to be used in frame logic classes.
                    Only links methods to other methods, technically not required,
@@ -24,11 +20,6 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public c_framelogic_shortcut(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected variable oFrmLogic   as paninui.view.interfaces.i_frmlogic no-undo.
@@ -161,6 +152,20 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
     return sc_getuiframevalues:GetUiValue(oFrmLogic, oGroupFrameOVID#, cWidgetNameIP#, cPropertyIP#).
     
   end method. /* GetUiValue ; Groupframe */
+
+
+  method public character GetUiTechnology(
+    
+    /* Get a Ui Technology string, for special (rare!) cases where choices in the framelogic must be made according to the used Ui Technology.
+       See the method in sc_analyzewidget for more information.
+     */
+    
+    oGroupFrameOVID# as i_widgettype_groupframe,
+    cWidgetNameIP#   as character):
+      
+    return sc_analyzewidget:GetUiTechnology(oFrmLogic, sc_widgettype:i_GroupFrame, cWidgetNameIP#).
+    
+  end method. /* GetUiTechnology ; Groupframe */
 
 
   method public integer GetUiValueInt(

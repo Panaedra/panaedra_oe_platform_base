@@ -16,6 +16,27 @@ class paninui.view.use.analyze.sc_analyzewidget   :
 
   /******************************* $NoKeywords:  $ *****************************/
 
+  method public static character GetUiTechnology(
+
+    /* Returns an identifier to the used UI technology.
+       For now: "windows_forms" and "windows_wpf" is supported (and "progress_class" if something strange happens). 
+       If no widget is found, an empty string is returned.
+     */
+     
+    oFrmLogicIP#     as paninui.view.interfaces.i_frmlogic,
+    oGroupFrameOVID# as i_widgettype_groupframe,
+    cWidgetNameIP#   as character):
+      
+    define variable oWidget#            as Progress.Lang.Object no-undo.
+    define variable bIsDisplayLinkedOP# as logical              no-undo.
+    
+    oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "groupframe", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+
+    return if valid-object(oWidget#) then IsOfUiTechnology(oWidget#) else "".
+
+  end method. /* GetUiTechnology ; Groupframe */
+  
+    
   method public static character IsOfUiTechnology(oWidgetIP# as Progress.Lang.Object):
     
     /* Returns an identifier to the used UI technology.
