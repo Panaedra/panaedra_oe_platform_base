@@ -14,12 +14,7 @@ class paninui.view.use.sc_coll_eventdata
   implements 
   panaedra.msroot.msutil.interfaces.i_eventbroadcastclient: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/view/use/sc_coll_eventdata.cls $ 
-          Version: $Revision: 37 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-05 13:57:09+01:00 $
-    Date Modified: $Modtime: 2010-02-05 13:55:00+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Collection of UI event data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
@@ -28,11 +23,6 @@ class paninui.view.use.sc_coll_eventdata
 
   {paninui/view/use/sc_coll_eventdata_tt.i &protected=protected &static=static &class=class}
   
-  /************************  Source control constructor ************************/
-  constructor public sc_coll_eventdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 37 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected static variable oSingleton                           as sc_coll_eventdata no-undo.
@@ -1685,6 +1675,7 @@ class paninui.view.use.sc_coll_eventdata
     define variable bEclipseFix#    as logical                               no-undo.
     define variable oFormsForm#     as System.Windows.Forms.Form             no-undo.
     define variable oFormsKeyArgs#  as System.Windows.Forms.KeyEventArgs     no-undo.
+    define variable oWpfKeyArgs#    as System.Windows.Input.KeyEventArgs     no-undo.
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue     no-undo.
     define variable oUiEventData#   as paninui.view.interfaces.i_uieventdata no-undo.
     define variable bFirst#         as logical                               no-undo init true.
@@ -1729,6 +1720,7 @@ class paninui.view.use.sc_coll_eventdata
             oFormsForm# = cast(oSender#, System.Windows.Forms.Form)
             oUiValue#   = new c_uivalue_form(sc_coll_widgetdata:WidgetNameToLinkName(oFormsForm#,oFormsForm#:Name,""), oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text, cFocusLinkName#).
         end.
+        
         if type-of(oArgs#, System.Windows.Forms.KeyEventArgs) then 
         do:
           assign
@@ -1763,6 +1755,42 @@ class paninui.view.use.sc_coll_eventdata
             oFormsKeyArgs#:Shift, oFormsKeyArgs#:Control, oFormsKeyArgs#:Alt).
         end.
         
+        if type-of(oArgs#, System.Windows.Input.KeyEventArgs) then 
+        do:
+          assign
+            oWpfKeyArgs#  = cast(oArgs#, System.Windows.Input.KeyEventArgs)
+            cCasedLetter# = string(oWpfKeyArgs#:Key).
+          if length(ttUiEvent.cSvFilterKeyCode) > 0
+            and lookup(cCasedLetter#, ttUiEvent.cSvFilterKeyCode) = 0 
+            then next b_EachUiEvent.
+          if length(ttUiEvent.cSvFilterKeyCodeNoFocus) > 0 
+            and ttUiEvent.iPackID <> iFocusPackID#
+            and lookup(cCasedLetter#, ttUiEvent.cSvFilterKeyCodeNoFocus) = 0 
+            then next b_EachUiEvent.
+          if length(cCasedLetter#) <> 1 then cCasedLetter# = "".
+          if 
+            (asc(cCasedLetter#) >= asc("A") and asc(cCasedLetter#) <= asc("Z"))
+            or  
+            (asc(cCasedLetter#) >= asc("a") and asc(cCasedLetter#) <= asc("z"))
+            then 
+          do:
+            bCapsLock# = panaedra.msroot.msutil.logic.sc_win32:GetCapsLockOn().
+            bShift# = (System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:LeftShift) or System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:RightShift)).
+            if not bCapsLock# then 
+              cCasedLetter# = if bShift# then caps(cCasedLetter#) else lc(cCasedLetter#).
+            else 
+              cCasedLetter# = if not bShift# then caps(cCasedLetter#) else lc(cCasedLetter#).
+          end.
+          else cCasedLetter# = "". /* Platform user should use cKeyArgs for special characters, not cCasedLetter */
+          assign
+            oUiEventData# = new c_uieventdata_key("","",?,ttUiEvent.iPackID,iFocusPackID#,?, 
+            string(oWpfKeyArgs#:Key), 
+            cCasedLetter#,
+            (System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:LeftShift) or System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:RightShift)), 
+            (System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:LeftCtrl) or System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:RightCtrl)), 
+            (System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:LeftAlt) or System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:RightAlt))).
+        end.
+        
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, oUiEventData#).
         
         if valid-object(oUiEventData#) and type-of(oUiEventData#, paninui.view.use.events.c_uieventdata_handled) then 
@@ -1793,6 +1821,7 @@ class paninui.view.use.sc_coll_eventdata
     define variable bEclipseFix#    as logical                               no-undo.
     define variable oFormsForm#     as System.Windows.Forms.Form             no-undo.
     define variable oFormsKeyArgs#  as System.Windows.Forms.KeyEventArgs     no-undo.
+    define variable oWpfKeyArgs#    as System.Windows.Input.KeyEventArgs     no-undo.
     define variable oUiValue#       as paninui.view.interfaces.i_uivalue     no-undo.
     define variable oUiEventData#   as paninui.view.interfaces.i_uieventdata no-undo.
     define variable bFirst#         as logical                               no-undo init true.
@@ -1829,6 +1858,7 @@ class paninui.view.use.sc_coll_eventdata
             oFormsForm# = cast(oSender#, System.Windows.Forms.Form)
             oUiValue#   = new c_uivalue_form(sc_coll_widgetdata:WidgetNameToLinkName(oFormsForm#,oFormsForm#:Name,""), oFormsForm#:Enabled, oFormsForm#:Visible, oFormsForm#:Text, cFocusLinkName#).
         end.
+        
         if type-of(oArgs#, System.Windows.Forms.KeyEventArgs) then 
         do:
           assign
@@ -1861,6 +1891,42 @@ class paninui.view.use.sc_coll_eventdata
             string(oFormsKeyArgs#:KeyCode), 
             cCasedLetter#,
             oFormsKeyArgs#:Shift, oFormsKeyArgs#:Control, oFormsKeyArgs#:Alt).
+        end.
+        
+        if type-of(oArgs#, System.Windows.Input.KeyEventArgs) then 
+        do:
+          assign
+            oWpfKeyArgs#  = cast(oArgs#, System.Windows.Input.KeyEventArgs)
+            cCasedLetter# = string(oWpfKeyArgs#:Key).
+          if length(ttUiEvent.cSvFilterKeyCode) > 0 
+            and lookup(cCasedLetter#, ttUiEvent.cSvFilterKeyCode) = 0 
+            then next b_EachUiEvent.
+          if length(ttUiEvent.cSvFilterKeyCodeNoFocus) > 0 
+            and ttUiEvent.iPackID <> iFocusPackID#
+            and lookup(string(cCasedLetter#), ttUiEvent.cSvFilterKeyCodeNoFocus) = 0 
+            then next b_EachUiEvent.
+          if length(cCasedLetter#) <> 1 then cCasedLetter# = "".
+          if 
+            (asc(cCasedLetter#) >= asc("A") and asc(cCasedLetter#) <= asc("Z"))
+            or  
+            (asc(cCasedLetter#) >= asc("a") and asc(cCasedLetter#) <= asc("z"))
+            then 
+          do:
+            bCapsLock# = panaedra.msroot.msutil.logic.sc_win32:GetCapsLockOn().
+            bShift# = (System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:LeftShift) or System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:RightShift)).
+            if not bCapsLock# then
+              cCasedLetter# = if bShift# then caps(cCasedLetter#) else lc(cCasedLetter#).
+            else 
+              cCasedLetter# = if not bShift# then caps(cCasedLetter#) else lc(cCasedLetter#).
+          end.
+          else cCasedLetter# = "". /* Platform user should use cKeyArgs for special characters, not cCasedLetter */
+          assign
+            oUiEventData# = new c_uieventdata_key("","",?,ttUiEvent.iPackID,iFocusPackID#,?, 
+            string(oWpfKeyArgs#:Key), 
+            cCasedLetter#,
+            (System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:LeftShift) or System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:RightShift)), 
+            (System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:LeftCtrl) or System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:RightCtrl)), 
+            (System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:LeftAlt) or System.Windows.Input.Keyboard:IsKeyDown(System.Windows.Input.Key:RightAlt))).
         end.
         
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, oUiEventData#).
