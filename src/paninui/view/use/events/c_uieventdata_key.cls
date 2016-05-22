@@ -7,23 +7,13 @@ class paninui.view.use.events.c_uieventdata_key
   paninui.view.interfaces.i_uieventdata
   : 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/view/use/events/c_uieventdata_key.cls $ 
-          Version: $Revision: 3 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Data to be transmitted to custom UI paninUi event handlers in 
                    the UI logic objects (the "trigger logic methods").
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public c_uieventdata_key(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    super(o-sourcecontrol, this-object).
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   &if opsys = "unix" or "{&window-system}" = "tty" &then
@@ -87,6 +77,24 @@ class paninui.view.use.events.c_uieventdata_key
       bAlt         = bAltIP#.
   
   end constructor.
+  
+  
+  method public override character ToString():
+    
+    return substitute(
+      "&1 &2 info: &3 data: &4 object: &5 pack: &6 uivalue: &7 keycode: &8 casedletter: &9",
+      super:ToString(),
+      substitute("Ctrl/Alt/Shift=&1/&2/&3", bCtrl, bAlt, bShift),
+      cInfo        ,
+      cData        ,
+      oObject      ,
+      iPackID      ,
+      oUiValue     ,
+      cKeyCode     ,
+      cCasedLetter 
+      ).
+    
+  end method. /* ToString */
   
 end class.
 
