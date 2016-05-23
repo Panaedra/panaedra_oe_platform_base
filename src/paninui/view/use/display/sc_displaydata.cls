@@ -1302,8 +1302,6 @@ class paninui.view.use.display.sc_displaydata   :
               cPropertyIOP# = "IsEnabled".
             when "Checked" then 
               cPropertyIOP# = "IsChecked".
-            when "Visible" then 
-              cPropertyIOP# = "IsVisible".
             when "BarCode" then /* Only for backward compatibility */
               cPropertyIOP# = "Text".
             when "ImageLocation" then 
