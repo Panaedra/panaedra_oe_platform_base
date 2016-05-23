@@ -522,7 +522,8 @@ class paninui.view.use.display.sc_displaydata   :
     output iPackIdOP#   as int64,
     output cLinkNameOP# as character):
 
-    if valid-object(oWidgetIP#) then do:
+    if valid-object(oWidgetIP#) then 
+    do:
       sc_coll_widgetdata:GetWidgetByHandle(oWidgetIP#, output iPackIdOP#, output cLinkNameOP#).
       SetUiValueImplement(oWidgetIP#, cPropertyIP#, cValueIP#).
     end.
@@ -544,7 +545,8 @@ class paninui.view.use.display.sc_displaydata   :
     output iPackIdOP#   as int64,
     output cLinkNameOP# as character):
 
-    if valid-object(oWidgetIP#) then do:
+    if valid-object(oWidgetIP#) then 
+    do:
       sc_coll_widgetdata:GetWidgetByHandle(oWidgetIP#, output iPackIdOP#, output cLinkNameOP#).
       SetUiValueImplement(oWidgetIP#, cPropertyIP#, iValueIP#).
     end.
@@ -566,7 +568,8 @@ class paninui.view.use.display.sc_displaydata   :
     output iPackIdOP#   as int64,
     output cLinkNameOP# as character):
 
-    if valid-object(oWidgetIP#) then do:
+    if valid-object(oWidgetIP#) then 
+    do:
       sc_coll_widgetdata:GetWidgetByHandle(oWidgetIP#, output iPackIdOP#, output cLinkNameOP#).
       SetUiValueImplement(oWidgetIP#, cPropertyIP#, bValueIP#).
     end.
@@ -690,6 +693,7 @@ class paninui.view.use.display.sc_displaydata   :
     define variable oWidget#            as Progress.Lang.Object no-undo.
 
     oWidget# = sc_coll_widgetdata:GetWidget(oFrmLogicIP#:iPackID, "combobox", cWidgetNameIP#, output bIsDisplayLinkedOP#).
+       
     
     if valid-object(oWidget#) then 
       SetUiValueImplement(oWidget#, cPropertyIP#, bValueIP#).
@@ -994,6 +998,8 @@ class paninui.view.use.display.sc_displaydata   :
     define variable oWpfSubElement#     as System.Windows.FrameworkElement        no-undo.
     define variable oWpfContentControl# as System.Windows.Controls.ContentControl no-undo.
     define variable oFormsCombobox#     as System.Windows.Forms.ComboBox          no-undo.
+    define variable oType#              as System.Type                            no-undo.
+    define variable oPropertyInfo#      as System.Reflection.PropertyInfo         no-undo.
 
     /* We only support Text objects for cValueIP#, and we can convert this to other objects
        later in time 
@@ -1034,10 +1040,9 @@ class paninui.view.use.display.sc_displaydata   :
          
       end. /* if type-of ... */
       
-      
       if type-of(oWidgetIP#, System.Windows.FrameworkElement) then 
       do:
-        
+
         assign
           bSimpleProperty# = false
           oWpfElement#     = cast(oWidgetIP#, System.Windows.FrameworkElement).
@@ -1046,43 +1051,76 @@ class paninui.view.use.display.sc_displaydata   :
           
           when "Name" then oWpfElement#:SetValue(System.Windows.FrameworkElement:NameProperty, cValueIP#).
           
-          when "Text" then
-           
+          when "Source" then 
             do:
+            
+              if type-of(oWidgetIP#, System.Windows.Controls.Image) then
+                paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oWpfElement#, cPropertyIP#, new System.Windows.Media.Imaging.BitmapImage(new System.Uri(cValueIP#))).
+              else 
+              do:
+                if sc_environment:IsIdeRunning() then 
+                  undo, throw new c_panaedraexception(99954100,sc_lang:oEnglish,substitute(
+                    "Attribute 'Source' not implemented in sc_displaydata for object '&1'. Can not be set to '&2'", 
+                    oWidgetIP#, 
+                    cValueIP#)).
+              end.   
+          
+            end. /* WPF "Source" attribute */ 
+          
+          when "Text" then
+            do:
+              
               if type-of(oWpfElement#, System.Windows.Controls.ContentControl) then 
               do:
+
+                /* First check if there is a direct "Text" dependency property. */
+                assign
+                  oType#         = oWpfElement#:GetType()
+                  oPropertyInfo# = oType#:GetProperty("Text").
                 
-                oWpfContentControl# = cast(oWpfElement#, System.Windows.Controls.ContentControl).
+                if oPropertyInfo# <> ? then /* Is a simple property */ 
+                  bSimpleProperty# = true.               
+                else 
+                do: 
+                  
+                  oWpfContentControl# = cast(oWpfElement#, System.Windows.Controls.ContentControl).
                 
-                if type-of(oWpfElement#, System.Windows.Controls.Primitives.ButtonBase) then
-                  cValueIP# = replace(cValueIP#,"&","_"). /* Note: WPF uses underscore for mnemonics. ShouldHave: make this work for double ampersands / escaping */
-                  
-                if valid-object(oWpfContentControl#:Content) then 
-                do:
-                  
-                  if type-of(oWpfContentControl#:Content, System.String) then 
+                  if type-of(oWpfElement#, System.Windows.Controls.Primitives.ButtonBase) then
+                    cValueIP# = replace(cValueIP#,"&","_"). /* Note: WPF uses underscore for mnemonics. ShouldHave: make this work for double ampersands / escaping */
+               
+                  if valid-object(oWpfContentControl#:Content) then 
                   do:
-                    /* Note: The Content of this WPF Control is a simple String. Set it to the new string.*/
-                    assign
-                      bSimpleProperty# = true
-                      cPropertyIP#     = "Content".
-                  end.
                   
-                  else 
-                  do:
-                    /* Note: The Content of this WPF Control is more complex. Find the Text widget by suffix.*/
-                    oSubElement# = sc_coll_widgetdata:GetWidgetByHandleAndSuffix(oWpfContentControl#, "Text").
-                    if valid-object(oSubElement#) then 
+                    if type-of(oWpfContentControl#:Content, System.String) then 
                     do:
-                      oWpfSubElement# = cast(oSubElement#,System.Windows.FrameworkElement).
-                      paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oWpfSubElement#, cPropertyIP#, cValueIP#).
-                    end. 
-                  end.
+                    
+                      /* Note: The Content of this WPF Control is a simple String. Set it to the new string.*/
+                      assign
+                        bSimpleProperty# = true
+                        cPropertyIP#     = "Content".
+                    end.
                   
-                end. /* Valid Content */
+                    else 
+                    do:
+                    
+                      /* Note: The Content of this WPF Control is more complex. Find the Text widget by suffix.*/
+                      oSubElement# = sc_coll_widgetdata:GetWidgetByHandleAndSuffix(oWpfContentControl#, "Text").
+                    
+                      if valid-object(oSubElement#) then 
+                      do:
+                        oWpfSubElement# = cast(oSubElement#,System.Windows.FrameworkElement).
+                        paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oWpfSubElement#, cPropertyIP#, cValueIP#).
+                      end.
+                  
+                    end.
+                  
+                  end. /* Valid Content */
+                
+                end. /* If not a simple property */
                 
               end. /* WPF Widget with Content attribute */
-              else do:
+              else 
+              do:
                 
                 /* Note: For other WPF widgets, we assume they have a direct Text property */
                 paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oWpfElement#, cPropertyIP#, cValueIP#).
@@ -1128,6 +1166,7 @@ class paninui.view.use.display.sc_displaydata   :
     cPropertyIP#    as character,
     iValueIP#       as integer):
 
+
     define variable oControl# as System.Object        no-undo.
     define variable cDummy#   as character            no-undo.
     define variable oValue#   as Progress.Lang.Object no-undo.
@@ -1162,6 +1201,7 @@ class paninui.view.use.display.sc_displaydata   :
     oWidgetIP#    as Progress.Lang.Object,
     cPropertyIP#  as character,
     dtmValueIP#   as datetime-tz):
+
 
     define variable oControl# as System.Object        no-undo.
     define variable cDummy#   as character            no-undo.
@@ -1255,12 +1295,20 @@ class paninui.view.use.display.sc_displaydata   :
     case sc_analyzewidget:IsOfUiTechnology(oWidgetIP#):
         
       when "windows_wpf" then 
-        case cPropertyIOP#:
-          when "Enabled" then 
-            cPropertyIOP# = "IsEnabled".
-          when "Checked" then 
-            cPropertyIOP# = "IsChecked".
-        end case.
+        do: 
+          case cPropertyIOP#:
+            when "Enabled" then 
+              cPropertyIOP# = "IsEnabled".
+            when "Checked" then 
+              cPropertyIOP# = "IsChecked".
+            when "Visible" then 
+              cPropertyIOP# = "IsVisible".
+            when "BarCode" then /* Only for backward compatibility */
+              cPropertyIOP# = "Text".
+            when "ImageLocation" then 
+              cPropertyIOP# = "Source".
+          end case.
+        end.
         
       when "windows_forms" then
         case  cPropertyIOP#:
