@@ -1055,7 +1055,8 @@ class paninui.view.use.display.sc_displaydata   :
             do:
             
               if type-of(oWidgetIP#, System.Windows.Controls.Image) then
-                paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oWpfElement#, cPropertyIP#, new System.Windows.Media.Imaging.BitmapImage(new System.Uri(cValueIP#))).
+                paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oWpfElement#, cPropertyIP#, 
+                  (if sc_data:HasValue(cValueIP#) then new System.Windows.Media.Imaging.BitmapImage(new System.Uri(cValueIP#)) else ?)).
               else 
               do:
                 if sc_environment:IsIdeRunning() then 
