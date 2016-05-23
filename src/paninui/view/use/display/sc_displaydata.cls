@@ -1307,6 +1307,15 @@ class paninui.view.use.display.sc_displaydata   :
             when "ImageLocation" then 
               cPropertyIOP# = "Source".
           end case.
+          case true:
+            when type-of(oWidgetIP#, System.Windows.Controls.PasswordBox) then 
+              do:
+                case cPropertyIOP#:
+                  when "Text" then 
+                    cPropertyIOP# = "Password".
+                end case.
+              end.
+          end case.
         end.
         
       when "windows_forms" then
