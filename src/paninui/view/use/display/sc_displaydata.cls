@@ -1071,6 +1071,9 @@ class paninui.view.use.display.sc_displaydata   :
           when "Text" then
             do:
               
+              if type-of(oWpfElement#, paninui.view.loose.widgets.c_barcode_image_wpf) then
+                cValueIP#  = subst("*&1*", cValueIP#).
+              
               if type-of(oWpfElement#, System.Windows.Controls.ContentControl) then 
               do:
 
