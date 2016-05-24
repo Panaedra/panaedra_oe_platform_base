@@ -226,6 +226,13 @@ class panaedra.msroot.msutil.logic.sc_messagebox
   end method. /* Show; yesno */
 
 
+  method public static logical Show(oTypeOVID# as i_messageboxtype_yesnocancel, cMsgIP# as character):
+
+    return Show(oTypeOVID#, cMsgIP#, true).
+    
+  end method. /* Show; yesnocancel, default=true */
+
+
   method public static logical Show(oTypeOVID# as i_messageboxtype_yesnocancel, cMsgIP# as character, bDefaultOkayIP# as logical):
 
     sc_environment:SetWaitState("panaedra.msroot.msutil.logic.sc_messagebox", false).
@@ -235,7 +242,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
       
     return bDefaultOkayIP#.
     
-  end method. /* Show; yesno */
+  end method. /* Show; yesnocancel */
 
 
   method public static logical Show(oTypeOVID# as i_messageboxtype_yesno_ontop, cMsgIP# as character, bDefaultOkayIP# as logical):
