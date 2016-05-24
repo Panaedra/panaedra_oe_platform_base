@@ -288,7 +288,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     if valid-object(oWidgetIP#) then 
     do:
       oControl# = cast(oWidgetIP#, {&System.Object}).
-      sc_displaydata:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oTechnologyValue#).
+      sc_displayproperty_renamebytechnology:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oTechnologyValue#).
       &if {&paninui_tty} = false &then
       paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oControl#, cPropertyIP#, output oValue#).
       &endif
@@ -319,7 +319,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     if valid-object(oWidgetIP#) then 
     do:
       oControl# = cast(oWidgetIP#, {&System.Object}).
-      sc_displaydata:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oTechnologyValue#).
+      sc_displayproperty_renamebytechnology:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oTechnologyValue#).
       &if {&paninui_tty} = false &then
       paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oControl#, cPropertyIP#, output oValue#).
       &endif
@@ -353,7 +353,7 @@ class paninui.view.use.analyze.sc_getuiframevalues   :
     if valid-object(oWidgetIP#) then 
     do:
       oControl# = cast(oWidgetIP#, {&System.Object}).
-      sc_displaydata:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oTechnologyValue#).
+      sc_displayproperty_renamebytechnology:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oTechnologyValue#).
       &if {&paninui_tty} = false &then
       paninui.view.use.sys_display._sys_sc_display:_sys_GetUiValue(oControl#, cPropertyIP#, output oValue#).
       &if int(entry(1, proversion, ".")) >= 11 and int(entry(2, proversion, ".")) >= 3 &then /* OE11.3+ */  

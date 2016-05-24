@@ -1,4 +1,5 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i}
+{paninui/logic/includes/preproc_dotnetclasses.i}
 
 using paninui.view.interfaces.*.
 using paninui.view.init.display.*.
@@ -1007,7 +1008,7 @@ class paninui.view.use.display.sc_displaydata   :
     */
     if valid-object(oWidgetIP#) then 
     do:
-      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cValueIP#, output oValue#).
+      sc_displayproperty_renamebytechnology:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cValueIP#, output oValue#).
       
       if type-of(oWidgetIP#, System.Windows.Forms.ComboBox) then 
       do:
@@ -1181,7 +1182,7 @@ class paninui.view.use.display.sc_displaydata   :
     */
     if valid-object(oWidgetIP#) then 
     do:
-      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oValue#).
+      sc_displayproperty_renamebytechnology:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oValue#).
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, iValueIP#).
     end.
@@ -1217,7 +1218,7 @@ class paninui.view.use.display.sc_displaydata   :
     */
     if valid-object(oWidgetIP#) then 
     do:
-      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oValue#).
+      sc_displayproperty_renamebytechnology:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oValue#).
       oControl# = cast(oWidgetIP#, System.Object).
       paninui.view.use.sys_display._sys_sc_display:_sys_SetUiValue(oControl#, cPropertyIP#, dtmValueIP#).
     end.
@@ -1252,7 +1253,7 @@ class paninui.view.use.display.sc_displaydata   :
     */
     if valid-object(oWidgetIP#) then 
     do:
-      RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oValue#).
+      sc_displayproperty_renamebytechnology:RenameWidgetPropertyByUiTechnology(oWidgetIP#, input-output cPropertyIP#, input-output cDummy#, output oValue#).
       oControl# = cast(oWidgetIP#, System.Object).
       
       case cPropertyIP#:
@@ -1286,64 +1287,6 @@ class paninui.view.use.display.sc_displaydata   :
   end method. /* SetUiValueImplement ; logical */
 
 
-  method public static void RenameWidgetPropertyByUiTechnology(
-  
-    /* For example: "Enabled" must be renamed to "IsEnabled" for WPF widgets */
-    
-    input        oWidgetIP#    as Progress.Lang.Object, 
-    input-output cPropertyIOP# as character,
-    input-output cValueIOP#    as character,
-    output       oValueOP#     as Progress.Lang.Object):
-
-    /* Abstraction of widget properties (Note: syntax Ctrl-I formatting is a bit hayward here, can't be helped.) */
-    case sc_analyzewidget:IsOfUiTechnology(oWidgetIP#):
-        
-      when "windows_wpf" then 
-        do: 
-          case cPropertyIOP#:
-            when "Enabled" then 
-              cPropertyIOP# = "IsEnabled".
-            when "Checked" then 
-              cPropertyIOP# = "IsChecked".
-            when "BarCode" then /* Only for backward compatibility */
-              cPropertyIOP# = "Text".
-            when "ImageLocation" then 
-              cPropertyIOP# = "Source".
-          end case.
-          case true:
-            when type-of(oWidgetIP#, System.Windows.Controls.PasswordBox) then 
-              do:
-                case cPropertyIOP#:
-                  when "Text" then 
-                    cPropertyIOP# = "Password".
-                end case.
-              end.
-          end case.
-        end.
-        
-      when "windows_forms" then
-        case  cPropertyIOP#:
-          when "Dock" then 
-            case cValueIOP#:
-              when "Bottom" then 
-                oValueOP# = System.Windows.Forms.DockStyle:Bottom.
-              when "Top" then 
-                oValueOP# = System.Windows.Forms.DockStyle:Top.
-              when "Left" then 
-                oValueOP# = System.Windows.Forms.DockStyle:Left.
-              when "Right" then 
-                oValueOP# = System.Windows.Forms.DockStyle:Right.
-            end case.
-        end case. 
-        
-      otherwise sc_messagebox:Show(sc_messageboxtype:oDebug,
-        sc_analyzewidget:IsOfUiTechnology(oWidgetIP#),
-        "is not implemented.").
-                
-    end case. /* IsOfUiTechnology ; Abstraction of widget properties  */
-
-  end method. /* RenameWidgetPropertyByUiTechnology */
-  
   method public static void AppendText(
   
     oFrmLogicIP#    as i_frmlogic,
