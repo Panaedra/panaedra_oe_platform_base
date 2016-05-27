@@ -417,6 +417,7 @@ class paninui.view.use.sc_coll_eventdata
         oWidget#       = sc_coll_widgetdata:GetWidget(iPackIDIP#,"combobox",?,cWidgetNameIP#, output bDummy#).
         
       &if 0 &then
+      /* Useful debugging messages. Set to 1 if needed. */
       if type-of(oWidget#,System.Windows.FrameworkElement) then
         message "FrameworkElement" cWidgetNameIP# skip /* codeQok#7222 */
           program-name(2) skip  
@@ -433,7 +434,7 @@ class paninui.view.use.sc_coll_eventdata
           cast(oWidget#,System.Windows.Forms.Control):Name skip
           cEventTypeIP#
           view-as alert-box.
-      &endif
+      &endif /* Debug on */
       
       if oWidget# <> ? then 
       do:
@@ -744,6 +745,7 @@ class paninui.view.use.sc_coll_eventdata
         oWidget#       = paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow.
       
       &if 0 &then
+      /* Useful debugging messages. Set to 1 if needed. */
       if type-of(oWidget#,System.Windows.FrameworkElement) then
         message "FrameworkElement form WPF:" cWidgetNameIP# skip /* codeQok#7222 */
           program-name(2) skip  
@@ -760,7 +762,7 @@ class paninui.view.use.sc_coll_eventdata
           cast(oWidget#,System.Windows.Forms.Control):Name skip
           cEventTypeIP#
           view-as alert-box.
-      &endif
+      &endif /* Debug on */
         
       if oWidget# <> ? then 
       do:
