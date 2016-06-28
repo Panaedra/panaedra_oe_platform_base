@@ -8,6 +8,9 @@ class panaedra.msroot.msutil.logic.c_mslongchar:
   
   define public variable clobValue as longchar no-undo.
   
+  constructor c_mslongchar():
+  end constructor.
+
   constructor c_mslongchar(clobValueIP# as longchar):
     clobValue = clobValueIP#.
   end constructor.

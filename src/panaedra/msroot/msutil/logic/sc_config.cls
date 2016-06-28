@@ -108,6 +108,44 @@ class panaedra.msroot.msutil.logic.sc_config:
   end method. /* EncryptConfigToXConfig */
   
   
+  method public static void FilecontentsToLongchar (
+    /* A .xconfig file is decrypted to file */
+    
+    input        cFileIP#       as character,
+    input-output oMsLongcharIP# as c_mslongchar):
+      
+    define variable mConfig#         as memptr    no-undo.
+    define variable cConfigFilepath# as character no-undo.
+    define variable bUseXconfig#     as logical   no-undo.
+    
+    cConfigFilepath# = GetConfigOsfilename(cFileIP#, output bUseXconfig#).
+    
+    file-info:file-name = cConfigFilepath#.
+    
+    if file-info:full-pathname > "" then 
+    do:
+    
+      if bUseXconfig# then
+      do:
+        copy-lob file cConfigFilepath# to mConfig# no-convert.
+        mConfig# = decrypt(mConfig#, rawConfigKey).
+        copy-lob mConfig# to oMsLongcharIP#:clobValue no-convert.
+        set-size(mConfig#) = 0.
+      end.
+      else
+        copy-lob file cConfigFilepath# to oMsLongcharIP#:clobValue no-convert.
+      
+    end.
+    else
+      undo, throw new c_panaedraexception(
+        99943981,
+        sc_lang:oEnglish,
+        substitute("Error: File '&1' not found", cFileIP#)
+        ).
+  
+  end method. /* FilecontentsToLongchar */
+  
+  
   method public static void DecryptXConfigToFile(
   
     /* A .xconfig file is decrypted to file */
