@@ -84,6 +84,10 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
 
     define variable hField# as handle no-undo.
     
+    if not hBuffInputIP#:available then
+      undo, throw new c_panaedraexception(99981726, sc_lang:oEnglish, substitute(
+      "Record of '&1' is unavailable. Cannot set key fields.", hBuffInputIP#:name)).
+    
     /* Fields */
         
     hField# = hBuffInputIP#:buffer-field("cGUID" + cCasedIP#) no-error.
