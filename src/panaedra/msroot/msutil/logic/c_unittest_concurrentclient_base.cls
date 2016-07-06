@@ -73,7 +73,7 @@ class panaedra.msroot.msutil.logic.c_unittest_concurrentclient_base:
     cCommand# = subst('. /etc/profile ; unset PROPATH ; &1 &2 ; export LOGFILEID=&3 ; export UtClientGuid=&3 ; export AsModeSuffixPre=&4 ; CpSuffix=_utf8_s850 $SCRIPTS/RunRaw ',
       " export OTAUSER=yes ;" 
       /* FREF@ec00b888d use the temporary progressProfile for changed versions: */
-      + if (sc_environment:cEnv <> "tst" and sc_environment:cEnv <> "misc") then "" else ". /progress/scripts/progressProfile116A;",
+      + if (sc_environment:cEnv <> "zzztst" and sc_environment:cEnv <> "zzzmisc") then "" else ". /progress/scripts/progressProfile116A;",
       subst(". $SCRIPTS/PropathSet &1 ; export PROPATHPRE=$PROPATH", if bDevToken# then os-getenv("DlcTest_") else "test"),
       cUtClientGuid,
       replace(sc_asconnect:GetSuffix(), "_batch", "") /* _batch can be removed here */
