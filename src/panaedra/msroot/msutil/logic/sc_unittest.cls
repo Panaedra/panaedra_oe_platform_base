@@ -120,7 +120,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
           if sc_environment:bBatchMode then 
             sc_showexception:ShowException(new c_panaedraexception(99028123, sc_lang:oEnglish, cMsg#)).
           else
-            message cMsg# view-as alert-box. /* Note: simple message in TTY session because of OE10 input blocking */
+            sc_messagebox:Show(sc_messageboxtype:Simple, cMsg#). /* Note: simple message in TTY session because of OE10 input blocking */
           sc_eventbroadcaster:FireEvent("evt@SessionClose").
           quit.
         end.
@@ -348,8 +348,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
               end.
             otherwise 
             do:
-              message "ERROR, unknown type in case statement:" entry(1,cEntry#,"~004")
-                view-as alert-box.
+              sc_messagebox:Show(sc_messageboxtype:Simple, substitute("ERROR, unknown type in case statement: &1", entry(1,cEntry#,"~004"))).
             end.
           end case.
         end.
@@ -359,7 +358,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
     assign
       b-ttUtSocketClient.hSock = hSockIP#.
       
-    copy-lob clobResponseIP# to b-ttUtSocketClient.clobLastResponse.
+    copy-lob clobResponseIP# to b-ttUtSocketClient.clobLastResponse no-convert.
     
   end method. /* _sys_SocketClientResponse */
   
@@ -381,7 +380,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
     end.
     else 
     do:
-      message "Invalid socket...." view-as alert-box.
+      sc_messagebox:Show(sc_messageboxtype:Simple, "Invalid socket....").
     end.
     
     finally:
@@ -441,10 +440,9 @@ class panaedra.msroot.msutil.logic.sc_unittest
           substitute("Unit tests should be run on a *tst* environment. (or use env.var UNITTEST_MORE_ENV) TestID='&1'", cTestIDIP#)).
       else 
       do:
-        message 
-          substitute("Unit tests should be run on a *tst* environment. (or use env.var UNITTEST_MORE_ENV) TestID='&1'", cTestIDIP#) skip
-          "Do you want to continue?"
-          view-as alert-box buttons yes-no update bRunOnNonTstOkay.
+        sc_messagebox:Show(sc_messageboxtype:YesNo,
+          substitute("Unit tests should be run on a *tst* environment. (or use env.var UNITTEST_MORE_ENV) TestID='&1'", cTestIDIP#) + "~n" +
+          "Do you want to continue?", bRunOnNonTstOkay).
         if not bRunOnNonTstOkay then 
           undo, throw new c_panaedraexception(
             99958113,
@@ -635,6 +633,24 @@ class panaedra.msroot.msutil.logic.sc_unittest
     end.
 
   end method. /* Assert ; logical field */
+  
+  
+  method public static void Assert(
+    cTestIDIP# as character, 
+    cTestDescIP# as character,
+    oClobNewValueIP# as c_mslongchar,
+    oClobExpectedValueIP# as c_mslongchar
+    ):
+      
+    if (oClobExpectedValueIP#:clobValue = ? and oClobNewValueIP#:clobValue <> ?)
+      or (oClobExpectedValueIP#:clobValue <> ? and oClobNewValueIP#:clobValue = ?)
+      or (oClobExpectedValueIP#:clobValue <> oClobNewValueIP#:clobValue) then 
+    do:
+      RegisterUnitFail().
+      AssertFailFeedback(cTestIDIP#, cTestDescIP#, subst("&1",oClobNewValueIP#:clobValue), subst("&1",oClobExpectedValueIP#:clobValue), "").
+    end.
+
+  end method. /* Assert ; c_mslongchar field */
   
   
   method public static void Assert(
@@ -1041,7 +1057,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
         oSingleton = new sc_unittest(). 
     
       LogMessage(subst("Start unittest: &1 &2",iso-date(now), cFullPathIP#)).
-        
+      
       sc_eventbroadcaster:FireEvent("evt@unittest@run", cFullPathIP#).
 
       if cFullPathIP# matches "*~~.cls" then
