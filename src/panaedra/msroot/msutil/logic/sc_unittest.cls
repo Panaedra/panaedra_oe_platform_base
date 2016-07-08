@@ -358,7 +358,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
     assign
       b-ttUtSocketClient.hSock = hSockIP#.
       
-    copy-lob clobResponseIP# to b-ttUtSocketClient.clobLastResponse no-convert.
+    copy-lob clobResponseIP# to b-ttUtSocketClient.clobLastResponse. /* codeQok#7133 */
     
   end method. /* _sys_SocketClientResponse */
   
