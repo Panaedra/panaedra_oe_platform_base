@@ -68,15 +68,20 @@ class panaedra.msroot.mspack.logic.sc_packcfg:
           
       end.
       
+      /* Initialize the dotnet environment */
+      paninui.logic.init.sc_dotnet_init:DotnetInit().
+
       assign
         sc_sgt_masterwindow_eventhandler:oSgt:cInitialPack    = ttMsPack.cObject
         sc_sgt_masterwindow_eventhandler:oSgt:cInitialPackCfg = cPackCfg#.
+        
       /* Start the master MDI window, which will display the initial pack. 
          This (void!) method contains the wait-for. */
       sc_mdiwindow:StartNewMdiWindow(
         if length(ttMsMdiMaster.cDotnetDLL) > 0 then ttMsMdiMaster.cDotnetDLL else "[no dll]" ,
         ttMsMdiMaster.cObject).
-    end.
+        
+    end. /* The initial pack is still an empty string */
     
     catch oException# as System.Exception:
       sc_showexception:ShowException(oException#).
