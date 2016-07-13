@@ -12,25 +12,27 @@
 /******************************* $NoKeywords:  $ *****************************/
 
 &if opsys = "unix" or "{&window-system}" = "tty" &then
-&glob paninui_tty                     true
-&glob System.Object                   Progress.Lang.Object
-&glob System.Windows.Forms.Control    Progress.Lang.Object
-&glob System.Windows.FrameworkElement Progress.Lang.Object
-&glob System.EventArgs                Progress.Lang.Object
-&glob i_masterwindow                  i_masterwindow_tty
-&glob i_uiframe                       i_uiframe_tty
-&glob i_frmlogic_shortcut             i_frmlogic_shortcut_tty
-&glob paninui.view.interfaces.        paninui.view.interfaces_tty.
+&glob paninui_tty                          true
+&glob System.Object                        Progress.Lang.Object
+&glob System.Windows.Forms.Control         Progress.Lang.Object
+&glob System.Windows.FrameworkElement      Progress.Lang.Object
+&glob System.EventArgs                     Progress.Lang.Object
+&glob System.Windows.Controls.ItemsControl Progress.Lang.Object
+&glob i_masterwindow                       i_masterwindow_tty
+&glob i_uiframe                            i_uiframe_tty
+&glob i_frmlogic_shortcut                  i_frmlogic_shortcut_tty
+&glob paninui.view.interfaces.             paninui.view.interfaces_tty.
 &else
-&glob paninui_tty                     false
-&glob System.Object                   System.Object
-&glob System.Windows.Forms.Control    System.Windows.Forms.Control
-&glob System.Windows.FrameworkElement System.Windows.FrameworkElement
-&glob System.EventArgs                System.EventArgs
-&glob i_masterwindow                  i_masterwindow
-&glob i_uiframe                       i_uiframe
-&glob i_frmlogic_shortcut             paninui.logic.logicbase.c_framelogic_shortcut
-&glob paninui.view.interfaces.        paninui.view.interfaces.
+&glob paninui_tty                          false
+&glob System.Object                        System.Object
+&glob System.Windows.Forms.Control         System.Windows.Forms.Control
+&glob System.Windows.FrameworkElement      System.Windows.FrameworkElement
+&glob System.Windows.Controls.ItemsControl System.Windows.Controls.ItemsControl
+&glob System.EventArgs                     System.EventArgs
+&glob i_masterwindow                       i_masterwindow
+&glob i_uiframe                            i_uiframe
+&glob i_frmlogic_shortcut                  paninui.logic.logicbase.c_framelogic_shortcut
+&glob paninui.view.interfaces.             paninui.view.interfaces.
 &endif
 
 &endif /* {&dvcs__paninui_logic_includes_preproc_dotnetclasses_i} */
