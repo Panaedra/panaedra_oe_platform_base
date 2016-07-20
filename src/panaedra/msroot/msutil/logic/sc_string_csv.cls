@@ -440,7 +440,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
         undo, throw new c_panaedraexception(
           99936548,
           sc_lang:oDutch,
-          "CsvSortListNumeric gebruikt met waardes die niet numeric zijn"
+          "CsvSortListNumeric: numeric values are mandatory."
           ).
     
       create b-ttCsvSortListNumeric.
@@ -636,7 +636,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     /* Adds a value to the end of a seperated value list, without adding too much delimiters.
        Use this overload to use comma as delimiter. 
     */
-    
+
     return CsvAddLastUnique(cCsvIP#, cSvNewValueIP#, ",").
     
   end method. /* CsvAddLastUnique ; delimiter = "," */
@@ -773,6 +773,66 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     return cSvLine#. 
   
   end method. /* ConvertBufferToCsvString */
+
+
+  method public static character ConvertBufferToParamString(
+   
+    /* Convert buffer field names and values to parameter string 
+       Note: extents are not supported.
+      */ 
+      
+    input hBufferIP#                 as handle 
+    ): 
+      
+    define variable cSvLine# as character no-undo.
+    define variable cKey#    as character no-undo.
+    define variable cValue#  as character no-undo.
+    define variable hField#  as handle    no-undo.
+    define variable iField#  as integer   no-undo.
+
+    do iField# = 1 to hBufferIP#:num-fields 
+      on error undo, throw: 
+
+      hField# = hBufferIP#:buffer-field(iField#). 
+      
+      if hField#:extent = 0 then  
+      do:
+
+        cKey# = hField#:name.
+
+        if hfield#:buffer-value = ? then 
+          cValue# = "". 
+
+        else
+          cValue# = string(hfield#:buffer-value).
+        
+        cSvLine# = SetParam(cSvLine#,cKey#,cValue#).
+          
+      end. /* hField#:extent = 0 */
+   
+    end. /* do iField# = 1 to hBuffIP#:num-fields */
+    
+    return cSvLine#. 
+  
+  end method. /* ConvertBufferToParamString */
+
+  
+  method public static void ConvertParamStringToBuffer(
+    input hBufferIP# as handle,
+    input cSvLineIP# as character):
+      
+    define variable cKey#    as character no-undo.
+    define variable cValue#  as character no-undo.
+    define variable hField#  as handle    no-undo.
+    define variable iField#  as integer   no-undo.
+  
+    do iField# = 1 to hBufferIP#:num-fields:
+
+      hBufferIP#:buffer-field(iField#):buffer-value = GetParam(cSvLineIP#, hBufferIP#:buffer-field(iField#):name).
+
+    end.
+    
+  end method. /* ConvertParamStringToBuffer */
 
   
   method public static character ConvertStringToCsv(
