@@ -319,6 +319,27 @@ class panaedra.msroot.msutil.logic.sc_osfile
     GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmFromIP#, dtmToIP#, bRecursiveIP#).
     
   end method. /* Overload: filter on mod-date range */
+  
+  
+  method public static void GetFileNamesInDirectorySub(
+    /* Overload with "whole days": date from starts at 00:00, date to ends at 23:59 */
+    cDirIP#       as character, 
+    cMatchesIP#   as character,
+    dtFromIP#     as date,
+    dtToIP#       as date,
+    bRecursiveIP# as logical
+    ):
+      
+    define variable dtmFrom# as datetime-tz no-undo.
+    define variable dtmTo#   as datetime-tz no-undo.
+    
+    dtmFrom# = datetime-tz(dtFromIP#).
+    dtmTo# = datetime-tz(add-interval(dtToIp#,1,"days")).
+    dtmTo# = datetime-tz(add-interval(dtmTo#,-1,"seconds")).
+    
+    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmFrom#, dtmTo#, bRecursiveIP#).
+      
+  end method.
 
 
   method protected static void GetFileNamesInDirectorySub(
