@@ -321,21 +321,25 @@ class panaedra.msroot.msutil.logic.sc_osfile
   end method. /* Overload: filter on mod-date range */
   
   
-  method public static void GetFileNamesInDirectorySub(
+  method public static void GetFileNamesInDirectory(
     /* Overload with "whole days": date from starts at 00:00, date to ends at 23:59 */
     cDirIP#       as character, 
     cMatchesIP#   as character,
-    dtFromIP#     as date,
-    dtToIP#       as date,
-    bRecursiveIP# as logical
+    dtDateIP#     as date,
+    bRecursiveIP# as logical,
+    output table for ttFile
     ):
       
     define variable dtmFrom# as datetime-tz no-undo.
     define variable dtmTo#   as datetime-tz no-undo.
+
+    if temp-table ttFile:handle = hTtFileNative then
+      empty temp-table ttFile.
     
-    dtmFrom# = datetime-tz(dtFromIP#).
-    dtmTo# = datetime-tz(add-interval(dtToIp#,1,"days")).
-    dtmTo# = datetime-tz(add-interval(dtmTo#,-1,"seconds")).
+    assign
+      dtmFrom# = panaedra.msroot.msutil.logic.sc_date_timestamp:GetBeginOfDay(dtDateIP#)
+      dtmTo#   = panaedra.msroot.msutil.logic.sc_date_timestamp:GetEndOfDay(dtDateIP#)
+      .
     
     GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmFrom#, dtmTo#, bRecursiveIP#).
       
