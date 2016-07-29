@@ -322,7 +322,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
   
   
   method public static void GetFileNamesInDirectory(
-    /* Overload with "whole days": date from starts at 00:00, date to ends at 23:59 */
+    /* Overload for 1 day: date starts at 00:00, and ends at 23:59:59 */
     cDirIP#       as character, 
     cMatchesIP#   as character,
     dtDateIP#     as date,
