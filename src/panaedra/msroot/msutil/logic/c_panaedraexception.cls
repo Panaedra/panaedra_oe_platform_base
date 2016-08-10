@@ -1,5 +1,6 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
+using panaedra.msroot.msrest.logic.c_msrest_responseerror_logic from propath.
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.c_panaedraexception
@@ -61,6 +62,9 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     public    get.
     public    set.
 
+  define property oRestError as c_msrest_responseerror_logic no-undo 
+    public    get.
+    public    set.
 
   define property cCategoryEventID as character no-undo 
     public    get.
@@ -113,6 +117,27 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
 
 
   constructor public c_panaedraexception(
+    iErrorIP# as integer, 
+    oEnglishIP# as i_language_english,
+    cErrorIP# as character,
+    oRestErrorIP# as c_msrest_responseerror_logic):
+    
+    super().
+    
+    oRestError = oRestErrorIP#.
+    this-object:AddMessage(cErrorIP#, iErrorIP#).
+    _sys_AddMessage(iErrorIP#,cErrorIP#).
+    
+    cLang = "English":u.
+    
+    catch ex as Progress.Lang.Error :
+      sc_showexception:ShowException(ex). 
+    end catch.
+    
+  end constructor. 
+
+
+  constructor public c_panaedraexception(
     iErrorIP#          as integer, 
     oInnerExceptionIP# as Progress.Lang.Error,
     cCategoryEventIP#  as character,
@@ -155,7 +180,7 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
       oInnerException = oInnerExceptionIP#
       cCategoryEvent  = cCategoryEventIP#
       cLang           = "English":u.
-    
+
     catch oError# as Progress.Lang.Error :
       sc_showexception:ShowException(oError#).	
     end catch.
@@ -248,7 +273,7 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
   end method.
   
   method public override character GetMessage(iIndexIP# as integer):
-    
+
     define variable cReturn# as character no-undo.
     
     define buffer b-ttExceptionLine for ttExceptionLine.
@@ -266,7 +291,7 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
       if ex:GetMessageNum(1) = 5729
         then return "Use AddMessageSuper instead of AddMessage, to work around a progress bug.".
       else
-        sc_showexception:ShowException(ex).	
+        sc_showexception:ShowException(ex).
     end catch.
       
   end method. /* GetMessage */
