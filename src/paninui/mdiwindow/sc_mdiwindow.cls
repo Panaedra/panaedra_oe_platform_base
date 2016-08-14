@@ -17,7 +17,9 @@ class paninui.mdiwindow.sc_mdiwindow:
   \*****************************  Include Files ********************************/
 
   /******************************* $NoKeywords:  $ *****************************/
-
+  
+  define public static variable bApplicationRunAllowed as logical no-undo initial true.
+  
   define public static property oFirstMdiWindow as Progress.Lang.Object no-undo 
     public get. 
     protected set. 
@@ -36,7 +38,6 @@ class paninui.mdiwindow.sc_mdiwindow:
     define variable cMdiNew#   as character                  no-undo.
     define variable oAssembly# as System.Reflection.Assembly no-undo.
     define variable oForm#     as System.Windows.Forms.Form  no-undo.
-    
    
     if cMdiDllNameIP# <> "[no dll]" then 
     do:
@@ -85,15 +86,24 @@ class paninui.mdiwindow.sc_mdiwindow:
     
     do on error undo, throw
       on stop undo, retry:
-        
+      
+      if bApplicationRunAllowed = false then quit. /* Necessary when in loop */
+      bApplicationRunAllowed = false.              /* Prevent infinite session startup loops when uncaught exceptions happen in another .NET thread */
+      
       wait-for System.Windows.Forms.Application:Run(oForm#).
       
-      if retry then
+      if retry then do:
+        
         undo, throw new c_panaedraexception(
           99949228,
           sc_lang:oEnglish,
           "Application:Run() loop has ended (stop condition)."
           ).
+      end.
+      
+      catch oException# as System.Exception:
+        sc_showexception:ShowException(oException#).  
+      end catch.
       
       catch oError# as Progress.Lang.Error:
         sc_showexception:ShowException(oError#).  
@@ -102,7 +112,7 @@ class paninui.mdiwindow.sc_mdiwindow:
     end. 
 
   end method. /* StartNewMdiWindow */
-
+  
 end class.
 
 /* EOF */ 
