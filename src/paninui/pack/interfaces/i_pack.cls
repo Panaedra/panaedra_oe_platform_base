@@ -73,21 +73,17 @@ interface paninui.pack.interfaces.i_pack:
 
   method void LoadSubframepack(
     oGroupframeOverlayOVID# as i_showlocationtype_groupframeoverlay,
-    iPackIdIP#              as int64,
     cLocationWidgetTypeIP#  as character,
     cLocationWidgetNameIP#  as character,
     oSubpackIP#             as i_pack,
-    cScreenbufferTreeIP#    as character,
     output iSubframeIdOP#   as int64).
 
-  method void LoadSubframepack(
-    oGroupframeOverlayOVID# as i_showlocationtype_groupframeoverlay,
-    iPackIdIP#              as int64,
-    cLocationWidgetTypeIP#  as character,
-    cLocationWidgetNameIP#  as character,
-    cSubpackIP#             as character,
-    cScreenbufferTreeIP#    as character,
-    output iSubframeIdOP#   as int64).
+  method void LoadSubframepackCfg( /* Note: This method is called "cfg", because it's only implemented in packbasecfg. Normal packbase throws. */
+    oGroupframeOverlayOVID#            as i_showlocationtype_groupframeoverlay,
+    cLocationWidgetTypeIP#             as character,
+    cLocationWidgetNameIP#             as character,
+    cSubframepackIdIP#                 as character,
+    output iSubframeIdOP#              as int64).
 
   method void HideSubframepack(
     oModalPackIP#           as i_pack,
