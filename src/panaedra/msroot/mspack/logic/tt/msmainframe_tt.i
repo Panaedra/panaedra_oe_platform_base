@@ -38,9 +38,10 @@ procedure dvcs__panaedra_msroot_mspack_logic_tt_msmainframe_tt_i: return "$Revis
 define {&protected} {&static} temp-table tt{&ttPrefix}MsMainFrame{&ttSuffix} {&no-undo} 
   xml-node-name "MainFrame"
   {&reference-only} {&rcode-information} {&before-table}
-  field iIDMsMainFrame as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsMainFrame "  
-  field cDotnetDLL     as character   xml-node-type "attribute"
-  field cObject        as character   xml-node-type "attribute"  
+  field iIDMsMainFrame     as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=MsMainFrame "  
+  field cDotnetDLL         as character   xml-node-type "attribute"
+  field cObject            as character   xml-node-type "attribute"  
+  field cScreenbufferTree  as character   xml-node-type "attribute"
   {&ttExtraFields}
   index iIDMsMainFrame is unique primary iIDMsMainFrame
   {&ttExtraIndices}

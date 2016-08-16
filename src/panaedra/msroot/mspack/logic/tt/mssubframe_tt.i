@@ -45,6 +45,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}MsSubframe{&ttSuffix} {&no
   field cLocationWidgetName as character   xml-node-type "attribute"
   field cDotnetDLL          as character   xml-node-type "attribute"
   field cObject             as character   xml-node-type "attribute"
+  field cScreenbufferTree   as character   xml-node-type "attribute"
   field bActive             as logical     xml-node-type "attribute"
   field bOverride           as logical     xml-node-type "attribute"
   {&ttExtraFields}
