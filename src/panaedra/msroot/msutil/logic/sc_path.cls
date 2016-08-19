@@ -345,8 +345,11 @@ class panaedra.msroot.msutil.logic.sc_path:
       if cXobjDir = "|init|" then 
       do:
         cXobjDir = sc_boot:SessionParameter("Xobj").
-        cXobjDir = replace(cXobjDir,"~\","/").
-        if substring(cXobjDir,length(cXobjDir)) <> "/" then cXobjDir = cXobjDir + "/".
+        if sc_data:HasValue(cXobjDir) then 
+        do:
+          cXobjDir = replace(cXobjDir,"~\","/").
+          if substring(cXobjDir,length(cXobjDir)) <> "/" then cXobjDir = cXobjDir + "/".
+        end.
       end.
       return cXobjDir.
     end get.
@@ -360,8 +363,11 @@ class panaedra.msroot.msutil.logic.sc_path:
       if cXcfgDir = "|init|" then 
       do:
         cXcfgDir = sc_boot:SessionParameter("Xcfg").
-        cXcfgDir = replace(cXcfgDir,"~\","/").
-        if substring(cXcfgDir,length(cXcfgDir)) <> "/" then cXcfgDir = cXcfgDir + "/".
+        if sc_data:HasValue(cXcfgDir) then 
+        do:
+          cXcfgDir = replace(cXcfgDir,"~\","/").
+          if substring(cXcfgDir,length(cXcfgDir)) <> "/" then cXcfgDir = cXcfgDir + "/".
+        end.
       end.
       return cXcfgDir.
     end get.
