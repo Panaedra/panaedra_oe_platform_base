@@ -1,6 +1,7 @@
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
-using panaedra.msroot.msrest.logic.c_msrest_responseerror_logic from propath.
+/*using panaedra.msroot.msrest.logic.c_msrest_responseerror_logic from propath.*/
+
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class panaedra.msroot.msutil.logic.c_panaedraexception
@@ -61,10 +62,10 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
   define property cCategoryEvent as character no-undo 
     public    get.
     public    set.
-
-  define property oRestError as c_msrest_responseerror_logic no-undo 
-    public    get.
-    public    set.
+    
+/*  define property oRestError as c_msrest_responseerror_logic no-undo*/
+/*    public    get.                                                  */
+/*    public    set.                                                  */
 
   define property cCategoryEventID as character no-undo 
     public    get.
@@ -116,25 +117,25 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
   end constructor.
 
 
-  constructor public c_panaedraexception(
-    iErrorIP# as integer, 
-    oEnglishIP# as i_language_english,
-    cErrorIP# as character,
-    oRestErrorIP# as c_msrest_responseerror_logic):
-    
-    super().
-    
-    oRestError = oRestErrorIP#.
-    this-object:AddMessage(cErrorIP#, iErrorIP#).
-    _sys_AddMessage(iErrorIP#,cErrorIP#).
-    
-    cLang = "English":u.
-    
-    catch ex as Progress.Lang.Error :
-      sc_showexception:ShowException(ex). 
-    end catch.
-    
-  end constructor. 
+/*  constructor public c_panaedraexception(             */
+/*    iErrorIP# as integer,                          */
+/*    oEnglishIP# as i_language_english,             */
+/*    cErrorIP# as character,                        */
+/*    oRestErrorIP# as c_msrest_responseerror_logic):*/
+/*                                                   */
+/*    super().                                       */
+/*                                                   */
+/*    oRestError = oRestErrorIP#.                    */
+/*    this-object:AddMessage(cErrorIP#, iErrorIP#).  */
+/*    _sys_AddMessage(iErrorIP#,cErrorIP#).          */
+/*                                                   */
+/*    cLang = "English":u.                           */
+/*                                                   */
+/*    catch ex as Progress.Lang.Error :              */
+/*      sc_showexception:ShowException(ex).          */
+/*    end catch.                                     */
+/*                                                   */
+/*  end constructor.                                 */
 
 
   constructor public c_panaedraexception(
