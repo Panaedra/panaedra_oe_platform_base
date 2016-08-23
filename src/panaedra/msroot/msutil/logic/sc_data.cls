@@ -26,6 +26,27 @@ class panaedra.msroot.msutil.logic.sc_data:
     return (clobStringIP# <> ?) and (length(trim(clobStringIP#)) > 0).
   
   end method. /* HasValue ; longchar */
+  
+ 
+  method public static logical HasValue(fFloatIP# as decimal):
+  
+    return (fFloatIP# <> ?) and (fFloatIP# <> 0).
+  
+  end method. /* HasValue ; decimal */
+ 
+ 
+  method public static logical HasValue(iIntIP# as integer):
+  
+    return (iIntIP# <> ?) and (iIntIP# <> 0).
+  
+  end method. /* HasValue ; integer */
+  
+ 
+  method public static logical HasValue(iIntIP# as int64):
+  
+    return (iIntIP# <> ?) and (iIntIP# <> 0).
+  
+  end method. /* HasValue ; int64 */
  
 end class.
 
