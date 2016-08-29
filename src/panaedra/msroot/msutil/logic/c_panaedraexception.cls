@@ -1,6 +1,9 @@
+{panaedra/l_root/li_TERM_UNDISCLOSED_/logic/def/def_version.i} /* codeQok#7116 */
 using panaedra.msroot.msutil.logic.*.
 using panaedra.msroot.msutil.interfaces.*.
-/*using panaedra.msroot.msrest.logic.c_msrest_responseerror_logic from propath.*/
+&if {&OpenEdge116Actief} = true &then
+using panaedra.msroot.msrest.logic.c_msrest_responseerror_logic from propath.
+&endif
 
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
@@ -63,9 +66,11 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     public    get.
     public    set.
     
-/*  define property oRestError as c_msrest_responseerror_logic no-undo*/
-/*    public    get.                                                  */
-/*    public    set.                                                  */
+&if {&OpenEdge116Actief} = true &then
+  define property oRestError as c_msrest_responseerror_logic no-undo
+    public    get.
+    public    set.
+&endif
 
   define property cCategoryEventID as character no-undo 
     public    get.
@@ -102,41 +107,39 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     this-object:AddMessage(cErrorIP#, iErrorIP#).
     _sys_AddMessage(iErrorIP#,cErrorIP#).
     
-    &if false &then    
-    message cErrorIP# "added to c_panaedraexception" "with number" iErrorIP# skip
-      this-object:NumMessages
-      view-as alert-box.
+    &if false &then
+    sc_messagebox:Show(sc_messageboxtype:Simple, substitute("&1 added to c_panaedraexception with number &2 ~n &3",cErrorIP#, iErrorIP#, this-object:NumMessages)).
     &endif
-    
+
     cLang = "English":u.
     
     catch ex as Progress.Lang.Error :
-      sc_showexception:ShowException(ex).	
+      sc_showexception:ShowException(ex).  
     end catch.
     
   end constructor.
 
+&if {&OpenEdge116Actief} = true &then
+  constructor public c_panaedraexception(
+    iErrorIP# as integer,
+    oEnglishIP# as i_language_english,
+    cErrorIP# as character,
+    oRestErrorIP# as c_msrest_responseerror_logic):
 
-/*  constructor public c_panaedraexception(             */
-/*    iErrorIP# as integer,                          */
-/*    oEnglishIP# as i_language_english,             */
-/*    cErrorIP# as character,                        */
-/*    oRestErrorIP# as c_msrest_responseerror_logic):*/
-/*                                                   */
-/*    super().                                       */
-/*                                                   */
-/*    oRestError = oRestErrorIP#.                    */
-/*    this-object:AddMessage(cErrorIP#, iErrorIP#).  */
-/*    _sys_AddMessage(iErrorIP#,cErrorIP#).          */
-/*                                                   */
-/*    cLang = "English":u.                           */
-/*                                                   */
-/*    catch ex as Progress.Lang.Error :              */
-/*      sc_showexception:ShowException(ex).          */
-/*    end catch.                                     */
-/*                                                   */
-/*  end constructor.                                 */
+    super().
 
+    oRestError = oRestErrorIP#.
+    this-object:AddMessage(cErrorIP#, iErrorIP#).
+    _sys_AddMessage(iErrorIP#,cErrorIP#).
+
+    cLang = "English":u.
+
+    catch ex as Progress.Lang.Error :
+      sc_showexception:ShowException(ex).
+    end catch.
+
+  end constructor.
+&endif
 
   constructor public c_panaedraexception(
     iErrorIP#          as integer, 
@@ -183,7 +186,7 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
       cLang           = "English":u.
 
     catch oError# as Progress.Lang.Error :
-      sc_showexception:ShowException(oError#).	
+      sc_showexception:ShowException(oError#).  
     end catch.
     
   end constructor. /* Language with innerexception */
@@ -268,7 +271,7 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
     _sys_AddMessage(iMessageNumberIP#,cErrorMessageIP#).
     
     catch ex as Progress.Lang.Error :
-      sc_showexception:ShowException(ex).	
+      sc_showexception:ShowException(ex).  
     end catch.
     
   end method.
