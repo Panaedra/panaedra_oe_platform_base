@@ -122,6 +122,8 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     if bExceptions or can-find(first b-ttExceptions) then 
     do:
       
+      oApiProxyException# = sc_apiproxyexception_logic:DeserializeDsContextToApiProxyException(dataset dsContext by-reference, cMirrorIP#).
+      
       if (not sc_environment:bBatchMode) and lookup(string( 
         oApiProxyException#:GetMessageNum(1),"99999999"), 
         sc_msdeploy_info:cSvReinstallExceptions) > 0 then 
