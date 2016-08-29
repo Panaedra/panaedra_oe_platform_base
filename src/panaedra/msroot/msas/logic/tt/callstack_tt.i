@@ -24,6 +24,7 @@
 
 define {&protected} {&static} temp-table tt{&ttPrefix}Callstack{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
   field cCallStack as character help " [private-date] CasedTableName=Callstack"
+  field iDepth     as int
   {&ttExtraFields}
   {&ttExtraIndices}.
 
