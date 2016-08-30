@@ -39,6 +39,7 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexcept
     do for b-ttExceptions:
       create b-ttExceptions.
       assign 
+        b-ttExceptions.iDepth = {&RootLevelDepth}
         b-ttExceptions.iOrder = -100
         b-ttExceptions.cError = cErrorIP#.
     end.
@@ -57,6 +58,7 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexcept
     do for b-ttExceptions:
       create b-ttExceptions.
       assign 
+        b-ttExceptions.iDepth = {&RootLevelDepth}
         b-ttExceptions.iOrder = -100
         b-ttExceptions.cError = cErrorIP#.
     end.

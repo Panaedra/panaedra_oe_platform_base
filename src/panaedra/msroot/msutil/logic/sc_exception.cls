@@ -191,10 +191,9 @@ class panaedra.msroot.msutil.logic.sc_exception:
       if valid-object(oPanaedraException#) and valid-object(oPanaedraException#:oInnerException) then 
         FillTtExceptionTtCallstack_Rercusive(oPanaedraException#:oInnerException, dataset dsContext by-reference, cExtraErrorInfoIP#, iDepthIP# + 1). 
         
-    /* ShouldHave: oInnerException */
     end. /* Valid exception object */
     
-    if not can-find(first b-ttExceptions) then
+    if not can-find(first b-ttExceptions where b-ttExceptions.iDepth = iDepthIP#) then
     do iNumErrorPS# = 1 to error-status:num-messages:
       create b-ttExceptions.
       assign
@@ -205,9 +204,9 @@ class panaedra.msroot.msutil.logic.sc_exception:
         .
     end.
     
-    if not can-find(first b-ttCallstack) then
+    if not can-find(first b-ttCallstack where b-ttCallStack.iDepth = iDepthIP#) then
     do:
-      /* We might not know the full callstack, maar we do know which api was called. codeQok#7120 */
+      /* We might not know the full callstack, but we do know which api was called. codeQok#7120 */
       create b-ttCallstack.
       assign 
         b-ttCallStack.iDepth     = iDepthIP# 
