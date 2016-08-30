@@ -34,6 +34,15 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexcept
     
     bUsesDataset = false.
 
+    define buffer b-ttExceptions for ttExceptions.
+    
+    do for b-ttExceptions:
+      create b-ttExceptions.
+      assign 
+        b-ttExceptions.iOrder = -100
+        b-ttExceptions.cError = cErrorIP#.
+    end.
+
   end constructor.
 
 
@@ -43,19 +52,20 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexcept
     
     bUsesDataset = false.
 
-  end constructor.
+    define buffer b-ttExceptions for ttExceptions.
+    
+    do for b-ttExceptions:
+      create b-ttExceptions.
+      assign 
+        b-ttExceptions.iOrder = -100
+        b-ttExceptions.cError = cErrorIP#.
+    end.
 
-
-  constructor public c_apiproxyexception(
-    iErrorIP# as int , cErrorIP# as character, oInnerException as c_panaedraexception):
-
-    super (iErrorIP#, sc_lang:oEnglish, cErrorIP#). 
-      
   end constructor.
 
   
   method public override char GetMessage(iErrorIP# as int):
-    
+
     return super:GetMessage(iErrorIP#).
       
   end method. /* GetMessage */
