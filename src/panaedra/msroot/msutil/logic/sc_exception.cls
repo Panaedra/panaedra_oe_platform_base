@@ -89,7 +89,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
         /* Log hostname and rating info. */
         cHostname# = sc_environment:GetHostName().   
            
-        output stream str-log to value(sc_path:cLogDir + "sc_exception_rating.log") unbuffered append. /* codeQok#7121 */
+        output stream str-log to value(sc_path:cLogDir + "sc_exception_rating.log") unbuffered append.
         put stream str-log unformatted substitute("User: &1, PID: &2, Errornum: &3. Error number is not rated, modify source: sc_exception.cls.", cHostname#, sc_environment:GetProcessID(), iErrorIP#) skip.
         put stream str-log unformatted substitute("Calling procedure: &1, &2", program-name(2), iso-date(now)) skip.
         output stream str-log close.
@@ -101,45 +101,23 @@ class panaedra.msroot.msutil.logic.sc_exception:
   
   end method. /* ErrorNumberRating */
   
-  
-  method public static void FillTtExceptionTtCallstack(
-    
-    oExceptionIP#      as Progress.Lang.Error, 
-    dataset dsContext /* by ref */, 
-    cExtraErrorInfoIP# as character
-    ):
-    
-    FillTtExceptionTtCallstack_Rercusive(oExceptionIP#, dataset dsContext by-reference, cExtraErrorInfoIP#, 1 /* iDepthIP# */). 
-      
-  end method. /* FillTtExceptionTtCallstack */  
 
-
-  method protected static void FillTtExceptionTtCallstack_Rercusive(
+  method public static void FillTtExceptionTtCallstack(oExceptionIP# as Progress.Lang.Error, dataset dsContext /* by ref */, cExtraErrorInfoIP# as character):
     
-    oExceptionIP#      as Progress.Lang.Error, 
-    dataset dsContext /* by ref */, 
-    cExtraErrorInfoIP# as character,
-    iDepthIP#          as integer 
-    ):
-    
-    define variable iNumErrorPS#     as integer          no-undo.
-    define variable cMirror#         as character        no-undo.
-    define variable cCallstackLine#  as character        no-undo.
-    define variable oPanaedraException# as c_panaedraexception no-undo.
+    define variable iNumErrorPS#    as integer   no-undo.
+    define variable cMirror#        as character no-undo.
+    define variable cCallstackLine# as character no-undo.
     
     define buffer b-ttExceptions for ttExceptions.
     define buffer b-ttCallstack  for ttCallstack.
 
     cCallstackLine# = sc_string_csv:GetParam(cExtraErrorInfoIP#,"CallStackLine").
     if cCallstackLine# = ? then cCallstackLine# = "".
-
-    if sc_data:HasValue(cCallstackLine#) then 
+    
+    if cCallstackLine# > "" then 
     do:
       create b-ttCallstack.
-      assign 
-        b-ttCallStack.cCallStack = subst("&1",cCallstackLine#)
-        b-ttCallStack.iDepth     = iDepthIP#
-        .
+      b-ttCallStack.cCallStack = subst("&1",cCallstackLine#).
       release b-ttCallStack.
     end.
     
@@ -147,13 +125,11 @@ class panaedra.msroot.msutil.logic.sc_exception:
     do:
       
       /* Fill the Callstack (alle involved methods) codeQok#7120 */
-      if sc_data:HasValue(oExceptionIP#:CallStack) then  /* codeQok#7120 */
+      if oExceptionIP#:CallStack > "" then  /* codeQok#7120 */
       /* meaning: -errorstack is active AND a real "throw" has taken place */
       do:
         create b-ttCallstack.
-        assign
-          b-ttCallStack.iDepth     = iDepthIP#
-          b-ttCallStack.cCallStack = replace(oExceptionIP#:CallStack, /* codeQok#7120 */
+        b-ttCallStack.cCallStack = replace(oExceptionIP#:CallStack, /* codeQok#7120 */
           ":IMPLICIT", ":IMPLICIT (AppServer Boundary on ~"" +
           &if opsys = "unix" &then
           "unix"  +
@@ -168,50 +144,34 @@ class panaedra.msroot.msutil.logic.sc_exception:
       do:
         /* We might not know the full callstack, maar we do know which api was called. codeQok#7120 */
         create b-ttCallstack.
-        assign
-          b-ttCallStack.iDepth     = iDepthIP#
-          b-ttCallStack.cCallStack = sc_showexception:GetSessionCallStack()
-          .
+        b-ttCallStack.cCallStack = sc_showexception:GetSessionCallStack().
         release b-ttCallStack.
       end.
       
       /* Fill all exceptions */
       do iNumErrorPS# = 1 to oExceptionIP#:NumMessages:
         create b-ttExceptions.
-        assign 
-          b-ttExceptions.iDepth = iDepthIP#
-          b-ttExceptions.iOrder = iNumErrorPS#
-          b-ttExceptions.iError = oExceptionIP#:GetMessageNum(iNumErrorPS#)
-          b-ttExceptions.cError = oExceptionIP#:GetMessage(iNumErrorPS#)
-          .
+        b-ttExceptions.iOrder = iNumErrorPS#.
+        b-ttExceptions.iError = oExceptionIP#:GetMessageNum(iNumErrorPS#).
+        b-ttExceptions.cError = oExceptionIP#:GetMessage(iNumErrorPS#).
       end.
       
-      oPanaedraException# = cast(oExceptionIP#, c_panaedraexception).       
-      
-      if valid-object(oPanaedraException#) and valid-object(oPanaedraException#:oInnerException) then 
-        FillTtExceptionTtCallstack_Rercusive(oPanaedraException#:oInnerException, dataset dsContext by-reference, cExtraErrorInfoIP#, iDepthIP# + 1). 
-        
+    /* ShouldHave: oInnerException */
     end. /* Valid exception object */
     
-    if not can-find(first b-ttExceptions where b-ttExceptions.iDepth = iDepthIP#) then
+    if not can-find(first b-ttExceptions) then
     do iNumErrorPS# = 1 to error-status:num-messages:
       create b-ttExceptions.
-      assign
-        b-ttExceptions.iDepth = iDepthIP#
-        b-ttExceptions.iOrder = iNumErrorPS#
-        b-ttExceptions.iError = error-status:get-number(iNumErrorPS#)
-        b-ttExceptions.cError = error-status:get-message(iNumErrorPS#)
-        .
+      b-ttExceptions.iOrder = iNumErrorPS#.
+      b-ttExceptions.iError = error-status:get-number(iNumErrorPS#).
+      b-ttExceptions.cError = error-status:get-message(iNumErrorPS#).
     end.
     
-    if not can-find(first b-ttCallstack where b-ttCallStack.iDepth = iDepthIP#) then
+    if not can-find(first b-ttCallstack) then
     do:
-      /* We might not know the full callstack, but we do know which api was called. codeQok#7120 */
+      /* We might not know the full callstack, maar we do know which api was called. codeQok#7120 */
       create b-ttCallstack.
-      assign 
-        b-ttCallStack.iDepth     = iDepthIP# 
-        b-ttCallStack.cCallStack = sc_showexception:GetSessionCallStack()
-        .
+      b-ttCallStack.cCallStack = sc_showexception:GetSessionCallStack().
       release b-ttCallStack.
     end.
         
@@ -220,20 +180,17 @@ class panaedra.msroot.msutil.logic.sc_exception:
       
       cMirror# = sc_string_csv:GetParam(cExtraErrorInfoIP#,"Mirror").
       
-      if sc_data:HasValue(cMirror#) and sc_asconnect:GetAppserver(cMirror#) <> session:handle then
+      if cMirror# > "" and sc_asconnect:GetAppserver(cMirror#) <> session:handle then
       do:
         /* This adds a final missing piece to the callstack codeQok#7120 */
         create b-ttCallstack.
-        assign 
-          b-ttCallStack.iDepth     = iDepthIP#
-          b-ttCallStack.cCallStack = sc_showexception:GetSessionCallStack()
-          .
+        b-ttCallStack.cCallStack = sc_showexception:GetSessionCallStack().
         release b-ttCallStack.
       end.
               
     end.
       
-  end method. /* FillTtExceptionTtCallstack_Rercusive */
+  end method. /* FillTtExceptionTtCallstack */
 
 
   method public static Progress.Lang.Error ReThrow (oExceptionIP# as Progress.Lang.Error, cMsgIP# as character):
@@ -319,7 +276,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
       oReturn#:AddMessage(oExceptionIP#:GetMessage(iTell#),oExceptionIP#:GetMessageNum(iTell#)).
     end.
 
-    if sc_data:HasValue(oExceptionIP#:CallStack) then oReturn#:AddMessage(oExceptionIP#:CallStack,99950005). /* codeQok#7120 */
+    if oExceptionIP#:CallStack > "" then oReturn#:AddMessage(oExceptionIP#:CallStack,99950005). /* codeQok#7120 */
     
     return oReturn#.
     
@@ -335,7 +292,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
     return 
       type-of(oExceptionIP#, c_panaedraexception) 
       and 
-      (sc_data:HasValue(cast(oExceptionIP#,c_panaedraexception):cCategoryEvent) 
+      (cast(oExceptionIP#,c_panaedraexception):cCategoryEvent > "" 
       or 
       valid-object(cast(oExceptionIP#,c_panaedraexception):oInnerException)).
       

@@ -26,7 +26,6 @@ define {&protected} {&static} temp-table tt{&ttPrefix}Exceptions{&ttSuffix} {&no
   field iOrder as int
   field iError as int
   field cError as char
-  field iDepth as int
   {&ttExtraFields}
   index iOrder is primary iOrder /* Not unique, but only to prevent exceptions within i.e. abl stop events. Is used unique. */
   {&ttExtraIndices}.

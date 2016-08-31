@@ -24,7 +24,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &class=class}
   &undefine TtAllDefined
 
-{panaedra/msroot/msdeploy/logic/tt/msdeployversion_tt.i &class=true &protected=protected &static=static}
+  {panaedra/msroot/msdeploy/logic/tt/msdeployversion_tt.i &class=true &protected=protected &static=static}
   &undefine TtAllDefined
    
   /************************  Source control constructor ************************/
@@ -35,15 +35,15 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected static variable hDsContext       as handle                         no-undo.
-  define public static    variable cPackMsDeployAsk as character                      no-undo initial "panaedra.msroot.msdeploy.pack.c_pack_msdeploy_ask". /* Can be set to a customized msdeploy 'ask' pack. */
-  define public static    variable bExceptions      as logical                        no-undo.
+  define public    static variable cPackMsDeployAsk as character                      no-undo initial "panaedra.msroot.msdeploy.pack.c_pack_msdeploy_ask". /* Can be set to a customized msdeploy 'ask' pack. */
+  define public    static variable bExceptions      as logical                        no-undo.
   
   &if opsys = "win32" and not {&paninui_tty} = true &then
   define public static    variable oMsDeployAskPack as paninui.pack.interfaces.i_pack no-undo.
   &endif
 
   define public static    property bMsDeployPackIsShown as logical no-undo get.
-    protected set.
+  protected set.
   
   
   method public static logical BeginProxyCall(dataset dsContext /* by ref */, cMirrorIP# as character):
@@ -68,7 +68,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     /* Read the ttMsDeployVersion file only at the first appserver call of the session. 
        If config changes (install) it's still not valid until reboot of the session */
     if (not can-find(first ttMsDeployVersion)) and
-      sc_config:FileExists(sc_path:cXcfgDir + "deploy_version.config")
+    sc_config:FileExists(sc_path:cXcfgDir + "deploy_version.config")
       then 
     do:
       sc_config:ReadXml(
@@ -112,8 +112,12 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   method public static void FinallyProxyCall(dataset dsContext /* by ref */, cMirrorIP# as character):
     
+    define variable bEclipseFix#         as logical              no-undo.
     define variable oApiProxyException#  as c_apiproxyexception  no-undo.
+    define variable cMessage#            as character            no-undo.
+    define variable cMessageDebug#       as character            no-undo.  
     define variable oEventBroadcastData# as i_eventbroadcastdata no-undo.
+    define variable cConnectionString#   as character no-undo.
       
     define buffer b-ttExceptions for ttExceptions.
     
@@ -122,7 +126,65 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
     if bExceptions or can-find(first b-ttExceptions) then 
     do:
       
-      oApiProxyException# = sc_apiproxyexception_logic:DeserializeDsContextToApiProxyException(dataset dsContext by-reference, cMirrorIP#).
+      do on error undo, throw:
+        
+        cConnectionString# = sc_asconnect:GetConnectionString(
+          sc_environment:cEnv,
+          cMirrorIP#,
+          sc_asconnect:GetSuffix()).
+        
+        catch oErrorPrevent# as Progress.Lang.Error :
+          cConnectionString# = "Unable to retrieve".
+        end catch.
+        
+      end.
+      
+      find first b-ttExceptions no-error.
+      
+      /* If an exception has occurred in the proxy itself */
+      if not avail b-ttExceptions then
+        sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, subst("[Mirror] &1 [CallStackLine] :MIRROR: ~"&1~" :AS-CONNECT-STRING: ~"&2~" ", cMirrorIP#, cConnectionString#)).
+      else
+      /* If an exception has occurred on an appserver, append callstack */
+      do:
+        if sc_boot:SessionParameter("UiMode") <> "AppServer" 
+          and not sc_asconnect:bInitializationError
+          and sc_asconnect:GetAppserver(cMirrorIP#) <> session:handle then
+        do:
+          sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, subst("[Mirror] &1 [CallStackLine] :MIRROR: ~"&1~" :AS-CONNECT-STRING: ~"&2~" ", cMirrorIP#, cConnectionString#)).
+        end. /* if sc_boot:SessionParameter("UiMode") <> "AppServer" */   
+      end. /* else do */    
+        
+      find first b-ttExceptions no-error.
+
+      cMessageDebug# = subst("&1 [Api/proxy exception for: '&2' -> '&3']",
+        if not avail b-ttExceptions then "Error:" else b-ttExceptions.cError,
+        program-name(4), program-name(3)).
+              
+      if avail b-ttExceptions then  
+        cMessage# = b-ttExceptions.cError.
+      else 
+        assign
+          cMessage#      = cMessageDebug#
+          cMessageDebug# = "". 
+      
+      oApiProxyException# = new c_apiproxyexception(
+        if (not avail b-ttExceptions) or 
+          (b-ttExceptions.iError = ?) or 
+          (b-ttExceptions.iError = 0) then 99909008 
+          else b-ttExceptions.iError,
+        cMessage#, 
+        dataset dsContext /* ->not<- by-reference */ ).
+      
+      &if false &then
+      message "b-ttExceptions.cError" b-ttExceptions.cError skip
+        "oApiProxyException#:NumMessages" oApiProxyException#:NumMessages skip
+        "sc_showexception:ExceptionMsgToString" sc_showexception:ExceptionMsgToString(oApiProxyException#)
+        view-as alert-box.
+      &endif
+      
+      if cMessageDebug# > "" then
+        oApiProxyException#:AddMessageSuper(cMessageDebug#, 99909009).
       
       if (not sc_environment:bBatchMode) and lookup(string( 
         oApiProxyException#:GetMessageNum(1),"99999999"), 
@@ -131,19 +193,16 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
         
         &if opsys = "win32" and not {&paninui_tty} = true &then
         
-        if valid-object(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow) then 
-        do on error undo, throw:
+        if valid-object(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow) then do on error undo, throw:
           
           bMsDeployPackIsShown = false.
           
-          if not valid-object(oMsDeployAskPack) then 
-          do:
+          if not valid-object(oMsDeployAskPack) then do:
             oMsDeployAskPack = panaedra.msroot.mspack.logic.sc_packcfg:NewPack(cPackMsDeployAsk).
             oMsDeployAskPack:LoadPack(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow, ? /* Directly on mdi */).
             oMsDeployAskPack:ShowPack().
           end.
-          else 
-          do:
+          else do:
             oMsDeployAskPack:ShowPack().
           end.
           
@@ -153,7 +212,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
             then bMsDeployPackIsShown = true.
           
           catch oError# as Progress.Lang.Error :
-            undo, throw oError#.
+            undo, throw oError#.	
           end catch.
           
           finally:
@@ -166,8 +225,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
         
       end.
       
-      if valid-object(oApiProxyException#) then 
-      do:
+      if valid-object(oApiProxyException#) then do:
         undo, throw oApiProxyException#.
       end.
       else
@@ -192,7 +250,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   end method. /* GetDefaultDsContext */
   
-  
+
   method public static void EmptyDefaultDsContext():
     
     if valid-handle(hDsContext) then 
@@ -220,6 +278,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
 
   method public static void FillDefaultDsContext(dataset dsContext /* by-reference */):
 
+    define variable bEclipseFix# as logical no-undo.
     define buffer b-ttSession for ttSession.
     
     if not can-find(b-ttSession) then
@@ -239,7 +298,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       b-ttSession.dtmDeployVersion = sc_environment:dtmDeployVersion
       .
     
-  end method. /* FillDefaultDsContext */
+  end method. /* FillDefaultDsContext */ 
 
 end class.
 

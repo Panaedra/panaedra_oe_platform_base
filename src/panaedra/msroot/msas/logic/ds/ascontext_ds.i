@@ -6,8 +6,8 @@
   Date Modified: $Modtime: 2010-01-27 16:43:33+01:00 $ 
 
     Description: Context basic tables
-                 Is used to pass serialized over AppServer boundaries.
-                 
+                 Worden gebruikt om data over appserver boundaries heen
+                 te krijgen.
 \**************************** End of Dvcs_ Header ****************************/
 &if '{&dvcs__panaedra_msroot_msas_logic_ds_ascontext_ds_i}' = '' &then
 &glob dvcs__panaedra_msroot_msas_logic_ds_ascontext_ds_i yes
@@ -49,6 +49,5 @@ define {&protected} {&static} dataset dsContext {&reference-only} for
   ttMsAsBin,
   ttMsAsVersion.
 
-&global-define RootLevelDepth 1
 
 /* EOF : panaedra/msroot/msas/logic/ds/ascontext_ds.i */
