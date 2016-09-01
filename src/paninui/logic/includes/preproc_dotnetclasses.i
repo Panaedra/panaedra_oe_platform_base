@@ -22,6 +22,7 @@
 &glob i_uiframe                            i_uiframe_tty
 &glob i_frmlogic_shortcut                  i_frmlogic_shortcut_tty
 &glob paninui.view.interfaces.             paninui.view.interfaces_tty.
+&glob eint                                 
 &else
 &glob paninui_tty                          false
 &glob System.Object                        System.Object
@@ -33,6 +34,11 @@
 &glob i_uiframe                            i_uiframe
 &glob i_frmlogic_shortcut                  paninui.logic.logicbase.c_framelogic_shortcut
 &glob paninui.view.interfaces.             paninui.view.interfaces.
+&if int(entry(1,proversion,".")) <= 11 and int(entry(2,proversion,".")) < 6 &then 
+&glob eint                                 :value__
+&else
+&glob eint                                 
+&endif
 &endif
 
 &endif /* {&dvcs__paninui_logic_includes_preproc_dotnetclasses_i} */
