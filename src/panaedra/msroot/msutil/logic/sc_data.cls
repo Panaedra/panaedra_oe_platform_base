@@ -47,6 +47,33 @@ class panaedra.msroot.msutil.logic.sc_data:
     return (iIntIP# <> ?) and (iIntIP# <> 0).
   
   end method. /* HasValue ; int64 */
+  
+  
+  method public static character DecodeBase64(
+    
+    /* Convert a base64 string to a character string */
+    
+    cDataToDecodeIP# as character
+    ):
+  
+    define variable cEncoded#    as character no-undo.
+    define variable mDecoded#    as memptr    no-undo.
+    define variable clobDecoded# as longchar  no-undo.
+    define variable cDecoded#    as character no-undo.
+
+    cEncoded# = cDataToDecodeIP#.
+ 
+    mDecoded# = base64-decode(cEncoded#).
+  
+    copy-lob from mDecoded# to clobDecoded# no-convert.
+      
+    set-size(mDecoded#) = 0.
+   
+    cDecoded# = string(clobDecoded#).
+    
+    return cDecoded#.
+    
+  end method. /* DecodeBase64 */
  
 end class.
 
