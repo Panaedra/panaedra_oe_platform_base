@@ -22,9 +22,11 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
   end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
-  define protected static variable bInitialized  as logical                              no-undo.
-  define protected static variable oSingleton    as panaedra.msroot.msas.logic.sc_asconnect no-undo.
-  define protected static variable dtmLastConfig as datetime-tz                          no-undo.
+  define protected static variable bInitialized                   as logical                              no-undo.
+  define protected static variable oSingleton                     as panaedra.msroot.msas.logic.sc_asconnect no-undo.
+  define protected static variable dtmLastConfig                  as datetime-tz                          no-undo.
+  define protected static variable bAllConnectionsToSessionHandle as logical                              no-undo.
+  
   
   define static property bOffLine as logical no-undo 
     public    get.
@@ -63,7 +65,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
         assign
           bInitializationError = true
           bInitialized         = false.
-        undo, throw oError#.	
+        undo, throw oError#.  
       end catch.
       
     end.
@@ -108,7 +110,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
         and   ttAsConnect.cMirror = cMirrorIP#
         and   ttAsConnect.cSuffix = cSuffixIP#
         no-error.
-    
+
       if not avail ttAsConnect then 
       do:
       
@@ -127,7 +129,7 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
       do: /* avail ttAsConnect */
       
         /* If something has to be run inline, inside the current session */
-        if ttAsConnect.cConnect = "[session:handle]" or ttAsConnect.hAppserver = session:handle /* Keep save for intermediate changes */ then
+        if bAllConnectionsToSessionHandle or ttAsConnect.cConnect = "[session:handle]" or ttAsConnect.hAppserver = session:handle /* Keep save for intermediate changes */ then
         do:
           ttAsConnect.hAppserver = session:handle.
         end.
@@ -393,6 +395,15 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
 
   end method. /* GetAppserverID */  
 
+  
+  method public static void AllConnectionsToSessionHandle(
+    input bAllConnectionsToSessionHandleIP# as logical
+    ):
+
+    bAllConnectionsToSessionHandle = bAllConnectionsToSessionHandleIP#. 
+  
+  end method. /* AllConnectionsToSessionHandle */
+
 
   method void OnEventBroadcast(oBroadcastDataIP# as i_eventbroadcastdata):
     
@@ -406,9 +417,10 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
             bOffLine = true.
         end case.
       
-      when "evt@SessionClose" then do:
-        DisconnectAllServers().
-      end.  
+      when "evt@SessionClose" then 
+        do:
+          DisconnectAllServers().
+        end.  
      
     end case. /* oBroadcastDataIP#:cEventName */
     
