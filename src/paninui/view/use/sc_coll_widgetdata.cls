@@ -952,6 +952,12 @@ class paninui.view.use.sc_coll_widgetdata
   end method. /* GetTtWidgetData */
   
 
+  method public static void GetTtUiFrame(
+    output table ttUiFrame):
+  
+  end method. /* GetTtUiFrame */
+  
+
   method public void OnEventBroadcast(oBroadcastDataIP# as i_eventbroadcastdata):
     
     /* Shouldhave: widgets opruimen / ontkoppelen voordat bindingsource wordt opgeruimd. */
