@@ -126,7 +126,6 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
-  
   /* Log directory */
   define public static property cLogDir as character no-undo 
     get():
@@ -211,6 +210,24 @@ class panaedra.msroot.msutil.logic.sc_path:
     get():
       if not bTtPathInitialized then TtPathInitialize().
       return cVanWanDir.
+    end get.
+    protected set.
+    
+  /* Van_CCMPNY_ directory met edi _TERM_UNDISCLOSED_ */ 
+  define public static property cVan_CCMPNY_Dir as character no-undo 
+    get():
+      if not bTtPathInitialized then 
+        TtPathInitialize().
+      return cVan_CCMPNY_Dir.
+    end get.
+    protected set.
+
+  /* Van_CLOUD_ directory met _TERM_UNDISCLOSED_s */ 
+  define public static property cVan_CLOUD_Dir as character no-undo 
+    get():
+      if not bTtPathInitialized then 
+        TtPathInitialize().
+      return cVan_CLOUD_Dir.
     end get.
     protected set.
   
@@ -450,6 +467,8 @@ class panaedra.msroot.msutil.logic.sc_path:
       cDataRecoveryDir        = FillPathProperty(GetScPathEnv(), "cDataRecoveryDir",opsys).
       cDataExchangeDir        = FillPathProperty(GetScPathEnv(), "cDataExchangeDir",opsys).
       cVanWanDir              = FillPathProperty(GetScPathEnv(), "cVanWanDir",opsys).
+      cVan_CCMPNY_Dir            = FillPathProperty(GetScPathEnv(), "cVan_CCMPNY_Dir",opsys).
+      cVan_CLOUD_Dir          = FillPathProperty(GetScPathEnv(), "cVan_CLOUD_Dir",opsys).
       cNaarWanDir             = FillPathProperty(GetScPathEnv(), "cNaarWanDir",opsys).
       cVanXmapDir             = FillPathProperty(GetScPathEnv(), "cVanXmapDir",opsys).
       cNaarXmapDir            = FillPathProperty(GetScPathEnv(), "cNaarXmapDir",opsys).
@@ -874,6 +893,8 @@ class panaedra.msroot.msutil.logic.sc_path:
     if index(cPathStringIOP#,"[:cNoSweatDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNoSweatDir:]"      ,sc_path:cNoSweatDir      ).
     if index(cPathStringIOP#,"[:cTempDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cTempDir:]"         ,sc_path:cTempDir         ).
     if index(cPathStringIOP#,"[:cVanWanDir:]"       ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanWanDir:]"       ,sc_path:cVanWanDir       ).
+    if index(cPathStringIOP#,"[:cVan_CCMPNY_Dir:]"     ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVan_CCMPNY_Dir:]"     ,sc_path:cVan_CCMPNY_Dir     ).
+    if index(cPathStringIOP#,"[:cVan_CLOUD_Dir:]"   ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVan_CLOUD_Dir:]"   ,sc_path:cVan_CLOUD_Dir   ).
     if index(cPathStringIOP#,"[:cWorkDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cWorkDir:]"         ,sc_path:cWorkDir         ).
     if index(cPathStringIOP#,"[:bLiveEnv:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:bLiveEnv:]"         ,if sc_environment:bLiveEnv then "live" else "nonlive").
     if index(cPathStringIOP#,"[:cVanXmapDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanXmapDir:]"      ,sc_path:cVanXmapDir      ).
@@ -919,6 +940,8 @@ class panaedra.msroot.msutil.logic.sc_path:
     if index(cPathStringIOP#,"[:cNoSweatDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNoSweatDir:]"      ,GetDirOfOtherEnv(cEnvIP#,"cNoSweatDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cTempDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cTempDir:]"         ,GetDirOfOtherEnv(cEnvIP#,"cTempDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cVanWanDir:]"       ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanWanDir:]"       ,GetDirOfOtherEnv(cEnvIP#,"cVanWanDir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cVan_CCMPNY_Dir:]"     ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVan_CCMPNY_Dir:]"     ,GetDirOfOtherEnv(cEnvIP#,"cVan_CCMPNY_Dir",cOpsysIP#)).
+    if index(cPathStringIOP#,"[:cVan_CLOUD_Dir:]"   ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVan_CLOUD_Dir:]"   ,GetDirOfOtherEnv(cEnvIP#,"cVan_CLOUD_Dir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cWorkDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cWorkDir:]"         ,GetDirOfOtherEnv(cEnvIP#,"cWorkDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cPclDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cPclDir:]"          ,GetDirOfOtherEnv(cEnvIP#,"cPclDir",cOpsysIP#)).
     
