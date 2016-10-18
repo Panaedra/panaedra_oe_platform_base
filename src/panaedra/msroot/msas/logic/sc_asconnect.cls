@@ -97,6 +97,8 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
 
   method protected static logical ConnectToServer(cEnvIP# as char, cMirrorIP# as char, /* Empty = default */ cSuffixIP# as char ):
     
+    define buffer b-cre-ttAsConnect for ttAsConnect.
+    
     do on error undo, throw:
     
       if not bInitialized then
@@ -113,22 +115,44 @@ class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient:
 
       if not avail ttAsConnect then 
       do:
-      
-        undo, throw new c_panaedraexception(
-          99909002,
-          sc_lang:oEnglish,
-          subst("Error: AppServer configuration on &1 (sc_asconnect&5.config) has no entry for:~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'",
-          sc_path:cIniDir,
-          cEnvIP#,
-          cMirrorIP#,
-          cSuffixIP#,
-          trim(string(sc_environment:bLiveEnv,"_live/_nonlive")))).
+        
+        if bAllConnectionsToSessionHandle then 
+        do:
+          
+          /* Create a dummy tt record */
+          create b-cre-ttAsConnect.
+          assign 
+            b-cre-ttAsConnect.cEnv    = cEnvIP#
+            b-cre-ttAsConnect.cMirror = cMirrorIP#
+            b-cre-ttAsConnect.cSuffix = cSuffixIP#.
+          release b-cre-ttAsConnect.
+          
+          /* Re-find */
+          find first ttAsConnect 
+            where ttAsConnect.cEnv    = cEnvIP#
+            and   ttAsConnect.cMirror = cMirrorIP#
+            and   ttAsConnect.cSuffix = cSuffixIP#.
+            
+        end. /* bAllConnectionsToSessionHandle */
+        
+        else 
+        do:
+          undo, throw new c_panaedraexception(
+            99909002,
+            sc_lang:oEnglish,
+            subst("Error: AppServer configuration on &1 (sc_asconnect&5.config) has no entry for:~nEnv: '&2'~nMirror: '&3'~nSuffix: '&4'",
+            sc_path:cIniDir,
+            cEnvIP#,
+            cMirrorIP#,
+            cSuffixIP#,
+            trim(string(sc_environment:bLiveEnv,"_live/_nonlive")))).
+        end.
         
       end. 
       else 
       do: /* avail ttAsConnect */
       
-        /* If something has to be run inline, inside the current session */
+        /* If *everything* or a specific ttAsConnect line has to be run inline, inside the current session */
         if bAllConnectionsToSessionHandle or ttAsConnect.cConnect = "[session:handle]" or ttAsConnect.hAppserver = session:handle /* Keep save for intermediate changes */ then
         do:
           ttAsConnect.hAppserver = session:handle.
