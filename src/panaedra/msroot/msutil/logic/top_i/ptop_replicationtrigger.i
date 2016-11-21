@@ -1,46 +1,43 @@
 /******************************  Source Control Header ********************************\
-       Filename: $Archive:  $ 
-        Version: $Revision:  $ 
-     Programmer: $Author: $ 
-   Date Checkin: $Date:  $ 
-  Date Modified: $Modtime:  $ 
 
     Description: Include to be used at the top of each replication trigger procedure.
 
-\**************************** End of Source Control Header ****************************/
-/******************************* $NoKeywords:  $ **************************************/
+******************************** $NoKeywords:  $ **************************************/
 
 &if "{&_panaedra_msroot_msutil_logic_top_i_ptop_replicationtrigger_i}" = "" &then
 
 routine-level on error undo, throw.
 
-/* Switch HqtActive to false before commit */
+/* HQ Timestamps: Switch HqtActive to false before commit */
 {panaedra/msroot/msutil/logic/sc_mshqtimestamp_active.i}
-
 {panaedra/msroot/msutil/logic/sc_mshqtimestamp_pp.i}
 
+/* Default of DisableReplForSomeDevelopers is now "false". Reason: since 2016Q4, all environments are _CLOUD_ replication enabled. */
+&glob DisableReplForSomeDevelopers false
 
-&glob _TOOLING_ReplicationEnabled false
+if (opsys = "win32")
+  &if {&DisableReplForSomeDevelopers} = true &then
+  /* Python support is not yet implemented in windows fully. For testing/debugging, allow non live procedures to proceed in this preprocessor mode. */
+  and (not panaedra.msroot.msutil.logic.sc_environment:bLiveEnv)
+  &endif
+  then
+  return.
 
-&if not {&_TOOLING_ReplicationEnabled} &then
-
-if (not panaedra.msroot.msutil.logic.sc_environment:bLiveEnv) and (opsys = "win32") then 
-  return. /* Python support is not yet implemented in windows. For testing/debugging, allow non live procedures to proceed. */
-
+&if {&DisableReplForSomeDevelopers} = true &then
 /* Live environment: _TOOLING_ always active */
 if panaedra.msroot.msutil.logic.sc_environment:bLiveEnv
-  or 
+  or
   /* Tst environment: replication active for automatic unit tests (no DevToken) */
   (panaedra.msroot.msutil.logic.sc_environment:cEnv = "tst" and trim(subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#"))," ?") = "") 
-  or 
+  or
   /* testT DevToken: _TOOLING_ always active (testT has own endpoint) */
-  (subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*testT*") 
-  or 
+  (subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*testT*")
+  or
   /* testA DevToken: replication active for _PPL_UNDISCLOSED_, pub (testA uses no-devtoken endpoint) */
-  (sc_environment:cEnv = "pub" and subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*testA*") 
+  (sc_environment:cEnv = "pub" and subst("&1 &2", os-getenv("DlcTest_"), os-getenv("test#")) matches "*testA*")
   then.   /* Do nothing -> Continue with replication trigger */
-else 
-  return. /* Don't disturb other developers */ 
+else
+  return. /* Don't disturb other developers */
 &endif
 
 &endif
