@@ -49,6 +49,13 @@ class panaedra.msroot.msutil.logic.sc_data:
   end method. /* HasValue ; int64 */
   
   
+  method public static logical IsTrue(bBoolIP# as logical):
+  
+    return (bBoolIP# <> ?) and (bBoolIP# = true).
+  
+  end method. /* IsTrue ; logical */
+  
+  
   method public static character DecodeBase64(
     
     /* Convert a base64 string to a character string */
