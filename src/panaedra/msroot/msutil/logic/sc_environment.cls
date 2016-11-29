@@ -1017,6 +1017,25 @@ class panaedra.msroot.msutil.logic.sc_environment:
   end method. /* SetUnittestRunning */
   
   
+  method public static void _sys_SetUnittestRunning(
+  
+    /* Set bUnittestRunning to a new value. Changes (a.o.) INI value read to in-memory instead of from os-file.
+     * Note: this _sys_ method should not be called from custom logic.
+     */
+    
+    bValueIP#          as logical):
+      
+    if sc_environment:bLiveEnv then
+      undo, throw new c_panaedraexception(
+        99927886,
+        sc_lang:oEnglish,
+        "Calling this method is not allowed in live environments.").
+    
+    bUnittestRunning = bValueIP#.
+    
+  end method. /* _sys_SetUnittestRunning */
+  
+  
   @panaedraannotation file(unittest="yes").
   method public static void CallPythonpathSet(
   

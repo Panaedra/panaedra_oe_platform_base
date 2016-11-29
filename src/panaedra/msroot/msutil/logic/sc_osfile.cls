@@ -542,6 +542,34 @@ class panaedra.msroot.msutil.logic.sc_osfile
     return StripInvalidChars(cNameIP#, if bStripAllIP# then "/~\: " else "").
         
   end method. /* StripInvalidChars */
+
+
+  method public static character _sys_GetIniValue(
+
+    /* Read values from INI files.
+     * Note: the INI file must end with a linefeed.
+     * Note: this _sys_ version does not respect sc_environment:bUnittestRunning, and always gets the INI value from os-file (!!!)
+     */
+    
+    cIniIP#     as character, 
+    cSectionIP# as character, 
+    cVarIP#     as character):
+      
+    define variable bUnittestRunning# as logical no-undo.
+
+    if not sc_environment:bLiveEnv then do:
+      bUnittestRunning# = sc_environment:bUnittestRunning. 
+      sc_environment:_sys_SetUnittestRunning(false).
+    end.   
+    
+    return GetIniValue(cIniIP#, cSectionIP#, cVarIP#).
+    
+    finally:
+      if not sc_environment:bLiveEnv then
+        sc_environment:_sys_SetUnittestRunning(bUnittestRunning#).   
+    end finally.
+  
+  end method. /* _sys_GetIniValue */
   
 
   method public static character GetIniValue(
