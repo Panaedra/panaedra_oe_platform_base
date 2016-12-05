@@ -8,13 +8,6 @@
 
 routine-level on error undo, throw.
 
-if panaedra.msroot.msutil.logic.sc_environment:cEnv = "pub" then
-  undo, throw new c_panaedraexception(
-    99971823,
-    sc_lang:oEnglish,
-    "In pub, no changes to replicated tables are allowed because of _TOOLING_ testing _PPL_UNDISCLOSED_: '&1'"
-    ).
-
 /* HQ Timestamps: Switch HqtActive to false before commit */
 {panaedra/msroot/msutil/logic/sc_mshqtimestamp_active.i}
 {panaedra/msroot/msutil/logic/sc_mshqtimestamp_pp.i}
