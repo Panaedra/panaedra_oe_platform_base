@@ -8,23 +8,13 @@ using panaedra.msroot.msdeploy.logic.*.
 
 class panaedra.msroot.msutil.logic.sc_environment:
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_environment.cls $ 
-          Version: $Revision: 13 $ 
-       Programmer: $Author: $
-     Date Checkin: $Date: 2010-07-13 10:55:04+02:00 $ 
-    Date Modified: $Modtime: 2010-07-13 10:51:58+02:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Get session and environment information, like pid (process id).
 
   \*****************************  Include Files ********************************/
 {panaedra/msroot/msutil/logic/ds/msenvironment_ds.i &class=class &protected=protected &static=static}
 {panaedra/msroot/msutil/logic/sc_environment_sub.i &class=class}
-  /************************  Source control constructor ************************/
-  constructor public sc_environment(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   constructor protected sc_environment(
@@ -36,6 +26,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
   
   define protected static variable bSessionGuidSet as logical   no-undo.
   define protected static variable cBootProcedure  as character no-undo.
+  define protected static variable iProcessID      as integer   no-undo initial ?.
   define public static    variable bDebugLogAsync  as logical   no-undo.
   define public static    variable oLog            as i_log     no-undo.
   define public static    variable cRemoteUserID   as character no-undo.
@@ -454,72 +445,81 @@ class panaedra.msroot.msutil.logic.sc_environment:
   
   method public static integer GetProcessID():
     
-    &if opsys = "win32" &then
+    define variable iReturn# as integer no-undo.
     
-    return sc_msprocess_win32:GetProcessID().
-    
-    &else
-    
-    &if {&paninui_tty} &then
- 
-    define variable cParent# as character no-undo.
-    define variable cTempID# as character no-undo.
-    define variable cLine#   as character no-undo.
-    define variable iReturn# as integer   no-undo.
-        
-    &if opsys = "unix" &then
-    
-    {panaedra/msroot/msutil/logic/sc_unix_set_libpath.i}
-    
-    if
-      /* Do it the old way on the 'old' _SRVR_ server.   New server is called '_SRVR_'.  codeQok#7110 */ 
-      GetHostName() = "_SRVR_" or                                                       /* codeQok#7110 */
-      /* Do it the old way on the 'old' _PRODUCT_ server. New server is called 'srv-_PRODUCT_' codeQok#7110 */ 
-      GetHostName() = "_PRODUCT_" or                                                     /* codeQok#7110 */
-      /* Do it the old way if our python library is not present                          codeQok#7110 */
-      search({&UnixGetPidLib}) = ? 
-      then 
+    if not sc_data:HasValue(iProcessID) then 
     do:
+    
+      &if opsys = "win32" &then
       
-      /* Do it the old way that does not work 100 percent OK all the time */
+      iReturn# = sc_msprocess_win32:GetProcessID().
+      if sc_data:HasValue(iReturn#) then iProcessID = iReturn#.
       
-      cTempID# = "$A" + replace(guid,"-","").
+      &else
+      
+      &if {&paninui_tty} &then
    
-      input through value("ps -ef | grep $$ " + cTempID#).
-   
-      repeat on error undo, throw:
-        import unformatted cLine#. /* codeQok#7126 -> fail */
-        if cLine# matches "*grep $$ " + cTempID# + "*" then
-        do:
-          /* Get the parent process id from the temporary shell/fork */
-          cParent# = substring(cLine#,18,7).
-          leave.
+      define variable cParent# as character no-undo.
+      define variable cTempID# as character no-undo.
+      define variable cLine#   as character no-undo.
+          
+      &if opsys = "unix" &then
+      
+      {panaedra/msroot/msutil/logic/sc_unix_set_libpath.i}
+      
+      if
+        /* Do it the old way on the 'old' _SRVR_ server.   New server is called '_SRVR_'.  codeQok#7110 */ 
+        GetHostName() = "_SRVR_" or                                                       /* codeQok#7110 */
+        /* Do it the old way on the 'old' _PRODUCT_ server. New server is called 'srv-_PRODUCT_' codeQok#7110 */ 
+        GetHostName() = "_PRODUCT_" or                                                     /* codeQok#7110 */
+        /* Do it the old way if our python library is not present                          codeQok#7110 */
+        search({&UnixGetPidLib}) = ? 
+        then 
+      do:
+        
+        /* Do it the old way that does not work 100 percent OK all the time */
+        
+        cTempID# = "$A" + replace(guid,"-","").
+     
+        input through value("ps -ef | grep $$ " + cTempID#).
+     
+        repeat on error undo, throw:
+          import unformatted cLine#. /* codeQok#7126 -> fail */
+          if cLine# matches "*grep $$ " + cTempID# + "*" then
+          do:
+            /* Get the parent process id from the temporary shell/fork */
+            cParent# = substring(cLine#,18,7).
+            leave.
+          end.
         end.
+        
+        iReturn# = integer(cParent#).
+        if sc_data:HasValue(iReturn#) then iProcessID = iReturn#.
+        
+      end.
+      else 
+      do:
+        
+        /* Do it the new way that does work 100 percent OK, but is dependent on a custom dll/shared object. */
+        
+        run panaedra/msroot/msutil/logic/sc_environment_sub_unix_getpid.p (output iReturn#).
+        if sc_data:HasValue(iReturn#) then iProcessID = iReturn#.
+        
       end.
       
-      iReturn# = integer(cParent#).
+      &else
       
+      /* ShouldHave: processid for win32 tty */
+      
+      &endif /* unix only */
+     
+      &endif
+      
+      &endif
+    
     end.
-    else 
-    do:
-      
-      /* Do it the new way that does work 100 percent OK, but is dependent on a custom dll/shared object. */
-      
-      run panaedra/msroot/msutil/logic/sc_environment_sub_unix_getpid.p (output iReturn#).
-      
-    end.
     
-    &else
-    
-    /* ShouldHave: processid for win32 tty */
-    
-    &endif /* unix only */
-   
-    return iReturn#. 
-
-    &endif
-    
-    &endif
+    return iProcessID.
     
   end method. /* GetProcessID */
 
