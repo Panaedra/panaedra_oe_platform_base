@@ -1921,7 +1921,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
   end method. /* HasGenericBinaryExtension */
   
 
-  method public static void CreateFileAndAttributes(
+  method private static void CreateFileAndAttributes(
     buffer b-ttFile for ttFile,
     dtmModificationDatetimeIP# as datetime-tz
     ):
