@@ -16,6 +16,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
       Description: Os-file functionality, replaces lib/osfilelib.p eventually.
 
   \*****************************  Include Files ********************************/
+  {panaedra/msroot/msutil/logic/tt/sc_osfile_and_attributes_tt.i &static=static &reference-only=reference-only &protected=protected &no-undo=no-undo &rcode-information=rcode-information}  
 
   /************************  Source control constructor ************************/
   constructor protected sc_osfile(
@@ -26,7 +27,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
     panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
   end constructor.
-  
+
   /******************************* $NoKeywords:  $ *****************************/
 
   define stream s-alg-in.
@@ -69,7 +70,6 @@ class panaedra.msroot.msutil.logic.sc_osfile
          
   end constructor.
 
-
   constructor static sc_osfile():
     
     /* This statement can only be in the static constructor. Reason: the first called method could be a by-reference call. */
@@ -95,7 +95,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     if temp-table ttFile:handle = hTtFileNative then
       empty temp-table ttFile.
     
-    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmDummy#, dtmDummy#, bRecursiveIP#).
+    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmDummy#, dtmDummy#, bRecursiveIP#, false).
     
     DeleteFiles(table ttFile by-reference).
             
@@ -299,9 +299,26 @@ class panaedra.msroot.msutil.logic.sc_osfile
     if temp-table ttFile:handle = hTtFileNative then
       empty temp-table ttFile.
     
-    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmDummy#, dtmDummy#, bRecursiveIP#).
+    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmDummy#, dtmDummy#, bRecursiveIP#, false).
     
   end method. /* GetFileNamesInDirectory */
+
+
+  method static public void GetFileNamesInDirectory(    
+    input  cDirIP#       as character, 
+    input  cMatchesIP#   as character,
+    input  bRecursiveIP# as logical,
+    output table for ttFileAndAttributes
+    ):
+
+    define variable dtmDummy# as datetime-tz no-undo.
+    
+    if temp-table ttFile:handle = hTtFileNative then
+      empty temp-table ttFile.
+    
+    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmDummy#, dtmDummy#, bRecursiveIP#, true).
+
+  end method. /* Overload output table for ttFileAndAttributes */
 
 
   method static public void GetFileNamesInDirectory(    
@@ -312,13 +329,30 @@ class panaedra.msroot.msutil.logic.sc_osfile
     input  bRecursiveIP# as logical,
     output table for ttFile
     ):
-    
+
     if temp-table ttFile:handle = hTtFileNative then
       empty temp-table ttFile.
     
-    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmFromIP#, dtmToIP#, bRecursiveIP#).
+    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmFromIP#, dtmToIP#, bRecursiveIP#, false).
     
   end method. /* Overload: filter on mod-date range */
+
+
+  method static public void GetFileNamesInDirectory(    
+    input  cDirIP#       as character, 
+    input  cMatchesIP#   as character,
+    input  dtmFromIP#    as datetime-tz,
+    input  dtmToIP#      as datetime-tz,
+    input  bRecursiveIP# as logical,
+    output table for ttFileAndAttributes
+    ):
+
+    if temp-table ttFile:handle = hTtFileNative then
+      empty temp-table ttFile.
+    
+    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmFromIP#, dtmToIP#, bRecursiveIP#, true).
+
+  end method. /* Overload: filter on mod-date range en output table for ttFileAndAttributes*/
   
   
   method public static void GetFileNamesInDirectory(
@@ -341,17 +375,18 @@ class panaedra.msroot.msutil.logic.sc_osfile
       dtmTo#   = panaedra.msroot.msutil.logic.sc_date_timestamp:GetEndOfDay(dtDateIP#)
       .
     
-    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmFrom#, dtmTo#, bRecursiveIP#).
+    GetFileNamesInDirectorySub(cDirIP#, cMatchesIP#, dtmFrom#, dtmTo#, bRecursiveIP#, false).
       
   end method.
 
 
   method protected static void GetFileNamesInDirectorySub(
-    input cDirIP#       as character, 
-    input cMatchesIP#   as character,
-    input dtmFromIP#    as datetime-tz,
-    input dtmToIP#      as datetime-tz,
-    input bRecursiveIP# as logical
+    input cDirIP#                       as character, 
+    input cMatchesIP#                   as character,
+    input dtmFromIP#                    as datetime-tz,
+    input dtmToIP#                      as datetime-tz,
+    input bRecursiveIP#                 as logical,
+    input bAskedForFileAndAttributesIP# as logical
     ):
 
     define variable cLine#        as char          no-undo extent 3.
@@ -360,7 +395,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     define variable iTell#        as integer       no-undo.
     define variable cMatch#       as character     no-undo.
     define variable iSaveLastkey# as integer       no-undo.
-     
+    
     iSaveLastkey# = lastkey. /* Remember the lastkey code */ 
     
     oStream# = new c_file_stream().
@@ -383,6 +418,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
           if dtmFromIP# <> ? and dtmFile# < dtmFromIP# then next b_repeat_osdir.
           if dtmToIP#   <> ? and dtmFile# > dtmToIP#   then next b_repeat_osdir.
         end.
+
         if num-entries(cMatchesIP#) > 1 then 
         do iTell# = 1 to num-entries(cMatchesIP#):
           cMatch# = entry(iTell#,cMatchesIP#).
@@ -391,6 +427,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
             create ttFile.
             assign 
               ttFile.cFullPath = cLine#[2].
+            if bAskedForFileAndAttributesIP# then 
+              CreateFileAndAttributes(buffer ttFile, dtmFile#).
           end.
         end.
         else 
@@ -400,13 +438,15 @@ class panaedra.msroot.msutil.logic.sc_osfile
             create ttFile.
             assign 
               ttFile.cFullPath = cLine#[2].
+            if bAskedForFileAndAttributesIP# then 
+              CreateFileAndAttributes(buffer ttFile, dtmFile#).
           end.
         end.
-      end.
+      end.  
       else if cLine#[3] begins "D" then 
         do:
           if bRecursiveIP# then 
-            GetFileNamesInDirectorySub(cLine#[2], cMatchesIP#, dtmFromIP#, dtmToIP#, bRecursiveIP#).
+            GetFileNamesInDirectorySub(cLine#[2], cMatchesIP#, dtmFromIP#, dtmToIP#, bRecursiveIP#, bAskedForFileAndAttributesIP#).
         end.
     end.
    
@@ -481,7 +521,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
   method public static void RegisterTempFile( 
     /* If you have your own temp file that can't be deleted immediately, register it with this method.
        At the end of the session, it will be removed (if it isn't locked by another process).
-       
+         
        Important note: consider using DeleteFileExpire, that approach is cross-session and more robust.
     */
      
@@ -557,7 +597,8 @@ class panaedra.msroot.msutil.logic.sc_osfile
       
     define variable bUnittestRunning# as logical no-undo.
 
-    if not sc_environment:bLiveEnv then do:
+    if not sc_environment:bLiveEnv then 
+    do:
       bUnittestRunning# = sc_environment:bUnittestRunning. 
       sc_environment:_sys_SetUnittestRunning(false).
     end.   
@@ -1309,29 +1350,29 @@ class panaedra.msroot.msutil.logic.sc_osfile
     /* Mark a file to delete after the supplied datetime expires.
        Filename is written (full-path) to export file "expire_*.d" in "cLocalIniDir/sysref/del/".
        Deletion of files is (if in use) retried in subsequent sessions.
-       
+         
        At session-close, delete is attempted.
        If succesfull (or file is missing), record line of tempfile is deleted.
-       
+         
        If not succesfull, record line stays.
        On next session-close (other session with same cLocalIniDir), delete is attempted again.
-       
+         
        Details:
        ========
-       
+         
        Concurrency is handled like this:
-       
+         
        FileDeleteExpire always writes to "expire_YYYYMMDD_hhmmssfff_<sessionguid>_lock.d".
        Timestamp in filename is "now", not dtmExpireIP#.
        The cumulative file is renamed with current "now" on each write.
        (dtmExpireIP# is inside file, first entry per line)
-       
+         
        At session-close, the session tries to delete its own temporary files.
        If (partly) unsuccessfull, the _lock part is stripped from the filename.
        All files of other sessions, older than 10 seconds, without _lock part, are also processed.
-       
+         
        In final catch (unexpected errors), the _lock part of this session's own file is stripped (with empty sub-catch).
-       
+         
      */
      
     cFileNameIP# as character,    /* example:  /mypath/myfile , or C:\MyPath\myfile.tmp */
@@ -1824,7 +1865,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
     
     /* Check if the file has a commonly used binary extension, like "zip" or "jpg".
        The file does not have to exist.
-       
+         
        Note: This function can never cover all scenario's, only use as a presumption.
      */
     
@@ -1878,6 +1919,24 @@ class panaedra.msroot.msutil.logic.sc_osfile
     return bRet#.       
       
   end method. /* HasGenericBinaryExtension */
+  
+
+  method public static void CreateFileAndAttributes(
+    buffer b-ttFile for ttFile,
+    dtmModificationDatetimeIP# as datetime-tz
+    ):
+
+    define buffer b-ttFileAndAttributes for ttFileAndAttributes.
+
+    create b-ttFileAndAttributes.
+    buffer-copy b-ttFile to b-ttFileAndAttributes
+      assign 
+      b-ttFileAndAttributes.dtmModificationDatetime = dtmModificationDatetimeIP#.
+    
+    sc_dbtrig:OnWriteOrCreate(buffer b-ttFileAndAttributes:handle).
+  
+  end method. /* CreateFileAndAttributes */
+  
 
 end class.
 
