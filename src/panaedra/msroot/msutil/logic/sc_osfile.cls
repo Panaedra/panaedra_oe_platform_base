@@ -16,7 +16,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
       Description: Os-file functionality, replaces lib/osfilelib.p eventually.
 
   \*****************************  Include Files ********************************/
-  {panaedra/msroot/msutil/logic/tt/sc_osfile_and_attributes_tt.i &static=static &reference-only=reference-only &protected=protected &no-undo=no-undo &rcode-information=rcode-information}  
+  {panaedra/msroot/msutil/logic/tt/file_and_attributes_tt.i &static=static &reference-only=reference-only &protected=protected}  
 
   /************************  Source control constructor ************************/
   constructor protected sc_osfile(
@@ -424,22 +424,20 @@ class panaedra.msroot.msutil.logic.sc_osfile
           cMatch# = entry(iTell#,cMatchesIP#).
           if entry(num-entries(cLine#[2],"/"),cLine#[2],"/") matches cMatch# then 
           do:
-            create ttFile.
-            assign 
-              ttFile.cFullPath = cLine#[2].
-            if bAskedForFileAndAttributesIP# then 
-              CreateFileAndAttributes(buffer ttFile, dtmFile#).
+            if bAskedForFileAndAttributesIP# then  
+              CreateFileAndAttributes(cLine#[2], dtmFile#).
+            else   
+              CreateFile(cLine#[2]).
           end.
         end.
         else 
         do:
           if cMatchesIP# = ? or cMatchesIP# = "" or entry(num-entries(cLine#[2],"/"),cLine#[2],"/") matches cMatchesIP# then 
           do:
-            create ttFile.
-            assign 
-              ttFile.cFullPath = cLine#[2].
-            if bAskedForFileAndAttributesIP# then 
-              CreateFileAndAttributes(buffer ttFile, dtmFile#).
+            if bAskedForFileAndAttributesIP# then  
+              CreateFileAndAttributes(cLine#[2], dtmFile#).
+            else   
+              CreateFile(cLine#[2]).
           end.
         end.
       end.  
@@ -1921,20 +1919,31 @@ class panaedra.msroot.msutil.logic.sc_osfile
   end method. /* HasGenericBinaryExtension */
   
 
+  method private static void CreateFile(
+    cFullPathIP# as character
+    ):
+
+    define buffer b-ttFile for ttFile.
+
+    create b-ttFile.
+    assign 
+      b-ttFile.cFullPath = cFullPathIP#.
+  
+  end method. /* CreateFile */
+
+
   method private static void CreateFileAndAttributes(
-    buffer b-ttFile for ttFile,
+    cFullPathIP# as character,
     dtmModificationDatetimeIP# as datetime-tz
     ):
 
     define buffer b-ttFileAndAttributes for ttFileAndAttributes.
 
     create b-ttFileAndAttributes.
-    buffer-copy b-ttFile to b-ttFileAndAttributes
-      assign 
+    assign 
+      b-ttFileAndAttributes.cFullPath               = cFullPathIP#
       b-ttFileAndAttributes.dtmModificationDatetime = dtmModificationDatetimeIP#.
     
-    sc_dbtrig:OnWriteOrCreate(buffer b-ttFileAndAttributes:handle).
-  
   end method. /* CreateFileAndAttributes */
   
 
