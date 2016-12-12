@@ -69,8 +69,10 @@ interface panaedra.msroot.msutil.interfaces.i_log:
   /* write a error message */
   method public void WriteError(cMessage# as character).
   method public void WriteErrorLn(cMessage# as character).
-  method public void WriteException(oExepctionIP# as Progress.Lang.Error).
-  method public void WriteException(oExepctionIP# as Progress.Lang.Error,cExtraTextIP# as character).
+  method public void WriteException(oExceptionIP# as Progress.Lang.Error).
+  method public void WriteException(oExceptionIP# as Progress.Lang.Error, cExtraTextIP# as character).
+  method public void WriteExceptionAsInfo(oExceptionIP# as Progress.Lang.Error).
+  method public void WriteExceptionAsInfo(oExceptionIP# as Progress.Lang.Error, cExtraTextIP# as character).
   
   method public void WriteMissingData(hBufferIP# as handle,  cSvKeyValuesIP# as character).
   
