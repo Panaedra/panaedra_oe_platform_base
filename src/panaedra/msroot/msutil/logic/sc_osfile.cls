@@ -410,7 +410,7 @@ class panaedra.msroot.msutil.logic.sc_osfile
       if cLine#[1] = ".." then next b_repeat_osdir.
       if cLine#[3] begins "F" then 
       do:
-        if dtmFromIP# <> ? or dtmToIP# <> ? then 
+        if dtmFromIP# <> ? or dtmToIP# <> ? or bAskedForFileAndAttributesIP# then 
         do:
           file-info:file-name = cLine#[2].
           if file-info:file-mod-date = ? then next b_repeat_osdir.
