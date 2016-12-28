@@ -528,6 +528,22 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   end method. /* IsLastDayOfMonth */
   
   
+  method public static character GetDateMMDDCCYY(
+    
+    /* Returns an character in MM-DD-CCYY format; with specified seperator */
+  
+    dtmInputIP# as datetime-tz, 
+    cSepIP#     as character):
+
+    return string(month(dtmInputIP#), "99")
+      + cSepIP#
+      + string(day(dtmInputIP#), "99")
+      + cSepIP#
+      + string(year(dtmInputIP#), "9999")
+      .
+  
+  end method. /* GetDateMMDDCCYY */
+  
 end class.
 
 /* EOF */ 
