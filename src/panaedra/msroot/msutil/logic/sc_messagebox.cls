@@ -49,6 +49,34 @@ class panaedra.msroot.msutil.logic.sc_messagebox
     end get.
     set.
   
+  /* Defining this in the actual method causes a system error: memory violation.  */
+  def var cMsg# as char
+    view-as editor no-box
+    size 63 by 4.
+       
+  define button btnOk# auto-go 
+    label "&OK" 
+    size 15 by 1.14
+    bgcolor ? .
+
+  define button btnInfo# 
+    label "&Info" 
+    size 15 by 1.14
+    bgcolor ? .
+  
+  define frame frmMsgBox
+    cMsg#  at row 1.24 col 2 no-label
+    skip(0.1)
+    btnOk#   at row 5.29 col 26
+    btnInfo# at row 5.29 col 46 
+    skip(0.1)
+    with view-as dialog-box keep-tab-order 
+    side-labels no-underline three-d  scrollable 
+    title "Progress"
+    default-button btnOk#.
+  /* END - Defining this in the actual method causes a system error: memory violation.  */        
+  
+  
   constructor protected sc_messagebox 
     
     /* This constructor is for the MsgBox functionality only.
@@ -378,9 +406,9 @@ class panaedra.msroot.msutil.logic.sc_messagebox
       cMsg# = substitute("Inhoud buffer &1:", hBufferIP#:name).
   
       if hBufferIP#:available then  
-        do iTel# = 1 to hBufferIP#:num-fields:
-          cMsg# = cMsg# + substitute("~n&1: &2", hBufferIP#:buffer-field(iTel#):name, hBufferIP#:buffer-field(iTel#):buffer-value).  
-        end.    
+      do iTel# = 1 to hBufferIP#:num-fields:
+        cMsg# = cMsg# + substitute("~n&1: &2", hBufferIP#:buffer-field(iTel#):name, hBufferIP#:buffer-field(iTel#):buffer-value).  
+      end.    
       
       else
         cMsg# = cMsg# + "~nnot available".
@@ -438,31 +466,6 @@ class panaedra.msroot.msutil.logic.sc_messagebox
       return.
     end.  
   
-    def var cMsg# as char
-      view-as editor no-box
-      size 63 by 4.
-       
-    define button btnOk# auto-go 
-      label "&OK" 
-      size 15 by 1.14
-      bgcolor ? .
-
-    define button btnInfo# 
-      label "&Info" 
-      size 15 by 1.14
-      bgcolor ? .
-  
-    define frame frmMsgBox
-      cMsg#  at row 1.24 col 2 no-label
-      skip(0.1)
-      btnOk#   at row 5.29 col 26
-      btnInfo# at row 5.29 col 46 
-      skip(0.1)
-      with view-as dialog-box keep-tab-order 
-      side-labels no-underline three-d  scrollable 
-      title "Progress"
-      default-button btnOk#.
-      
     assign 
       frame frmMsgBox:scrollable         = no
       frame frmMsgBox:hidden             = yes
