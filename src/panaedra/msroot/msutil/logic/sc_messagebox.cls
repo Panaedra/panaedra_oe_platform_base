@@ -50,30 +50,30 @@ class panaedra.msroot.msutil.logic.sc_messagebox
     set.
   
   /* Defining this in the actual method causes a system error: memory violation.  */
-  def var cMsg# as char
+  define private variable cMsg as char
     view-as editor no-box
     size 63 by 4.
        
-  define button btnOk# auto-go 
-    label "&OK" 
+  define private button btnOk auto-go 
+    label "&OK"
     size 15 by 1.14
     bgcolor ? .
 
-  define button btnInfo# 
+  define private button btnInfo 
     label "&Info" 
     size 15 by 1.14
     bgcolor ? .
   
-  define frame frmMsgBox
-    cMsg#  at row 1.24 col 2 no-label
+  define private frame frmMsgBox
+    cMsg  at row 1.24 col 2 no-label
     skip(0.1)
-    btnOk#   at row 5.29 col 26
-    btnInfo# at row 5.29 col 46 
+    btnOk   at row 5.29 col 26
+    btnInfo at row 5.29 col 46 
     skip(0.1)
     with view-as dialog-box keep-tab-order 
     side-labels no-underline three-d  scrollable 
     title "Progress"
-    default-button btnOk#.
+    default-button btnOk.
   /* END - Defining this in the actual method causes a system error: memory violation.  */        
   
   
@@ -469,9 +469,9 @@ class panaedra.msroot.msutil.logic.sc_messagebox
     assign 
       frame frmMsgBox:scrollable         = no
       frame frmMsgBox:hidden             = yes
-      btnInfo#:hidden in frame frmMsgBox = (not session:debug-alert)
+      btnInfo:hidden in frame frmMsgBox = (not session:debug-alert)
       &if opsys = "win32" &then
-      cMsg#:read-only in frame frmMsgBox = if session:window-system = "tty" then no else yes
+      cMsg:read-only in frame frmMsgBox = if session:window-system = "tty" then no else yes
       &endif
       .
       
@@ -481,17 +481,17 @@ class panaedra.msroot.msutil.logic.sc_messagebox
         frame frmMsgBox:row    = 3
         frame frmMsgBox:column = 8
         frame frmMsgBox:height = frame frmMsgBox:height + 12
-        cMsg#:height           = cMsg#:height + 12
-        btnOk#:row             = btnOk#:row   + 12
-        btnInfo#:row           = btnInfo#:row + 12.
+        cMsg:height           = cMsg:height + 12
+        btnOk:row             = btnOk:row   + 12
+        btnInfo:row           = btnInfo:row + 12.
     end. 
   
     &if "{&window-system}" = "tty" &then
-    on tab of btnInfo# 
+    on tab of btnInfo 
       do:
-        cMsg#:read-only in frame frmMsgBox = yes.
-        cMsg#:sensitive in frame frmMsgBox = yes.
-        apply "entry" to cMsg#.
+        cMsg:read-only in frame frmMsgBox = yes.
+        cMsg:sensitive in frame frmMsgBox = yes.
+        apply "entry" to cMsg.
         return no-apply.
       end.
     &endif
@@ -501,7 +501,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
         apply "end-error":u to self.
       end.
   
-    on choose of btnInfo# oSingleton:{&msgStack}
+    on choose of btnInfo oSingleton:{&msgStack}
   
     /* parent the dialog-box */
     frame frmMsgBox:parent = hAblWindow.
@@ -509,23 +509,23 @@ class panaedra.msroot.msutil.logic.sc_messagebox
   
     msg-block:
     do on error   undo msg-block, leave msg-block:
-      cMsg# = cMsgIP#.     
+      cMsg = cMsgIP#.     
       enable_block:
       do:
-        display cMsg# 
+        display cMsg 
           with frame frmMsgBox.
-        enable cMsg# 
+        enable cMsg 
           when session:window-system <> "tty"
-          btnInfo# 
+          btnInfo 
           when (session:debug-alert)
-          btnOk# 
+          btnOk 
           with frame frmMsgBox.
         frame frmMsgBox:title = frame frmMsgBox:title + " " + string(time,"hh:mm:ss") + "." + string(etime mod 1000,"999").
         if session:window-system = "tty"
           then frame frmMsgBox:title = " " + frame frmMsgBox:title + " ".
         view frame frmMsgBox.
       end.
-      wait-for go of frame frmMsgBox focus btnOk#.
+      wait-for go of frame frmMsgBox focus btnOk.
     end.
 
     hide frame frmMsgBox no-pause.
