@@ -42,15 +42,21 @@ class panaedra.msroot.msutil.logic.sc_messagebox
     at col 1 row 1
     size 44.8 by 7.43.
 
-  define protected static property oSingleton as panaedra.msroot.msutil.logic.sc_messagebox no-undo
+  define protected static property oSingleton01 as panaedra.msroot.msutil.logic.sc_messagebox no-undo
     get:
-      if oSingleton = ? then oSingleton = new panaedra.msroot.msutil.logic.sc_messagebox().
-      return oSingleton.
+      if oSingleton01 = ? then oSingleton01 = new panaedra.msroot.msutil.logic.sc_messagebox(false).
+      return oSingleton01.
     end get.
     set.
   
-  /* Defining this in the actual method causes a system error: memory violation.  */
-  define private variable cMsg as char
+  define protected static property oSingleton02 as panaedra.msroot.msutil.logic.sc_messagebox no-undo
+    get:
+      if oSingleton02 = ? then oSingleton02 = new panaedra.msroot.msutil.logic.sc_messagebox(true).
+      return oSingleton02.
+    end get.
+    set.
+  
+  define private variable cMsg as character
     view-as editor no-box
     size 63 by 4.
        
@@ -64,6 +70,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
     size 15 by 1.14
     bgcolor ? .
   
+  /* Note: Defining this frame inside a method body causes a system error: memory violation when used together with new shared frames. TW/_PPL_UNDISCLOSED_ 2017Q1 11.6.2 AIX x64 */
   define private frame frmMsgBox
     cMsg  at row 1.24 col 2 no-label
     skip(0.1)
@@ -74,8 +81,8 @@ class panaedra.msroot.msutil.logic.sc_messagebox
     side-labels no-underline three-d  scrollable 
     title "Progress"
     default-button btnOk.
-  /* END - Defining this in the actual method causes a system error: memory violation.  */        
-  
+
+  define variable bAfterInfoPress as logical no-undo. /* Is true if the second messagebox singleton in instantiated, needs a separate frame */
   
   constructor protected sc_messagebox 
     
@@ -83,8 +90,10 @@ class panaedra.msroot.msutil.logic.sc_messagebox
        We need a singleton for the "frame" abl definition.
      */
     
-    ():
-
+    (bAfterInfoPressIP# as logical):
+    
+    bAfterInfoPress = bAfterInfoPressIP#.
+    
     sc_eventbroadcaster:SubscribeEvent(this-object,"evt@SessionClose").
     
     if session:display-type = "gui":u then
@@ -442,7 +451,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
   
     cMsgIP# as character):
       
-    oSingleton:_sys_MsgBox(cMsgIP#).  
+    oSingleton01:_sys_MsgBox(cMsgIP#).  
     
     catch ex as Progress.Lang.Error :
       
@@ -469,42 +478,60 @@ class panaedra.msroot.msutil.logic.sc_messagebox
     assign 
       frame frmMsgBox:scrollable         = no
       frame frmMsgBox:hidden             = yes
-      btnInfo:hidden in frame frmMsgBox = (not session:debug-alert)
       &if opsys = "win32" &then
       cMsg:read-only in frame frmMsgBox = if session:window-system = "tty" then no else yes
       &endif
       .
-      
+
+    btnInfo:hidden in frame frmMsgBox = (bAfterInfoPress or (not session:debug-alert)).
+    
     if num-entries(cMsgIP#,chr(10)) > 3 or length(cMsgIP#) > 500 then 
     do:
       assign
         frame frmMsgBox:row    = 3
         frame frmMsgBox:column = 8
-        frame frmMsgBox:height = frame frmMsgBox:height + 12
-        cMsg:height           = cMsg:height + 12
-        btnOk:row             = btnOk:row   + 12
-        btnInfo:row           = btnInfo:row + 12.
-    end. 
+        frame frmMsgBox:height = 20 /* Last, bigger height */
+        btnOk:row              = 18
+        cMsg:height            = 17.
+      if not bAfterInfoPress then
+        btnInfo:row            = 18.
+    end.
+    else 
+    do:
+      assign
+        frame frmMsgBox:height = 12 /* First, smaller height */
+        frame frmMsgBox:row    = 5
+        frame frmMsgBox:column = 8
+        btnOk:row              = 10
+        cMsg:height            = 9.
+      if not bAfterInfoPress then
+        btnInfo:row            = 10.
+    end.
   
-    &if "{&window-system}" = "tty" &then
-    on tab of btnInfo 
-      do:
-        cMsg:read-only in frame frmMsgBox = yes.
-        cMsg:sensitive in frame frmMsgBox = yes.
-        apply "entry" to cMsg.
-        return no-apply.
-      end.
-    &endif
-
     on window-close of frame frmMsgBox
       do:
         apply "end-error":u to self.
       end.
-  
-    on choose of btnInfo oSingleton:{&msgStack}
+    
+    if not bAfterInfoPress then do:
+       
+      &if "{&window-system}" = "tty" &then
+      on tab of btnInfo 
+        do:
+          cMsg:read-only in frame frmMsgBox = yes.
+          cMsg:sensitive in frame frmMsgBox = yes.
+          apply "entry" to cMsg.
+          return no-apply.
+        end.
+      &endif
+
+      on choose of btnInfo oSingleton02:{&msgStack}
+      
+    end.
   
     /* parent the dialog-box */
-    frame frmMsgBox:parent = hAblWindow.
+    if frame frmMsgBox:parent = ? then
+      frame frmMsgBox:parent = hAblWindow.
     frame frmMsgBox:hidden = false. /* Note: this was needed in some weird exceptional flow test (empty screen, space-press needed without reason, annoying) 2014Q4 OE102B */
   
     msg-block:
@@ -517,7 +544,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
         enable cMsg 
           when session:window-system <> "tty"
           btnInfo 
-          when (session:debug-alert)
+          when (session:debug-alert and (not bAfterInfoPress))
           btnOk 
           with frame frmMsgBox.
         frame frmMsgBox:title = frame frmMsgBox:title + " " + string(time,"hh:mm:ss") + "." + string(etime mod 1000,"999").
@@ -529,6 +556,9 @@ class panaedra.msroot.msutil.logic.sc_messagebox
     end.
 
     hide frame frmMsgBox no-pause.
+    
+    cMsg:read-only in frame frmMsgBox = no.
+    cMsg:sensitive in frame frmMsgBox = no.
 
     if session:window-system <> "tty" and not default-window:hidden 
       then default-window:hidden = yes.
@@ -555,11 +585,16 @@ class panaedra.msroot.msutil.logic.sc_messagebox
     if session:display-type = "gui":u and valid-handle(hAblWindow)
       then delete widget hAblWindow.
       
-    if valid-object(oSingleton) then 
-      delete object oSingleton.
+    if valid-object(oSingleton01) then 
+      delete object oSingleton01.
+    
+    if valid-object(oSingleton02) then 
+      delete object oSingleton02.
     
     finally:
-      oSingleton = ?.
+      assign
+        oSingleton01 = ?
+        oSingleton02 = ?.
     end finally.
     
   end method. /* OnClose */
