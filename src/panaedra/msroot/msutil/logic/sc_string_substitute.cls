@@ -5,23 +5,24 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_string_substitute: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: String substitution, for example os-environment vars inside strings
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_string_substitute(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
+
+
+  method public static character ExpandOsEnv
+    
+    /* See other overload. */
+       
+    (cInputIP# as character):
+    
+    return ExpandOsEnv(cInputIP#, false).
+    
+  end method. /* ExpandOsEnv , with 'strip unset' to false */
 
 
   method public static character ExpandOsEnv
@@ -29,9 +30,14 @@ class panaedra.msroot.msutil.logic.sc_string_substitute:
     /* This method first tries explicit unix syntax. 
        Example: "sometext$~{MyVar~}and$~{MySecondVar~}lorumipsum"
        If unix syntax is not found, "%"'s (windows standard) are tried.
-    */
        
-    (cInputIP# as character):   
+       If bStripUnsetOsEnvIP# is false, "%MyVar%" will return "%MyVar%" if the environment variable is not set.
+       If bStripUnsetOsEnvIP# is true , "%MyVar%" will return ""        if the environment variable is not set.
+       
+    */
+    
+    (cInputIP#           as character,
+     bStripUnsetOsEnvIP# as logical):   
     
     define variable iIndex#      as integer   no-undo.
     define variable iIndexStart# as integer   no-undo.
@@ -55,8 +61,10 @@ class panaedra.msroot.msutil.logic.sc_string_substitute:
         assign
           cOsEnv# = os-getenv(substring(cInputIP#, iIndex# + 2, iEnd# - iIndex# - 2)).
         
-        if cOsEnv# = ? then 
-          cOsEnv# = substring(cInputIP#, iIndex# + 2, iEnd# - iIndex# - 2).
+        if cOsEnv# = ? then do:
+          if bStripUnsetOsEnvIP# then cOsEnv# = "". 
+          else cOsEnv# = substring(cInputIP#, iIndex# + 2, iEnd# - iIndex# - 2).
+        end.
         
         if (iIndex# <= 0 ) or ((iEnd# - iIndex# + 1) <= 0) then leave b_walkdollar.  /* This can happen if string ends with (literal) dollar sign */
         
@@ -90,9 +98,11 @@ class panaedra.msroot.msutil.logic.sc_string_substitute:
           do:
             
             cOsEnv# = os-getenv(substring(cInputIP#, iIndexStart# + 1, iIndexEnd# - iIndexStart# - 1)).
-
-            if cOsEnv# > "" then 
+            
+            if sc_data:HasValue(cOsEnv#) or bStripUnsetOsEnvIP# then do: 
+              if not sc_data:HasValue(cOsEnv#) then cOsEnv# = "".
               substring(cInputIP#, iIndexStart#, iIndexEnd# - iIndexStart# + 1) = cOsEnv#.
+            end.
            
             assign
               iIndexStart# = index(cInputIP#,'%',iIndexEnd# + 1).
@@ -111,7 +121,7 @@ class panaedra.msroot.msutil.logic.sc_string_substitute:
     
     return cInputIP#.
   
-  end method. /* ExpandOsEnv */
+  end method. /* ExpandOsEnv , with bStripUnsetOsEnvIP# */
 
 end class.
 

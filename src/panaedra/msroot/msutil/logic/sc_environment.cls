@@ -108,7 +108,7 @@ class panaedra.msroot.msutil.logic.sc_environment:
     public get:
       if cOsUserID = ? then 
       do:
-        cOsUserID = sc_string_substitute:ExpandOsEnv(if opsys = "unix" then "%LOGIN%" else "%USERNAME%").
+        cOsUserID = sc_string_substitute:ExpandOsEnv(if opsys = "unix" then "%LOGIN%" else "%USERNAME%", true).
       end.
       return cOsUserID.
     end get.
@@ -131,8 +131,8 @@ class panaedra.msroot.msutil.logic.sc_environment:
     public get:
       if cDevTokenID = ? then 
       do:
-        cDevTokenID = sc_string_substitute:ExpandOsEnv("%DevToken%").
-        if cDevTokenID = ? or cDevTokenID = "%DevToken%" or length(trim(cDevTokenID)) = 0 then cDevTokenID = "".
+        cDevTokenID = sc_string_substitute:ExpandOsEnv("%DevToken%", true).
+        if not sc_data:HasValue(cDevTokenID) then cDevTokenID = "".
       end.
       return cDevTokenID.
     end get.
