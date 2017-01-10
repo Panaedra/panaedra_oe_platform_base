@@ -42,16 +42,16 @@ class panaedra.msroot.msutil.logic.sc_messagebox
     at col 1 row 1
     size 44.8 by 7.43.
 
-  define protected static property oSingleton01 as panaedra.msroot.msutil.logic.sc_messagebox no-undo
+  define protected static property oSingleton01 as sc_messagebox no-undo
     get:
-      if oSingleton01 = ? then oSingleton01 = new panaedra.msroot.msutil.logic.sc_messagebox(false).
+      if oSingleton01 = ? then oSingleton01 = new sc_messagebox(false).
       return oSingleton01.
     end get.
     set.
   
-  define protected static property oSingleton02 as panaedra.msroot.msutil.logic.sc_messagebox no-undo
+  define protected static property oSingleton02 as sc_messagebox no-undo
     get:
-      if oSingleton02 = ? then oSingleton02 = new panaedra.msroot.msutil.logic.sc_messagebox(true).
+      if oSingleton02 = ? then oSingleton02 = new sc_messagebox(true).
       return oSingleton02.
     end get.
     set.
@@ -192,7 +192,7 @@ class panaedra.msroot.msutil.logic.sc_messagebox
       
     &else
 
-    if panaedra.msroot.msutil.logic.sc_environment:IsIdeRunning() then
+    if sc_environment:IsIdeRunning() then
     do:
       /* First this was the sc_win32 api, but it crashed sometimes. 
          The .net messagebox is safe. */
