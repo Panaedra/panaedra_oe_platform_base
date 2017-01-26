@@ -426,7 +426,9 @@ class panaedra.msroot.msutil.logic.sc_messagebox
       
       /* Errors need to be logged to file as well */
       output to value(sc_path:cLogDir + substitute("usermessagelog_&1.log", sc_environment:cSessionGuidShort)) append.
+      put now skip.
       put unformatted cMsgIP#.
+      put skip.
       
       message MessageToDisplayableMessage(cMsgIP#)
         view-as alert-box.
