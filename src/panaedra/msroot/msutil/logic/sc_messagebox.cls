@@ -425,10 +425,8 @@ class panaedra.msroot.msutil.logic.sc_messagebox
     do on error undo, throw:
       
       /* Errors need to be logged to file as well */
-      output to value(sc_path:cLogDir + substitute("usermessagelog_&1.log", sc_environment:cSessionGuidShort)) append.
-      put now skip.
-      put unformatted cMsgIP#.
-      put skip.
+      output to value(sc_path:cLogDir + substitute("usermessagelog_&1_&2.log", sc_environment:cSessionGuidShort, sc_environment:GetProcessID())) append.
+      put unformatted now skip cMsgIP# skip.
       
       message MessageToDisplayableMessage(cMsgIP#)
         view-as alert-box.
