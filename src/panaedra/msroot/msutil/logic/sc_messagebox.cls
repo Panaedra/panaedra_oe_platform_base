@@ -422,13 +422,26 @@ class panaedra.msroot.msutil.logic.sc_messagebox
       message cMsgIP#.
     end.  
     else
-      run msgbox(cMsgIP#).
+    do on error undo, throw:
+      
+      /* Errors need to be logged to file as well */
+      output to value(sc_path:cLogDir + substitute("usermessagelog_&1.log", sc_environment:cSessionGuidShort)) append.
+      put unformatted cMsgIP#.
+      
+      message MessageToDisplayableMessage(cMsgIP#)
+        view-as alert-box.
+      
+      finally:
+        output close.  
+      end finally.
+        
+    end.
     
-    catch ex as Progress.Lang.Error :
+    catch ex as Progress.Lang.Error:
       
       /* On errors (like input blocking), just show the message in the simplest way possible */
       
-      message cMsgIP#
+      message MessageToDisplayableMessage(cMsgIP#)
         view-as alert-box title "Progress" + string(now,"9999-99-99 hh:mm:ss") .
         
     end catch.
