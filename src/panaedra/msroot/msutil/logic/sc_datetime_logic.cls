@@ -40,7 +40,8 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
          EXTRAPARAM='[VirtualSystemDate] 1-1-2015' $SCRIPTS/TestTTest -c "message sc_datetime_logic:dtVirtualDate view-as alert-box. "
       */
       define variable cVirtualSystemDateParam# as character no-undo.
-      if dtVirtualDate = ? then do:
+      if dtVirtualDate = ? then 
+      do:
         cVirtualSystemDateParam# = sc_boot:SessionParameter("VirtualSystemDate").
         do on error undo, throw:
           dtVirtualDate = date(cVirtualSystemDateParam#).
@@ -544,6 +545,65 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   
   end method. /* GetDateMMDDCCYY */
   
+  
+  method public static datetime-tz GetNextDatetimeForHour(
+    /* Gives back a datetime-tz for the next time provided hour will take place. 
+       
+       For example you put in 02 and current time is 18:00 01/21/16.
+       Then the next time 02 will happen is 02:00 01/22/16
+       
+       For example you put in 02 and current time is 01:00 01/21/16.
+       Then the next time 02 will happen is 02:00 01/21/16
+       
+       */ 
+       
+    input iHourIP# as integer
+       
+    ):
+    
+    define variable dtmNextDatetimeForHour# as datetime-tz no-undo.
+    define variable iCurrentHour#           as integer     no-undo.
+    
+    iCurrentHour# = GetCurrentHour().
+    
+    if iCurrentHour# = iHourIP# then 
+      dtmNextDatetimeForHour# = add-interval(now, 24, "hours").
+      
+    else if iCurrentHour# > iHourIP# then
+        dtmNextDatetimeForHour# = add-interval(now, 24 - iCurrentHour# + iHourIP#, "hours").
+        
+      else
+        dtmNextDatetimeForHour# = add-interval(now, iHourIP# - iCurrentHour#, "hours").
+    
+    dtmNextDatetimeForHour# = datetime-tz(month(dtmNextDatetimeForHour#), day(dtmNextDatetimeForHour#), year(dtmNextDatetimeForHour#), GetHourFromTime(GetTime(dtmNextDatetimeForHour#)), 0).
+               
+    return dtmNextDatetimeForHour#.
+      
+  end method. /* GetNextDatetimeForHour */
+    
+  
+  method public static integer GetCurrentHour():
+    
+    define variable iCurrentHour# as integer no-undo.
+    
+    iCurrentHour# = GetHourFromTime(time).
+    
+    return iCurrentHour#.
+      
+  end method. /* GetCurrentHour */  
+
+    
+  method public static integer GetHourFromTime(
+    iTimeIP# as integer):
+    
+    define variable iHour# as integer no-undo.
+    
+    iHour# = integer(entry(1, string(iTimeIP#,"hh:mm"), ":")).
+    
+    return iHour#.
+      
+  end method. /* GetCurrentHour */  
+    
 end class.
 
 /* EOF */ 
