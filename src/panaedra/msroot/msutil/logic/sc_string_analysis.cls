@@ -162,6 +162,25 @@ class panaedra.msroot.msutil.logic.sc_string_analysis:
   
   end method. /* IsInteger */
 
+
+  method public static logical ContainsOnlySuppliedChars(
+    /* Does a string contain only the supplied characters? */
+    cStringIP#        as character,
+    cSuppliedCharsIP# as character):
+    
+    define variable iCount#                     as integer no-undo.
+    define variable bContainsOnlySuppliedChars# as logical no-undo init true. 
+    
+    do iCount# = 1 to length(cStringIP#):
+      if index(cSuppliedCharsIP#, substring(cStringIP#,iCount#,1)) = 0 then do:
+        bContainsOnlySuppliedChars# = false.
+        leave.
+      end. 
+    end.
+    
+    return bContainsOnlySuppliedChars#.
+
+  end method. /* ContainsOnlySuppliedChars */
       
 end class.
 
