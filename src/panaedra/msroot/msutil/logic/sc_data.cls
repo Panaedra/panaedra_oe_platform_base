@@ -70,6 +70,13 @@ class panaedra.msroot.msutil.logic.sc_data:
   end method. /* ZeroOrPositive */
   
   
+  method public static logical ZeroOrPositive(iIntIP# as int64):
+    
+    return (iIntIP# <> ?) and (iIntIP# >= 0).
+      
+  end method. /* ZeroOrPositive */
+  
+  
   method public static character DecodeBase64(
     
     /* Convert a base64 string to a character string */
