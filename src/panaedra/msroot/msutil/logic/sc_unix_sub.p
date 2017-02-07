@@ -25,4 +25,12 @@ procedure setenvironmentvalue external "panaedra/msroot/msutil/bin_aix/ms_setenv
   define return parameter iReturnOP#  as long.
 end procedure.
 
+procedure abl_signal_threadmask_apply external "panaedra/msroot/msutil/bin_aix/ms_abl_signal_threadmask.so" persistent:
+  define return parameter iReturnOP#  as long.
+end procedure.
+
+procedure abl_signal_threadmask_reset external "panaedra/msroot/msutil/bin_aix/ms_abl_signal_threadmask.so" persistent:
+  define return parameter iReturnOP#  as long.
+end procedure.
+
 /* EOF */
