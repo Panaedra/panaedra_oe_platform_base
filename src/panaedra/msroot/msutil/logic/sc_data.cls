@@ -54,6 +54,20 @@ class panaedra.msroot.msutil.logic.sc_data:
     return (bBoolIP# <> ?) and (bBoolIP# = true).
   
   end method. /* IsTrue ; logical */
+ 
+  
+  method public static logical ZeroOrPositive(fFloatIP# as decimal):
+  
+    return (fFloatIP# <> ?) and (fFloatIP# >= 0).
+  
+  end method. /* ZeroOrPositive */
+  
+  
+  method public static logical ZeroOrPositive(iIntIP# as integer):
+    
+    return (iIntIP# <> ?) and (iIntIP# >= 0).
+      
+  end method. /* ZeroOrPositive */
   
   
   method public static character DecodeBase64(
