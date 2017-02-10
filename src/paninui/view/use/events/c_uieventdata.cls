@@ -1,6 +1,9 @@
 {panaedra/msroot/msutil/logic/top_i/ctop_class.i} 
 
 class paninui.view.use.events.c_uieventdata
+  &if not (opsys = "unix" or "{&window-system}" = "tty") &then
+  inherits paninui.view.use.events.c_uieventargs
+  &endif
   implements
   paninui.view.interfaces.i_uieventdata
   : 

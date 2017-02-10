@@ -34,8 +34,8 @@
 &glob System.EventArgs                     System.EventArgs
 &glob i_masterwindow                       i_masterwindow
 &glob i_uiframe                            i_uiframe
-&glob i_uivalue                            i_uivalue
-&glob i_uieventdata                        i_uieventdata
+&glob i_uivalue                            System.Object
+&glob i_uieventdata                        paninui.view.use.events.c_uieventargs
 &glob i_frmlogic_shortcut                  paninui.logic.logicbase.c_framelogic_shortcut
 &glob paninui.view.interfaces.             paninui.view.interfaces.
 &if int(entry(1,proversion,".")) <= 11 and int(entry(2,proversion,".")) < 6 &then 
