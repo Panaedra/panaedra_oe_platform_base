@@ -1766,12 +1766,17 @@ class paninui.view.use.sc_coll_eventdata
         
         sc_coll_delegatedata:InvokeEventHandler(ttUiEvent.iDelegateID, oUiValue#, oUiEventData#).
         
+        
         if valid-object(oUiEventData#) and type-of(oUiEventData#, paninui.view.use.events.c_uieventdata_handled) then 
         do:
           bHandled# = cast(oUiEventData#, paninui.view.use.events.c_uieventdata_handled):bHandled.
           if bHandled# and valid-object(oFormsKeyArgs#) then 
           do:
             oFormsKeyArgs#:Handled = true.
+          end.
+          if bHandled# and valid-object(oWpfKeyArgs#) then 
+          do:
+            oWpfKeyArgs#:Handled = true.
           end.
         end.
         
