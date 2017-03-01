@@ -115,6 +115,17 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
     
   end method. /* EmailHeaderStrictDate */
   
+  
+  method public static character GetDateAsCCYYMMDDString(
+    
+    /* Returns an character in CCYYMMDD format; century, year, month, day */
+  
+    dtInputIP# as date):
+  
+    return string(GetDateAsCCYYMMDD(dtInputIP#),"99999999").
+  
+  end method. /* GetDateAsCCYYMMDDString */
+  
 
   method public static integer GetDateAsCCYYMMDD():
     
