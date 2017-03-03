@@ -19,6 +19,7 @@
 &glob System.EventArgs                     Progress.Lang.Object
 &glob System.Windows.Controls.ItemsControl Progress.Lang.Object
 &glob i_masterwindow                       i_masterwindow_tty
+&glob i_pack                               Progress.Lang.Object
 &glob i_uiframe                            i_uiframe_tty
 &glob i_uivalue                            i_uivalue
 &glob i_uieventdata                        i_uieventdata
@@ -33,6 +34,7 @@
 &glob System.Windows.Controls.ItemsControl System.Windows.Controls.ItemsControl
 &glob System.EventArgs                     System.EventArgs
 &glob i_masterwindow                       i_masterwindow
+&glob i_pack                               i_pack
 &glob i_uiframe                            i_uiframe
 &glob i_uivalue                            System.Object
 &glob i_uieventdata                        paninui.view.use.events.c_uieventargs
