@@ -1093,6 +1093,31 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
   end method. /* IsUnix */
   
+  
+  method public static void AutoRestartPrevention():
+    
+    /* Prevent an auto-restart of the OpenEdge ABL session when kill -s SIGEMT (kill -7) is used.
+     * Call sc_environment:AutoRestartPrevention() in all panaedra environment boot procedures (appserver, tty, gui, etc etc). 
+     */
+    
+    if session:proxy-password = "AutoRestartPrevention" then 
+    do:
+      quit.
+    end.
+
+    if sc_data:HasValue(session:proxy-password) or sc_data:HasValue(session:proxy-userid)  then 
+    do:
+      sc_showexception:ShowException(new c_panaedraexception(
+        99982743,
+        sc_lang:oEnglish,
+        "The use of session:proxy-password or session:proxy-userid is not supported at this time, by the panaedra framework. Update the panaedra framework to use a different auto-restart-prevention variable.")).  
+      quit.
+    end.
+
+    session:proxy-password = "AutoRestartPrevention". /* We misuse the session:proxy-password for this reason: we need a session-wide variable that is NOT reset during KILL -7 (SIGEMT) to prevent auto-restart of an ABL Session. */
+  
+  end method. /* AutoRestartPrevention */
+  
 end class.
 
 /* EOF */
