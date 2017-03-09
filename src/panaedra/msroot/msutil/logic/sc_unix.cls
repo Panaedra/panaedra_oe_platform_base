@@ -107,7 +107,27 @@ class panaedra.msroot.msutil.logic.sc_unix:
     run abl_signal_threadmask_reset in hExternals (output iReturn#).
     
   end method. /* AblSignalThreadmaskReset */
+  
+  
+  method public static logical IAmRoot():
+    
+    define variable cLine#        as character no-undo.
+    define variable iSaveLastkey# as integer   no-undo.
+    
+    iSaveLastkey# = keycode(keyfunction(lastkey)). /* Remember the lastkey code */
+    
+    input through value("whoami").
 
+    import unformatted cLine#. /* codeQok#7126 */
+
+    return cLine# = "root".
+
+    finally:
+      last-event:set-lastkey(0, iSaveLastkey#).  
+    end finally.    
+
+  end method. /* IAmRoot */
+  
 end class.
 
 /* EOF */
