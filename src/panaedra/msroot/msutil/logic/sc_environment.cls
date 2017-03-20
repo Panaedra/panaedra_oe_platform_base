@@ -24,12 +24,13 @@ class panaedra.msroot.msutil.logic.sc_environment:
   define stream str-in.
   define stream str-os. 
   
-  define protected static variable bSessionGuidSet as logical   no-undo.
-  define protected static variable cBootProcedure  as character no-undo.
-  define protected static variable iProcessID      as integer   no-undo initial ?.
-  define public static    variable bDebugLogAsync  as logical   no-undo.
-  define public static    variable oLog            as i_log     no-undo.
-  define public static    variable cRemoteUserID   as character no-undo.
+  define protected static variable bSessionGuidSet   as logical   no-undo.
+  define protected static variable cBootProcedure    as character no-undo.
+  define protected static variable iProcessID        as integer   no-undo initial ?.
+  define protected static variable bAutoRestartIsSet as logical   no-undo.
+  define public static    variable bDebugLogAsync    as logical   no-undo.
+  define public static    variable oLog              as i_log     no-undo.
+  define public static    variable cRemoteUserID     as character no-undo.
   
 
   define static property cCodepageNative as character no-undo init ?
@@ -1100,22 +1101,29 @@ class panaedra.msroot.msutil.logic.sc_environment:
      * Call sc_environment:AutoRestartPrevention() in all panaedra environment boot procedures (appserver, tty, gui, etc etc). 
      */
     
-    if session:proxy-password = "AutoRestartPrevention" then 
+    if bAutoRestartIsSet = false then 
     do:
-      quit.
-    end.
+      
+      bAutoRestartIsSet = true.
+    
+      if session:proxy-password = "AutoRestartPrevention" then 
+      do:
+        quit.
+      end.
 
-    if sc_data:HasValue(session:proxy-password) or sc_data:HasValue(session:proxy-userid)  then 
-    do:
-      sc_showexception:ShowException(new c_panaedraexception(
-        99982743,
-        sc_lang:oEnglish,
-        "The use of session:proxy-password or session:proxy-userid is not supported at this time, by the panaedra framework. Update the panaedra framework to use a different auto-restart-prevention variable.")).  
-      quit.
-    end.
+      if sc_data:HasValue(session:proxy-password) or sc_data:HasValue(session:proxy-userid)  then 
+      do:
+        sc_showexception:ShowException(new c_panaedraexception(
+          99982743,
+          sc_lang:oEnglish,
+          "The use of session:proxy-password or session:proxy-userid is not supported at this time, by the panaedra framework. Update the panaedra framework to use a different auto-restart-prevention variable.")).  
+        quit.
+      end.
 
-    session:proxy-password = "AutoRestartPrevention". /* We misuse the session:proxy-password for this reason: we need a session-wide variable that is NOT reset during KILL -7 (SIGEMT) to prevent auto-restart of an ABL Session. */
-  
+      session:proxy-password = "AutoRestartPrevention". /* We misuse the session:proxy-password for this reason: we need a session-wide variable that is NOT reset during KILL -7 (SIGEMT) to prevent auto-restart of an ABL Session. */
+      
+    end. /* bAutoRestartIsSet = false */
+    
   end method. /* AutoRestartPrevention */
   
 end class.
