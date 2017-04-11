@@ -607,25 +607,26 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   
   method public static integer WeekNumber(
   
-    input  dtDateIP           as date,
-    output iYearOfDateOP#     as integer
+    input  dtDateIP             as date,
+    output iYearOfWeekNumberOP# as integer
     ):
     
     define variable iDummy# as integer no-undo.
     
-    return WeekNumber(dtDateIP, output iDummy#, output iYearOfDateOP#, output iDummy#).     
+    return WeekNumber(dtDateIP, output iDummy#, output iYearOfWeekNumberOP#, output iDummy#).     
       
   end method. /* WeekNumber */  
   
   
+  @panaedraannotation file(unittest="yes").
   method public static integer WeekNumber(
   
     /* Return the week number of the provided date, based on that the 1st day of the week is a monday. */
   
-    input  dtDateIP          as date,
-    output iWeekdayOfDateOP# as integer,  
-    output iYearOfDateOP#    as integer, 
-    output iDayNumberOP#     as integer /* The numerical day position in the year of the provided date. */
+    input  dtDateIP             as date,
+    output iWeekdayOfDateOP#    as integer,  
+    output iYearOfWeekNumberOP# as integer, 
+    output iDayNumberOP#        as integer /* The numerical day position in the year of the provided date. */
     ):
     
     define variable iReturnWeekNumber# as integer no-undo.
@@ -638,7 +639,7 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     
     assign 
       iWeekdayOfDateOP# = weekday(dtDateIP)  /* 1=sunday;2=monday;... 7=saturday */
-      iYearOfDateOP#    = year   (dtDateIP)
+      iYearOfWeekNumberOP#    = year   (dtDateIP)
       iMonthOfDate#     = month  (dtDateIP)
       iWeekdayOfDateOP# = iWeekdayOfDateOP# - 1
       .        /* 1=monday;2=tuesday;...7=sunday */
@@ -695,7 +696,7 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
       /* Determine the weeknumber of the last of of the previous year. */ 
       assign 
         iReturnWeekNumber# = truncate( (date(12, 31, iYearOfDateFixed# - 1) - dtWeek#) / 7,0) + 1
-        iYearOfDateOP#     = iYearOfDateFixed# - 1.
+        iYearOfWeekNumberOP#     = iYearOfDateFixed# - 1.
     end.
 
     /* Correct for the period of the first monday the year of week 52/53 till the date of 1-jan. */ 
@@ -719,8 +720,9 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
       if dtDateIP >= dtWeek# then /* Date is with the next year. */
       do: 
         assign 
-          iReturnWeekNumber# = 1
-          iYearOfDateOP#     = iYearOfDateOP# + 1.
+          iReturnWeekNumber#   = 1
+          iYearOfWeekNumberOP# = iYearOfWeekNumberOP# + 1
+          .
       end.
     end.
     
