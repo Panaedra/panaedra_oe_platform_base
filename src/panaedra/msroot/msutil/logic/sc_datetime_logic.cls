@@ -638,10 +638,10 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     define variable bFirstdayIsSunday# as logical no-undo. 
     
     assign 
-      iWeekdayOfDateOP# = weekday(dtDateIP)  /* 1=sunday;2=monday;... 7=saturday */
-      iYearOfWeekNumberOP#    = year   (dtDateIP)
-      iMonthOfDate#     = month  (dtDateIP)
-      iWeekdayOfDateOP# = iWeekdayOfDateOP# - 1
+      iWeekdayOfDateOP#    = weekday(dtDateIP)  /* 1=sunday;2=monday;... 7=saturday */
+      iYearOfWeekNumberOP# = year   (dtDateIP)
+      iMonthOfDate#        = month  (dtDateIP)
+      iWeekdayOfDateOP#    = iWeekdayOfDateOP# - 1
       .        /* 1=monday;2=tuesday;...7=sunday */
     if  iWeekdayOfDateOP# = 0 then 
       assign 
@@ -695,8 +695,8 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
 
       /* Determine the weeknumber of the last of of the previous year. */ 
       assign 
-        iReturnWeekNumber# = truncate( (date(12, 31, iYearOfDateFixed# - 1) - dtWeek#) / 7,0) + 1
-        iYearOfWeekNumberOP#     = iYearOfDateFixed# - 1.
+        iReturnWeekNumber#   = truncate( (date(12, 31, iYearOfDateFixed# - 1) - dtWeek#) / 7,0) + 1
+        iYearOfWeekNumberOP# = iYearOfDateFixed# - 1.
     end.
 
     /* Correct for the period of the first monday the year of week 52/53 till the date of 1-jan. */ 
@@ -729,6 +729,16 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     return iReturnWeekNumber#. 
     
   end method. /* WeekNumber */
+  
+  
+  method public static datetime-tz TimeTodayAsDatetimeTz(
+    input iHourIP#    as integer,
+    input iMinutesIP# as integer
+    ):
+    
+    return datetime-tz(month(today), day(today), year(today), iHourIP#, iMinutesIP#). 
+  
+  end method. /* TimeTodayAsDatetimeTz */
     
 end class.
 
