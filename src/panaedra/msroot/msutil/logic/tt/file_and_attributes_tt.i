@@ -1,3 +1,10 @@
+/****************************** Source Header ********************************\
+
+    Description: temp-table for sc_osfile
+
+\**************************** End of Source Header ***************************/
+
+
 &if defined(static) > 0 and defined(reference-only) > 0 &then &undefine reference-only
 &endif
 
@@ -19,11 +26,13 @@
 &glob tt{&ttPrefix}FileAndAttributes{&ttSuffix} true
 define {&protected} {&static} temp-table tt{&ttPrefix}FileAndAttributes{&ttSuffix} {&no-undo} {&reference-only} {&rcode-information} {&before-table}
   field cFullPath               as character
-  field dtmModificationDatetime as datetime-tz
-    
+  field dtmModificationDatetime as datetime-tz  
   {&ttExtraFields}
   index dtmModificationDatetime is primary dtmModificationDatetime
   {&ttExtraIndices}
   .
 
-&endif
+
+&endif /* {&source_panaedra_msroot_msutil_logic_tt_file_and_attributes_tt_i} */
+
+/* EOF : panaedra/msroot/msutil/logic/tt/file_and_attributes_tt.i */
