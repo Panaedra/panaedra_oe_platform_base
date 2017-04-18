@@ -96,7 +96,24 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   
   end method. /* GetTimeHHMM */
 
-
+  
+  method public static void GetTimeHHMM(
+    input  dtmInputIP# as datetime-tz,
+    output iUrenOP#    as integer,
+    output iMinutenOP# as integer
+    ):
+      
+    define variable cDateTime# as character no-undo.
+    
+    assign
+      cDateTime#  = string(dtmInputIP#)
+      iUrenOP#    = integer(substring(cDateTime#, 12, 2))
+      iMinutenOP# = integer(substring(cDateTime#, 15, 2))
+      .
+  
+  end method. /* GetTimeHHMM */
+  
+  
   method public static character GetTimeHH_FCMPNY_S(dtmInputIP# as datetime-tz):
   
     return string(GetTime(dtmInputIP#),"hh:mm:ss").
@@ -613,7 +630,7 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     
     define variable iDummy# as integer no-undo.
     
-    return WeekNumber(dtDateIP, output iDummy#, output iYearOfWeekNumberOP#, output iDummy#).     
+    return WeekNumber(dtDateIP, output iDummy#, output iYearOfWeekNumberOP#).     
       
   end method. /* WeekNumber */  
   
@@ -623,10 +640,9 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   
     /* Return the week number of the provided date, based on that the 1st day of the week is a monday. */
   
-    input  dtDateIP             as date,
-    output iWeekdayOfDateOP#    as integer,  
-    output iYearOfWeekNumberOP# as integer, 
-    output iDayNumberOP#        as integer /* The numerical day position in the year of the provided date. */
+    input  dtDateIP                as date,
+    output iDutchWeekdayOfDateOP#  as integer,  
+    output iYearOfWeekNumberOP#    as integer 
     ):
     
     define variable iReturnWeekNumber# as integer no-undo.
@@ -638,38 +654,27 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     define variable bFirstdayIsSunday# as logical no-undo. 
     
     assign 
-      iWeekdayOfDateOP#    = weekday(dtDateIP)  /* 1=sunday;2=monday;... 7=saturday */
-      iYearOfWeekNumberOP# = year   (dtDateIP)
-      iMonthOfDate#        = month  (dtDateIP)
-      iWeekdayOfDateOP#    = iWeekdayOfDateOP# - 1
-      .        /* 1=monday;2=tuesday;...7=sunday */
-    if  iWeekdayOfDateOP# = 0 then 
-      assign 
-        iWeekdayOfDateOP# = 7.
-
-    /* Determine the day number (gregor) of the date. */
-    iDayNumberOP# = dtDateIP - date (1, 1, year (dtDateIP)) + 1.
+      iDutchWeekdayOfDateOP# = weekday(dtDateIP)           /* 1=sunday;2=monday;... 7=saturday */
+      iYearOfWeekNumberOP#   = year   (dtDateIP)
+      iMonthOfDate#          = month  (dtDateIP)
+      iDutchWeekdayOfDateOP# = iDutchWeekdayOfDateOP# - 1  /* 1=monday;2=tuesday;...7=sunday */
+      iDutchWeekdayOfDateOP# = (if iDutchWeekdayOfDateOP# = 0 then 7 else iDutchWeekdayOfDateOP#)
+      .        
 
     /* Determine the first monday of weekno 1. Weekno determination always start on monday.  */
     assign 
-      iYearOfDateFixed# = year    (dtDateIP)       /* Jaar input */
-      dtVariable#       = date    (1, 1, iYearOfDateFixed#)    /* Datum 01-01-jaar */
-      iVariableWeekday# = weekday (dtVariable#) - 1.    /* Dagnr v/d week, MAANDAG = DAG 1 */
+      iYearOfDateFixed# = year    (dtDateIP)                 /* Jaar input */
+      dtVariable#       = date    (1, 1, iYearOfDateFixed#)  /* Datum 01-01-jaar */
+      iVariableWeekday# = weekday (dtVariable#) - 1          /* Dagnr v/d week, MAANDAG = DAG 1 */
+      iVariableWeekday# = (if  iVariableWeekday# = 0 then 7 else iVariableWeekday#)
+      .
     
-    if iVariableWeekday# = 0 then 
-      assign 
-        iVariableWeekday# = 7.
-
     if iVariableWeekday# > 4 then  /* Dayno. of 1-JAN., 1st day of the year. */
-    do:                 
       /* Falls within the last 3 days of the week, before monday=day 1. */
       dtVariable# = dtVariable# + 7 - iVariableWeekday# + 1.  
-    end.
     else
-    do:   
       /* 1-JAN. Fals withinout the first 4 days of the week (before monday = day 1) */
       dtVariable# = dtVariable# - iVariableWeekday# + 1.
-    end.
 
     /* _TOOLING_ ional weeknum */ 
     iReturnWeekNumber#  = truncate((dtDateIP - dtVariable#) / 7,0) + 1.
@@ -679,24 +684,22 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     do:                          
       /* Determine the 1e monday of the previous year. */
       assign 
-        dtWeek# = date    (1, 1, iYearOfDateFixed# - 1).
-      iVariableWeekday# = weekday (dtWeek#) - 1.
-      if  iVariableWeekday# = 0 then iVariableWeekday# = 7.
+        dtWeek#           = date(1, 1, iYearOfDateFixed# - 1)
+        iVariableWeekday# = weekday (dtWeek#) - 1
+        iVariableWeekday# = (if iVariableWeekday# = 0 then 7 else iVariableWeekday#)
+        .
       if iVariableWeekday# > 4 then  /* Dayno. of 1-JAN., the first day of the year. */
-      do:                
         /* 1-JAN. It's in the last 3 days of the week. (before monday = day 1 ). */
         dtWeek# = dtWeek# + 7 - iVariableWeekday# + 1.
-      end.
       else
-      do:                 
         /* 1-JAN. It's on the first 4 days of the week (before monday = day 1). */
         dtWeek# = dtWeek# - iVariableWeekday# + 1.
-      end.
 
       /* Determine the weeknumber of the last of of the previous year. */ 
       assign 
         iReturnWeekNumber#   = truncate( (date(12, 31, iYearOfDateFixed# - 1) - dtWeek#) / 7,0) + 1
-        iYearOfWeekNumberOP# = iYearOfDateFixed# - 1.
+        iYearOfWeekNumberOP# = iYearOfDateFixed# - 1
+        .
     end.
 
     /* Correct for the period of the first monday the year of week 52/53 till the date of 1-jan. */ 
@@ -704,26 +707,21 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     do: 
       assign 
         dtWeek#           = date (1, 1, iYearOfDateFixed# + 1)
-        iVariableWeekday# = weekday (dtWeek#) - 1.
-      if  iVariableWeekday# = 0 then iVariableWeekday# = 7.
+        iVariableWeekday# = weekday (dtWeek#) - 1
+        iVariableWeekday# = (if  iVariableWeekday# = 0 then 7 else iVariableWeekday#)
+        .
       if iVariableWeekday# > 4 then /* Dayno of 1-jan., the first day of the year. */
-      do:                 
         /* 1-JAN. Is in the last 3 days of the week (before monday = day 1) */ 
         dtWeek# = dtWeek# + 7 - iVariableWeekday# + 1.
-      end.
       else
-      do: 
         /* 1-JAN. Is during the 1st 4 days of the week (before monday = day 1). */ 
         dtWeek# = dtWeek# - iVariableWeekday# + 1.
-      end.
 
       if dtDateIP >= dtWeek# then /* Date is with the next year. */
-      do: 
         assign 
           iReturnWeekNumber#   = 1
           iYearOfWeekNumberOP# = iYearOfWeekNumberOP# + 1
           .
-      end.
     end.
     
     return iReturnWeekNumber#. 
