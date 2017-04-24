@@ -238,6 +238,22 @@ class panaedra.msroot.msutil.logic.sc_path:
       return cNaarWanDir.
     end get.
     protected set.
+    
+  /* Naar_3DP_ directory */
+  define public static property cNaar_3DP_Dir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cNaar_3DP_Dir.
+    end get.
+    protected set.
+    
+  /* Van_3DP_ directory */
+  define public static property cVan_3DP_Dir as character no-undo 
+    get():
+      if not bTtPathInitialized then TtPathInitialize().
+      return cVan_3DP_Dir.
+    end get.
+    protected set.
   
   /* VanXmap directory */
   define public static property cVanXmapDir as character no-undo 
@@ -470,6 +486,8 @@ class panaedra.msroot.msutil.logic.sc_path:
       cVan_CCMPNY_Dir            = FillPathProperty(GetScPathEnv(), "cVan_CCMPNY_Dir",opsys).
       cVan_CLOUD_Dir          = FillPathProperty(GetScPathEnv(), "cVan_CLOUD_Dir",opsys).
       cNaarWanDir             = FillPathProperty(GetScPathEnv(), "cNaarWanDir",opsys).
+      cNaar_3DP_Dir         = FillPathProperty(GetScPathEnv(), "cNaar_3DP_Dir",opsys).
+      cVan_3DP_Dir          = FillPathProperty(GetScPathEnv(), "cVan_3DP_Dir",opsys).
       cVanXmapDir             = FillPathProperty(GetScPathEnv(), "cVanXmapDir",opsys).
       cNaarXmapDir            = FillPathProperty(GetScPathEnv(), "cNaarXmapDir",opsys).
       cPclDir                 = FillPathProperty(GetScPathEnv(), "cPclDir",opsys).
