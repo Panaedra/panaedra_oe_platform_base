@@ -795,7 +795,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
       do:
         assign
           cDevTokenID# = lc(sc_environment:cDevTokenID)  
-          cLogFile     = sc_path:cLogVoortgangDir + subst("unittest&1_&2_&3.log", 
+          cLogFile     = sc_path:cLogVerboseDir + subst("unittest&1_&2_&3.log", 
             if length(cDevTokenID#) > 0 then "_" + cDevTokenID# else "", 
             sc_environment:cEnv, 
             sc_date_timestamp:cTimeStamp_Short_DateAndTime).
@@ -917,13 +917,13 @@ class panaedra.msroot.msutil.logic.sc_unittest
     cMessage# = substring(cMessage#,2).
     
     cMessage# = cMessage# + chr(10) + "See files: " .
-    cMessage# = cMessage# + chr(10) + sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_pre.html".
-    cMessage# = cMessage# + chr(10) + sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_post.html".
-    cMessage# = cMessage# + chr(10) + sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_warn.html".
+    cMessage# = cMessage# + chr(10) + sc_path:cLogVerboseDir + "persistencycheck_" + cFile# + "_pre.html".
+    cMessage# = cMessage# + chr(10) + sc_path:cLogVerboseDir + "persistencycheck_" + cFile# + "_post.html".
+    cMessage# = cMessage# + chr(10) + sc_path:cLogVerboseDir + "persistencycheck_" + cFile# + "_warn.html".
     
-    sc_html:TempTableToHTML(buffer b-ttPersistentThingsPre:handle,  sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_pre.html").
-    sc_html:TempTableToHTML(buffer b-ttPersistentThingsPost:handle, sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_post.html").
-    sc_html:TempTableToHTML(buffer b-ttPersistentThingsWarn:handle, sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_warn.html").
+    sc_html:TempTableToHTML(buffer b-ttPersistentThingsPre:handle,  sc_path:cLogVerboseDir + "persistencycheck_" + cFile# + "_pre.html").
+    sc_html:TempTableToHTML(buffer b-ttPersistentThingsPost:handle, sc_path:cLogVerboseDir + "persistencycheck_" + cFile# + "_post.html").
+    sc_html:TempTableToHTML(buffer b-ttPersistentThingsWarn:handle, sc_path:cLogVerboseDir + "persistencycheck_" + cFile# + "_warn.html").
 
     LogMessage(subst("env=&1 id=&2, descr=&3, &4",
       sc_environment:cEnv,
@@ -945,7 +945,7 @@ class panaedra.msroot.msutil.logic.sc_unittest
       sc_msmon_feedback:HandleEvent(
         "Unittest Persistency Warning", /* Event */
         cTestIDIP#,                     /* ID */
-        sc_path:cLogVoortgangDir + "persistencycheck_" + cFile# + "_warn.html", /* Location */
+        sc_path:cLogVerboseDir + "persistencycheck_" + cFile# + "_warn.html", /* Location */
         subst("[Env] &1~n&2", 
         sc_environment:cEnv, 
         cMessage#)).

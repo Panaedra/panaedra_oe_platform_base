@@ -60,7 +60,6 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
-  
   /* Temporary directory */
   define public static property cTempDir as character no-undo 
     get():
@@ -75,7 +74,6 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
-  
   /* Ini directory */
   define public static property cIniDir as character no-undo 
     get():
@@ -84,7 +82,6 @@ class panaedra.msroot.msutil.logic.sc_path:
       return cIniDir.
     end get.
     protected set.
-  
   
   /* Local ini directory */
   define public static property cLocalIniDir as character no-undo 
@@ -107,16 +104,6 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
-  
-  /* "Systeem" directory */
-  define public static property cSysteemDir as character no-undo 
-    get():
-      if not bTtPathInitialized then 
-        TtPathInitialize().
-      return cSysteemDir.
-    end get.
-    protected set.
-  
   /* Log directory */
   define public static property cLogDir as character no-undo 
     get():
@@ -125,7 +112,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
-  /* Log directory */
+  /* Log directory for debugging */
   define public static property cLogDirDbg as character no-undo 
     get():
       if not bTtPathInitialized then TtPathInitialize().
@@ -142,29 +129,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
 
-  /* "Voortgang" (bad name for cLogverbose, deprecated!!) log directory */
-  define public static property cLogVoortgangDir as character no-undo 
-    get():
-      return cLogverboseDir.
-    end get.
-
-  /* _SRVR_ directory */
-  define public static property cNoSweatDir as character no-undo 
-    get():
-      if not bTtPathInitialized then TtPathInitialize().
-      return cNoSweatDir.
-    end get.
-    protected set.
-  
-  /* _SRVR_ directory */
-  define public static property c_SRVR_Dir as character no-undo 
-    get():
-      if not bTtPathInitialized then TtPathInitialize().
-      return c_SRVR_Dir.
-    end get.
-    protected set.
-  
-  /* Nonstatic directory */
+  /* Nonstatic directory (often used for trigger or busy files) */
   define public static property cNonstaticDir as character no-undo 
     get():
       if not bTtPathInitialized then TtPathInitialize().
@@ -172,7 +137,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
-  /* Nonstatic vcs dev scripts directory */
+  /* Nonstatic vcs (versioning control system - git, hg or other) dev scripts directory (often used for trigger or busy files) */
   define public static property cVcsdevScriptsNonstatic as character no-undo 
     get():
       if not bTtPathInitialized then TtPathInitialize().
@@ -196,112 +161,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
-  /* VanWan directory */
-  define public static property cVanWanDir as character no-undo 
-    get():
-      if not bTtPathInitialized then TtPathInitialize().
-      return cVanWanDir.
-    end get.
-    protected set.
-    
-  /* Van_CCMPNY_ directory met edi _TERM_UNDISCLOSED_ */ 
-  define public static property cVan_CCMPNY_Dir as character no-undo 
-    get():
-      if not bTtPathInitialized then 
-        TtPathInitialize().
-      return cVan_CCMPNY_Dir.
-    end get.
-    protected set.
-
-  /* Van_CLOUD_ directory met _TERM_UNDISCLOSED_s */ 
-  define public static property cVan_CLOUD_Dir as character no-undo 
-    get():
-      if not bTtPathInitialized then 
-        TtPathInitialize().
-      return cVan_CLOUD_Dir.
-    end get.
-    protected set.
-  
-  /* NaarWan directory */
-  define public static property cNaarWanDir as character no-undo 
-    get():
-      if not bTtPathInitialized then TtPathInitialize().
-      return cNaarWanDir.
-    end get.
-    protected set.
-    
-  /* Naar_3DP_ directory */
-  define public static property cNaar_3DP_Dir as character no-undo 
-    get():
-      if not bTtPathInitialized then TtPathInitialize().
-      return cNaar_3DP_Dir.
-    end get.
-    protected set.
-    
-  /* Van_3DP_ directory */
-  define public static property cVan_3DP_Dir as character no-undo 
-    get():
-      if not bTtPathInitialized then TtPathInitialize().
-      return cVan_3DP_Dir.
-    end get.
-    protected set.
-  
-  /* VanXmap directory */
-  define public static property cVanXmapDir as character no-undo 
-    get():
-      if not bTtPathInitialized then TtPathInitialize().
-      return cVanXmapDir.
-    end get.
-    protected set.
-  
-  /* NaarXmap directory */
-  define public static property cNaarXmapDir as character no-undo 
-    get():
-      if not bTtPathInitialized then TtPathInitialize().
-      return cNaarXmapDir.
-    end get.
-    protected set.
-  
-  define protected static variable bNaarWebDirInitialized as logical no-undo.
-  
-  /* Systeem naarweb directory */
-  define public static property cNaarWebDir as character no-undo 
-    get():
-      
-      define variable cIniFile#    as character no-undo.
-      define variable cNaarWebDir# as character no-undo.
-      
-      if not bNaarWebDirInitialized then 
-      do:
-        
-        if not bTtPathInitialized then TtPathInitialize(). /* for cSysteemDir */
-        
-        /* First look for [Env]ironment specific ini file, otherwise just use _CLOUD_.ini */
-        cIniFile# = subst("&1_CLOUD__&2_&3.ini", sc_path:cIniDir, sc_boot:SessionParameter("Env"), sc_boot:SessionParameter("Layer")).
-        if search(cIniFile#) = ? then cIniFile# = subst("&1_CLOUD__&2.ini", sc_path:cIniDir, sc_boot:SessionParameter("Env")).
-        if search(cIniFile#) = ? then cIniFile# = subst("&1_CLOUD_.ini", sc_path:cIniDir).
-        
-        
-        /* Read value from ini file */
-        cNaarWebDir# = sc_osfile:GetIniValue(cIniFile#, "Directories" , "NaarWebDir").
-
-        if cNaarWebDir# = ? or cNaarWebDir# = "" then 
-        do:
-          undo, throw new Progress.Lang.AppError(subst("&1 INI parameters incorrect", cIniFile#), 99990584).
-        end.
-        
-        assign
-          bNaarWebDirInitialized = true
-          cNaarWebDir            = cSysteemDir + cNaarWebDir# + "/".
-        
-      end.
-      
-      return cNaarWebDir.
-      
-    end get.       /* cNaarWebDir */
-    protected set. /* cNaarWebDir */
-  
-  /* DataRecovery directory */
+  /* Data recovery directory */
   define public static property cDataRecoveryDir as character no-undo 
     get():
       if not bTtPathInitialized then TtPathInitialize().
@@ -309,7 +169,7 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
   
-  /* DataExchange directory */
+  /* Data exchange directory */
   define public static property cDataExchangeDir as character no-undo 
     get():
       if not bTtPathInitialized then TtPathInitialize().
@@ -397,19 +257,16 @@ class panaedra.msroot.msutil.logic.sc_path:
     end get.
     protected set.
 
-
-  /* "Pcl" directory */
-  define public static property cPclDir as character no-undo 
-    get():
-      if not bTtPathInitialized then 
-        TtPathInitialize().
-      return cPclDir.
-    end get.
-    protected set.
-
   /* ---Methods--- */
   
   method protected static void IniInitialize():
+    
+    _sys_IniInitialize().
+    
+  end method. /* IniInitialize */
+  
+
+  method protected static void _sys_IniInitialize():
     
     if not bIniInitialized then 
     do:
@@ -420,36 +277,9 @@ class panaedra.msroot.msutil.logic.sc_path:
         cIniDir = replace(cIniDir,"~\","/").
         if substring(cIniDir,length(cIniDir)) <> "/" then cIniDir = cIniDir + "/".
       end.
-      else 
-      do:
-      &if opsys = "win32" &then
-        if sc_boot:SessionParameter("Env") <> "live" then cIniDir = "Q:/test/ini/".
-        else cIniDir = "P:/live/ini/".
-      &else
-        if sc_boot:SessionParameter("Env") <> "live" then 
-          cIniDir = os-getenv("_PATH_") + "/_PRODUCT_/_FCMPNY_/ini/". /* codeQok#7110 */
-        else 
-        do:
-          if os-getenv("REPLTARGETACTIVE") = "yes" then
-            cIniDir = "/mount/progress__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-          else 
-            case os-getenv("ProfileParameter"):
-              when "_PRODUCT_Profile" then 
-                cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-              when "_SRVR_Profile"   then 
-                cIniDir = "/mount/progress__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-              when "otaProfile"    then 
-                cIniDir = "/mount/progress__PRODUCT__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-              otherwise 
-              cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-            end case.
-        end.  
-      &endif
-      
-      end.
     end.
     
-  end method. /* IniInitialize */
+  end method. /* _sys_IniInitialize */
   
 
   method protected static void TtPathInitialize():
@@ -460,28 +290,14 @@ class panaedra.msroot.msutil.logic.sc_path:
       sc_config:ReadXml(temp-table ttPath:handle,
         /* Note: the getter of cIniDir initializes cIniDir automatically */ 
         cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config").
-      cSysteemDir             = FillPathProperty(GetScPathEnv(), "cSysteemDir",opsys).
       cLogDir                 = FillPathProperty(GetScPathEnv(), "cLogDir",opsys).
       cLogverboseDir          = FillPathProperty(GetScPathEnv(), "cLogverboseDir",opsys).
-      if cLogverboseDir = ?    or cLogverboseDir = "" or cLogverboseDir = "?" or cLogverboseDir = cWorkDir then
-        cLogverboseDir          = FillPathProperty(GetScPathEnv(), "cLogVoortgangDir",opsys).
-      cNoSweatDir             = FillPathProperty(GetScPathEnv(), "cNoSweatDir",opsys).
-      c_SRVR_Dir             = FillPathProperty(GetScPathEnv(), "c_SRVR_Dir",opsys).
       cNonstaticDir           = FillPathProperty(GetScPathEnv(), "cNonstaticDir",opsys).
       cVcsdevScriptsNonstatic = FillPathProperty(GetScPathEnv(), "cVcsdevScriptsNonstatic",opsys).
       cDeployBinariesDir      = FillPathProperty(GetScPathEnv(), "cDeployBinariesDir",opsys).
       cDeployTargetRootDir    = FillPathProperty(GetScPathEnv(), "cDeployTargetRootDir",opsys).
       cDataRecoveryDir        = FillPathProperty(GetScPathEnv(), "cDataRecoveryDir",opsys).
       cDataExchangeDir        = FillPathProperty(GetScPathEnv(), "cDataExchangeDir",opsys).
-      cVanWanDir              = FillPathProperty(GetScPathEnv(), "cVanWanDir",opsys).
-      cVan_CCMPNY_Dir            = FillPathProperty(GetScPathEnv(), "cVan_CCMPNY_Dir",opsys).
-      cVan_CLOUD_Dir          = FillPathProperty(GetScPathEnv(), "cVan_CLOUD_Dir",opsys).
-      cNaarWanDir             = FillPathProperty(GetScPathEnv(), "cNaarWanDir",opsys).
-      cNaar_3DP_Dir         = FillPathProperty(GetScPathEnv(), "cNaar_3DP_Dir",opsys).
-      cVan_3DP_Dir          = FillPathProperty(GetScPathEnv(), "cVan_3DP_Dir",opsys).
-      cVanXmapDir             = FillPathProperty(GetScPathEnv(), "cVanXmapDir",opsys).
-      cNaarXmapDir            = FillPathProperty(GetScPathEnv(), "cNaarXmapDir",opsys).
-      cPclDir                 = FillPathProperty(GetScPathEnv(), "cPclDir",opsys).
     end.
     
   end method. /* TtPathInitialize */
@@ -887,30 +703,29 @@ class panaedra.msroot.msutil.logic.sc_path:
   
     input-output cPathStringIOP# as character):
 
-    if index(cPathStringIOP#,"[:cSysteemDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cSysteemDir:]"      ,sc_path:cSysteemDir      ).
-    if index(cPathStringIOP#,"[:c_SRVR_Dir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:c_SRVR_Dir:]"      ,sc_path:c_SRVR_Dir      ).
+    _sys_ReplacePathTokens(input-output cPathStringIOP#).
+    
+  end method. /* ReplacePathTokens */
+
+
+  method public static void _sys_ReplacePathTokens(
+  
+    /* Replace "[:cSomeDir:]" with the value returned by the corresponding sc_path property  */
+  
+    input-output cPathStringIOP# as character):
+
     if index(cPathStringIOP#,"[:cDataExchangeDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cDataExchangeDir:]" ,sc_path:cDataExchangeDir ).
     if index(cPathStringIOP#,"[:cDataRecoveryDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cDataRecoveryDir:]" ,sc_path:cDataRecoveryDir ).
     if index(cPathStringIOP#,"[:cIniDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cIniDir:]"          ,sc_path:cIniDir          ).
     if index(cPathStringIOP#,"[:cLocalIniDir:]"     ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLocalIniDir:]"     ,sc_path:cLocalIniDir     ).
     if index(cPathStringIOP#,"[:cLogDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogDir:]"          ,sc_path:cLogDir          ).
     if index(cPathStringIOP#,"[:cLogVerboseDir:]"   ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogVerboseDir:]"   ,sc_path:cLogVerboseDir   ).
-    if index(cPathStringIOP#,"[:cLogVoortgangDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogVoortgangDir:]" ,sc_path:cLogVerboseDir   ).
-    if index(cPathStringIOP#,"[:cNaarWanDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarWanDir:]"      ,sc_path:cNaarWanDir      ).
-    if index(cPathStringIOP#,"[:cNaarWebDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarWebDir:]"      ,sc_path:cNaarWebDir      ).
     if index(cPathStringIOP#,"[:cNonstaticDir:]"    ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNonstaticDir:]"    ,sc_path:cNonstaticDir    ).
-    if index(cPathStringIOP#,"[:cNoSweatDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNoSweatDir:]"      ,sc_path:cNoSweatDir      ).
     if index(cPathStringIOP#,"[:cTempDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cTempDir:]"         ,sc_path:cTempDir         ).
-    if index(cPathStringIOP#,"[:cVanWanDir:]"       ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanWanDir:]"       ,sc_path:cVanWanDir       ).
-    if index(cPathStringIOP#,"[:cVan_CCMPNY_Dir:]"     ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVan_CCMPNY_Dir:]"     ,sc_path:cVan_CCMPNY_Dir     ).
-    if index(cPathStringIOP#,"[:cVan_CLOUD_Dir:]"   ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVan_CLOUD_Dir:]"   ,sc_path:cVan_CLOUD_Dir   ).
     if index(cPathStringIOP#,"[:cWorkDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cWorkDir:]"         ,sc_path:cWorkDir         ).
     if index(cPathStringIOP#,"[:bLiveEnv:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:bLiveEnv:]"         ,if sc_environment:bLiveEnv then "live" else "nonlive").
-    if index(cPathStringIOP#,"[:cVanXmapDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanXmapDir:]"      ,sc_path:cVanXmapDir      ).
-    if index(cPathStringIOP#,"[:cNaarXmapDir:]"     ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarXmapDir:]"     ,sc_path:cNaarXmapDir     ).
-    if index(cPathStringIOP#,"[:cPclDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cPclDir:]"          ,sc_path:cPclDir          ).
 
-  end method. /* ReplacePathTokens */
+  end method. /* _sys_ReplacePathTokens */
 
 
   method public static void ReplacePathTokensOfOtherEnv(
@@ -934,30 +749,32 @@ class panaedra.msroot.msutil.logic.sc_path:
     input        cOpsysIP#       as character,
     input-output cPathStringIOP# as character):
       
-    if index(cPathStringIOP#,"[:cSysteemDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cSysteemDir:]"      ,GetDirOfOtherEnv(cEnvIP#,"cSysteemDir",cOpsysIP#)).
-    if index(cPathStringIOP#,"[:c_SRVR_Dir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:c_SRVR_Dir:]"      ,GetDirOfOtherEnv(cEnvIP#,"c_SRVR_Dir",cOpsysIP#)).
+    _sys_ReplacePathTokensOfOtherEnv(cEnvIP#,cOpsysIP#,input-output cPathStringIOP#).
+    
+  end method. /* ReplacePathTokensOfOtherEnv */
+  
+  
+  method public static void _sys_ReplacePathTokensOfOtherEnv(
+  
+    /* Replace "[:cSomeDir:]" with the value returned by the corresponding sc_path property, of other environment or opsys.  */
+    input        cEnvIP#         as character, 
+    input        cOpsysIP#       as character,
+    input-output cPathStringIOP# as character):
+      
     if index(cPathStringIOP#,"[:cDataExchangeDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cDataExchangeDir:]" ,GetDirOfOtherEnv(cEnvIP#,"cDataExchangeDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cDataRecoveryDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cDataRecoveryDir:]" ,GetDirOfOtherEnv(cEnvIP#,"cDataRecoveryDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cIniDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cIniDir:]"          ,GetDirOfOtherEnv(cEnvIP#,"cIniDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cLocalIniDir:]"     ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLocalIniDir:]"     ,GetDirOfOtherEnv(cEnvIP#,"cLocalIniDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cLogDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogDir:]"          ,GetDirOfOtherEnv(cEnvIP#,"cLogDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cLogVerboseDir:]"   ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogVerboseDir:]"   ,GetDirOfOtherEnv(cEnvIP#,"cLogVerboseDir",cOpsysIP#)).
-    if index(cPathStringIOP#,"[:cLogVoortgangDir:]" ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cLogVoortgangDir:]" ,GetDirOfOtherEnv(cEnvIP#,"cLogVoortgangDir",cOpsysIP#)).
-    if index(cPathStringIOP#,"[:cNaarWanDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarWanDir:]"      ,GetDirOfOtherEnv(cEnvIP#,"cNaarWanDir",cOpsysIP#)).
-    if index(cPathStringIOP#,"[:cNaarWebDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNaarWebDir:]"      ,GetDirOfOtherEnv(cEnvIP#,"cNaarWebDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cNonstaticDir:]"    ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNonstaticDir:]"    ,GetDirOfOtherEnv(cEnvIP#,"cNonstaticDir",cOpsysIP#)).
-    if index(cPathStringIOP#,"[:cNoSweatDir:]"      ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cNoSweatDir:]"      ,GetDirOfOtherEnv(cEnvIP#,"cNoSweatDir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cTempDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cTempDir:]"         ,GetDirOfOtherEnv(cEnvIP#,"cTempDir",cOpsysIP#)).
-    if index(cPathStringIOP#,"[:cVanWanDir:]"       ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVanWanDir:]"       ,GetDirOfOtherEnv(cEnvIP#,"cVanWanDir",cOpsysIP#)).
-    if index(cPathStringIOP#,"[:cVan_CCMPNY_Dir:]"     ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVan_CCMPNY_Dir:]"     ,GetDirOfOtherEnv(cEnvIP#,"cVan_CCMPNY_Dir",cOpsysIP#)).
-    if index(cPathStringIOP#,"[:cVan_CLOUD_Dir:]"   ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cVan_CLOUD_Dir:]"   ,GetDirOfOtherEnv(cEnvIP#,"cVan_CLOUD_Dir",cOpsysIP#)).
     if index(cPathStringIOP#,"[:cWorkDir:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cWorkDir:]"         ,GetDirOfOtherEnv(cEnvIP#,"cWorkDir",cOpsysIP#)).
-    if index(cPathStringIOP#,"[:cPclDir:]"          ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:cPclDir:]"          ,GetDirOfOtherEnv(cEnvIP#,"cPclDir",cOpsysIP#)).
     
     /* This token is always taken from it's own session */
     if index(cPathStringIOP#,"[:bLiveEnv:]"         ) > 0 then cPathStringIOP# = replace(cPathStringIOP#,"[:bLiveEnv:]"         ,if sc_environment:bLiveEnv then "live" else "nonlive").
 
-  end method. /* ReplacePathTokensOfOtherEnv */
+  end method. /* _sys_ReplacePathTokensOfOtherEnv */
   
   
   method public static character StandardIniFilePath(
