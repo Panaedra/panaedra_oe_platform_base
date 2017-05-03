@@ -65,7 +65,7 @@ class panaedra.msroot.mspy.logic.sc_mspython:
           subst("'cSharedIniDir'      : '&1',", sc_boot:SessionParameter("SharedIniDir")) +
           subst("'cIniDir'            : '&1',", sc_path:cIniDir) +
           subst("'cLogDir'            : '&1',", sc_path:cLogDir) +
-          subst("'cLogverboseDir'     : '&1',", sc_path:cLogverboseDir) +
+          subst("'cLogVerboseDir'     : '&1',", sc_path:cLogVerboseDir) +
           subst("'cWorkDir'           : '&1',", sc_path:cWorkDir) +
           subst("'cTempDir'           : '&1',", sc_path:cTempDir) +
           subst("'cDataExchangeDir'   : '&1',", sc_path:cDataExchangeDir) +
@@ -106,7 +106,7 @@ class panaedra.msroot.mspy.logic.sc_mspython:
           cDataOP: for the returned character data
        Example:
           using panaedra.msroot.mspy.logic.*.
-          message sc_mspython:PyEval("cDataOP = 'Hello ' + cDataIP", "World") view-as alert-box.
+          message sc_mspython:PyEval("cDataOP = 'Hello ' + cDataIP", "World") view-as alert-box. /* codeQok#7222 */
      */
     
     cPyCodeIP# as character,

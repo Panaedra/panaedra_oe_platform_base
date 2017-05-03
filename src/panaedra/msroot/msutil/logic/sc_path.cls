@@ -122,10 +122,10 @@ class panaedra.msroot.msutil.logic.sc_path:
     protected set.
   
   /* Logverbose directory */
-  define public static property cLogverboseDir as character no-undo 
+  define public static property cLogVerboseDir as character no-undo 
     get():
       if not bTtPathInitialized then TtPathInitialize().
-      return cLogverboseDir.
+      return cLogVerboseDir.
     end get.
     protected set.
 
@@ -291,7 +291,7 @@ class panaedra.msroot.msutil.logic.sc_path:
         /* Note: the getter of cIniDir initializes cIniDir automatically */ 
         cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config").
       cLogDir                 = FillPathProperty(GetScPathEnv(), "cLogDir",opsys).
-      cLogverboseDir          = FillPathProperty(GetScPathEnv(), "cLogverboseDir",opsys).
+      cLogVerboseDir          = FillPathProperty(GetScPathEnv(), "cLogVerboseDir",opsys).
       cNonstaticDir           = FillPathProperty(GetScPathEnv(), "cNonstaticDir",opsys).
       cVcsdevScriptsNonstatic = FillPathProperty(GetScPathEnv(), "cVcsdevScriptsNonstatic",opsys).
       cDeployBinariesDir      = FillPathProperty(GetScPathEnv(), "cDeployBinariesDir",opsys).
@@ -897,6 +897,14 @@ class panaedra.msroot.msutil.logic.sc_path:
     return bHasValidExt#.
     
   end method. /* HasValidExt */ 
+  
+  
+  method public static void _sys_SetIniDir(cIniDirIP# as character):
+    
+    if sc_data:HasValue(cIniDirIP#) then
+      cIniDir = cIniDirIP#.
+  
+  end method. /* _sys_SetIniDir */
 
 end class.
 
