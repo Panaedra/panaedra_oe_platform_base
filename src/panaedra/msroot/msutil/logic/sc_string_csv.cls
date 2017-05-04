@@ -155,8 +155,12 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
     define variable bReuse2# as logical   no-undo.
     define variable cDelim#  as character no-undo.
   
-    cPara# = cParamIP#.
-
+    assign
+      cPara#    = cParamIP#
+      cValueIP# = replace(cValueIP#, "[", "<") 
+      cValueIP# = replace(cValueIP#, "]", ">")
+      . 
+    
     do iTell# = 1 to num-entries(cPara#,"["):
       cEntr#= entry(iTell#,cPara#,"[").
       if cEntr#= "" then next.
