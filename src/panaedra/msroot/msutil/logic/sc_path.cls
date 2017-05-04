@@ -268,6 +268,8 @@ class panaedra.msroot.msutil.logic.sc_path:
 
   method protected static void _sys_IniInitialize():
     
+    define variable oData# as i_eventbroadcastdata no-undo.
+    
     if not bIniInitialized then 
     do:
       bIniInitialized = yes.
@@ -278,32 +280,12 @@ class panaedra.msroot.msutil.logic.sc_path:
         if substring(cIniDir,length(cIniDir)) <> "/" then cIniDir = cIniDir + "/".
       end.
       else 
-      do:
-    &if opsys = "win32" &then
-        if sc_boot:SessionParameter("Env") <> "live" then cIniDir = "Q:/test/ini/".
-        else cIniDir = "P:/live/ini/".
-    &else
-        if sc_boot:SessionParameter("Env") <> "live" then 
-          cIniDir = os-getenv("_PATH_") + "/_PRODUCT_/_FCMPNY_/ini/". /* codeQok#7110 */
-        else 
-        do:
-          if os-getenv("REPLTARGETACTIVE") = "yes" then
-            cIniDir = "/mount/progress__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-          else 
-            case os-getenv("ProfileParameter"):
-              when "_PRODUCT_Profile" then 
-                cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-              when "_SRVR_Profile"   then 
-                cIniDir = "/mount/progress__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-              when "otaProfile"    then 
-                cIniDir = "/mount/progress__PRODUCT__SRVR_/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-              otherwise 
-              cIniDir = "/progress/_PRODUCT_/_FCMPNY_/ini/".  /* codeQok#7110 */
-            end case.
-        end.  
-    &endif
-      end.
-    end.
+      do: 
+        sc_eventbroadcaster:FireEvent("evt@GetIniDir", output oData#).
+        if valid-object(oData#) and sc_data:HasValue(oData#:cReturnData) then
+          cIniDir = oData#:cReturnData. 
+      end. 
+    end. /* if not bIniInitialized */
     
   end method. /* _sys_IniInitialize */
   
