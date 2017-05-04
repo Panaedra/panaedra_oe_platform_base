@@ -278,27 +278,6 @@ class panaedra.msroot.msutil.logic.sc_path:
         if substring(cIniDir,length(cIniDir)) <> "/" then cIniDir = cIniDir + "/".
       end.
     end.
-    
-  end method. /* _sys_IniInitialize */
-  
-
-  method protected static void TtPathInitialize():
-    
-    if not bTtPathInitialized then 
-    do:
-      bTtPathInitialized = yes.
-      sc_config:ReadXml(temp-table ttPath:handle,
-        /* Note: the getter of cIniDir initializes cIniDir automatically */ 
-        cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config").
-      cLogDir                 = FillPathProperty(GetScPathEnv(), "cLogDir",opsys).
-      cLogVerboseDir          = FillPathProperty(GetScPathEnv(), "cLogVerboseDir",opsys).
-      cNonstaticDir           = FillPathProperty(GetScPathEnv(), "cNonstaticDir",opsys).
-      cVcsdevScriptsNonstatic = FillPathProperty(GetScPathEnv(), "cVcsdevScriptsNonstatic",opsys).
-      cDeployBinariesDir      = FillPathProperty(GetScPathEnv(), "cDeployBinariesDir",opsys).
-      cDeployTargetRootDir    = FillPathProperty(GetScPathEnv(), "cDeployTargetRootDir",opsys).
-      cDataRecoveryDir        = FillPathProperty(GetScPathEnv(), "cDataRecoveryDir",opsys).
-      cDataExchangeDir        = FillPathProperty(GetScPathEnv(), "cDataExchangeDir",opsys).
-    end.
     else 
     do:
     &if opsys = "win32" &then
@@ -324,6 +303,27 @@ class panaedra.msroot.msutil.logic.sc_path:
           end case.
       end.  
     &endif
+    end.
+    
+  end method. /* _sys_IniInitialize */
+  
+
+  method protected static void TtPathInitialize():
+    
+    if not bTtPathInitialized then 
+    do:
+      bTtPathInitialized = yes.
+      sc_config:ReadXml(temp-table ttPath:handle,
+        /* Note: the getter of cIniDir initializes cIniDir automatically */ 
+        cIniDir + "sc_path" + (if sc_environment:bLiveEnv then "_live" else "_nonlive") + ".config").
+      cLogDir                 = FillPathProperty(GetScPathEnv(), "cLogDir",opsys).
+      cLogVerboseDir          = FillPathProperty(GetScPathEnv(), "cLogVerboseDir",opsys).
+      cNonstaticDir           = FillPathProperty(GetScPathEnv(), "cNonstaticDir",opsys).
+      cVcsdevScriptsNonstatic = FillPathProperty(GetScPathEnv(), "cVcsdevScriptsNonstatic",opsys).
+      cDeployBinariesDir      = FillPathProperty(GetScPathEnv(), "cDeployBinariesDir",opsys).
+      cDeployTargetRootDir    = FillPathProperty(GetScPathEnv(), "cDeployTargetRootDir",opsys).
+      cDataRecoveryDir        = FillPathProperty(GetScPathEnv(), "cDataRecoveryDir",opsys).
+      cDataExchangeDir        = FillPathProperty(GetScPathEnv(), "cDataExchangeDir",opsys).
     end.
     
   end method. /* TtPathInitialize */
