@@ -1,14 +1,8 @@
-/******************************  Dvcs_ Header ********************************\
-       Filename: $Archive:  $ 
-        Version: $Revision:  $ 
-     Programmer: $Author: $ 
-   Date Checkin: $Date:  $ 
-  Date Modified: $Modtime:  $ 
+/****************************** Source Header ********************************\
 
     Description: External procedure definitions for Panaedra python bridge
 
-\**************************** End of Dvcs_ Header ****************************/
-/******************************* $NoKeywords:  $ *****************************/
+\******************************* $NoKeywords:  $ *****************************/
 
 &if opsys = "win32" &then
 &glob qx_python_dll "panaedra_pythonbridge_python2_x86.dll"

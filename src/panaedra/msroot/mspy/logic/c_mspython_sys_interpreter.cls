@@ -8,23 +8,13 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_interpreter
   implements 
   panaedra.msroot.msutil.interfaces.i_eventbroadcastclient: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: Start the python interpreter (system class), happens once per session.
 
   \*****************************  Include Files ********************************/
   {panaedra/msroot/mspy/logic/sc_mspython_externals_def.i &protected=protected &static=static &OnlyPreprocessorDefs=true}
   
-  /************************  Source control constructor ************************/
-  constructor public c_mspython_sys_interpreter(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected static variable hProcInitFinalyzePython as handle   no-undo.

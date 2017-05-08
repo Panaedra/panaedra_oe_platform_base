@@ -6,22 +6,12 @@ using panaedra.msroot.mspy.logic.*.
 
 class panaedra.msroot.mspy.logic.sc_mspython: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: Logic for communicating with the qx_python local session python interpreter
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_mspython(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected static variable oPythonSysInterpreter as c_mspython_sys_interpreter no-undo.
@@ -107,6 +97,9 @@ class panaedra.msroot.mspy.logic.sc_mspython:
        Example:
           using panaedra.msroot.mspy.logic.*.
           message sc_mspython:PyEval("cDataOP = 'Hello ' + cDataIP", "World") view-as alert-box. /* codeQok#7222 */
+       Example which shows sc_path property synchronization:
+          using panaedra.msroot.mspy.logic.*.
+          message sc_mspython:PyEval("from panaedra.msroot.msutil.logic.sc_path import sc_path; cDataOP = 'Hello, this is Python~\'s sc_path.cLogVerboseDir:~\n' + sc_path.cLogVerboseDir + '~\n~\nand this is my input:~\n' + cDataIP", "ABL Input") view-as alert-box. /* codeQok#7222 codeQok#7126 */
      */
     
     cPyCodeIP# as character,
