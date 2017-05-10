@@ -279,12 +279,7 @@ class panaedra.msroot.msutil.logic.sc_path:
         cIniDir = replace(cIniDir,"~\","/").
         if substring(cIniDir,length(cIniDir)) <> "/" then cIniDir = cIniDir + "/".
       end.
-      else 
-      do: 
-        sc_eventbroadcaster:FireEvent("evt@GetIniDir", output oData#).
-        if valid-object(oData#) and sc_data:HasValue(oData#:cReturnData) then
-          cIniDir = oData#:cReturnData. 
-      end. 
+      
     end. /* if not bIniInitialized */
     
   end method. /* _sys_IniInitialize */
@@ -906,13 +901,15 @@ class panaedra.msroot.msutil.logic.sc_path:
     
   end method. /* HasValidExt */ 
   
-  
-  method public static void _sys_SetIniDir(cIniDirIP# as character):
-    
+  method public static void BootSetIniDir(cIniDirIP# as character):
+
     if sc_data:HasValue(cIniDirIP#) then
-      cIniDir = cIniDirIP#.
-  
-  end method. /* _sys_SetIniDir */
+      assign 
+        bIniInitialized = true  
+        cIniDir         = cIniDirIP#
+        .
+
+  end method. /* BootSetIniDir */
 
 end class.
 
