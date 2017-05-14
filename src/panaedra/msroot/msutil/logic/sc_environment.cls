@@ -780,7 +780,16 @@ class panaedra.msroot.msutil.logic.sc_environment:
     
     &endif
     
-    if cReturn# = ? or cReturn# = "" then cReturn# = "NoHostName".
+    /* Note: we search for ":" because bash/shell will always return a colon somewhere in stdout if  */
+    /*       in error, and a hostname should not contain this character.                             */
+    /*       Added this exception after deep debugging something seemingly unrelated.                */
+    if cReturn# = ? or cReturn# = "" or index(cReturn#, ":") > 0 then do:
+      undo, throw new c_panaedraexception(
+        9993671,
+        sc_lang:oEnglish,
+        substitute("GetHostName could not resolve a default hostname. Value:'&1'", cReturn#)
+        ).
+    end.
     
     return cReturn#.
     
