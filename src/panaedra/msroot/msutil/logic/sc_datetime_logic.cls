@@ -737,7 +737,17 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     return datetime-tz(month(today), day(today), year(today), iHourIP#, iMinutesIP#). 
   
   end method. /* TimeTodayAsDatetimeTz */
+
     
+  method public static logical PointOfTimeHasPassed(
+    input iHourIP#    as integer,
+    input iMinutesIP# as integer
+    ):
+  
+    return now > sc_datetime_logic:TimeTodayAsDatetimeTz(iHourIP#, iMinutesIP#). 
+  
+  end method. /* PointOfTimeHasPassed */
+  
 end class.
 
 /* EOF */ 
