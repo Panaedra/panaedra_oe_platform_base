@@ -563,6 +563,17 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   end method. /* GetDateMMDDCCYY */
   
   
+  method public static date GetDateByYYYYMMDD(cDateIP# as character):
+  
+    return date(
+      integer(substring(cDateIP#, 5, 2)),
+      integer(substring(cDateIP#, 7, 2)),
+      integer(substring(cDateIP#, 1, 4))
+    ). 
+  
+  end method. /* GetDateByYYYYMMDD */
+  
+  
   method public static datetime-tz GetNextDatetimeForHour(
     /* Gives back a datetime-tz for the next time provided hour will take place. 
        
