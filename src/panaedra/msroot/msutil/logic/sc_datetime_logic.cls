@@ -565,11 +565,12 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   
   method public static date GetDateByYYYYMMDD(cDateIP# as character):
   
-    return date(
-      integer(substring(cDateIP#, 5, 2)),
-      integer(substring(cDateIP#, 7, 2)),
-      integer(substring(cDateIP#, 1, 4))
-    ). 
+    if sc_data:HasValue(cDateIP#) then 
+      return date(
+        integer(substring(cDateIP#, 5, 2)),
+        integer(substring(cDateIP#, 7, 2)),
+        integer(substring(cDateIP#, 1, 4))
+        ). 
   
   end method. /* GetDateByYYYYMMDD */
   
