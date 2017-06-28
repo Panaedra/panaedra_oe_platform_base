@@ -382,9 +382,23 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
     
     return dtReturn#.
     
-  end method. /* GetThisWeeksFriday */ 
+  end method. /* GetThisWeeksFriday */
   
   
+  method public static date GetLastFriday(dtDateIP# as date):
+      
+    define variable dtLastFriday# as date no-undo.  
+      
+    if weekday(dtDateIP#) <> 6 /* Friday */ then
+      dtLastFriday# = dtDateIP# - ((weekday(dtDateIP#) modulo 7) + 1).
+    else 
+      dtLastFriday# = dtDateIP#.
+    
+    return dtLastFriday#.
+    
+  end method. /* GetLastFriday */ 
+  
+   
   @panaedraannotation file(unittest="yes").
   method public static date GetNextWorkday(
     /* returns the next workday, in other words: skips the weekends */
