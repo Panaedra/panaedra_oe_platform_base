@@ -241,6 +241,28 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
     return substitute("&1&2&3&4&5", cYear#, cMonth#, cDay#, cHour#, cMinute#).    
   
   end method. /* GetDateTimeAsStringYYYYMMDDHHMM */
+  
+  
+  method public static character GetTimeAsStringHH_FCMPNY_S():
+  
+    /* Get the current time in the order of hour, minute and seconds as HH_FCMPNY_S */
+
+    define variable cDateTime# as character no-undo. 
+    define variable cHour#     as character no-undo. 
+    define variable cMinute#   as character no-undo. 
+    define variable cSecond#   as character no-undo. 
+
+    /* Get the current system date and time as: 27/06/2014 16:05:03,991+02:00
+       and extract the date and time elements into descriptive named variables */ 
+    assign 
+      cDateTime# = string(now)
+      cHour#     = substring(cDateTime#,12,2)
+      cMinute#   = substring(cDateTime#,15,2)
+      cSecond#   = substring(cDateTime#,18,2).
+     
+    return substitute("&1&2&3", cHour#, cMinute#, cSecond#).    
+  
+  end method. /* GetTimeAsStringHH_FCMPNY_S */
 
 
   method public static datetime TimezoneInterval(
