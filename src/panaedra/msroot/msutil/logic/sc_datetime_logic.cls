@@ -31,11 +31,11 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
           bVirtualDateInUse        = sc_data:HasValue(cVirtualSystemDateParam#).
       return bVirtualDateInUse.
     end get.
-    protected set.
+    public set.
   
    
-  define protected static property dtVirtualDate as date no-undo initial ?
-    protected get:
+  define static property dtVirtualDate as date no-undo initial ?
+    public get:
       /* Quick test:
          EXTRAPARAM='[VirtualSystemDate] 1-1-2015' $SCRIPTS/TestTTest -c "message sc_datetime_logic:dtVirtualDate view-as alert-box. "
       */
@@ -53,7 +53,7 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
       end.
       return dtVirtualDate.
     end get.
-    protected set.
+    public set.
 
 
   define static property dtToday as date no-undo initial ? 
