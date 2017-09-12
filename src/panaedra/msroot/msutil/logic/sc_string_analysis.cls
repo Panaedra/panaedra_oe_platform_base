@@ -84,6 +84,17 @@ class panaedra.msroot.msutil.logic.sc_string_analysis:
   
   
   method public static logical ContainsNonAscii(
+    input  cInputIP# as character
+    ):
+      
+    define variable iDummy as integer no-undo.
+    
+    return ContainsNonAscii(input cInputIP#, output iDummy).
+  
+  end method. /* ContainsNonAscii */
+  
+  
+  method public static logical ContainsNonAscii(
     
     /* Does a string contain a character with an ascii code higher then 127? I.E. "谷" -> true. If so output its index*/
     
@@ -172,7 +183,8 @@ class panaedra.msroot.msutil.logic.sc_string_analysis:
     define variable bContainsOnlySuppliedChars# as logical no-undo init true. 
     
     do iCount# = 1 to length(cStringIP#):
-      if index(cSuppliedCharsIP#, substring(cStringIP#,iCount#,1)) = 0 then do:
+      if index(cSuppliedCharsIP#, substring(cStringIP#,iCount#,1)) = 0 then 
+      do:
         bContainsOnlySuppliedChars# = false.
         leave.
       end. 
