@@ -389,10 +389,7 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
       
     define variable dtLastFriday# as date no-undo.  
       
-    if weekday(dtDateIP#) <> 6 /* Friday */ then
-      dtLastFriday# = dtDateIP# - ((weekday(dtDateIP#) modulo 7) + 1).
-    else 
-      dtLastFriday# = dtDateIP#.
+    dtLastFriday# = dtDateIP# - ((weekday(dtDateIP#) modulo 7) + 1).
     
     return dtLastFriday#.
     
