@@ -981,6 +981,23 @@ class paninui.view.use.display.sc_displaydata   :
   end method. /* SetUiValue ; Grid */
 
 
+  method public static void SetUiValue(
+    
+    /* Directly set any property of a ui frame widget to a new value, without databinding.
+       See the overload without OVID# parameter for more information.
+     */
+    
+    oUiFrameIP#     as i_uiframe,
+    cPropertyIP#    as character,
+    bValueIP#       as logical
+    ):
+    
+    if valid-object(oUiFrameIP#) then 
+      SetUiValueImplement(oUiFrameIP#, cPropertyIP#, bValueIP#).
+
+  end method. /* SetUiValue ; UiFrame */
+
+
   method protected static void SetUiValueImplement(
     
     /* Directly set any property of any widget to a new value, without databinding.

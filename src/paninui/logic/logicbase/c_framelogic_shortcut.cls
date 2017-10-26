@@ -295,6 +295,18 @@ class paninui.logic.logicbase.c_framelogic_shortcut:
 
   method public void SetUiValue(
     
+    oUiFrameIP#     as i_uiframe,
+    cPropertyIP#    as character,
+    bValueIP#       as logical
+    ):
+      
+    paninui.view.use.display.sc_displaydata:SetUiValue(oUiFrameIP#, cPropertyIP#, bValueIP#).
+
+  end method. /* SetUiValue ; Grid + integer */
+
+
+  method public void SetUiValue(
+    
     oGridItemOVID#     as i_widgettype_griditem,
     cWidgetNameIP#     as character,
     cWidgetItemNameIP# as character,
