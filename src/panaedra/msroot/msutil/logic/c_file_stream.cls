@@ -5,23 +5,13 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.c_file_stream   : 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_file_stream.cls $ 
-          Version: $Revision: 3 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-20 11:51:44+01:00 $ 
-    Date Modified: $Modtime: 2010-02-17 16:26:08+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Use this for passing stream within classes, create a new instance
                    of this object to access the stream-handle hStream
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public c_file_stream(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define public    property hStream         as handle no-undo get. set.

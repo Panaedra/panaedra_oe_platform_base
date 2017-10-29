@@ -14,25 +14,14 @@ class paninui.view.use.sc_coll_widgetdata
   implements
   panaedra.msroot.msutil.interfaces.i_eventbroadcastclient:
   
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/view/use/sc_coll_widgetdata.cls $ 
-          Version: $Revision: 29 $
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-08-22 15:30:38+02:00 $ 
-    Date Modified: $Modtime: 2010-08-22 02:29:45+02:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Collection of widget data. "Collection" (_coll_) is used to 
                    indicate local storage of runtime data, normally in a temp-table.
       
   \*****************************  Include Files ********************************/
-{paninui/logic/includes/preproc_dotnetclasses.i &class=class}
-{paninui/view/use/sc_coll_widgetdata_tt.i &class=true &protected=protected &static=static}
-
-  /************************  Source control constructor ************************/
-  constructor public sc_coll_widgetdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 29 $', '{&sourcecontrolversions}').
-  end constructor.
+  {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
+  {paninui/view/use/sc_coll_widgetdata_tt.i &class=true &protected=protected &static=static}
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected static variable oSingleton as sc_coll_widgetdata no-undo.

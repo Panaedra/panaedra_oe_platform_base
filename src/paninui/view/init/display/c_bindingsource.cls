@@ -12,26 +12,15 @@ class paninui.view.init.display.c_bindingsource
   &endif
     : 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/view/init/display/c_bindingsource.cls $ 
-          Version: $Revision: 19 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-15 13:12:48+01:00 $ 
-    Date Modified: $Modtime: 2010-02-15 13:12:22+01:00 $ 
+  /****************************** Source Header ********************************\
 
-      Description:  _CMPNY_ inheritance van de progress DataSource. 
-                    Bedoeld om onvolkomenheden van de progress DataSource
-                    in te vullen. Geen data access.
+      Description:  Inherit the ABL DataSource. 
+                    Solves several problems of the inherited class.
                     
-                    TODO: c_bindingsource moet verhuizen naar logic (vrij belang_REGION_! .r mist nu in de productie pl)
+                    TODO: Move c_bindingsource to logic layer
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public c_bindingsource(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 19 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected variable hCustomBuffer as handle    no-undo.

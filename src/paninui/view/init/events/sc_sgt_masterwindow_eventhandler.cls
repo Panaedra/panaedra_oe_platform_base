@@ -5,22 +5,12 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   : 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/view/init/events/sc_sgt_masterwindow_eventhandler.cls $ 
-          Version: $Revision: 15 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:38:06+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Static Class Singleton implementation for Masterwindow / MDI Window
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_sgt_masterwindow_eventhandler(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected static variable p_oSgt#            as sc_sgt_masterwindow_eventhandler no-undo.
@@ -43,7 +33,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
   
   
   method public void MdiOnLoad(input sender as System.Object, input e as System.EventArgs ):
-		
+    
     /* Note: "Load" and "Shown" are functionally the same in paninUi.
        However, both have some side effects:
        -Load-
@@ -56,9 +46,9 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
        partially painted MDI screen is shown.
        However, the Eclipse debugger likes this and doesn't crash (well, far less often anyway).
      */
-		
+    
     do on error undo, throw:
-		
+    
       /* This method is called if there is no eclipse debugger. 
          From the eclipse debugger, only MdiOnShown is called. */
       if cInitialPackCfg = "" then
@@ -80,7 +70,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
 
 
   method public void MdiOnShown(input sender as System.Object, input e as System.EventArgs ):
-		
+    
     /* Note: "Load" and "Shown" are functionally the same in paninUi.
        However, both have some side effects:
        -Load-
@@ -93,7 +83,7 @@ class paninui.view.init.events.sc_sgt_masterwindow_eventhandler   :
        partially painted MDI screen is shown.
        However, the Eclipse debugger likes this and doesn't crash (well, far less often anyway).
      */
-		
+    
     if os-getenv("ECLIPSE_PROJECT") > "" then 
     do:
       /* This means the eclipse debugger is running; Startup is postponed to the 

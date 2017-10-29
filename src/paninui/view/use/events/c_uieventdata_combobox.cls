@@ -6,23 +6,14 @@ class paninui.view.use.events.c_uieventdata_combobox
   implements
   paninui.view.interfaces.i_uieventdata: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/view/use/events/c_uieventdata_combobox.cls $ 
-          Version: $Revision: 2 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:13+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: 
 
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public c_uieventdata_combobox(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    super(o-sourcecontrol, this-object).
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
-  end constructor.
-/******************************* $NoKeywords:  $ *****************************/
+  /******************************* $NoKeywords:  $ *****************************/
 
   &if opsys = "unix" or "{&window-system}" = "tty" &then
     &glob Generic_Object Progress.Lang.Object

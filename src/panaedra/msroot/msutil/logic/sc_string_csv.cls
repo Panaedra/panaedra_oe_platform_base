@@ -4,24 +4,13 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_string_csv: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_string_csv.cls $ 
-          Version: $Revision: 12 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:12+01:00 $
+  /****************************** Source Header ********************************\
 
-      Description: Class implementation of csvlib.
-                   Delivers (C)omma (S)eparated (V)alue functionality
-                   (comma not to be taken literally).
+      Description: Delivers (C)omma (S)eparated (V)alue functionality
+                   (comma not to be taken literally, any [C]haracter can be used as delimiter).
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_string_csv(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 12 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   constructor public sc_string_csv(
@@ -247,7 +236,7 @@ class panaedra.msroot.msutil.logic.sc_string_csv:
       
     return CsvGetJoinList(csvOneIP#, csvTwoIP#, ',', '').  
       
-  end method. /* CsvGetJoinList overload zonder delimiter,options */   
+  end method. /* CsvGetJoinList overload without delimiter,options */   
  
  
   @panaedraannotation file(unittest="yes").

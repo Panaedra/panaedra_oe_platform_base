@@ -9,12 +9,7 @@ class panaedra.msroot.msdr.logic.c_buf
   panaedra.msroot.msdr.interfaces.i_buf,
   panaedra.msroot.msutil.interfaces.i_eventbroadcastclient: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_buf.cls $ 
-          Version: $Revision: 11 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-15 11:07:33+01:00 $ 
-    Date Modified: $Modtime: 2010-02-15 11:04:23+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -23,11 +18,6 @@ class panaedra.msroot.msdr.logic.c_buf
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public c_buf(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected variable hBufferPrivate       as handle no-undo.

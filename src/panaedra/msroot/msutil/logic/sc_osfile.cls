@@ -6,29 +6,18 @@ class panaedra.msroot.msutil.logic.sc_osfile
   implements 
   i_eventbroadcastclient:
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_osfile.cls $ 
-          Version: $Revision: 11 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-08-22 16:58:32+02:00 $ 
-    Date Modified: $Modtime: 2010-08-22 16:58:11+02:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Os-file functionality, replaces lib/osfilelib.p eventually.
 
   \*****************************  Include Files ********************************/
   {panaedra/msroot/msutil/logic/tt/file_and_attributes_tt.i &static=static &reference-only=reference-only &protected=protected}  
-
-  /************************  Source control constructor ************************/
+  /******************************* $NoKeywords:  $ *****************************/
+  
   constructor protected sc_osfile(
     input oParamIP# as i_unittest_param):
   end constructor.  
 
-  constructor public sc_osfile(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
-  end constructor.
-
-  /******************************* $NoKeywords:  $ *****************************/
 
   define stream s-alg-in.
   define stream s-alg-out.

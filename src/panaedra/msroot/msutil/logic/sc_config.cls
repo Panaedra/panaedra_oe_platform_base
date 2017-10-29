@@ -5,22 +5,12 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_config: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
-      Description: Read or write config files. Support for encryption.
+      Description: Read or write config files. Support for encryption (for obfuscation, not private key security).
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_config(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected static temp-table ttConfigFileName no-undo
@@ -32,11 +22,12 @@ class panaedra.msroot.msutil.logic.sc_config:
 
   define protected static property rawConfigKey as raw no-undo
   
-    /* We provide a hard-coded key for encryption and decryption of config files. 
-       It shouldn't be a security issue, since server-side authentication with
-       client-principal and ssl is used.
-       We encrypt config files to avoid tampering, but the contents should never
-       be "atomic-bomb-launch-code-style" security sensitive. 
+    /* Important: This key is NOT meant for security. It is only used for encrypting
+       config file contents to discourage endusers easily editing them.
+       Therefore:
+       We provide a hard-coded key for encryption and decryption of config files. 
+       We encrypt config files to avoid tampering, but the contents should *NEVER*
+       be security sensitive. This key must be considered *PUBLIC DOMAIN*.
     */
     
     get:

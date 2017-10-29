@@ -3,22 +3,12 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.interfaces.sc_stringtype_endofline: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/interfaces/sc_stringtype_endofline.cls $ 
-          Version: $Revision: 3 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: OVID# static class
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_stringtype_endofline(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define public static property oInternal      as i_stringtype_endofline_internal      no-undo get. /* Internal is always chr(10) */

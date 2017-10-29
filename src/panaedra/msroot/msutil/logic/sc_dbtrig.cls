@@ -4,13 +4,7 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_dbtrig: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrig.cls $ 
-          Version: $Revision: 20 $ 
-       Programmer: $Author: $
-     Date Checkin: $Date: 2010-05-20 15:27:00+02:00 $ 
-    Date Modified: $Modtime: 2010-05-20 14:59:25+02:00 $ 
-    
+  /****************************** Source Header ********************************\
 
       Description: This class is called by db delete and write triggers.
                    
@@ -26,14 +20,7 @@ class panaedra.msroot.msutil.logic.sc_dbtrig:
                    If the db table record is based on a temp-table, cGUID* is simply copied.
 
   \*****************************  Include Files ********************************/
-  
   {panaedra/msroot/msutil/logic/tt/msdbtrig_tableinfo_tt.i &class=class &protected=protected &static=static}
-
-  /************************  Source control constructor ************************/
-  constructor public sc_dbtrig(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 20 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected static variable iNewID       as int64 no-undo.

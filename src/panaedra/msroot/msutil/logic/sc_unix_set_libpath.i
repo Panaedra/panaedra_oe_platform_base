@@ -1,4 +1,4 @@
-/******************************  Dvcs_ Header ********************************\
+/****************************** Source Header ********************************\
 
     Description: Set the LIBPATH environment variable. 
                  It's reset on AIX because of the setuid flag 

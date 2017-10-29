@@ -12,22 +12,12 @@ using panaedra.msroot.msutil.view.*.
 
 class panaedra.msroot.msutil.logic.sc_showexception:
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_showexception.cls $ 
-          Version: $Revision: 10 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-08-02 08:43:20+02:00 $ 
-    Date Modified: $Modtime: 2010-07-31 19:27:34+02:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Show exceptions/errors on all platforms and ui's.
 
   \*****************************  Include Files ********************************/
-
-  /************************  Source control constructor ************************/
-  constructor public sc_showexception(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
-  end constructor.
+  
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected static variable cSvDisabledErrorNumbers as character                 no-undo.
@@ -304,9 +294,9 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   method public static void ShowExceptionKeepNative(
     
     /* "Keep native" means: 
-       Keep the message inside the session, don't use post monitor event, os-command's, or such.
+       Keep the message inside the session, don't use post monitor event, os-command's, or such.   codeQok#7222
        In other words:
-       Force the message to go to the screen (UI clients) or to the default 
+       Force the message to go to the screen (UI clients) or to the default                        codeQok#7222
        output stream (Batch clients).
     */
     
@@ -332,7 +322,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
         ShowFormSafe().
         
         catch oError# as Progress.Lang.Error :
-          /* Possible input blocking, just show message. */
+          /* Possible input blocking, just show message.    codeQok#7222 */
           ShowExceptionKeepNative_Implement(cExtraMessageIP#,ex).    
         end catch.
         
@@ -394,7 +384,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
       
       cMessage# = cMessage# + sc_showexception:ExceptionMsgToString(oErrorIP#).
       
-      message 
+      message /* codeQok#7222 */
         sc_messagebox:MessageToDisplayableMessage(
         subst("&1~n&2~n&3",
         cMessage#,
@@ -459,7 +449,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   &if not opsys = "unix" &then
   method public static character ExceptionMsgToString(
     
-    /* Get only "message" info from an exception (omit the callstack) and put it in a simple string codeQok#7120 */
+    /* Get only "message" info from an exception (omit the callstack) and put it in a simple string   codeQok#7120 */
   
     input oErrorIP# as System.Exception):
 
@@ -474,7 +464,7 @@ class panaedra.msroot.msutil.logic.sc_showexception:
   
   method public static character ExceptionMsgToString(
     
-    /* Get only "message" info from an exception (omit the callstack) and put it in a simple string codeQok#7120 */
+    /* Get only "message" info from an exception (omit the callstack) and put it in a simple string   codeQok#7120 */
   
     input oErrorIP# as Progress.Lang.Error):
 

@@ -8,18 +8,12 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
   inherits panaedra.msroot.msutil.logic.sc_string_csv
   implements panaedra.msroot.msutil.interfaces.i_unittest_client:    
 
-  /******************************  Dvcs_ Header ********************************\
+  /****************************** Source Header ********************************\
 
       Description: unittests for sc_string_csv
       
       
   \*****************************  Include Files ********************************/
-
-  /************************  Source control constructor ************************/
-  constructor public sc_string_csv_unittests(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    super(o-sourcecontrol, this-object).
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
 
   constructor public sc_string_csv_unittests(
     input oParamIP# as i_unittest_param):
@@ -319,21 +313,21 @@ class panaedra.msroot.msutil.logic.sc_string_csv_unittests
   
     sc_unittest:Assert(
       "GetValueByKey_00001_001",
-      "Key met 1 char",
+      "Key with 1 char",
       GetValueByKey("A=11,B=22,C=333,D=4444", "D"), 
       "4444"
       ).
       
     sc_unittest:Assert(
       "GetValueByKey_00002_001",
-      "Key met 2 chars",
+      "Key with 2 chars",
       GetValueByKey("A=11,AB=22,C=333,D=4444", "AB"),
       "22"
       ).
         
     sc_unittest:Assert(
       "GetValueByKey_00003_001",
-      "Key met 3 chars, maar is niet aanwezig",
+      "Key with 3 chars, not present",
       GetValueByKey("A=11,AB=22,C=333,D=4444", "ABC"),
       ?
       ).   

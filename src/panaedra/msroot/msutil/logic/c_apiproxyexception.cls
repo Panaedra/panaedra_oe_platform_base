@@ -5,24 +5,14 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexception: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_apiproxyexception.cls $ 
-          Version: $Revision: 10 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:35:56+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Special exception class for api-proxy exceptions
 
   \*****************************  Include Files ********************************/
   
-{panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &class=class}
+  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &class=class}
   
-  /************************  Source control constructor ************************/
-  constructor public c_apiproxyexception(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    super(o-sourcecontrol, this-object).
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 10 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
  
   define public variable bUsesDataset as logical no-undo.
@@ -51,7 +41,7 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexcept
     super (iErrorIP#, sc_lang:oEnglish, cErrorIP#). 
     
     bUsesDataset = false.
-		
+    
     define buffer b-ttExceptions for ttExceptions.
     
     do for b-ttExceptions:
@@ -115,7 +105,7 @@ class panaedra.msroot.msutil.logic.c_apiproxyexception inherits c_panaedraexcept
       super:AddMessageSuper(ApiproxyExceptions, 99958788).
       
       catch ex as Progress.Lang.Error :
-        sc_showexception:ShowException(ex).	
+        sc_showexception:ShowException(ex).  
       end catch.
       
     

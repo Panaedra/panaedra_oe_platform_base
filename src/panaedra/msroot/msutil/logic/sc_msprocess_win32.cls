@@ -2,22 +2,12 @@
 
 class panaedra.msroot.msutil.logic.sc_msprocess_win32: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: Process handling (process info, restart process, etc) on win32
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_msprocess_win32(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   method public static integer GetProcessID():

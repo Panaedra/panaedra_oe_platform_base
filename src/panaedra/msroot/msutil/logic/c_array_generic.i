@@ -1,9 +1,4 @@
-/******************************  Dvcs_ Header ********************************\
-       Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_array_generic.i $ 
-        Version: $Revision: 7 $ 
-     Programmer: $Author: $ 
-   Date Checkin: $Date: 2009-10-28 09:04:12+01:00 $ 
-  Date Modified: $Modtime: 2009-10-27 13:51:29+01:00 $ 
+/****************************** Source Header ********************************\
 
       Description: This include makes a variable sized array of any datatype, wrapping
                    the variable extent functionality of ABL.
@@ -31,10 +26,9 @@
                      ...code...
                    end set.
 
-\**************************** End of Dvcs_ Header ****************************/
-&if "{&dvcs__panaedra_msroot_msutil_logic_c_array_generic_i}" = "" &then
-&glob dvcs__panaedra_msroot_msutil_logic_c_array_generic_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msroot_msutil_logic_c_array_generic_i $Revision: 7 $
+\*****************************  Include Files ********************************/
+&if "{&src_panaedra_msroot_msutil_logic_c_array_generic_i}" = "" &then
+&glob src_panaedra_msroot_msutil_logic_c_array_generic_i yes
 /******************************* $NoKeywords:  $ *****************************/
 
 define protected static variable iDefaultExtentSizeInitial    as integer    no-undo init 10.
@@ -313,6 +307,6 @@ method protected void OnDestructor():
     
 end method. /* OnDestructor */
 
-&endif /* {&dvcs__panaedra_msroot_msutil_logic_c_array_generic_i} */
+&endif /* {&src_panaedra_msroot_msutil_logic_c_array_generic_i} */
 
 /* EOF : panaedra/msroot/msutil/logic/c_array_generic.i */ 

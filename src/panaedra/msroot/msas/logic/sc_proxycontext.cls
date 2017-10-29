@@ -7,31 +7,20 @@ using panaedra.msroot.msdeploy.logic.*.
 
 class panaedra.msroot.msas.logic.sc_proxycontext : 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_proxycontext.cls $ 
-          Version: $Revision: 11 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:53:29+01:00 $ 
+  /****************************** Source Header ********************************\
 
-      Description: Api-proxy functionality: generic methods die client-side (proxy)
-                   worden aangeroepen.
+      Description: Api-proxy functionality: generic methods called client-side (proxy).
 
   \*****************************  Include Files ********************************/
   
-{paninui/logic/includes/preproc_dotnetclasses.i &class=class}
+  {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
   
-{panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &class=class}
+  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &class=class}
   &undefine TtAllDefined
 
   {panaedra/msroot/msdeploy/logic/tt/msdeployversion_tt.i &class=true &protected=protected &static=static}
   &undefine TtAllDefined
    
-  /************************  Source control constructor ************************/
-  constructor public sc_proxycontext(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 11 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected static variable hDsContext       as handle                         no-undo.
@@ -145,7 +134,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
       if not avail b-ttExceptions then
         sc_exception:FillTtExceptionTtCallstack(?, dataset dsContext by-reference, subst("[Mirror] &1 [CallStackLine] :MIRROR: ~"&1~" :AS-CONNECT-STRING: ~"&2~" ", cMirrorIP#, cConnectionString#)).
       else
-      /* If an exception has occurred on an appserver, append callstack */
+      /* If an exception has occurred on an appserver, append callstack    codeQok#7120 */
       do:
         if sc_boot:SessionParameter("UiMode") <> "AppServer" 
           and not sc_asconnect:bInitializationError
@@ -177,7 +166,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
         dataset dsContext /* ->not<- by-reference */ ).
       
       &if false &then
-      message "b-ttExceptions.cError" b-ttExceptions.cError skip
+      message "b-ttExceptions.cError" b-ttExceptions.cError skip /* codeQok#7222 */
         "oApiProxyException#:NumMessages" oApiProxyException#:NumMessages skip
         "sc_showexception:ExceptionMsgToString" sc_showexception:ExceptionMsgToString(oApiProxyException#)
         view-as alert-box.
@@ -212,7 +201,7 @@ class panaedra.msroot.msas.logic.sc_proxycontext :
             then bMsDeployPackIsShown = true.
           
           catch oError# as Progress.Lang.Error :
-            undo, throw oError#.	
+            undo, throw oError#.  
           end catch.
           
           finally:

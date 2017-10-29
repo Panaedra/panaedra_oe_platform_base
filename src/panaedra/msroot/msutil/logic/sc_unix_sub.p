@@ -1,17 +1,11 @@
 {panaedra/msroot/msutil/logic/top_i/ptop_procedure.i}
 
-/******************************  Dvcs_ Header ********************************\
-       Filename: $Archive: $ 
-        Version: $Revision: $ 
-     Programmer: $Author: $ 
-   Date Checkin: $Date: $ 
-  Date Modified: $Modtime: $ 
+  /****************************** Source Header ********************************\
 
     Description: Unix shared objects externals. Don't use this sub procedure directly.
 
-\**************************** End of Dvcs_ Header ****************************/
-&scop dvcs_proc procedure dvcs__panaedra_msroot_msutil_logic_sc_unix_sub_p: return "$Revision: $". end.
-{&dvcs_proc}
+\*****************************  Include Files ********************************/
+
 /******************************* $NoKeywords:  $ *****************************/
 
 procedure usleep external "panaedra/msroot/msutil/bin_aix/microsleep_64.so" persistent:

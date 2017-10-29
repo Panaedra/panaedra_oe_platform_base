@@ -16,11 +16,6 @@ class panaedra.msroot.msutil.logic.sc_string_analysis_unittests
   \*****************************  Include Files ********************************/
 
   /************************  Source control constructor ************************/
-  constructor public sc_string_analysis_unittests(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    super(o-sourcecontrol, this-object).
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
-
 
   constructor public sc_string_analysis_unittests(
     input oParamIP# as i_unittest_param):

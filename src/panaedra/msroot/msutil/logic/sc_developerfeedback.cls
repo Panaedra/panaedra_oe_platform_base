@@ -6,22 +6,12 @@ using panaedra.msroot.msutil.view.*.
 
 class panaedra.msroot.msutil.logic.sc_developerfeedback: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: Provide feedback specifically for developers
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_developerfeedback(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   method public static void DevMsg(cMsgIP# as character):
@@ -66,8 +56,8 @@ class panaedra.msroot.msutil.logic.sc_developerfeedback:
       
       cReturn# = cReturn# + chr(10) + sc_showexception:ExceptionMsgToString(oExIP#) + subst(" (&1)",oExIP#:GetClass():TypeName).
       
-      do iTell# = 1 to num-entries(oExIP#:CallStack):
-        cReturn# = cReturn# + chr(10) + entry(iTell#,oExIP#:CallStack).
+      do iTell# = 1 to num-entries(oExIP#:CallStack): /* codeQok#7120 */
+        cReturn# = cReturn# + chr(10) + entry(iTell#,oExIP#:CallStack). /* codeQok#7120 */
       end.
        
     end.

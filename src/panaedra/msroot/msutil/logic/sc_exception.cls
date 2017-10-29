@@ -6,23 +6,13 @@ using panaedra.msroot.msas.logic.*.
 
 class panaedra.msroot.msutil.logic.sc_exception: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_exception.cls $ 
-          Version: $Revision: 15 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:53:29+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Generic exception functionality with support for serializing (for appserver boundaries).
 
   \*****************************  Include Files ********************************/
-{panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &reference-only=reference-only &class=class}
+  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &static=static &reference-only=reference-only &class=class}
   
-  /************************  Source control constructor ************************/
-  constructor public sc_exception(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 15 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define stream str-log.
@@ -89,7 +79,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
         /* Log hostname and rating info. */
         cHostname# = sc_environment:GetHostName().   
            
-        output stream str-log to value(sc_path:cLogDir + "sc_exception_rating.log") unbuffered append.
+        output stream str-log to value(sc_path:cLogDir + "sc_exception_rating.log") append.
         put stream str-log unformatted substitute("User: &1, PID: &2, Errornum: &3. Error number is not rated, modify source: sc_exception.cls.", cHostname#, sc_environment:GetProcessID(), iErrorIP#) skip.
         put stream str-log unformatted substitute("Calling procedure: &1, &2", program-name(2), iso-date(now)) skip.
         output stream str-log close.
@@ -114,7 +104,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
     cCallstackLine# = sc_string_csv:GetParam(cExtraErrorInfoIP#,"CallStackLine").
     if cCallstackLine# = ? then cCallstackLine# = "".
     
-    if cCallstackLine# > "" then 
+    if cCallstackLine# > "" then /* codeQok#7122 */ 
     do:
       create b-ttCallstack.
       b-ttCallStack.cCallStack = subst("&1",cCallstackLine#).
@@ -180,7 +170,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
       
       cMirror# = sc_string_csv:GetParam(cExtraErrorInfoIP#,"Mirror").
       
-      if cMirror# > "" and sc_asconnect:GetAppserver(cMirror#) <> session:handle then
+      if cMirror# > "" and sc_asconnect:GetAppserver(cMirror#) <> session:handle then /* codeQok#7122 */
       do:
         /* This adds a final missing piece to the callstack codeQok#7120 */
         create b-ttCallstack.
@@ -292,7 +282,7 @@ class panaedra.msroot.msutil.logic.sc_exception:
     return 
       type-of(oExceptionIP#, c_panaedraexception) 
       and 
-      (cast(oExceptionIP#,c_panaedraexception):cCategoryEvent > "" 
+      (cast(oExceptionIP#,c_panaedraexception):cCategoryEvent > "" /* codeQok#7122 */
       or 
       valid-object(cast(oExceptionIP#,c_panaedraexception):oInnerException)).
       

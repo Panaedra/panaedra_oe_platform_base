@@ -9,25 +9,15 @@ using System.Windows.Forms.*.
 
 class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastclient:
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/view/sc_trayicon_win32.cls $ 
-          Version: $Revision: 3 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:39:42+01:00 $ 
+  /****************************** Source Header ********************************\
 
-      Description: Display a message by an Panaedra tray icon 
+      Description: Display a message by an Panaedra tray icon          codeQok#7222 
                    (static, so one per progress session)
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_trayicon_win32(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 3 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
-		
+    
   &if opsys <> "unix" &then
   
   define private static variable notifyIcon1                       as System.Windows.Forms.NotifyIcon        no-undo.
@@ -102,10 +92,10 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
       exitToolStripMenuItem:Text = "&Exit".
       exitToolStripMenuItem:Click:subscribe(exitToolStripMenuItem_Click).
 
-      showLastToolStripMenuItem:Text = "&Show last message".
+      showLastToolStripMenuItem:Text = "&Show last message". /* codeQok#7222 */
       showLastToolStripMenuItem:Click:subscribe(showLastToolStripMenuItem_Click).
       
-      putClipboardLastToolStripMenuItem:Text = "&Put last message on clipboard".
+      putClipboardLastToolStripMenuItem:Text = "&Put last message on clipboard". /* codeQok#7222 */
       putClipboardLastToolStripMenuItem:Click:subscribe(putClipboardLastToolStripMenuItem_Click).
 
       ShowLogToolStripMenuItem:Text = "&Show logfile".
@@ -118,7 +108,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
 
     end.
     
-    /* Show last message in a baloon tip */
+    /* Show last message in a baloon tip    codeQok#7222 */
     notifyIcon1:Visible = true.
     notifyIcon1:ShowBalloonTip(500, "Panaedra Info", cMsgIP#, ToolTipIcon:None).
     
@@ -161,7 +151,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
     find last ttLog use-index dtmDate no-error.
     
     if available ttLog
-      and ttLog.cMsg > "" 
+      and ttLog.cMsg > "" and length(ttLog.cMsg) > 0 /* codeQok#7122 */
       and valid-object(notifyIcon1) then
       notifyIcon1:ShowBalloonTip(30000, "Panaedra Info", ttLog.cMsg, ToolTipIcon:None).
         
@@ -212,7 +202,7 @@ class panaedra.msroot.msutil.view.sc_trayicon_win32 implements i_eventbroadcastc
     
   end method. /* OnEventBroadcast */
 
-  &endif /* niet unix */
+  &endif /* not unix */
   
 
 end class.

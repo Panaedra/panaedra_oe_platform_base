@@ -4,25 +4,15 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_prop:
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_prop.cls $ 
-          Version: $Revision: 8 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-03-01 13:16:51+01:00 $ 
-    Date Modified: $Modtime: 2010-03-01 13:15:06+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Class implementation of generic loose coupled properties.
                    
-                   For backward compatibility with the _PLTFRM_UNDISCLOSED_, but 
+                   Strong typed OO is preferred instead of using this class, but 
                    may still be used when appropriate.
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_prop(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 8 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected static temp-table ttSharedVars no-undo

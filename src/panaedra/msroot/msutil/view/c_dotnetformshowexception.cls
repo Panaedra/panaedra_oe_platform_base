@@ -10,28 +10,19 @@ using Progress.Windows.Form.
 
 class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" &then inherits Form implements panaedra.msroot.msutil.interfaces.i_apiproxyexception &endif : 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/view/c_dotnetformshowexception.cls $ 
-          Version: $Revision: 14 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-08-02 08:44:02+02:00 $ 
-    Date Modified: $Modtime: 2010-07-31 19:26:31+02:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Show any progress or dotnet exception to the user.
 
   \*****************************  Include Files ********************************/
   
-{panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &class=class}
+  {panaedra/msroot/msas/logic/ds/ascontext_ds.i &protected=protected &class=class}
+
+  /******************************* $NoKeywords:  $ *****************************/
   
   define protected temp-table ttAblExceptions no-undo like ttExceptions.
   define protected temp-table ttAblCallStack no-undo like ttCallStack.
   
-  /************************  Source control constructor ************************/
-  constructor public c_dotnetformshowexception(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 14 $', '{&sourcecontrolversions}').
-  end constructor.
-  /******************************* $NoKeywords:  $ *****************************/
 
   &if opsys = "win32" and not "{&window-system}" = "tty" &then
   
@@ -43,9 +34,9 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
   define private   variable btnOK        as System.Windows.Forms.Button      no-undo.
   define private   variable tbinfo       as System.Windows.Forms.TextBox     no-undo.
   define private   variable btnDetails   as System.Windows.Forms.Button      no-undo.
-  		
+      
   constructor public c_dotnetformshowexception (  ):
-		
+    
     super().
     InitializeComponent().
     
@@ -58,9 +49,9 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
  
   @VisualDesigner.
   method private void btnDetails_Click( input sender as System.Object, input e as System.EventArgs ):
-	
+  
     define variable nestedvar as System.Windows.Forms.AnchorStyles no-undo.
-	
+  
     /* Do once if details aren't shown yet */
     if not bShowDetails then 
     do:
@@ -92,7 +83,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
 
   @VisualDesigner.
   method private void btnOK_Click( input sender as System.Object, input e as System.EventArgs ):
-		
+    
     this-object:Close().
 
   end method.
@@ -100,7 +91,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
 
   @VisualDesigner.
   method private void c_dotnetformshowexception_KeyPress( input sender as System.Object, input e as System.Windows.Forms.KeyPressEventArgs ):
-		
+    
     if e:KeyChar = chr(3) /* Ctrl+C */ then 
     do:
       e:Handled = true.
@@ -114,7 +105,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
 
 
   method private void InitializeComponent(  ):
-		
+    
     /* NOTE: The following method is automatically generated.
     
     We strongly suggest that the contents of this method only be modified using the
@@ -313,8 +304,8 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
     
     do for b-ttAblCallStack:
       create b-ttAblCallStack.
-      if oErrorIP#:CallStack > "" then 
-        b-ttAblCallStack.cCallStack = oErrorIP#:CallStack.
+      if oErrorIP#:CallStack > "" then /* codeQok#7120 */ 
+        b-ttAblCallStack.cCallStack = oErrorIP#:CallStack. /* codeQok#7120 */
       else 
         b-ttAblCallStack.cCallStack = sc_showexception:GetSessionCallStack().
 
@@ -323,8 +314,8 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
         oPanaedraException# = cast(oErrorIP#, c_panaedraexception).
         if valid-object(oPanaedraException#:oInnerException) then 
         do:
-          if oPanaedraException#:oInnerException:CallStack > "" then 
-            b-ttAblCallStack.cCallStack = b-ttAblCallStack.cCallStack + "~n:INNER-CALLSTACK:~n" + oPanaedraException#:oInnerException:CallStack.
+          if oPanaedraException#:oInnerException:CallStack > "" then /* codeQok#7120 */ 
+            b-ttAblCallStack.cCallStack = b-ttAblCallStack.cCallStack + "~n:INNER-CALLSTACK:~n" + oPanaedraException#:oInnerException:CallStack. /* codeQok#7120 */
         end.
       end.
     end.
@@ -368,12 +359,12 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
     else 
       tbInfo:Text = "Unknown error.".
     
-    /* Put last procedure of first callstack in top textbox. */
+    /* Put last procedure of first callstack in top textbox.     codeQok#7120 */
     find first ttCallstack no-error.
     if avail ttCallStack and ttCallStack.cCallStack > "" then
       tbInfo:Text = tbInfo:Text + entry(num-entries(ttCallStack.cCallStack,chr(10)),ttCallStack.cCallStack,chr(10)) + chr(13) + chr(10) + chr(13) + chr(10).
     
-    /* Adjust order of complete callstack  */
+    /* Adjust order of complete callstack       codeQok#7120*/
     open query hQuery# for each b-ttCallStack.
     get last hQuery#.
     
@@ -392,7 +383,7 @@ class panaedra.msroot.msutil.view.c_dotnetformshowexception &if opsys = "win32" 
 
   @VisualDesigner.
   method private void tbStack_TextChanged( input sender as System.Object, input e as System.EventArgs ):
-		
+    
     return.
 
   end method.

@@ -4,22 +4,12 @@ using Progress.Windows.Form.
 
 class panaedra.msroot.msutil.view.c_messagebox_win32 inherits form   : 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/view/c_messagebox_win32.cls $ 
-          Version: $Revision: 4 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:13+01:00 $ 
+  /****************************** Source Header ********************************\
 
-      Description: add_your_comments_here
+      Description: Win32 msgbox, Forms
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public c_messagebox_win32(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define private variable components as System.ComponentModel.IContainer no-undo.
@@ -29,7 +19,7 @@ class panaedra.msroot.msutil.view.c_messagebox_win32 inherits form   :
   define private variable tbMessage as System.Windows.Forms.TextBox no-undo.
 
   constructor public c_messagebox_win32 (bAlwaysOnTopIP# as logical, cMessageIP# as character):
-		
+    
     super().
     InitializeComponent().
     
@@ -42,17 +32,17 @@ class panaedra.msroot.msutil.view.c_messagebox_win32 inherits form   :
 
   end constructor.
 
-	
+  
   @VisualDesigner.
   method private void c_messagebox_win32_Load( input sender as System.Object, input e as System.EventArgs ):
-		
+    
     return.
 
   end method.
 
 
   method private void InitializeComponent(  ):
-		
+    
     /* NOTE: The following method is automatically generated.
     
     We strongly suggest that the contents of this method only be modified using the

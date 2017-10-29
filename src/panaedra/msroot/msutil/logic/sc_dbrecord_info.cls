@@ -4,12 +4,7 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_dbrecord_info: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: info about (locked) records
 
@@ -17,11 +12,6 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
 
   {panaedra/msroot/msutil/logic/tt/sc_dbrecord_info_lock.i &class=class &static=static}
 
-  /************************  Source control constructor ************************/
-  constructor public sc_dbrecord_info(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   
@@ -72,7 +62,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
     create query hQuery#.
    
     if hQuery#:set-buffers(hLockBuff#)
-      and hQuery#:query-prepare("for each _Lock no-lock where _lock-recid <> ?")
+      and hQuery#:query-prepare("for each _Lock no-lock where _lock-recid <> ?") /* codeQok#7127 */
       and hQuery#:query-open()
       and hQuery#:get-first()
       then 
@@ -80,7 +70,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
        
       repeat while (not hQuery#:query-off-end ) on error undo, throw:
         
-        if hLockBuff#::_lock-recid = hBufferIP#:recid and
+        if hLockBuff#::_lock-recid = hBufferIP#:recid and /* codeQok#7127 */
           hLockBuff#::_lock-table  = hBufferIP#:table-number and
           hLockBuff#::_lock-flags matches "*X*" 
           then leave.
@@ -91,7 +81,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
         
     end. /* do */
 
-    if hLockBuff#:available and hLockBuff#::_lock-recid <> ? then 
+    if hLockBuff#:available and hLockBuff#::_lock-recid <> ? then /* codeQok#7127 */ 
     do:
       
       GetUserInfo(
@@ -200,7 +190,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
   
     cDbIP#    as character, 
     cTableIP# as character, 
-    rRecidIP# as recid):
+    rRecidIP# as recid): /* codeQok#7127 */
   
     define variable cReturn#       as character no-undo.
     define variable hBuff#         as handle    no-undo.
@@ -216,7 +206,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
   
     /* Actual record ... */
     create buffer hBuff# for table substitute("&1.&2", cDbIP#, cTableIP#) no-error.
-    if valid-handle(hBuff#) then hBuff#:find-first(subst("where recid(&1) = &2", hBuff#:name, rRecidIP#), no-lock) no-error.
+    if valid-handle(hBuff#) then hBuff#:find-first(subst("where recid(&1) = &2", hBuff#:name, rRecidIP#), no-lock) no-error. /* codeQok#7127 */
   
     if valid-handle(hBuff#) and hBuff#:available then 
     do:
@@ -231,14 +221,14 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
       create buffer hBuffIdx# for table cBuffIdx# no-error.
       create query hQuerIdx#.
       hQuerIdx#:set-buffers(hBuffIdx#).
-      hQuerIdx#:query-prepare(substitute("for each &1 no-lock where &1._File-recid = &2", hBuffIdx#:name, hBuffFile#:recid)).
+      hQuerIdx#:query-prepare(substitute("for each &1 no-lock where &1._File-recid = &2", hBuffIdx#:name, hBuffFile#:recid)). /* codeQok#7127 */
       hQuerIdx#:query-open().
       hQuerIdx#:get-first.
   
       /* Walk through _Index metadata ... */
       do while hBuffIdx#:available:
     
-        if hBuffIdx#:recid = hBuffFile#::_Prime-Index then 
+        if hBuffIdx#:recid = hBuffFile#::_Prime-Index then /* codeQok#7127 */ 
         do:
       
           /* Note - Other index meta fields: _Wordidx , _Unique , _Active */
@@ -253,7 +243,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
 
             create query hQuerIdxFld#.
             hQuerIdxFld#:set-buffers(hBuffIdxField#, hBuffFldOfIdx#).
-            hQuerIdxFld#:query-prepare(substitute("for each &1 no-lock where &1._Index-recid = &2, first &3 no-lock of &1", hBuffIdxField#:name, hBuffIdx#:recid, hBuffFldOfIdx#:name)).
+            hQuerIdxFld#:query-prepare(substitute("for each &1 no-lock where &1._Index-recid = &2, first &3 no-lock of &1", hBuffIdxField#:name, hBuffIdx#:recid, hBuffFldOfIdx#:name)). /* codeQok#7127 */
             hQuerIdxFld#:query-open().
             hQuerIdxFld#:get-first.
 
@@ -366,7 +356,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
         cTransStatOP# = hBuffer#::_Trans-State
         dtmSinceOP#   = add-interval(now, (if hBuffer#::_Trans-Duration <> ? then -1 * int(hBuffer#::_Trans-Duration) else 0), "seconds").
       &if false &then
-      message "dtmSinceOP#" dtmSinceOP# skip
+      message "dtmSinceOP#" dtmSinceOP# skip /* codeQok#7222 */
         "hBuffer#::_trans-num" hBuffer#::_trans-num skip
         "hBuffer#::_Trans-txtime" hBuffer#::_Trans-txtime skip
         "hBuffer#::_Trans-State" hBuffer#::_Trans-State skip
@@ -421,7 +411,7 @@ class panaedra.msroot.msutil.logic.sc_dbrecord_info:
           ttLock.iIDLock    = iIdLock#
           ttLock.cDb        = ldbname(iDb#)
           ttLock.iLockId    = hBuffLock#::_Lock-Id
-          ttLock.rLockRecid = hBuffLock#::_Lock-RecId
+          ttLock.rLockRecid = hBuffLock#::_Lock-RecId /* codeQok#7127 */
           ttLock.iLockUsr   = hBuffLock#::_Lock-Usr
           ttLock.cLockName  = hBuffLock#::_Lock-Name
           ttLock.iLockTable = hBuffLock#::_Lock-Table

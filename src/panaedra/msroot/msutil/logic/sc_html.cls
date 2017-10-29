@@ -4,22 +4,12 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_html: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_html.cls $ 
-          Version: $Revision: 7 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-20 11:51:44+01:00 $ 
-    Date Modified: $Modtime: 2010-02-20 00:35:00+01:00 $ 
+  /****************************** Source Header ********************************\
 
-      Description: Genereren van HTML code, bv voor reporting.
+      Description: Generate HTML code
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_html(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 7 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
 
@@ -60,38 +50,32 @@ class panaedra.msroot.msutil.logic.sc_html:
       end.
       put unformatted "</tr>~n".
         
-      /* Loop door de temp-table */  
       do while not hQueryIP#:query-off-end:
-        
-        /* Zet dit record om in data voor html */        
         RecordToHTMLLine(hBuffIP#).
-        
         hQueryIP#:get-next().
-        
       end.         
       
-      /* Sluit html file */  
+      /* Close html file */  
       put unformatted "</table></body></html>~n".
       
     end.
     
     return true.
     
-    /* Foutfhandeling */
     catch e as Progress.Lang.Error :
       panaedra.msroot.msutil.logic.sc_showexception:ShowException(e).
     end catch.
     
     finally:
       output close.
-      if bOwnQuery# and valid-handle(hQueryIP#) then delete object hQueryIP#. 		
+      if bOwnQuery# and valid-handle(hQueryIP#) then delete object hQueryIP#.     
     end finally.
     
   end method. /* TempTableToHTML : optional query as input for filtering */
   
   
   method protected static char FormatBufferValue(hFieldIP# as handle):
-    /* Neem het goede format aan voor het inkomende veld */
+    /* Handle string format for field widgets */
     define variable cFormat# as character no-undo.
     
     cFormat# = hFieldIP#:format.
@@ -102,9 +86,9 @@ class panaedra.msroot.msutil.logic.sc_html:
       return hFieldIP#:buffer-value.
     
     catch ex as Progress.Lang.Error :
-    	
+      
       do on error undo, throw:
-    	
+      
         if valid-handle(hFieldIP#) and hFieldIP#:buffer-handle:available then
           /* Return the value with no formatting applied */
           return hFieldIP#:buffer-value.
@@ -114,9 +98,9 @@ class panaedra.msroot.msutil.logic.sc_html:
         catch ex2 as Progress.Lang.Error :
           sc_showexception:ShowException(ex2).
         end catch.  
-    	
+      
       end.
-    		
+        
     end catch.  
       
   end method. /* FormatBufferValue */
@@ -140,8 +124,6 @@ class panaedra.msroot.msutil.logic.sc_html:
         bHandled# = false
         hField#   = hBuffIP#:buffer-field(iField#).
       
-      /* Zet de waarde van het huidige veld om in html geschikte text en zet dit
-         in het goede format */
       if not bHandled# and hField#:data-type = "character" then 
         assign
           bHandled# = true
@@ -186,7 +168,7 @@ class panaedra.msroot.msutil.logic.sc_html:
       
       cBGColorParm# = panaedra.msroot.msutil.logic.sc_string_csv:getparam(hBuffIP#:buffer-field(iField#):help, "HtmlBackColor"). 
        
-      /* Handel de achtergrond kleuren per veld af */ 
+      /* Handle background colors for field widgets */ 
       case cBGColorParm#:
          
         when "green" then 
@@ -206,8 +188,8 @@ class panaedra.msroot.msutil.logic.sc_html:
           
       end case.  
       
-      /* Plaats de regel */
       put unformatted '<td bgcolor="' cBgColor# '">' cLine# '</td>'.
+      
     end.  
     
     put unformatted "</tr>~n".

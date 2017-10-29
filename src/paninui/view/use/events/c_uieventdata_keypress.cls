@@ -7,23 +7,13 @@ class paninui.view.use.events.c_uieventdata_keypress
   paninui.view.interfaces.i_uieventdata
   : 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/view/use/events/c_uieventdata_keypress.cls $ 
-          Version: $Revision: 2 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Data to be transmitted to custom UI paninUi event handlers in 
                    the UI logic objects (the "trigger logic methods").
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public c_uieventdata_keypress(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    super(o-sourcecontrol, this-object).
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 2 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   &if opsys = "unix" or "{&window-system}" = "tty" &then

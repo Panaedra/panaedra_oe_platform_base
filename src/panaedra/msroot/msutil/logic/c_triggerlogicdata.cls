@@ -2,24 +2,12 @@
 
 class panaedra.msroot.msutil.logic.c_triggerlogicdata: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/c_triggerlogicdata.cls $ 
-          Version: $Revision: 4 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:42:48+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Data and methods for communication between trigger logic and sc_dbtrig.
 
   \*****************************  Include Files ********************************/
-  
-{panaedra/msroot/msutil/logic/tt/c_triggerlogicdata_tt.i &class=class &protected=protected}
-  
-  /************************  Source control constructor ************************/
-  constructor public c_triggerlogicdata(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
-  end constructor.
+  {panaedra/msroot/msutil/logic/tt/c_triggerlogicdata_tt.i &class=class &protected=protected}
   /******************************* $NoKeywords:  $ *****************************/
 
   constructor public c_triggerlogicdata():
@@ -99,7 +87,7 @@ class panaedra.msroot.msutil.logic.c_triggerlogicdata:
     
     define buffer b-ttTriggerLogicData for ttTriggerLogicData.
     
-    return can-find(first b-ttTriggerLogicData where b-ttTriggerLogicData.cError > ""). 
+    return can-find(first b-ttTriggerLogicData where b-ttTriggerLogicData.cError > "" and length(b-ttTriggerLogicData.cError) > 0). /* codeQok#7122 */ 
     
   end method. /* _sys_HasErrorText */
   
@@ -108,7 +96,7 @@ class panaedra.msroot.msutil.logic.c_triggerlogicdata:
     
     define buffer b-ttTriggerLogicData for ttTriggerLogicData.
     
-    find first b-ttTriggerLogicData where b-ttTriggerLogicData.cError > "".
+    find first b-ttTriggerLogicData where b-ttTriggerLogicData.cError > "" and length(b-ttTriggerLogicData.cError) > 0. /* codeQok#7122 */
     
     return b-ttTriggerLogicData.cError. 
     
@@ -119,7 +107,7 @@ class panaedra.msroot.msutil.logic.c_triggerlogicdata:
     
     define buffer b-ttTriggerLogicData for ttTriggerLogicData.
     
-    find first b-ttTriggerLogicData where b-ttTriggerLogicData.cError > "".
+    find first b-ttTriggerLogicData where b-ttTriggerLogicData.cError > "" and length(b-ttTriggerLogicData.cError) > 0. /* codeQok#7122 */
     
     return b-ttTriggerLogicData.iError. 
     

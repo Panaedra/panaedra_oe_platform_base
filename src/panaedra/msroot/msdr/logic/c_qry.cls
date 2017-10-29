@@ -9,12 +9,7 @@ using panaedra.msroot.msdr.logic.*.
 
 class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interfaces.i_qry:
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msdr/logic/c_qry.cls $ 
-          Version: $Revision: 21 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-08 08:15:42+01:00 $ 
-    Date Modified: $Modtime: 2010-02-06 16:51:15+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: ABL Query Wrapper Class for strong-typed query handle passing.
                    
@@ -23,11 +18,6 @@ class panaedra.msroot.msdr.logic.c_qry implements panaedra.msroot.msdr.interface
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public c_qry(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 21 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected variable hQueryPrivate       as handle  no-undo.

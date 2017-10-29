@@ -5,12 +5,7 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msdeploy.logic.sc_msdeploy_info: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: Logic layer (client-side) msdeploy info. Will not use sc_msdeploy_[non]live.config.
 
@@ -18,11 +13,6 @@ class panaedra.msroot.msdeploy.logic.sc_msdeploy_info:
 
   {panaedra/msroot/msdeploy/logic/tt/msdeployversion_tt.i &class=class &protected=protected &static=static}
   
-  /************************  Source control constructor ************************/
-  constructor public sc_msdeploy_info(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   /* Exceptions with this error number should trigger a reïnstall */

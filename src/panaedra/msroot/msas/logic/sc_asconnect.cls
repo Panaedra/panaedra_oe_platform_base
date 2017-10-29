@@ -4,22 +4,12 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msas.logic.sc_asconnect implements i_eventbroadcastclient: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msas/logic/sc_asconnect.cls $ 
-          Version: $Revision: 13 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-08-18 11:19:02+02:00 $ 
-    Date Modified: $Modtime: 2010-08-18 11:04:46+02:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Methods to be used client-side as well as server-side for creating an appserver connection server handle.
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_asconnect(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected static variable bInitialized                   as logical                              no-undo.

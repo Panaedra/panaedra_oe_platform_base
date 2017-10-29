@@ -6,26 +6,16 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $  
-    Date Modified: $Modtime:  $
+  /****************************** Source Header ********************************\
 
       Description: Send feedback from monitoring processes to developers/sysadmins/users
 
   \*****************************  Include Files ********************************/
   
-{panaedra/msroot/msmonitor/logic/ds/msmon_feedback_ds.i &class=class &static=static &protected=protected}
+  {panaedra/msroot/msmonitor/logic/ds/msmon_feedback_ds.i &class=class &static=static &protected=protected}
   {panaedra/msroot/msmonitor/logic/tt/msmon_feedbackdef_tt.i &class=class &static=static &protected=protected &ttSuffix=Copy}
-{panaedra/msroot/msutil/logic/ds/msdevip_ds.i &class=class &static=static &protected=protected}
+  {panaedra/msroot/msutil/logic/ds/msdevip_ds.i &class=class &static=static &protected=protected}
   
-  /************************  Source control constructor ************************/
-  constructor public sc_msmon_feedback(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define stream str-in.
@@ -43,14 +33,14 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     oPanaedraError# = new c_panaedraexception(
       99958118,
       sc_lang:oEnglish,
-      substitute("Test error at time: '&1'~nThis is a message.~n The following text 'A test' could be stripped if cMessageFormat=~"commandline~".", now)
+      substitute("Test error at time: '&1'~nThis is a message.~n The following text 'A test' could be stripped if cMessageFormat=~"commandline~".", now) /* codeQok#7222 */
       ).
 
     HandleEvent(
       "MyTestEvent",
       "MyTestMonitorID",
       "At some location...",
-      "This is just a MsMonFeedback test!",  /* Message, if supplied: overrules exception message           */
+      "This is just a MsMonFeedback test!",  /* Message, if supplied: overrules exception message           */ /* codeQok#7222 */
       oPanaedraError#                           /* Optional exception object, to pass callstack and other info */ /* codeQok#7120 */
       ).
       
@@ -105,7 +95,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       oErrorIP#
       ).
       
-  end method. /* HandleEvent ; overload with only exception object and no message string */
+  end method. /* HandleEvent ; overload with only exception object and no message string */ /* codeQok#7222 */
     
       
   method public static logical HandleEvent(
@@ -127,7 +117,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
       oErrorIP#
       ).
       
-  end method. /* HandleEvent ; overload with only exception object and no message string */
+  end method. /* HandleEvent ; overload with only exception object and no message string */ /* codeQok#7222 */
   
 
   method protected static logical HandleEvent_Implement(
@@ -204,11 +194,11 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
     define buffer b-ttMsMonFeedbackDefCopy for ttMsMonFeedbackDefCopy.
     
     
-    /*  (service, part, level, location, message):           */
+    /*  (service, part, level, location, message):           */ /* codeQok#7222 */
     /*  # service = service,dienst,application               */
     /*  # part    = service/application module               */
     /*  # level   = event level: debug/info/warn/error/fatal */
-    /*  # message = description of error condition           */
+    /*  # message = description of error condition           */ /* codeQok#7222 */
     
     do on error undo, throw:
       
@@ -339,7 +329,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         undo, throw new c_panaedraexception(
           99938299,
           sc_lang:oEnglish,
-          substitute("No MsMonFeedbackDef configuration found for event '&1', environment '&2', opsys '&3', hostname '&4', monitor ID '&5', message '&6'", 
+          substitute("No MsMonFeedbackDef configuration found for event '&1', environment '&2', opsys '&3', hostname '&4', monitor ID '&5', message '&6'", /* codeQok#7222 */ 
           (if cSpecialModeIP# = "FAILSAFE" then "FailSafe" else cEventIP#), 
             sc_environment:cEnv, 
             lc(opsys), 
@@ -441,7 +431,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         
           /* Give some feedback, sometimes it's hard to debug on (for example) an appserver session. */
           if sc_environment:bBatchMode then
-            message now "Executing os-command:" cOsCommand#
+            message now "Executing os-command:" cOsCommand# /* codeQok#7222 */
               view-as alert-box.
         
           define variable cLine#    as character no-undo.
@@ -452,7 +442,10 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           /* See: http://stackoverflow.com/questions/682799/what-to-do-with-the-input-line-is-too-long-error-message */
           /* Even this does not work: cOsCommand# = replace(cOsCommand#,"~"", chr(94) /* circonflexe */ + "~"").     */
         
-          define variable cBatFile# as character no-undo.
+          define variable cBatFile#     as character no-undo.
+          define variable iSaveLastkey# as integer   no-undo.
+          
+          if not sc_environment:bBatchMode then iSaveLastkey# = lastkey.
         
           cBatFile# = sc_path:cTempDir + replace(guid,"-",".") + ".bat".
         
@@ -468,8 +461,8 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
             input stream str-in through value(cBatFile#).
             b_command:
             repeat on error undo, throw:
-              import stream str-in unformatted cLine#.
-              message cLine#
+              import stream str-in unformatted cLine#. /* codeQok#7126 */
+              message cLine# /* codeQok#7222 */
                 view-as alert-box.
               catch oError# as Progress.Lang.Error :
                 sc_showexception:ShowExceptionKeepNative(oError#). /* Keep Native: don't go back to msmon_feedback, keep handling native to the session. */
@@ -535,7 +528,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
           
           bCommandError# = true.
           
-          copy-lob file cErrorFile# to cCmdErrors# convert source codepage sc_environment:cCodepageNative.
+          copy-lob file cErrorFile# to cCmdErrors# convert source codepage sc_environment:cCodepageNative. /* codeQok#7133 */
           
           if cCmdErrors# > "" then  /* any errors while giving feedback? */ 
           do:
@@ -549,7 +542,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
                 "FailSafe",    
                 cMonitorIdIP#,
                 cLocationIP#, 
-                subst("&1, original feedback: event=&2 monitorid=&3 location=&4 message=&5", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#),
+                subst("&1, original feedback: event=&2 monitorid=&3 location=&4 message=&5", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#), /* codeQok#7222 */
                 oErrorIP#,
                 "FAILSAFE" /* cSpecialModeIP# */
                 ).
@@ -558,7 +551,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
                 undo, throw new c_panaedraexception(
                   50463301,
                   sc_lang:oEnglish,
-                  subst("MsMonFeedback error (FailSafe error loop): &1, original feedback: event=&2 monitorid=&3 location=&4 message=&5", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#)                  
+                  subst("MsMonFeedback error (FailSafe error loop): &1, original feedback: event=&2 monitorid=&3 location=&4 message=&5", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#) /* codeQok#7222 */                  
                   ).
                   
             end. /* if */    
@@ -566,7 +559,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
               undo, throw new c_panaedraexception(
                 50463302,
                 sc_lang:oEnglish,
-                subst("MsMonFeedback error (FailSafe error loop): &1, original feedback: event=&2 monitorid=&3 location=&4 message=&5", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#)                  
+                subst("MsMonFeedback error (FailSafe error loop): &1, original feedback: event=&2 monitorid=&3 location=&4 message=&5", string(cCmdErrors#), cEventIP#, cMonitorIdIP#, cLocationIP#, cMessageIP#) /* codeQok#7222 */                  
                 ).
             
           end. /* if */    
@@ -581,7 +574,7 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         /* To decide: this does not seem wanted anymore now we have the DevIP route. */
         if session:window-system = "tty" and (not sc_environment:bBatchMode) and (not sc_environment:bLiveEnv) then
         do:
-          /* Put message on screen as wel, makes for better testing */
+          /* Put message on screen as wel, makes for better testing   codeQok#7222 */
         {panaedra/msroot/msutil/logic/sc_messagebox_msg.i
             &condition=TstEnvUiDbg
             &msg=b-ttMsMonFeedbackDefCopy.cMessage}
@@ -589,13 +582,20 @@ class panaedra.msroot.msmonitor.logic.sc_msmon_feedback:
         &endif
         
         finally:
+          
           if not bCommandError# then 
           do:
             if sc_osfile:FileExists(cTempFile#) then
               sc_osfile:DeleteFile(cTempFile#).
           end.
+          
           if valid-object(oTempfileBuilderObject#) then
             delete object oTempfileBuilderObject#.  
+            
+          &if opsys = "win32" &then
+          if not sc_environment:bBatchMode then last-event:set-lastkey(0, iSaveLastkey#).
+          &endif
+          
         end finally.
         
       end. /* if length(cOsCommand#) > 0 or length(b-ttMsMonFeedbackDef.cMessageDispatchObject) > 0 */

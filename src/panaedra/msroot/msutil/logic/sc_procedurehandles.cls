@@ -2,12 +2,7 @@
 
 class panaedra.msroot.msutil.logic.sc_procedurehandles: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_procedurehandles.cls $ 
-          Version: $Revision: 4 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-20 11:51:44+01:00 $ 
-    Date Modified: $Modtime: 2010-02-20 11:24:50+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Support for procedure handles.
                    In Panaedra we use procedure handles only when technically necessary.
@@ -16,11 +11,6 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_procedurehandles(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define protected static temp-table ttClaimProcedure no-undo
@@ -64,13 +54,7 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
     input hSourceProcIP# as handle,                 /* Normally: this-procedure.    */
     input hLibProcIP#    as handle):                /* The library procedure handle */
 
-    /* Procedure voor het netjes afsluiten van
-       persistent procedures (bv. libraries).
-       
-       Laat persistent procedures altijd eerst
-       hun eigen troep opruimen in hun eigen 
-       close event.
-    */ 
+    /* Persistent procedures always need to clean up their own runtime artefacts at close event. */ 
 
     define buffer b-ttClaimProcedure for ttClaimProcedure.
     
@@ -101,8 +85,7 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
       apply "close" to hLibProcIP#.
     
       if valid-handle(hLibProcIP#)
-        /* geen "close" event aanwezig, danwel procedure
-           ruimt zichzelf niet op in het close event */
+        /* no correct "close" event present */
         then delete procedure hLibProcIP#.
     end.  
 
@@ -112,30 +95,23 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
   method public static void ClaimProcedure(input hSourceProcIP# as handle, cLibIP# as handle):
 
     /* 
-         Na het starten van een persistent procedure
-         via persistentProcedure, is het mogelijk
-         deze te "claimen". Wanneer andere procedures
-         een deleteProcedure runnen, wordt een geclaimde
-         procedure toch niet uit de lucht gegooid, totdat
-         de claimende procedure dit zelf doet.
-         Meerdere procedures kunnen een claim uitbrengen,
-         en pas na het wegvallen van de laatste claim
-         zal de procedure daadwerkelijk gekilled worden.
+         After starting a persistent procedure, you
+         can "claim" it. Subsequent procedures trying
+         to deleteProcedure your lib will not be honoured.
+         
+         End result is, that you get control back over your persistent procedure.
+         
+         Only if the last claim is deleted, the procedure handle is deleted.
            
-         Indien ooit een geclaimde procedure toch moet worden 
-         gekilled, maak dan een ip "deleteClaimedProcedure"
-         aan in deze library, en zorg dat de procedure
-         toch weer in de lucht wordt gegooid, met herstel
-         van een eventuele context.
-           
-      */
+    */
+    
     define variable bEclipseFix# as logical no-undo.
     define buffer b-ttClaimProcedure for ttClaimProcedure.
   
     create b-ttClaimProcedure.
     assign
       b-ttClaimProcedure.hCallProc = hSourceProcIP#
-      b-ttClaimProcedure.cCallProc = hSourceProcIP#:file-name /* tbv debug als de proc al weg is */
+      b-ttClaimProcedure.cCallProc = hSourceProcIP#:file-name /* debugging purposes, after delete procedure */
       b-ttClaimProcedure.hPersProc = cLibIP#
       b-ttClaimProcedure.cPersProc = cLibIP#:file-name.
 
@@ -145,30 +121,23 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
   method public static void ClaimProcedure(input oSourceObjectIP# as Progress.Lang.Object, cLibIP# as handle):
 
     /* 
-         Na het starten van een persistent procedure
-         via persistentProcedure, is het mogelijk
-         deze te "claimen". Wanneer andere procedures
-         een deleteProcedure runnen, wordt een geclaimde
-         procedure toch niet uit de lucht gegooid, totdat
-         de claimende procedure dit zelf doet.
-         Meerdere procedures kunnen een claim uitbrengen,
-         en pas na het wegvallen van de laatste claim
-         zal de procedure daadwerkelijk gekilled worden.
+         After starting a persistent procedure, you
+         can "claim" it. Subsequent procedures trying
+         to deleteProcedure your lib will not be honoured.
+         
+         End result is, that you get control back over your persistent procedure.
+         
+         Only if the last claim is deleted, the procedure handle is deleted.
            
-         Indien ooit een geclaimde procedure toch moet worden 
-         gekilled, maak dan een ip "deleteClaimedProcedure"
-         aan in deze library, en zorg dat de procedure
-         toch weer in de lucht wordt gegooid, met herstel
-         van een eventuele context.
-           
-      */
+    */
+    
     define variable bEclipseFix# as logical no-undo.
     define buffer b-ttClaimProcedure for ttClaimProcedure.
   
     create b-ttClaimProcedure.
     assign
       b-ttClaimProcedure.oCallObject = oSourceObjectIP#
-      b-ttClaimProcedure.cCallObject = string(oSourceObjectIP#) /* tbv debug als de proc al weg is */
+      b-ttClaimProcedure.cCallObject = string(oSourceObjectIP#) /* debugging purposes, after delete procedure */
       b-ttClaimProcedure.hPersProc = cLibIP#
       b-ttClaimProcedure.cPersProc = cLibIP#:file-name.
 
@@ -180,12 +149,8 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
     input  cProcIP#       as character, /* The relative path to the library to start */
     output hProcOP#       as handle):   /* The library procedure handle is returned. */
 
-    /* Procedure voor het netjes opstarten van
-       persistent procedures (bv. libraries).
-       Als de procedure binnen de sessie reeds is opgestart, 
-       zal de handle van de draaiende procedure worden 
-       teruggegeven.
-    */ 
+    /* Proper way to start a persistent library procedure. Session cached, re-uses handles. */
+     
     _sys_PersistentProcedureSub(cProcIP#, no, output hProcOP#).
 
   end method. /* PersistentProcedure : called by procedure */
@@ -196,12 +161,8 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
     input  cProcIP#         as character,            /* The relative path to the library to start */
     output hProcOP#         as handle):              /* The library procedure handle is returned. */
 
-    /* Procedure voor het netjes opstarten van
-       persistent procedures (bv. libraries).
-       Als de procedure binnen de sessie reeds is opgestart, 
-       zal de handle van de draaiende procedure worden 
-       teruggegeven.
-    */ 
+    /* Proper way to start a persistent library procedure. Session cached, re-uses handles. */
+    
     _sys_PersistentProcedureSub(cProcIP#, no, output hProcOP#).
 
   end method. /* PersistentProcedure : called by object */
@@ -209,26 +170,10 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
 
   method public static void DeleteProcedureByName(input cProcIP# as character):
 
-    /* Procedure voor het netjes afsluiten van
-     persistent procedures (bv. libraries).
-     
-     Deze procedure kan worden aangeroepen 
-     wanneer je niet weet of de procedure
-     in de lucht is, maar hem wel af wilt
-     sluiten omdat je bijvoorbeeld een
-     database wilt disconnecteren.
-     
-     Laat persistent procedures altijd eerst
-     hun eigen troep opruimen in hun eigen 
-     close event.
-     
-     N.B.: op dit moment kijkt deleteProcedureByName
-     nog niet naar local libraries en/of claims.
-     Dat wordt wellicht nog ingebouwd; bv via een 
-     cs-lijstje met handles die niet mochten worden 
-     opgeruimd, op 1) de return value of
-     2) via een setProp op source-procedure.
-  */ 
+    
+    /* Proper way to delete a persistent library procedure.                                      
+       Persistent procedures always need to clean up their own runtime artefacts at close event. 
+    */
 
     def var hProc#    as handle no-undo.
     def var hProcDel# as handle no-undo.
@@ -254,8 +199,7 @@ class panaedra.msroot.msutil.logic.sc_procedurehandles:
       apply "close" to hProcDel#.
     
       if valid-handle(hProcDel#)
-        /* geen "close" event aanwezig, danwel procedure
-           ruimt zichzelf niet op in het close event */
+        /* no proper close event present */
         then delete procedure hProcDel#.
     end.  
 

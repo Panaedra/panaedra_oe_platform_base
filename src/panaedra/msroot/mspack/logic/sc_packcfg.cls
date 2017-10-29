@@ -8,24 +8,13 @@ using paninui.pack.interfaces.*.
 
 class panaedra.msroot.mspack.logic.sc_packcfg: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: Start runtime configurations (from .config or .xconfig)
 
   \*****************************  Include Files ********************************/
-{paninui/logic/includes/preproc_dotnetclasses.i &class=class}
-{panaedra/msroot/mspack/logic/ds/mspack_ds.i &class=class &protected=protected &static=static &reference-only=reference-only}
-
-  /************************  Source control constructor ************************/
-  constructor public sc_packcfg(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
+  {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
+  {panaedra/msroot/mspack/logic/ds/mspack_ds.i &class=class &protected=protected &static=static &reference-only=reference-only}
   /******************************* $NoKeywords:  $ *****************************/
   
   &if {&paninui_tty} = false &then

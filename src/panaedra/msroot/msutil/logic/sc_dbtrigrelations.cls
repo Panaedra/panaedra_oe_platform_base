@@ -7,25 +7,13 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_dbtrigrelations: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dbtrigrelations.cls $ 
-          Version: $Revision: 4 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-02-14 23:32:42+01:00 $ 
-    Date Modified: $Modtime: 2010-02-14 23:23:34+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Read xml file's *.datarel_xml, for db or temp-table triggers.
                    Data is always cached after first read for fast performance.
 
   \*****************************  Include Files ********************************/
-  
   {panaedra/msroot/msutil/logic/tt/sc_dbtrigrelations_tt.i &class=class &protected=protected &static=static}
-  
-  /************************  Source control constructor ************************/
-  constructor public sc_dbtrigrelations(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 4 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define static buffer b-glob-ttMsdrDbtrigTables    for ttMsdrDbtrigTables.

@@ -8,12 +8,7 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
   inherits
   Progress.Lang.AppError: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: Lightweight exception, normal AppError but support for language indicator.
       
@@ -23,11 +18,6 @@ class panaedra.msroot.msutil.logic.c_panaedraexception
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public c_panaedraexception(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   /* The temp-table b-ttExceptionLine is built in to work around a progress bug in (at least) oe11.0 and earlier.
