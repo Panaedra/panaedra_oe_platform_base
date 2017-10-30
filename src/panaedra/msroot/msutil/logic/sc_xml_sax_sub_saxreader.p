@@ -3,18 +3,11 @@ using panaedra.msroot.msutil.interfaces.*.
 
 {panaedra/msroot/msutil/logic/top_i/ptop_procedure.i}
 
-/******************************  Dvcs_ Header ********************************\
-       Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_xml_sax_sub_saxreader.p $ 
-        Version: $Revision: 1 $ 
-     Programmer: $Author: $ 
-   Date Checkin: $Date: 2010-08-24 12:05:44+02:00 $ 
-  Date Modified: $Modtime: 2010-08-24 12:04:51+02:00 $ 
+/****************************** Source Header ********************************\
 
     Description: Sax reader, sub process of sc_xml_sax class
 
-\**************************** End of Dvcs_ Header ****************************/
-&scop dvcs_proc procedure dvcs__panaedra_msroot_msutil_logic_sc_xml_sax_sub_saxreader_p: return "$Revision: 1 $". end.
-{&dvcs_proc}
+\**************************** End of Source Header ***************************/
 /******************************* $NoKeywords:  $ *****************************/
 
 define variable cLastStartElementPS#    as character no-undo.

@@ -16,22 +16,12 @@ class paninui.logic.logicbase.c_framelogicbase
   i_frmlogic,
   i_scopetableclient: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/logic/logicbase/c_framelogicbase.cls $ 
-          Version: $Revision: 17 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-08-22 15:30:38+02:00 $ 
-    Date Modified: $Modtime: 2010-08-22 14:51:54+02:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Baseclass for frame logic classes.
 
   \*****************************  Include Files ********************************/
   {paninui/logic/includes/preproc_dotnetclasses.i &class=class}
-  /************************  Source control constructor ************************/
-  constructor public c_framelogicbase(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 17 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected        variable i_p_PackID           as int64 no-undo.
@@ -70,7 +60,7 @@ class paninui.logic.logicbase.c_framelogicbase
       iFrmLogicIDProtected = iFrmLogicIDStatic.
     
     &if not {&paninui_tty} &then
-    /* TODO: oUI shortcut support for unix */
+    /* ShouldHave: oUI shortcut support for unix */
     oUI = new paninui.logic.logicbase.c_framelogic_shortcut(this-object).
     &endif
     
@@ -78,6 +68,7 @@ class paninui.logic.logicbase.c_framelogicbase
 
 
   method public void SetPack (oPackIP# as paninui.pack.interfaces.i_pack):
+    
     assign 
       oPack      = oPackIP#
       i_p_PackID = oPackIP#:iPackID.

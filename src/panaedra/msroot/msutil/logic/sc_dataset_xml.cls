@@ -4,22 +4,12 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_dataset_xml: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_dataset_xml.cls $ 
-          Version: $Revision: 5 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-03-31 10:21:37+02:00 $ 
-    Date Modified: $Modtime: 2010-03-31 09:38:21+02:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Functionality to read and write between datasets and xml
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_dataset_xml(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 5 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   constructor protected sc_dataset_xml(

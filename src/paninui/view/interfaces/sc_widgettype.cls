@@ -1,15 +1,10 @@
-{panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 using paninui.view.interfaces.*.
-/*using paninui.view.interfaces.helpers.*.*/
+
+{panaedra/msroot/msutil/logic/top_i/ctop_class.i}
 
 class paninui.view.interfaces.sc_widgettype: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/paninui/view/interfaces/sc_widgettype.cls $ 
-          Version: $Revision: 9 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:13+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: OVID# static class.
       
@@ -21,16 +16,10 @@ class paninui.view.interfaces.sc_widgettype:
                     
                    This construct is more flexible and efficient than enums,
                    plus there's the small fact that enums don't exist in progress.
+                   -> Note 2017Q4: they do now, oe11+.
                    
-        Reference: http://bertnet/_DOC_/doku.php?id=_PRODUCT_:dev:_PRODUCT_:dev:ontwikkelen:dev_panaedra_standaarden#ovid_parameters
-              
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_widgettype(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   define public static property i_Any        as i_widgettype_any        no-undo get.
