@@ -5,22 +5,12 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_data_analysis   : 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_data_analysis.cls $ 
-          Version: $Revision: 13 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:16+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:11+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Analyze contents of a (temp-)table or (temp-)table buffer.
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_data_analysis(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 13 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
 
@@ -58,8 +48,8 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
     cSvExcludeFieldsIP# as character, 
     bTrimIP#            as logical):
 
-    /* ShoudHave: Extra data-types ondersteunen in IsRecordEmpty
-       Nog inbouwen: 
+    /* ShouldHave: Support extra data-types in IsRecordEmpty
+       Summary: 
        - Progress.Lang.Object 
        - com-handle 
        - date 
@@ -73,7 +63,7 @@ class panaedra.msroot.msutil.logic.sc_data_analysis   :
        - blob
        - clob
        - raw 
-       - recid 
+       - recid          codeQok#7127
        - rowid 
     */
     

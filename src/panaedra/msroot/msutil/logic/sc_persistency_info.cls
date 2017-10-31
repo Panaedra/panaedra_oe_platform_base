@@ -5,12 +5,7 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_persistency_info: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/sc_persistency_info.cls $ 
-          Version: $Revision: 9 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-06-22 14:42:04+02:00 $ 
-    Date Modified: $Modtime: 2010-06-22 14:34:31+02:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Uses the session handle to find persistent buffers, procedures, or objects.
                    Very useful for checking if you didn't forget to clean something up.
@@ -19,11 +14,6 @@ class panaedra.msroot.msutil.logic.sc_persistency_info:
   
   {panaedra/msroot/msutil/logic/tt/mspersistencyinfo_tt.i &class=class &protected=protected &static=static}
   
-  /************************  Source control constructor ************************/
-  constructor public sc_persistency_info(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: 9 $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define protected static temp-table ttSourceControl no-undo
@@ -198,8 +188,8 @@ class panaedra.msroot.msutil.logic.sc_persistency_info:
           bShow# = false.
         end. 
       end.
-      if bShow# then message "Open the following file yourself: " cHtmlFile#
-        view-as alert-box.
+      if bShow# then 
+       sc_messagebox:Show(sc_messageboxtype:Simple, substitute("Open the following file yourself: &1", cHtmlFile#)).
     end.
         
     &endif
