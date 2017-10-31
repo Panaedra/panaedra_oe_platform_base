@@ -21,7 +21,7 @@ define {&protected} {&static} temp-table tt{&ttPrefix}Lock{&ttSuffix} {&no-undo}
   field iIDLock         as int64       format "->>>,>>>,>>>,>>9"    initial ? xml-node-type "attribute" help " [private-data] CasedTableName=Lock "  
   field cDb             as character   format "x(4)"
   field iLockId         as int64
-  field rLockRecid      as recid
+  field rLockRecid      as recid       /* codeQok#7127 (ShouldHave: port to rowid, see codeQuality rules) */
   field iLockUsr        as integer
   field iTransactionNum as int64       label "Transaction-Id" format ">>>>>>>>>>>>>>>>9"  /*  codeQok#7103 */
   field cLockName       as character

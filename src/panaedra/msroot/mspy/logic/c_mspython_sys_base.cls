@@ -244,7 +244,7 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
       if clobDataIn = "" or clobDataIn = ? then
         clobDataIn = " ". /* Some data needed (one space), otherwise OE complains about uninitialized memptr */
       set-size(blobDataIn) = 0.
-      copy-lob clobDataIn to blobDataIn. /* Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
+      copy-lob clobDataIn to blobDataIn. /* codeQok#7133 - Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
       iLenBlobDataIn = get-size(blobDataIn).
     end.
     
@@ -258,7 +258,7 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
       clobOutput = get-string(blobOutput, 1, iOutputLen).
       &if false &then
       /* This should be more correct (with convert to cpinternal), but gives the following error: 
-         copy-lob blobOutput starting at 1 for iOutputLen to clobOutput. 
+         copy-lob blobOutput starting at 1 for iOutputLen to clobOutput. (codeQok#7133) 
          gives (OE10.2B04,OE11.2,OE11.2SP01) Cannot copy large object starting at 1 for 17 bytes when object size is 0. (11305)*/
       /* Note on blobOutput : set-size to 0 not needed, memptr lives in python, ABL does not even know the size. */    
       /* New info 2016Q1: set-size to iOutputLen solves it, memptr lives in python, ABL needs to know the size. set-size does not reset the data in this scenario. */    
@@ -305,7 +305,7 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
       if clobDataIn = "" or clobDataIn = ? then
         clobDataIn = " ". /* Some data needed (one space), otherwise OE complains about uninitialized memptr */
       set-size(blobDataIn) = 0.
-      copy-lob clobDataIn to blobDataIn. /* Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
+      copy-lob clobDataIn to blobDataIn. /* codeQok#7133 - Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
       iLenBlobDataIn = get-size(blobDataIn).
     end.
     
@@ -363,7 +363,7 @@ class panaedra.msroot.mspy.logic.c_mspython_sys_base:
       if clobDataIn = "" or clobDataIn = ? then
         clobDataIn = " ". /* Some data needed (one space), otherwise OE complains about uninitialized memptr */
       set-size(blobDataIn) = 0.
-      copy-lob clobDataIn to blobDataIn. /* Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
+      copy-lob clobDataIn to blobDataIn. /* codeQok#7133 - Deep copy needed because direct longchar to shared object has big memleak in OE10.2B and small memleak OE11.2SP01. Progress help recommends copying to memptr, it seems to be a necessity, alas. */
       iLenBlobDataIn = get-size(blobDataIn).
     end.
     

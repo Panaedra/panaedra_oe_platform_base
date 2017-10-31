@@ -17,7 +17,7 @@ class paninui.view.init.display.c_bindingsource
       Description:  Inherit the ABL DataSource. 
                     Solves several problems of the inherited class.
                     
-                    TODO: Move c_bindingsource to logic layer
+                    MustHave: Move c_bindingsource to logic layer
 
   \*****************************  Include Files ********************************/
 
@@ -50,7 +50,7 @@ class paninui.view.init.display.c_bindingsource
     
     &if {&paninui_tty} &then
     &else
-    /* TODO: Don't know the exact effects of the following three settings. */
+    /* WouldHave: Don't know the exact effects of the following three settings. */
     this-object:AutoSort = true.
     this-object:AutoSync = true.
    /*    this-object:Batching = true.*/
@@ -71,7 +71,7 @@ class paninui.view.init.display.c_bindingsource
 
     &if {&paninui_tty} &then
     &else
-    /* TODO: Don't know the exact effects of the following three settings. */
+    /* WouldHave: Don't know the exact effects of the following three settings. */
     this-object:AutoSort = true.
     this-object:AutoSync = true.
 /*    this-object:Batching = true.*/
@@ -81,7 +81,7 @@ class paninui.view.init.display.c_bindingsource
     if (cLocalName = "" or cLocalName = ?)   and hQueryIP#:type = "query" then cLocalName = hQueryIP#:get-buffer-handle(1):name no-error.
     if (cLocalName = "" or cLocalName = ?)  then cLocalName = hQueryIP#:type.
 
-    /* ToDo: cache this search */
+    /* WouldHave: cache this search */
     if search("panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.p") <> ?
       or search("panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.r") <> ?
       then run panaedra/msroot/msutil/logic/sc_eventbroadcaster_loose.p("evt@c_bindingsource@queryopen", "", this-object).
@@ -169,7 +169,7 @@ class paninui.view.init.display.c_bindingsource
     
     &if not {&paninui_tty} &then
 
-    /* TODO: Don't know the exact effects of the following three settings. */
+    /* WouldHave: Don't know the exact effects of the following three settings. */
     this-object:AutoSort = true.
     this-object:AutoSync = true.
     /*    this-object:Batching = true.*/
@@ -185,7 +185,7 @@ class paninui.view.init.display.c_bindingsource
         
       when "query" or 
       when "dataset" then 
-        /* TODO: Check of num-buffers hier op een dataset ook werkt, of dat je top-buffers en data-relations moet gebruiken */
+        /* CouldHave: Check if num-buffers is applicable to dataset handle, else: use top-buffers + data-relations */
         do:
           do iTell# = 1 to hDataObjectIP#:num-buffers:
             cTemp# = GetFieldsNoDataBindingString(hDataObjectIP#:get-buffer-handle(iTell#)).

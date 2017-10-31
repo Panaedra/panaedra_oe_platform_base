@@ -114,7 +114,7 @@ class panaedra.msroot.msutil.logic.sc_win32:
     
     iKeystate# = GetKeyState(VK_CAPITAL).
     
-    /* TODO: should be bit-wise, but will do for now. */
+    /* ShouldHave: should be bit-wise, but will do for now. */
     if iKeystate# >= 1 then bReturn# = true.
     
     return bReturn#.

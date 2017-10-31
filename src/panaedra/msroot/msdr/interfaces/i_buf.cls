@@ -2,12 +2,7 @@
 
 interface panaedra.msroot.msdr.interfaces.i_buf:  
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive: /ont/src/panaedra/msroot/msdr/interfaces/i_buf.cls $ 
-          Version: $Revision: 5 $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date: 2010-01-27 21:10:17+01:00 $ 
-    Date Modified: $Modtime: 2010-01-27 19:30:12+01:00 $ 
+  /****************************** Source Header ********************************\
 
       Description: Interface for a simple class that wraps a single ABL query handle
 
@@ -17,7 +12,7 @@ interface panaedra.msroot.msdr.interfaces.i_buf:
   
   define property hBuffer as handle no-undo get. set.
 
-  define property oBindingSource as 
+  define property oBindingSource as /* codeQok#7106 */
     &if opsys="unix" &then
     /* Unix compatibility isn't complete yet, this is a stub. */
     Progress.Lang.Object

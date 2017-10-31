@@ -1,27 +1,16 @@
-/******************************  Dvcs_ Header ********************************\
-       Filename: $Archive: /ont/src/panaedra/msroot/msutil/logic/tt/sc_dbtrigrelations_tt.i $ 
-        Version: $Revision: 4 $ 
-     Programmer: $Author: $ 
-   Date Checkin: $Date: 2010-02-14 23:32:42+01:00 $ 
-  Date Modified: $Modtime: 2010-02-14 23:15:50+01:00 $ 
+/****************************** Source Header ********************************\
 
-    Description: Temp-table definitions
+    Description: Temp-table definitions + dataset for ttMsdr (main system data relations)
 
-\**************************** End of Dvcs_ Header ****************************/
+\**************************** End of Source Header ***************************/
+
 &if '{&dvcs__panaedra_msd_logic_sc_dbtrigrelations_tt_i}' = '' &then
 &glob dvcs__panaedra_msd_logic_sc_dbtrigrelations_tt_i yes
-&glob sourcecontrolversions {&sourcecontrolversions} | panaedra_msd_logic_sc_dbtrigrelations_tt_i $Revision: 4 $
-&if '{&class}' = '' &then
-procedure dvcs__panaedra_msd_logic_sc_dbtrigrelations_tt_i: 
-  return "$Revision: 4 $". 
-end.
-&endif
+
 /******************************* $NoKeywords:  $ *****************************/
 
-
 &if defined(static) > 0 and defined(reference-only) > 0 &then
-/* Dit wordt in OE10.2A nog niet ondersteund, hopelijk later wel */
-/* Kan helaas niet in include                                    */
+/* OE10.2A limitation */
 &undefine reference-only
 &endif
 
@@ -60,5 +49,6 @@ define {&protected} {&static} temp-table ttPartMsdrDbtrigTables no-undo {&refere
 define {&protected} {&static} temp-table ttPartMsdrDbtrigRelations no-undo {&reference-only} like ttMsdrDbtrigRelations.
 define {&protected} {&static} dataset dsPartDbRelations    {&reference-only} for ttPartTriggerLink, ttPartMsdrDbtrigTables, ttPartMsdrDbtrigRelations.
   
-  
 &endif
+
+/* EOF : panaedra/msroot/msutil/logic/tt/sc_dbtrigrelations_tt.i */

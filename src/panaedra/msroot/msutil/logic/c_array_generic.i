@@ -44,12 +44,12 @@ define protected        variable bUseSecondary                as logical    no-u
 
 define public           variable iAddPosition                 as integer    no-undo.
   
-define public property iExtent as integer 
+define public property iExtent as integer no-undo
   get:
     return GetLastUsedIndex(this-object, bUseSecondary).
   end get.
   
-define public property cDatatype as character 
+define public property cDatatype as character no-undo 
   get:
     return "{&VarType}".
   end get.
