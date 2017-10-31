@@ -4,7 +4,7 @@ class paninui.view.use.analyze.sc_analyzeform:
 
   /****************************** Source Header ********************************\
 
-      Description: Analyze a Form (of WPF window). For example getting the active
+      Description: Analyze a Form (or WPF window). For example getting the active
                    widget.
 
   \*****************************  Include Files ********************************/
@@ -62,7 +62,7 @@ class paninui.view.use.analyze.sc_analyzeform:
     
     return oLocalFocus#.
 
-  end method. /* GetFocusedRecursive ; Forms container control */  
+  end method. /* GetFocusedRecursive ; Forms or WPF container control */  
 
 end class.
 
