@@ -5,22 +5,12 @@ using panaedra.msroot.msutil.interfaces.*.
 
 class panaedra.msroot.msutil.logic.sc_dataset: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: Entry points for generic dataset functionality
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public sc_dataset(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
 
   method public static logical IsDataSetEmpty(
@@ -60,7 +50,7 @@ class panaedra.msroot.msutil.logic.sc_dataset:
     finally:
       /* Parameter cleanup */
       delete object hDatasetOneIP# no-error. /* by-ref/not : no other way than no-error */
-      delete object hDatasetTwoIP# no-error. /* by-ref/not : no other way than no-error */	
+      delete object hDatasetTwoIP# no-error. /* by-ref/not : no other way than no-error */  
     end finally.
     
   end method. /* DatasetCompare */
@@ -132,7 +122,7 @@ class panaedra.msroot.msutil.logic.sc_dataset:
            index(hFieldHandleIP#:help,"[~{~&cAttr~}]") > 0)) ~
        then do: ~
          if not can-do("data-type,format", cAttrIP#) ~
-           and hFieldHandleIP#:~{~&cAttr~} > "" ~
+           and hFieldHandleIP#:~{~&cAttr~} > "" /* codeQok#7122 */ ~
            and not (can-do("label,column-label",cAttrIP#) ~
                     and hFieldHandleIP#:~{~&cAttr~} = hFieldHandleIP#:name) ~
            then cReturn# = hFieldHandleIP#:~{~&cAttr~}. ~
@@ -194,13 +184,13 @@ class panaedra.msroot.msutil.logic.sc_dataset:
   
     if not valid-handle(hQueryIP#) or not valid-handle(hBuffIP#) then 
     do:
-      message program-name(1) skip program-name(2) skip "Error: Incorrect use of this method." view-as alert-box.
+      sc_messagebox:Show(sc_messageboxtype:AsAlertbox, substitute("&1~n&2~nError: Incorrect use of this method.",program-name(1),program-name(2))).
       return error.
     end.
   
     if not hBuffIP#:available then 
     do:
-      message program-name(1) "Error: The buffer has to be available." view-as alert-box.
+      sc_messagebox:Show(sc_messageboxtype:AsAlertbox, substitute("&1 Error: The buffer has to be available.",program-name(1))).
       return.
     end.
     do iTell# = 1 to hBuffIP#:num-fields:

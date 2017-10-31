@@ -6,12 +6,7 @@ using panaedra.msroot.msas.logic.*.
 
 class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_concurrentclient_base: 
 
-  /******************************  Dvcs_ Header ********************************\
-         Filename: $Archive:  $ 
-          Version: $Revision:  $ 
-       Programmer: $Author: $ 
-     Date Checkin: $Date:  $ 
-    Date Modified: $Modtime:  $ 
+  /****************************** Source Header ********************************\
 
       Description: For unit tests: Do CRUD actions on records of a table (in another session).
                    
@@ -47,11 +42,6 @@ class panaedra.msroot.msutil.logic.c_unittest_crudclient inherits c_unittest_con
 
   \*****************************  Include Files ********************************/
 
-  /************************  Source control constructor ************************/
-  constructor public c_unittest_crudclient(o-sourcecontrol as panaedra.msroot.msv.logic.c_sourcecontrol, o-inheritant as Progress.Lang.Object):
-    /* Uncomment when inheriting: super(o-sourcecontrol, this-object).*/
-    panaedra.msroot.msv.logic.c_sourcecontrol:Construct_SRVR_ll(o-sourcecontrol, this-object, o-inheritant, '$Revision: $', '{&sourcecontrolversions}').
-  end constructor.
   /******************************* $NoKeywords:  $ *****************************/
   
   define property cLdbname as character no-undo
