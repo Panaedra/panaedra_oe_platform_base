@@ -647,6 +647,18 @@ class panaedra.msroot.msutil.logic.sc_datetime_logic:
   
   method public static integer WeekNumber(
   
+    input  dtDateIP as date
+    ):
+    
+    define variable iDummy# as integer no-undo.
+    
+    return WeekNumber(dtDateIP, output iDummy#, output iDummy#).     
+      
+  end method. /* WeekNumber */
+  
+    
+  method public static integer WeekNumber(
+  
     input  dtDateIP             as date,
     output iYearOfWeekNumberOP# as integer
     ):
