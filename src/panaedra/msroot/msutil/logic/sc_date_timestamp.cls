@@ -233,7 +233,6 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
   end method. /* GetDateTimeAsStringYYYYMMDDHHMM */
   
   
-  
   method public static character GetDateTimeAsStringYYYYMMDD_HH_FCMPNY_S(cDateTimeSeparatorIP# as character):
   
     /* Get the current date time in the order of year, month, day, hour and minute as YYYYMMDD__HH_FCMPNY_S */
@@ -258,17 +257,15 @@ class panaedra.msroot.msutil.logic.sc_date_timestamp   :
       cMinute#   = substring(cDateTime#,15,2)
       cSecond#   = substring(cDateTime#,18,2).
 
-    /* return the datetime variable elements into a string in the shape of YYYYMMDDHHMM 
-       for example 27/06/2014 15:58:33,072 results in the character string output 201406271558  */  
+    /* Return the datetime variable elements into a string in the shape of YYYYMMDDHH_FCMPNY_S.
+       A separator between YYYYMMDD and HH_FCMPNY_S is optional.
+       For example without separator: 27/06/2014 15:58:33,072 results in the character string output 20140627155833  
+       For example with separator '_': 27/06/2014 15:58:33,072 results in the character string output 20140627_155833 */  
     return substitute("&1&2&3&7&4&5&6", cYear#, cMonth#, cDay#, cHour#, cMinute#, cSecond#, cDateTimeSeparatorIP#).    
   
-  end method. /* GetDateTimeAsStringYYYYMMDDHHMM */
-  
-  
-  
-  
-  
-  
+  end method. /* GetDateTimeAsStringYYYYMMDD_HH_FCMPNY_S */
+
+
   method public static character GetTimeAsStringHH_FCMPNY_S():
   
     /* Get the current time in the order of hour, minute and seconds as HH_FCMPNY_S */
