@@ -1500,7 +1500,7 @@ class paninui.view.use.sc_coll_eventdata
     oArgs#         as System.EventArgs):
 
     if cWidgetNameIP# = "MdiMaster" then
-      oSender# = paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow.
+      oSender# = cast(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow,System.Object).
     
     oSingleton:OnEventArgsHandler_KeyPress(oSender#, oArgs#).
       
@@ -1513,7 +1513,7 @@ class paninui.view.use.sc_coll_eventdata
     oArgs#         as System.EventArgs):
       
     if cWidgetNameIP# = "MdiMaster" then
-      oSender# = paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow.
+      oSender# = cast(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow,System.Object).
     
     oSingleton:OnEventArgsHandler_KeyDown(oSender#, oArgs#).
       
@@ -1526,7 +1526,7 @@ class paninui.view.use.sc_coll_eventdata
     oArgs#         as System.EventArgs):
 
     if cWidgetNameIP# = "MdiMaster" then
-      oSender# = paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow.
+      oSender# = cast(paninui.view.init.events.sc_sgt_masterwindow_eventhandler:oMdiWindow,System.Object).
     
     oSingleton:OnEventArgsHandler_KeyUp(oSender#, oArgs#).
       
